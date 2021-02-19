@@ -92,11 +92,11 @@ public class EntandoCompositeAppController extends AbstractDbAwareController&lt;
 <span class="fc bfc" id="L92" title="All 2 branches covered.">            if (PodResult.of(pod).hasFailed()) {</span>
 <span class="fc" id="L93">                String message = logFailure(resource);</span>
 <span class="fc" id="L94">                throw new EntandoControllerException(message);</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            } else if (EntandoOperatorConfig.garbageCollectSuccessfullyCompletedPods()) {</span>
-<span class="nc" id="L96">                getClient().pods()</span>
-<span class="nc" id="L97">                        .removeSuccessfullyCompletedPods(namespace, Map.of(KubeUtils.ENTANDO_RESOURCE_KIND_LABEL_NAME, resource.getKind(),</span>
-<span class="nc" id="L98">                                KubeUtils.ENTANDO_RESOURCE_NAMESPACE_LABEL_NAME, resource.getMetadata().getNamespace(),</span>
-<span class="nc" id="L99">                                resource.getKind(), resource.getMetadata().getName()));</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            } else if (EntandoOperatorConfig.garbageCollectSuccessfullyCompletedPods()) {</span>
+<span class="fc" id="L96">                getClient().pods()</span>
+<span class="fc" id="L97">                        .removeSuccessfullyCompletedPods(namespace, Map.of(KubeUtils.ENTANDO_RESOURCE_KIND_LABEL_NAME, resource.getKind(),</span>
+<span class="fc" id="L98">                                KubeUtils.ENTANDO_RESOURCE_NAMESPACE_LABEL_NAME, resource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L99">                                resource.getKind(), resource.getMetadata().getName()));</span>
             }
 <span class="fc" id="L101">        }</span>
 <span class="fc" id="L102">    }</span>
