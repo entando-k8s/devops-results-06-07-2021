@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SMTPServerConfigurationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: Email Sender</a> &gt; <a href="index.source.html" class="el_package">org.entando.entando.plugins.jpmail.web</a> &gt; <span class="el_source">SMTPServerConfigurationController.java</span></div><h1>SMTPServerConfigurationController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package org.entando.entando.plugins.jpmail.web;
+
+import com.agiletec.aps.system.services.role.Permission;
+import com.agiletec.aps.system.services.user.UserDetails;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
+import org.entando.entando.plugins.jpmail.ent.system.services.SMTPServerConfigurationService;
+import org.entando.entando.plugins.jpmail.ent.system.services.model.SMTPServerConfigurationDto;
+import org.entando.entando.plugins.jpmail.web.validator.SMTPServerConfigurationValidator;
+import org.entando.entando.web.common.annotation.RestAccessControl;
+import org.entando.entando.web.common.exceptions.ValidationGenericException;
+import org.entando.entando.web.common.model.SimpleRestResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+@Api(tags = {&quot;smtp-server-configuration-controller&quot;})
+@RequestMapping(value = &quot;/plugins/emailSettings/SMTPServer&quot;)
+<span class="fc" id="L44">public class SMTPServerConfigurationController {</span>
+
+<span class="fc" id="L46">    private final EntLogger logger = EntLogFactory.getSanitizedLogger(getClass());</span>
+
+    @Autowired
+    private SMTPServerConfigurationService smtpServerConfigurationService;
+
+    @Autowired
+    private SMTPServerConfigurationValidator smtpServerConfigurationValidator;
+
+    @ApiOperation(&quot;Get the SMTP Server Configuration&quot;)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = &quot;OK&quot;),
+            @ApiResponse(code = 401, message = &quot;Unauthorized&quot;),
+            @ApiResponse(code = 403, message = &quot;Forbidden&quot;),
+    })
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @RestAccessControl(permission = Permission.SUPERUSER)
+    public ResponseEntity&lt;SimpleRestResponse&lt;SMTPServerConfigurationDto&gt;&gt; getSMTPServerConfiguration() {
+<span class="fc" id="L63">        logger.debug(&quot;Get SMTP Server Configuration&quot;);</span>
+
+<span class="fc" id="L65">        SMTPServerConfigurationDto response =  smtpServerConfigurationService.getSMTPServerConfiguration();</span>
+<span class="fc" id="L66">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+    }
+
+    @ApiOperation(&quot;Update the SMTP server configuration&quot;)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = &quot;OK&quot;),
+            @ApiResponse(code = 401, message = &quot;Unauthorized&quot;),
+            @ApiResponse(code = 403, message = &quot;Forbidden&quot;),
+    })
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @RestAccessControl(permission = Permission.SUPERUSER)
+    public ResponseEntity&lt;SimpleRestResponse&lt;SMTPServerConfigurationDto&gt;&gt; updateSMTPServer(@Valid @RequestBody SMTPServerConfigurationDto smtpServerConfiguration,
+                                                                                           BindingResult bindingResult) {
+<span class="fc" id="L79">        logger.debug(&quot;Update SMTP Server Configuration&quot;);</span>
+
+<span class="fc" id="L81">        smtpServerConfigurationValidator.validateProtocol(smtpServerConfiguration.getProtocol(), bindingResult);</span>
+
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L84">            throw new ValidationGenericException(bindingResult);</span>
+        }
+
+<span class="fc" id="L87">        SMTPServerConfigurationDto response = smtpServerConfigurationService.updateSMTPServerConfiguration(smtpServerConfiguration);</span>
+<span class="fc" id="L88">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+    }
+
+    @ApiOperation(&quot;Send a test email to the logged user to check if the SMTP Configuration is correct&quot;)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = &quot;OK&quot;),
+            @ApiResponse(code = 404, message = &quot;Not Found&quot;),
+            @ApiResponse(code = 409, message = &quot;Conflict&quot;)
+    })
+    @PostMapping(value = &quot;/sendTestEmail&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RestAccessControl(permission = Permission.SUPERUSER)
+    public ResponseEntity&lt;SimpleRestResponse&lt;Map&gt;&gt; sendTestEmail(@ModelAttribute(&quot;user&quot;) UserDetails user,
+                                                                 BindingResult bindingResult) {
+<span class="nc" id="L101">        logger.debug(&quot;Send Test Email&quot;);</span>
+        HttpStatus status;
+
+<span class="nc" id="L104">        smtpServerConfigurationValidator.validateUserEmail(user, bindingResult);</span>
+<span class="nc" id="L105">        smtpServerConfigurationValidator.validateSenderList(bindingResult);</span>
+
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L108">            throw new ValidationGenericException(bindingResult);</span>
+        }
+
+<span class="nc" id="L111">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L112">        final boolean emailTestSent = smtpServerConfigurationService.sendEmailTest(user);</span>
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (emailTestSent) {</span>
+<span class="nc" id="L115">            response.put(&quot;status&quot;, &quot;OK&quot;);</span>
+<span class="nc" id="L116">            status = HttpStatus.OK;</span>
+        } else {
+<span class="nc" id="L118">            response.put(&quot;status&quot;, &quot;Conflict&quot;);</span>
+<span class="nc" id="L119">            status = HttpStatus.CONFLICT;</span>
+        }
+
+<span class="nc" id="L122">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), status);</span>
+    }
+
+
+    @ApiOperation(&quot;Test if the SMTP Configuration is correct&quot;)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = &quot;OK&quot;),
+            @ApiResponse(code = 404, message = &quot;Not Found&quot;),
+            @ApiResponse(code = 409, message = &quot;Conflict&quot;)
+    })
+    @PostMapping(value = &quot;/testConfiguration&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RestAccessControl(permission = Permission.SUPERUSER)
+    public ResponseEntity&lt;SimpleRestResponse&lt;Map&gt;&gt; testSMTPConfiguration(@Valid @RequestBody SMTPServerConfigurationDto smtpServerConfiguration,
+                                                                         BindingResult bindingResult) {
+<span class="nc" id="L136">        logger.debug(&quot;Test SMTP Server Configuration&quot;);</span>
+<span class="nc" id="L137">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
+        HttpStatus status;
+
+<span class="nc" id="L140">        smtpServerConfigurationValidator.validateProtocol(smtpServerConfiguration.getProtocol(), bindingResult);</span>
+
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L143">            throw new ValidationGenericException(bindingResult);</span>
+        }
+
+<span class="nc" id="L146">        final boolean emailTestSent = smtpServerConfigurationService.testSMTPConfiguration(smtpServerConfiguration);</span>
+
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (emailTestSent) {</span>
+<span class="nc" id="L149">            response.put(&quot;status&quot;, &quot;OK&quot;);</span>
+<span class="nc" id="L150">            status = HttpStatus.OK;</span>
+        } else {
+<span class="nc" id="L152">            response.put(&quot;status&quot;, &quot;Conflict&quot;);</span>
+<span class="nc" id="L153">            status = HttpStatus.CONFLICT;</span>
+        }
+<span class="nc" id="L155">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), status);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

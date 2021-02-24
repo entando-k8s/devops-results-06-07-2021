@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmailSenderValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: Email Sender</a> &gt; <a href="index.source.html" class="el_package">org.entando.entando.plugins.jpmail.web.validator</a> &gt; <span class="el_source">EmailSenderValidator.java</span></div><h1>EmailSenderValidator.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package org.entando.entando.plugins.jpmail.web.validator;
+
+import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
+import com.agiletec.plugins.jpmail.aps.services.mail.MailConfig;
+import org.entando.entando.ent.exception.EntException;
+import org.entando.entando.plugins.jpmail.ent.system.services.model.EmailSenderDto;
+import org.entando.entando.web.common.validator.AbstractPaginationValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+
+@Component
+<span class="fc" id="L26">public class EmailSenderValidator extends AbstractPaginationValidator {</span>
+
+    public static final String ERRCODE_SENDER_NOT_FOUND = &quot;1&quot;;
+    private static final String ERRCODE_SENDER_NOT_VALID = &quot;2&quot;;
+    private static final String ERRCODE_SENDER_ALREADY_EXIST = &quot;3&quot;;
+
+    @Autowired
+    private IMailManager emailConfigManager;
+
+    @Override
+    public boolean supports(Class&lt;?&gt; paramClass) {
+<span class="nc" id="L37">        return EmailSenderDto.class.equals(paramClass);</span>
+    }
+
+    @Override
+    public void validate(Object target, Errors errors) {
+<span class="nc" id="L42">    }</span>
+
+    public void validateSenderExists(final String senderCode, Errors errors) {
+        try {
+<span class="fc" id="L46">            System.out.println(&quot;validateSenderExists&quot;);</span>
+<span class="fc" id="L47">            final MailConfig config = emailConfigManager.getMailConfig();</span>
+<span class="fc" id="L48">            System.out.println(&quot;config: &quot;+config);</span>
+<span class="fc" id="L49">            System.out.println(&quot;senderCode: &quot;+senderCode);</span>
+<span class="fc" id="L50">            System.out.println(&quot;config.getSender(senderCode): &quot;+config.getSender(senderCode));</span>
+
+<span class="pc bpc" id="L52" title="2 of 4 branches missed.">            if (null == senderCode || null == config.getSender(senderCode)) {</span>
+<span class="nc" id="L53">                System.out.println(&quot;ERRCODE_SENDER_NOT_FOUND: &quot;+ERRCODE_SENDER_NOT_FOUND);</span>
+<span class="nc" id="L54">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_FOUND, new String[]{senderCode}, &quot;error.config.sender.notExists&quot;);</span>
+            }
+<span class="nc" id="L56">        } catch (EntException e) {</span>
+<span class="nc" id="L57">            e.printStackTrace();</span>
+<span class="fc" id="L58">        }</span>
+<span class="fc" id="L59">    }</span>
+
+    public void validateSenderNotExists(final String senderCode, Errors errors) {
+        try {
+<span class="fc" id="L63">            final MailConfig config = emailConfigManager.getMailConfig();</span>
+<span class="pc bpc" id="L64" title="1 of 4 branches missed.">            if (null == senderCode || null != config.getSender(senderCode))  {</span>
+<span class="fc" id="L65">                System.out.println(&quot;ERRCODE_SENDER_ALREADY_EXIST: &quot;+ERRCODE_SENDER_ALREADY_EXIST);</span>
+<span class="fc" id="L66">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_ALREADY_EXIST, new String[]{senderCode}, &quot;error.config.sender.alreadyExists&quot;);</span>
+            }
+<span class="nc" id="L68">        } catch (EntException e) {</span>
+<span class="nc" id="L69">            e.printStackTrace();</span>
+<span class="fc" id="L70">        }</span>
+<span class="fc" id="L71">    }</span>
+    public void validateSenderCode(String senderCode, String senderCodePayload, Errors errors) {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (!senderCode.equals(senderCodePayload)) {</span>
+<span class="nc" id="L74">            errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_VALID, new String[]{senderCode}, &quot;error.config.sender.invalid&quot;);</span>
+        }
+<span class="fc" id="L76">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
