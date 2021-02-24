@@ -35,10 +35,9 @@ import java.util.Map;
 
     public static final String ERRCODE_INVALID_PROTOCOL = &quot;1&quot;;
     private static final String ERRCODE_INVALID_EMAIL = &quot;2&quot;;
-    private static final String ERRCODE_INVALID_SENDER_LIST = &quot;3&quot;;
-    private static final String ERRCODE_EMPTY_SENDER_LIST = &quot;4&quot;;
-    private static final String ERRCODE_READING_CONFIG = &quot;5&quot;;
-    private static final String ERRCODE_READING_USER_PROFILE = &quot;6&quot;;
+    private static final String ERRCODE_EMPTY_SENDER_LIST = &quot;3&quot;;
+    private static final String ERRCODE_READING_CONFIG = &quot;4&quot;;
+    private static final String ERRCODE_READING_USER_PROFILE = &quot;5&quot;;
 
     @Autowired
     private SMTPServerConfigurationService smtpServerConfigurationService;
@@ -51,49 +50,49 @@ import java.util.Map;
 
     @Override
     public boolean supports(Class&lt;?&gt; paramClass) {
-<span class="nc" id="L54">        return SMTPServerConfigurationDto.class.equals(paramClass);</span>
+<span class="nc" id="L53">        return SMTPServerConfigurationDto.class.equals(paramClass);</span>
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-
-<span class="nc" id="L60">    }</span>
+        // Do nothing
+<span class="nc" id="L59">    }</span>
 
     public void validateProtocol(final String protocol, Errors errors) {
-<span class="fc" id="L63">        List&lt;String&gt; validProtocols = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L64">        validProtocols.add(&quot;TLS&quot;);</span>
-<span class="fc" id="L65">        validProtocols.add(&quot;SSL&quot;);</span>
-<span class="fc" id="L66">        validProtocols.add(&quot;STD&quot;);</span>
-<span class="pc bpc" id="L67" title="2 of 4 branches missed.">        if ((null == protocol) || (!validProtocols.contains(protocol))) {</span>
-<span class="nc" id="L68">            errors.rejectValue(&quot;protocol&quot;, ERRCODE_INVALID_PROTOCOL, new String[]{protocol}, &quot;error.smtpServerConfig.protocol.invalid&quot;);</span>
+<span class="fc" id="L62">        List&lt;String&gt; validProtocols = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L63">        validProtocols.add(&quot;TLS&quot;);</span>
+<span class="fc" id="L64">        validProtocols.add(&quot;SSL&quot;);</span>
+<span class="fc" id="L65">        validProtocols.add(&quot;STD&quot;);</span>
+<span class="pc bpc" id="L66" title="2 of 4 branches missed.">        if ((null == protocol) || (!validProtocols.contains(protocol))) {</span>
+<span class="nc" id="L67">            errors.rejectValue(&quot;protocol&quot;, ERRCODE_INVALID_PROTOCOL, new String[]{protocol}, &quot;error.smtpServerConfig.protocol.invalid&quot;);</span>
         }
-<span class="fc" id="L70">    }</span>
+<span class="fc" id="L69">    }</span>
 
     public void validateUserEmail(UserDetails user, Errors errors) {
-<span class="nc" id="L73">        UserProfile userProfile = null;</span>
+<span class="nc" id="L72">        UserProfile userProfile = null;</span>
         try {
-<span class="nc" id="L75">            userProfile = (UserProfile) userProfileManager.getProfile(user.getUsername());</span>
+<span class="nc" id="L74">            userProfile = (UserProfile) userProfileManager.getProfile(user.getUsername());</span>
 
-<span class="nc" id="L77">        } catch (EntException | EntRuntimeException e) {</span>
-<span class="nc" id="L78">            errors.rejectValue(&quot;username&quot;, ERRCODE_READING_USER_PROFILE, new String[]{}, &quot;error.smtpServerConfig.readingProfile&quot;);</span>
-<span class="nc" id="L79">        }</span>
+<span class="nc" id="L76">        } catch (EntException | EntRuntimeException e) {</span>
+<span class="nc" id="L77">            errors.rejectValue(&quot;username&quot;, ERRCODE_READING_USER_PROFILE, new String[]{}, &quot;error.smtpServerConfig.readingProfile&quot;);</span>
+<span class="nc" id="L78">        }</span>
 
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (!smtpServerConfigurationService.hasEmailCurrentUser(userProfile)) {</span>
-<span class="nc" id="L82">            errors.rejectValue(&quot;username&quot;, ERRCODE_INVALID_EMAIL, new String[]{user.getUsername()}, &quot;error.smtpServerConfig.invalidEmail&quot;);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (!smtpServerConfigurationService.hasEmailCurrentUser(userProfile)) {</span>
+<span class="nc" id="L81">            errors.rejectValue(&quot;username&quot;, ERRCODE_INVALID_EMAIL, new String[]{user.getUsername()}, &quot;error.smtpServerConfig.invalidEmail&quot;);</span>
         }
-<span class="nc" id="L84">    }</span>
+<span class="nc" id="L83">    }</span>
 
     public void validateSenderList(Errors errors) {
         try {
-<span class="nc" id="L88">            Map&lt;String, String&gt; senders = emailSenderManager.getMailConfig().getSenders();</span>
+<span class="nc" id="L87">            Map&lt;String, String&gt; senders = emailSenderManager.getMailConfig().getSenders();</span>
 
-<span class="nc bnc" id="L90" title="All 4 branches missed.">            if ((senders==null) || (senders.size()==0)){</span>
-<span class="nc" id="L91">                errors.rejectValue(&quot;name&quot;, ERRCODE_EMPTY_SENDER_LIST, new String[]{}, &quot;error.smtpServerConfig.emptySenderList&quot;);</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">            if ((senders==null) || (senders.size()==0)){</span>
+<span class="nc" id="L90">                errors.rejectValue(&quot;name&quot;, ERRCODE_EMPTY_SENDER_LIST, new String[]{}, &quot;error.smtpServerConfig.emptySenderList&quot;);</span>
             }
-<span class="nc" id="L93">        } catch (EntException e) {</span>
-<span class="nc" id="L94">            errors.rejectValue(&quot;code&quot;, ERRCODE_READING_CONFIG, new String[]{}, &quot;error.smtpServerConfig.readingConfig&quot;);</span>
-<span class="nc" id="L95">        }</span>
+<span class="nc" id="L92">        } catch (EntException e) {</span>
+<span class="nc" id="L93">            errors.rejectValue(&quot;code&quot;, ERRCODE_READING_CONFIG, new String[]{}, &quot;error.smtpServerConfig.readingConfig&quot;);</span>
+<span class="nc" id="L94">        }</span>
 
-<span class="nc" id="L97">    }</span>
+<span class="nc" id="L96">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

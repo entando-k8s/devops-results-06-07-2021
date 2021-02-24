@@ -44,12 +44,14 @@ import java.util.Map;
 <span class="fc" id="L44">public class SMTPServerConfigurationController {</span>
 
 <span class="fc" id="L46">    private final EntLogger logger = EntLogFactory.getSanitizedLogger(getClass());</span>
+    private static final String STATUS = &quot;status&quot;;
 
     @Autowired
     private SMTPServerConfigurationService smtpServerConfigurationService;
 
     @Autowired
     private SMTPServerConfigurationValidator smtpServerConfigurationValidator;
+
 
     @ApiOperation(&quot;Get the SMTP Server Configuration&quot;)
     @ApiResponses({
@@ -60,10 +62,10 @@ import java.util.Map;
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @RestAccessControl(permission = Permission.SUPERUSER)
     public ResponseEntity&lt;SimpleRestResponse&lt;SMTPServerConfigurationDto&gt;&gt; getSMTPServerConfiguration() {
-<span class="fc" id="L63">        logger.debug(&quot;Get SMTP Server Configuration&quot;);</span>
+<span class="fc" id="L65">        logger.debug(&quot;Get SMTP Server Configuration&quot;);</span>
 
-<span class="fc" id="L65">        SMTPServerConfigurationDto response =  smtpServerConfigurationService.getSMTPServerConfiguration();</span>
-<span class="fc" id="L66">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L67">        SMTPServerConfigurationDto response =  smtpServerConfigurationService.getSMTPServerConfiguration();</span>
+<span class="fc" id="L68">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
     @ApiOperation(&quot;Update the SMTP server configuration&quot;)
@@ -76,16 +78,16 @@ import java.util.Map;
     @RestAccessControl(permission = Permission.SUPERUSER)
     public ResponseEntity&lt;SimpleRestResponse&lt;SMTPServerConfigurationDto&gt;&gt; updateSMTPServer(@Valid @RequestBody SMTPServerConfigurationDto smtpServerConfiguration,
                                                                                            BindingResult bindingResult) {
-<span class="fc" id="L79">        logger.debug(&quot;Update SMTP Server Configuration&quot;);</span>
+<span class="fc" id="L81">        logger.debug(&quot;Update SMTP Server Configuration&quot;);</span>
 
-<span class="fc" id="L81">        smtpServerConfigurationValidator.validateProtocol(smtpServerConfiguration.getProtocol(), bindingResult);</span>
+<span class="fc" id="L83">        smtpServerConfigurationValidator.validateProtocol(smtpServerConfiguration.getProtocol(), bindingResult);</span>
 
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L84">            throw new ValidationGenericException(bindingResult);</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L86">            throw new ValidationGenericException(bindingResult);</span>
         }
 
-<span class="fc" id="L87">        SMTPServerConfigurationDto response = smtpServerConfigurationService.updateSMTPServerConfiguration(smtpServerConfiguration);</span>
-<span class="fc" id="L88">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L89">        SMTPServerConfigurationDto response = smtpServerConfigurationService.updateSMTPServerConfiguration(smtpServerConfiguration);</span>
+<span class="fc" id="L90">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
     @ApiOperation(&quot;Send a test email to the logged user to check if the SMTP Configuration is correct&quot;)
@@ -96,30 +98,30 @@ import java.util.Map;
     })
     @PostMapping(value = &quot;/sendTestEmail&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     @RestAccessControl(permission = Permission.SUPERUSER)
-    public ResponseEntity&lt;SimpleRestResponse&lt;Map&gt;&gt; sendTestEmail(@ModelAttribute(&quot;user&quot;) UserDetails user,
+    public ResponseEntity&lt;SimpleRestResponse&lt;Map&lt;String,String&gt;&gt;&gt; sendTestEmail(@ModelAttribute(&quot;user&quot;) UserDetails user,
                                                                  BindingResult bindingResult) {
-<span class="nc" id="L101">        logger.debug(&quot;Send Test Email&quot;);</span>
+<span class="nc" id="L103">        logger.debug(&quot;Send Test Email&quot;);</span>
         HttpStatus status;
 
-<span class="nc" id="L104">        smtpServerConfigurationValidator.validateUserEmail(user, bindingResult);</span>
-<span class="nc" id="L105">        smtpServerConfigurationValidator.validateSenderList(bindingResult);</span>
+<span class="nc" id="L106">        smtpServerConfigurationValidator.validateUserEmail(user, bindingResult);</span>
+<span class="nc" id="L107">        smtpServerConfigurationValidator.validateSenderList(bindingResult);</span>
 
-<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L108">            throw new ValidationGenericException(bindingResult);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L110">            throw new ValidationGenericException(bindingResult);</span>
         }
 
-<span class="nc" id="L111">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L112">        final boolean emailTestSent = smtpServerConfigurationService.sendEmailTest(user);</span>
+<span class="nc" id="L113">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L114">        final boolean emailTestSent = smtpServerConfigurationService.sendEmailTest(user);</span>
 
-<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (emailTestSent) {</span>
-<span class="nc" id="L115">            response.put(&quot;status&quot;, &quot;OK&quot;);</span>
-<span class="nc" id="L116">            status = HttpStatus.OK;</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (emailTestSent) {</span>
+<span class="nc" id="L117">            response.put(STATUS, HttpStatus.OK.toString());</span>
+<span class="nc" id="L118">            status = HttpStatus.OK;</span>
         } else {
-<span class="nc" id="L118">            response.put(&quot;status&quot;, &quot;Conflict&quot;);</span>
-<span class="nc" id="L119">            status = HttpStatus.CONFLICT;</span>
+<span class="nc" id="L120">            response.put(STATUS, HttpStatus.CONFLICT.toString());</span>
+<span class="nc" id="L121">            status = HttpStatus.CONFLICT;</span>
         }
 
-<span class="nc" id="L122">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), status);</span>
+<span class="nc" id="L124">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), status);</span>
     }
 
 
@@ -131,28 +133,28 @@ import java.util.Map;
     })
     @PostMapping(value = &quot;/testConfiguration&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     @RestAccessControl(permission = Permission.SUPERUSER)
-    public ResponseEntity&lt;SimpleRestResponse&lt;Map&gt;&gt; testSMTPConfiguration(@Valid @RequestBody SMTPServerConfigurationDto smtpServerConfiguration,
+    public ResponseEntity&lt;SimpleRestResponse&lt;Map&lt;String,String&gt;&gt;&gt; testSMTPConfiguration(@Valid @RequestBody SMTPServerConfigurationDto smtpServerConfiguration,
                                                                          BindingResult bindingResult) {
-<span class="nc" id="L136">        logger.debug(&quot;Test SMTP Server Configuration&quot;);</span>
-<span class="nc" id="L137">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L138">        logger.debug(&quot;Test SMTP Server Configuration&quot;);</span>
+<span class="nc" id="L139">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
         HttpStatus status;
 
-<span class="nc" id="L140">        smtpServerConfigurationValidator.validateProtocol(smtpServerConfiguration.getProtocol(), bindingResult);</span>
+<span class="nc" id="L142">        smtpServerConfigurationValidator.validateProtocol(smtpServerConfiguration.getProtocol(), bindingResult);</span>
 
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L143">            throw new ValidationGenericException(bindingResult);</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L145">            throw new ValidationGenericException(bindingResult);</span>
         }
 
-<span class="nc" id="L146">        final boolean emailTestSent = smtpServerConfigurationService.testSMTPConfiguration(smtpServerConfiguration);</span>
+<span class="nc" id="L148">        final boolean emailTestSent = smtpServerConfigurationService.testSMTPConfiguration(smtpServerConfiguration);</span>
 
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (emailTestSent) {</span>
-<span class="nc" id="L149">            response.put(&quot;status&quot;, &quot;OK&quot;);</span>
-<span class="nc" id="L150">            status = HttpStatus.OK;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (emailTestSent) {</span>
+<span class="nc" id="L151">            response.put(STATUS, HttpStatus.OK.toString());</span>
+<span class="nc" id="L152">            status = HttpStatus.OK;</span>
         } else {
-<span class="nc" id="L152">            response.put(&quot;status&quot;, &quot;Conflict&quot;);</span>
-<span class="nc" id="L153">            status = HttpStatus.CONFLICT;</span>
+<span class="nc" id="L154">            response.put(STATUS, HttpStatus.CONFLICT.toString());</span>
+<span class="nc" id="L155">            status = HttpStatus.CONFLICT;</span>
         }
-<span class="nc" id="L155">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), status);</span>
+<span class="nc" id="L157">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), status);</span>
     }
 
 }

@@ -40,34 +40,35 @@ import org.springframework.validation.Errors;
 
     @Override
     public void validate(Object target, Errors errors) {
-<span class="nc" id="L43">    }</span>
+        // Do nothing
+<span class="nc" id="L44">    }</span>
 
     public void validateSenderExists(final String senderCode, Errors errors) {
         try {
-<span class="fc" id="L47">            final MailConfig config = emailConfigManager.getMailConfig();</span>
+<span class="fc" id="L48">            final MailConfig config = emailConfigManager.getMailConfig();</span>
 
-<span class="pc bpc" id="L49" title="2 of 4 branches missed.">            if (null == senderCode || null == config.getSender(senderCode)) {</span>
-<span class="nc" id="L50">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_FOUND, new String[]{senderCode}, &quot;error.config.sender.notExists&quot;);</span>
+<span class="pc bpc" id="L50" title="2 of 4 branches missed.">            if (null == senderCode || null == config.getSender(senderCode)) {</span>
+<span class="nc" id="L51">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_FOUND, new String[]{senderCode}, &quot;error.config.sender.notExists&quot;);</span>
             }
-<span class="nc" id="L52">        } catch (EntException e) {</span>
-<span class="nc" id="L53">            errors.rejectValue(&quot;code&quot;, ERRCODE_READING_CONFIG, new String[]{senderCode}, &quot;error.config.readingConfig&quot;);</span>
-<span class="fc" id="L54">        }</span>
-<span class="fc" id="L55">    }</span>
+<span class="nc" id="L53">        } catch (EntException e) {</span>
+<span class="nc" id="L54">            errors.rejectValue(&quot;code&quot;, ERRCODE_READING_CONFIG, new String[]{senderCode}, &quot;error.config.readingConfig&quot;);</span>
+<span class="fc" id="L55">        }</span>
+<span class="fc" id="L56">    }</span>
 
     public void validateSenderNotExists(final String senderCode, Errors errors) {
         try {
-<span class="fc" id="L59">            final MailConfig config = emailConfigManager.getMailConfig();</span>
-<span class="pc bpc" id="L60" title="1 of 4 branches missed.">            if (null == senderCode || null != config.getSender(senderCode))  {</span>
-<span class="fc" id="L61">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_ALREADY_EXIST, new String[]{senderCode}, &quot;error.emailSender.sender.alreadyExists&quot;);</span>
+<span class="fc" id="L60">            final MailConfig config = emailConfigManager.getMailConfig();</span>
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">            if (null == senderCode || null != config.getSender(senderCode))  {</span>
+<span class="fc" id="L62">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_ALREADY_EXIST, new String[]{senderCode}, &quot;error.emailSender.sender.alreadyExists&quot;);</span>
             }
-<span class="nc" id="L63">        } catch (EntException e) {</span>
-<span class="nc" id="L64">            errors.rejectValue(&quot;code&quot;, ERRCODE_READING_CONFIG, new String[]{senderCode}, &quot;error.smtpServerConfig.readingConfig&quot;);</span>
-<span class="fc" id="L65">        }</span>
-<span class="fc" id="L66">    }</span>
+<span class="nc" id="L64">        } catch (EntException e) {</span>
+<span class="nc" id="L65">            errors.rejectValue(&quot;code&quot;, ERRCODE_READING_CONFIG, new String[]{senderCode}, &quot;error.smtpServerConfig.readingConfig&quot;);</span>
+<span class="fc" id="L66">        }</span>
+<span class="fc" id="L67">    }</span>
     public void validateSenderCode(String senderCode, String senderCodePayload, Errors errors) {
-<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (!senderCode.equals(senderCodePayload)) {</span>
-<span class="nc" id="L69">            errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_VALID, new String[]{senderCode}, &quot;error.smtpServerConfig.sender.invalid&quot;);</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (!senderCode.equals(senderCodePayload)) {</span>
+<span class="nc" id="L70">            errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_VALID, new String[]{senderCode}, &quot;error.smtpServerConfig.sender.invalid&quot;);</span>
         }
-<span class="fc" id="L71">    }</span>
+<span class="fc" id="L72">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
