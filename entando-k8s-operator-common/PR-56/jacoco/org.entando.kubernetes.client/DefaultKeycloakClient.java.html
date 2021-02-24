@@ -146,8 +146,8 @@ public class DefaultKeycloakClient implements SimpleKeycloakClient {
 <span class="fc" id="L146">            RealmRepresentation newRealm = new RealmRepresentation();</span>
 <span class="fc" id="L147">            newRealm.setEnabled(true);</span>
 <span class="fc" id="L148">            newRealm.setRealm(realm);</span>
-<span class="fc bfc" id="L149" title="All 2 branches covered.">            if (shouldDisableSsl()) {</span>
-<span class="fc" id="L150">                newRealm.setSslRequired(SslRequired.NONE.name().toLowerCase());</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">            if (shouldDisableSsl()) {</span>
+<span class="nc" id="L150">                newRealm.setSslRequired(SslRequired.NONE.name().toLowerCase());</span>
             }
 <span class="fc" id="L152">            newRealm.setDisplayName(realm);</span>
 <span class="fc" id="L153">            keycloak.realms().create(newRealm);</span>
@@ -156,7 +156,7 @@ public class DefaultKeycloakClient implements SimpleKeycloakClient {
 <span class="fc" id="L156">    }</span>
 
     private boolean shouldDisableSsl() {
-<span class="pc bpc" id="L159" title="1 of 4 branches missed.">        return EntandoOperatorConfig.disableKeycloakSslRequirement() &amp;&amp; !isHttps;</span>
+<span class="pc bpc" id="L159" title="3 of 4 branches missed.">        return EntandoOperatorConfig.disableKeycloakSslRequirement() &amp;&amp; !isHttps;</span>
     }
 
     @Override
