@@ -28,51 +28,46 @@ import org.springframework.validation.Errors;
     public static final String ERRCODE_SENDER_NOT_FOUND = &quot;1&quot;;
     private static final String ERRCODE_SENDER_NOT_VALID = &quot;2&quot;;
     private static final String ERRCODE_SENDER_ALREADY_EXIST = &quot;3&quot;;
+    private static final String ERRCODE_READING_CONFIG = &quot;4&quot;;
 
     @Autowired
     private IMailManager emailConfigManager;
 
     @Override
     public boolean supports(Class&lt;?&gt; paramClass) {
-<span class="nc" id="L37">        return EmailSenderDto.class.equals(paramClass);</span>
+<span class="nc" id="L38">        return EmailSenderDto.class.equals(paramClass);</span>
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-<span class="nc" id="L42">    }</span>
+<span class="nc" id="L43">    }</span>
 
     public void validateSenderExists(final String senderCode, Errors errors) {
         try {
-<span class="fc" id="L46">            System.out.println(&quot;validateSenderExists&quot;);</span>
 <span class="fc" id="L47">            final MailConfig config = emailConfigManager.getMailConfig();</span>
-<span class="fc" id="L48">            System.out.println(&quot;config: &quot;+config);</span>
-<span class="fc" id="L49">            System.out.println(&quot;senderCode: &quot;+senderCode);</span>
-<span class="fc" id="L50">            System.out.println(&quot;config.getSender(senderCode): &quot;+config.getSender(senderCode));</span>
 
-<span class="pc bpc" id="L52" title="2 of 4 branches missed.">            if (null == senderCode || null == config.getSender(senderCode)) {</span>
-<span class="nc" id="L53">                System.out.println(&quot;ERRCODE_SENDER_NOT_FOUND: &quot;+ERRCODE_SENDER_NOT_FOUND);</span>
-<span class="nc" id="L54">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_FOUND, new String[]{senderCode}, &quot;error.config.sender.notExists&quot;);</span>
+<span class="pc bpc" id="L49" title="2 of 4 branches missed.">            if (null == senderCode || null == config.getSender(senderCode)) {</span>
+<span class="nc" id="L50">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_FOUND, new String[]{senderCode}, &quot;error.config.sender.notExists&quot;);</span>
             }
-<span class="nc" id="L56">        } catch (EntException e) {</span>
-<span class="nc" id="L57">            e.printStackTrace();</span>
-<span class="fc" id="L58">        }</span>
-<span class="fc" id="L59">    }</span>
+<span class="nc" id="L52">        } catch (EntException e) {</span>
+<span class="nc" id="L53">            errors.rejectValue(&quot;code&quot;, ERRCODE_READING_CONFIG, new String[]{senderCode}, &quot;error.config.readingConfig&quot;);</span>
+<span class="fc" id="L54">        }</span>
+<span class="fc" id="L55">    }</span>
 
     public void validateSenderNotExists(final String senderCode, Errors errors) {
         try {
-<span class="fc" id="L63">            final MailConfig config = emailConfigManager.getMailConfig();</span>
-<span class="pc bpc" id="L64" title="1 of 4 branches missed.">            if (null == senderCode || null != config.getSender(senderCode))  {</span>
-<span class="fc" id="L65">                System.out.println(&quot;ERRCODE_SENDER_ALREADY_EXIST: &quot;+ERRCODE_SENDER_ALREADY_EXIST);</span>
-<span class="fc" id="L66">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_ALREADY_EXIST, new String[]{senderCode}, &quot;error.config.sender.alreadyExists&quot;);</span>
+<span class="fc" id="L59">            final MailConfig config = emailConfigManager.getMailConfig();</span>
+<span class="pc bpc" id="L60" title="1 of 4 branches missed.">            if (null == senderCode || null != config.getSender(senderCode))  {</span>
+<span class="fc" id="L61">                errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_ALREADY_EXIST, new String[]{senderCode}, &quot;error.emailSender.sender.alreadyExists&quot;);</span>
             }
-<span class="nc" id="L68">        } catch (EntException e) {</span>
-<span class="nc" id="L69">            e.printStackTrace();</span>
-<span class="fc" id="L70">        }</span>
-<span class="fc" id="L71">    }</span>
+<span class="nc" id="L63">        } catch (EntException e) {</span>
+<span class="nc" id="L64">            errors.rejectValue(&quot;code&quot;, ERRCODE_READING_CONFIG, new String[]{senderCode}, &quot;error.smtpServerConfig.readingConfig&quot;);</span>
+<span class="fc" id="L65">        }</span>
+<span class="fc" id="L66">    }</span>
     public void validateSenderCode(String senderCode, String senderCodePayload, Errors errors) {
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (!senderCode.equals(senderCodePayload)) {</span>
-<span class="nc" id="L74">            errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_VALID, new String[]{senderCode}, &quot;error.config.sender.invalid&quot;);</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (!senderCode.equals(senderCodePayload)) {</span>
+<span class="nc" id="L69">            errors.rejectValue(&quot;code&quot;, ERRCODE_SENDER_NOT_VALID, new String[]{senderCode}, &quot;error.smtpServerConfig.sender.invalid&quot;);</span>
         }
-<span class="fc" id="L76">    }</span>
+<span class="fc" id="L71">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -139,7 +139,7 @@ import java.util.Map;
         try {
 <span class="fc" id="L140">            config = emailManager.getMailConfig();</span>
 <span class="nc" id="L141">        } catch (EntException e) {</span>
-<span class="nc" id="L142">            e.printStackTrace();</span>
+<span class="nc" id="L142">            throw new RestServerError(&quot;Error reading the configuration &quot;, e);</span>
 <span class="fc" id="L143">        }</span>
 
 <span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if (null == config) {</span>
@@ -181,9 +181,8 @@ import java.util.Map;
 <span class="fc" id="L181">            emailManager.updateMailConfig(config);</span>
 <span class="fc" id="L182">            return getSMTPServerConfiguration();</span>
 <span class="nc" id="L183">        } catch (EntException | EntRuntimeException e) {</span>
-<span class="nc" id="L184">            e.printStackTrace();</span>
+<span class="nc" id="L184">            throw new RestServerError(&quot;Error reading the configuration &quot;, e);</span>
         }
-<span class="nc" id="L186">        return null;</span>
     }
 
     /**
@@ -192,13 +191,13 @@ import java.util.Map;
      * @return true if the email of the user is set
      */
     public boolean hasEmailCurrentUser(UserProfile userProfile) {
-<span class="fc bfc" id="L195" title="All 2 branches covered.">        if (null != userProfile) {</span>
-<span class="fc" id="L196">            Object mailAttribute = userProfile.getValue(userProfile.getMailAttributeName());</span>
-<span class="pc bpc" id="L197" title="1 of 4 branches missed.">            if (null != mailAttribute &amp;&amp; StringUtils.isNotBlank(mailAttribute.toString())) {</span>
-<span class="fc" id="L198">                return true;</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        if (null != userProfile) {</span>
+<span class="fc" id="L195">            Object mailAttribute = userProfile.getValue(userProfile.getMailAttributeName());</span>
+<span class="pc bpc" id="L196" title="1 of 4 branches missed.">            if (null != mailAttribute &amp;&amp; StringUtils.isNotBlank(mailAttribute.toString())) {</span>
+<span class="fc" id="L197">                return true;</span>
             }
         }
-<span class="fc" id="L201">        return false;</span>
+<span class="fc" id="L200">        return false;</span>
     }
 
 }
