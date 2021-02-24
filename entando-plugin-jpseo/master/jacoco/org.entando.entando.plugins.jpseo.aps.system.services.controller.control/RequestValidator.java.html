@@ -91,54 +91,53 @@ import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
 <span class="fc" id="L91">                lang = getLangManager().getLang(sect1);</span>
 <span class="fc" id="L92">                String friendlyCode = matcher.group(2).substring(1);</span>
 <span class="fc" id="L93">                FriendlyCodeVO vo = this.getSeoMappingManager().getReference(friendlyCode);</span>
-<span class="fc bfc" id="L94" title="All 2 branches covered.">                if (null != vo) {</span>
+<span class="pc bpc" id="L94" title="1 of 6 branches missed.">                if (null != vo &amp;&amp; null != lang &amp;&amp; lang.getCode().equals(vo.getLangCode())) {</span>
 <span class="fc bfc" id="L95" title="All 2 branches covered.">                    if (null != vo.getPageCode()) {</span>
 <span class="fc" id="L96">                        page = this.getPageManager().getOnlinePage(vo.getPageCode());</span>
-<span class="pc bpc" id="L97" title="2 of 6 branches missed.">					} else if (null != vo.getContentId() &amp;&amp; null != lang &amp;&amp; lang.getCode().equals(vo.getLangCode())) {</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">					} else if (null != vo.getContentId()) {</span>
 <span class="fc" id="L98">                        String contentId = vo.getContentId();</span>
 <span class="fc" id="L99">                        String viewPageCode = this.getContentManager().getViewPage(contentId);</span>
 <span class="fc" id="L100">                        page = this.getPageManager().getOnlinePage(viewPageCode);</span>
 <span class="fc" id="L101">                        reqCtx.addExtraParam(JpseoSystemConstants.EXTRAPAR_HIDDEN_CONTENT_ID, contentId);</span>
-
                     }
                 }
-<span class="fc" id="L105">            }</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">        } else if (this.getResourcePath(reqCtx).equals(&quot;/pages&quot;)) {</span>
-<span class="nc" id="L107">            resourcePath = getFullResourcePath(reqCtx);</span>
-<span class="nc" id="L108">            matcher = this._patternFullPath.matcher(resourcePath);</span>
-<span class="nc bnc" id="L109" title="All 2 branches missed.">            if (matcher.lookingAt()) {</span>
-<span class="nc" id="L110">                ok = true;</span>
-<span class="nc" id="L111">                String sect1 = matcher.group(1);</span>
-<span class="nc" id="L112">                lang = getLangManager().getLang(sect1);</span>
-<span class="nc" id="L113">                page = this.getPage(matcher);</span>
-<span class="nc" id="L114">            }</span>
+<span class="fc" id="L104">            }</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        } else if (this.getResourcePath(reqCtx).equals(&quot;/pages&quot;)) {</span>
+<span class="nc" id="L106">            resourcePath = getFullResourcePath(reqCtx);</span>
+<span class="nc" id="L107">            matcher = this._patternFullPath.matcher(resourcePath);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (matcher.lookingAt()) {</span>
+<span class="nc" id="L109">                ok = true;</span>
+<span class="nc" id="L110">                String sect1 = matcher.group(1);</span>
+<span class="nc" id="L111">                lang = getLangManager().getLang(sect1);</span>
+<span class="nc" id="L112">                page = this.getPage(matcher);</span>
+<span class="nc" id="L113">            }</span>
         } else {
-<span class="nc" id="L116">            resourcePath = getResourcePath(reqCtx);</span>
-<span class="nc" id="L117">            matcher = this._pattern.matcher(resourcePath);</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (matcher.lookingAt()) {</span>
-<span class="nc" id="L119">                ok = true;</span>
-<span class="nc" id="L120">                String sect1 = matcher.group(1);</span>
-<span class="nc" id="L121">                String sect2 = matcher.group(2);</span>
-<span class="nc" id="L122">                lang = getLangManager().getLang(sect1);</span>
-<span class="nc" id="L123">                page = this.getPageManager().getOnlinePage(sect2);</span>
-<span class="nc" id="L124">            } else {</span>
+<span class="nc" id="L115">            resourcePath = getResourcePath(reqCtx);</span>
+<span class="nc" id="L116">            matcher = this._pattern.matcher(resourcePath);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (matcher.lookingAt()) {</span>
+<span class="nc" id="L118">                ok = true;</span>
+<span class="nc" id="L119">                String sect1 = matcher.group(1);</span>
+<span class="nc" id="L120">                String sect2 = matcher.group(2);</span>
+<span class="nc" id="L121">                lang = getLangManager().getLang(sect1);</span>
+<span class="nc" id="L122">                page = this.getPageManager().getOnlinePage(sect2);</span>
+<span class="nc" id="L123">            } else {</span>
                 //to preserve url with &quot;.wp&quot; suffix
-<span class="nc" id="L126">                matcher = this._oldPattern.matcher(resourcePath);</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">                if (matcher.lookingAt()) {</span>
-<span class="nc" id="L128">                    ok = true;</span>
-<span class="nc" id="L129">                    String sect1 = matcher.group(1);</span>
-<span class="nc" id="L130">                    String sect2 = matcher.group(2);</span>
-<span class="nc" id="L131">                    lang = getLangManager().getLang(sect1);</span>
-<span class="nc" id="L132">                    page = this.getPageManager().getOnlinePage(sect2);</span>
+<span class="nc" id="L125">                matcher = this._oldPattern.matcher(resourcePath);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                if (matcher.lookingAt()) {</span>
+<span class="nc" id="L127">                    ok = true;</span>
+<span class="nc" id="L128">                    String sect1 = matcher.group(1);</span>
+<span class="nc" id="L129">                    String sect2 = matcher.group(2);</span>
+<span class="nc" id="L130">                    lang = getLangManager().getLang(sect1);</span>
+<span class="nc" id="L131">                    page = this.getPageManager().getOnlinePage(sect2);</span>
                 }
             }
         }
-<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (!ok) {</span>
-<span class="nc" id="L137">            return false;</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">        if (!ok) {</span>
+<span class="nc" id="L136">            return false;</span>
         }
-<span class="fc" id="L139">        reqCtx.addExtraParam(SystemConstants.EXTRAPAR_CURRENT_LANG, lang);</span>
-<span class="fc" id="L140">        reqCtx.addExtraParam(SystemConstants.EXTRAPAR_CURRENT_PAGE, page);</span>
-<span class="fc" id="L141">        return true;</span>
+<span class="fc" id="L138">        reqCtx.addExtraParam(SystemConstants.EXTRAPAR_CURRENT_LANG, lang);</span>
+<span class="fc" id="L139">        reqCtx.addExtraParam(SystemConstants.EXTRAPAR_CURRENT_PAGE, page);</span>
+<span class="fc" id="L140">        return true;</span>
     }
 	
 	/**
@@ -147,50 +146,50 @@ import com.agiletec.plugins.jacms.aps.system.services.content.IContentManager;
 	 * in cui il path completo della pagina risulti corretto.
 	 * Qualora il path sia di lunghezza pari a zero
 	 * verrà restituita l'homepage.
-	 * @param Matcher il matcher valorizzato come segue&lt;br&gt;
+	 * @param matcher il matcher valorizzato come segue&lt;br&gt;
 	 * matcher.group(1) -&gt; lang_code&lt;br&gt;
 	 * matcher.group(2) -&gt; /paginaX/paginaY&lt;br&gt;
 	 * matcher.group(3) -&gt; /paginaY&lt;br&gt;
 	 * @return un oggetto Page oppure null
 	 */
 	private IPage getPage(Matcher matcher) {
-<span class="nc" id="L157">		IPage page = null;</span>
-<span class="nc" id="L158">		String rootCode = this.getPageManager().getOnlineRoot().getCode();</span>
-<span class="nc" id="L159">		String path = matcher.group(2);</span>
+<span class="nc" id="L156">		IPage page = null;</span>
+<span class="nc" id="L157">		String rootCode = this.getPageManager().getOnlineRoot().getCode();</span>
+<span class="nc" id="L158">		String path = matcher.group(2);</span>
 		//Se il path è di tipo /it o /it/ o /it/homepage
-<span class="nc bnc" id="L161" title="All 4 branches missed.">		if (path.trim().length() == 0 || path.substring(1).equals(rootCode)) {</span>
-<span class="nc" id="L162">			return this.getPageManager().getOnlineRoot();</span>
+<span class="nc bnc" id="L160" title="All 4 branches missed.">		if (path.trim().length() == 0 || path.substring(1).equals(rootCode)) {</span>
+<span class="nc" id="L161">			return this.getPageManager().getOnlineRoot();</span>
 		}
-<span class="nc" id="L164">		String pageCode = matcher.group(3).substring(1);</span>
-<span class="nc" id="L165">		IPage tempPage = this.getPageManager().getOnlinePage(pageCode);</span>
-<span class="nc bnc" id="L166" title="All 2 branches missed.">		if (null != tempPage) {</span>
+<span class="nc" id="L163">		String pageCode = matcher.group(3).substring(1);</span>
+<span class="nc" id="L164">		IPage tempPage = this.getPageManager().getOnlinePage(pageCode);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">		if (null != tempPage) {</span>
 			//la pagina esiste ed è di livello 1
 			//if(tempPage.getParentCode().equals(rootCode)) return tempPage;
 			//la pagina è di livello superiore al primo e il path è corretto
-<span class="nc" id="L170">			String fullPath = matcher.group(2).substring(1).trim();</span>
-<span class="nc" id="L171">			String createdlFullPath = PageUtils.getFullPath(this.getPageManager(), tempPage, &quot;/&quot;).toString();</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">			if (createdlFullPath.equals(fullPath) ){</span>
-<span class="nc" id="L173">				page = tempPage;</span>
+<span class="nc" id="L169">			String fullPath = matcher.group(2).substring(1).trim();</span>
+<span class="nc" id="L170">			String createdlFullPath = PageUtils.getFullPath(this.getPageManager(), tempPage, &quot;/&quot;).toString();</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">			if (createdlFullPath.equals(fullPath) ){</span>
+<span class="nc" id="L172">				page = tempPage;</span>
 			}
 		}
-<span class="nc" id="L176">		return page;</span>
+<span class="nc" id="L175">		return page;</span>
 	}
 	
 	protected ISeoMappingManager getSeoMappingManager() {
-<span class="fc" id="L180">		return _seoMappingManager;</span>
+<span class="fc" id="L179">		return _seoMappingManager;</span>
 	}
 	public void setSeoMappingManager(ISeoMappingManager seoMappingManager) {
-<span class="fc" id="L183">		this._seoMappingManager = seoMappingManager;</span>
-<span class="fc" id="L184">	}</span>
+<span class="fc" id="L182">		this._seoMappingManager = seoMappingManager;</span>
+<span class="fc" id="L183">	}</span>
 	
 	protected IContentManager getContentManager() {
-<span class="fc" id="L187">		return _contentManager;</span>
+<span class="fc" id="L186">		return _contentManager;</span>
 	}
 	public void setContentManager(IContentManager contentManager) {
-<span class="fc" id="L190">		this._contentManager = contentManager;</span>
-<span class="fc" id="L191">	}</span>
+<span class="fc" id="L189">		this._contentManager = contentManager;</span>
+<span class="fc" id="L190">	}</span>
 	
-<span class="fc" id="L193">	protected Pattern _patternSeoPath = Pattern.compile(&quot;^/page/(\\w+)((/\\w+)*)&quot;);</span>
+<span class="fc" id="L192">	protected Pattern _patternSeoPath = Pattern.compile(&quot;^/page/(\\w+)((/\\w+)*)&quot;);</span>
 	
 	private ISeoMappingManager _seoMappingManager;
 	private IContentManager _contentManager;
