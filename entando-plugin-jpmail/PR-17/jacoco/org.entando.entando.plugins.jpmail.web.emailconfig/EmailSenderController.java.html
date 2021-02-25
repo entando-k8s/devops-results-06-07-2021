@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmailSenderController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: Email Sender</a> &gt; <a href="index.source.html" class="el_package">org.entando.entando.plugins.jpmail.web.emailconfig</a> &gt; <span class="el_source">EmailSenderController.java</span></div><h1>EmailSenderController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package org.entando.entando.plugins.jpmail.web.emailconfig;
+
+import com.agiletec.aps.system.services.role.Permission;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
+import org.entando.entando.plugins.jpmail.ent.system.services.EmailSenderService;
+import org.entando.entando.plugins.jpmail.ent.system.services.model.EmailSenderDto;
+import org.entando.entando.plugins.jpmail.web.emailconfig.validator.EmailSenderValidator;
+import org.entando.entando.web.common.annotation.RestAccessControl;
+import org.entando.entando.web.common.exceptions.ValidationGenericException;
+import org.entando.entando.web.common.model.PagedMetadata;
+import org.entando.entando.web.common.model.PagedRestResponse;
+import org.entando.entando.web.common.model.RestListRequest;
+import org.entando.entando.web.common.model.SimpleRestResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+@Api(tags = {&quot;email-sender-controller&quot;})
+@RequestMapping(value = &quot;/plugins/emailSettings&quot;)
+<span class="fc" id="L46">public class EmailSenderController {</span>
+
+<span class="fc" id="L48">    private final EntLogger logger = EntLogFactory.getSanitizedLogger(getClass());</span>
+
+    @Autowired
+    private EmailSenderService emailSenderService;
+
+    @Autowired
+    private EmailSenderValidator emailSenderValidator;
+
+    @ApiOperation(&quot;Get the email sender list&quot;)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = &quot;OK&quot;),
+            @ApiResponse(code = 401, message = &quot;Unauthorized&quot;),
+            @ApiResponse(code = 403, message = &quot;Forbidden&quot;)
+    })
+    @GetMapping(value = &quot;/senders&quot;,produces = MediaType.APPLICATION_JSON_VALUE)
+    @RestAccessControl(permission = Permission.SUPERUSER)
+    public ResponseEntity&lt;PagedRestResponse&lt;EmailSenderDto&gt;&gt; getEmailSenders(RestListRequest requestList) {
+<span class="fc" id="L65">        emailSenderValidator.validateRestListRequest(requestList, EmailSenderDto.class);</span>
+<span class="fc" id="L66">        PagedMetadata&lt;EmailSenderDto&gt; result = emailSenderService.getEmailSenders(requestList);</span>
+<span class="fc" id="L67">        return new ResponseEntity&lt;&gt;(new PagedRestResponse&lt;&gt;(result), HttpStatus.OK);</span>
+    }
+
+    @ApiOperation(&quot;Get the email sender by code&quot;)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = &quot;OK&quot;),
+            @ApiResponse(code = 404, message = &quot;Not Found&quot;),
+            @ApiResponse(code = 401, message = &quot;Unauthorized&quot;),
+            @ApiResponse(code = 403, message = &quot;Forbidden&quot;)
+    })
+    @GetMapping(value = &quot;/senders/{senderCode}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RestAccessControl(permission = Permission.SUPERUSER)
+    public ResponseEntity&lt;SimpleRestResponse&lt;EmailSenderDto&gt;&gt; getSender(@PathVariable String senderCode) {
+<span class="fc" id="L80">        EmailSenderDto response = emailSenderService.getEmailSender(senderCode);</span>
+<span class="fc" id="L81">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+    }
+
+    @ApiOperation(&quot;Update the email sender by code&quot;)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = &quot;OK&quot;),
+            @ApiResponse(code = 404, message = &quot;Not Found&quot;),
+            @ApiResponse(code = 401, message = &quot;Unauthorized&quot;),
+            @ApiResponse(code = 403, message = &quot;Forbidden&quot;)
+    })
+    @PutMapping(value = &quot;/senders/{senderCode}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RestAccessControl(permission = Permission.SUPERUSER)
+    public ResponseEntity&lt;SimpleRestResponse&lt;EmailSenderDto&gt;&gt; updateEmailSender(@PathVariable String senderCode,
+                                                                                @Valid @RequestBody EmailSenderDto emailSender,
+                                                                                BindingResult bindingResult) {
+
+<span class="fc" id="L97">        emailSenderValidator.validateSenderExists(senderCode, bindingResult);</span>
+<span class="fc" id="L98">        emailSenderValidator.validateSenderCode(senderCode, emailSender.getCode(), bindingResult);</span>
+
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L101">            throw new ValidationGenericException(bindingResult);</span>
+        }
+
+<span class="fc" id="L104">        EmailSenderDto response = emailSenderService.updateEmailSender(emailSender);</span>
+<span class="fc" id="L105">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+    }
+
+    @ApiOperation(&quot;Add an email sender&quot;)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = &quot;OK&quot;),
+            @ApiResponse(code = 401, message = &quot;Unauthorized&quot;),
+            @ApiResponse(code = 403, message = &quot;Forbidden&quot;)
+    })
+    @PostMapping(value=&quot;/senders&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RestAccessControl(permission = Permission.SUPERUSER)
+    public ResponseEntity&lt;SimpleRestResponse&lt;EmailSenderDto&gt;&gt; addEmailSender(
+            @Valid @RequestBody EmailSenderDto emailSender,
+            BindingResult bindingResult) {
+
+<span class="fc" id="L120">        emailSenderValidator.validateSenderNotExists(emailSender.getCode(), bindingResult);</span>
+
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L123">            throw new ValidationGenericException(bindingResult);</span>
+        }
+<span class="fc" id="L125">        EmailSenderDto response = emailSenderService.addEmailSender(emailSender);</span>
+<span class="fc" id="L126">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+    }
+
+    @ApiOperation(&quot;Delete an email sender&quot;)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = &quot;OK&quot;),
+            @ApiResponse(code = 401, message = &quot;Unauthorized&quot;),
+            @ApiResponse(code = 403, message = &quot;Forbidden&quot;),
+            @ApiResponse(code = 409, message = &quot;Conflict&quot;)
+    })
+
+    @DeleteMapping(value = &quot;/senders/{senderCode}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RestAccessControl(permission = Permission.SUPERUSER)
+    public ResponseEntity&lt;SimpleRestResponse&lt;Map&lt;String,String&gt;&gt;&gt; deleteEmailSender(@PathVariable String senderCode) {
+<span class="fc" id="L140">        logger.info(&quot;deleting email sender {}&quot;, senderCode);</span>
+
+<span class="fc" id="L142">        final EmailSenderDto emailSender = emailSenderService.getEmailSender(senderCode);</span>
+
+<span class="fc" id="L144">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L145">        response.put(&quot;senderCode&quot;, senderCode);</span>
+
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (null == emailSender) {</span>
+<span class="nc" id="L148">            return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.NOT_FOUND);</span>
+        }
+        else {
+<span class="fc" id="L151">            emailSenderService.deleteEmailSender(senderCode);</span>
+<span class="fc" id="L152">            return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
