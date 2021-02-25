@@ -47,8 +47,8 @@ import org.springframework.validation.Errors;
         try {
 <span class="fc" id="L48">            final MailConfig config = emailConfigManager.getMailConfig();</span>
 
-<span class="pc bpc" id="L50" title="2 of 4 branches missed.">            if (null == senderCode || null == config.getSender(senderCode)) {</span>
-<span class="nc" id="L51">                errors.reject(ERRCODE_SENDER_NOT_FOUND, new String[]{senderCode}, &quot;error.config.sender.notExists&quot;);</span>
+<span class="pc bpc" id="L50" title="1 of 4 branches missed.">            if (null == senderCode || null == config.getSender(senderCode)) {</span>
+<span class="fc" id="L51">                errors.reject(ERRCODE_SENDER_NOT_FOUND, new String[]{senderCode}, &quot;error.config.sender.notExists&quot;);</span>
             }
 <span class="nc" id="L53">        } catch (EntException e) {</span>
 <span class="nc" id="L54">            errors.reject(ERRCODE_READING_CONFIG, new Object[0], &quot;error.config.readingConfig&quot;);</span>
@@ -66,8 +66,8 @@ import org.springframework.validation.Errors;
 <span class="fc" id="L66">        }</span>
 <span class="fc" id="L67">    }</span>
     public void validateSenderCode(String senderCode, String senderCodePayload, Errors errors) {
-<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (!senderCode.equals(senderCodePayload)) {</span>
-<span class="nc" id="L70">            errors.reject(ERRCODE_SENDER_NOT_VALID, new Object[0], &quot;error.smtpServerConfig.sender.invalid&quot;);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (!senderCode.equals(senderCodePayload)) {</span>
+<span class="fc" id="L70">            errors.reject(ERRCODE_SENDER_NOT_VALID, new Object[0], &quot;error.smtpServerConfig.sender.invalid&quot;);</span>
         }
 <span class="fc" id="L72">    }</span>
 }
