@@ -62,9 +62,10 @@ import java.util.Map;
     @GetMapping(value = &quot;/senders&quot;,produces = MediaType.APPLICATION_JSON_VALUE)
     @RestAccessControl(permission = Permission.SUPERUSER)
     public ResponseEntity&lt;PagedRestResponse&lt;EmailSenderDto&gt;&gt; getEmailSenders(RestListRequest requestList) {
-<span class="fc" id="L65">        emailSenderValidator.validateRestListRequest(requestList, EmailSenderDto.class);</span>
-<span class="fc" id="L66">        PagedMetadata&lt;EmailSenderDto&gt; result = emailSenderService.getEmailSenders(requestList);</span>
-<span class="fc" id="L67">        return new ResponseEntity&lt;&gt;(new PagedRestResponse&lt;&gt;(result), HttpStatus.OK);</span>
+<span class="fc" id="L65">        logger.debug(&quot;Get email sender list&quot;);</span>
+<span class="fc" id="L66">        emailSenderValidator.validateRestListRequest(requestList, EmailSenderDto.class);</span>
+<span class="fc" id="L67">        PagedMetadata&lt;EmailSenderDto&gt; result = emailSenderService.getEmailSenders(requestList);</span>
+<span class="fc" id="L68">        return new ResponseEntity&lt;&gt;(new PagedRestResponse&lt;&gt;(result), HttpStatus.OK);</span>
     }
 
     @ApiOperation(&quot;Get the email sender by code&quot;)
@@ -77,8 +78,9 @@ import java.util.Map;
     @GetMapping(value = &quot;/senders/{senderCode}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     @RestAccessControl(permission = Permission.SUPERUSER)
     public ResponseEntity&lt;SimpleRestResponse&lt;EmailSenderDto&gt;&gt; getSender(@PathVariable String senderCode) {
-<span class="fc" id="L80">        EmailSenderDto response = emailSenderService.getEmailSender(senderCode);</span>
-<span class="fc" id="L81">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L81">        logger.debug(&quot;Get email sender by code {}&quot;, senderCode);</span>
+<span class="fc" id="L82">        EmailSenderDto response = emailSenderService.getEmailSender(senderCode);</span>
+<span class="fc" id="L83">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
     @ApiOperation(&quot;Update the email sender by code&quot;)
@@ -93,16 +95,17 @@ import java.util.Map;
     public ResponseEntity&lt;SimpleRestResponse&lt;EmailSenderDto&gt;&gt; updateEmailSender(@PathVariable String senderCode,
                                                                                 @Valid @RequestBody EmailSenderDto emailSender,
                                                                                 BindingResult bindingResult) {
+<span class="fc" id="L98">        logger.debug(&quot;Update email sender {}&quot;, senderCode);</span>
 
-<span class="fc" id="L97">        emailSenderValidator.validateSenderExists(senderCode, bindingResult);</span>
-<span class="fc" id="L98">        emailSenderValidator.validateSenderCode(senderCode, emailSender.getCode(), bindingResult);</span>
+<span class="fc" id="L100">        emailSenderValidator.validateSenderExists(senderCode, bindingResult);</span>
+<span class="fc" id="L101">        emailSenderValidator.validateSenderCode(senderCode, emailSender.getCode(), bindingResult);</span>
 
-<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
-<span class="fc" id="L101">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L104">            throw new ValidationGenericException(bindingResult);</span>
         }
 
-<span class="fc" id="L104">        EmailSenderDto response = emailSenderService.updateEmailSender(emailSender);</span>
-<span class="fc" id="L105">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L107">        EmailSenderDto response = emailSenderService.updateEmailSender(emailSender);</span>
+<span class="fc" id="L108">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
     @ApiOperation(&quot;Add an email sender&quot;)
@@ -116,14 +119,14 @@ import java.util.Map;
     public ResponseEntity&lt;SimpleRestResponse&lt;EmailSenderDto&gt;&gt; addEmailSender(
             @Valid @RequestBody EmailSenderDto emailSender,
             BindingResult bindingResult) {
+<span class="fc" id="L122">        logger.debug(&quot;Add email sender&quot;);</span>
+<span class="fc" id="L123">        emailSenderValidator.validateSenderNotExists(emailSender.getCode(), bindingResult);</span>
 
-<span class="fc" id="L120">        emailSenderValidator.validateSenderNotExists(emailSender.getCode(), bindingResult);</span>
-
-<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
-<span class="fc" id="L123">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L126">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L125">        EmailSenderDto response = emailSenderService.addEmailSender(emailSender);</span>
-<span class="fc" id="L126">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L128">        EmailSenderDto response = emailSenderService.addEmailSender(emailSender);</span>
+<span class="fc" id="L129">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
     @ApiOperation(&quot;Delete an email sender&quot;)
@@ -137,19 +140,19 @@ import java.util.Map;
     @DeleteMapping(value = &quot;/senders/{senderCode}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     @RestAccessControl(permission = Permission.SUPERUSER)
     public ResponseEntity&lt;SimpleRestResponse&lt;Map&lt;String,String&gt;&gt;&gt; deleteEmailSender(@PathVariable String senderCode) {
-<span class="fc" id="L140">        logger.info(&quot;deleting email sender {}&quot;, senderCode);</span>
+<span class="fc" id="L143">        logger.debug(&quot;Deleting email sender {}&quot;, senderCode);</span>
 
-<span class="fc" id="L142">        final EmailSenderDto emailSender = emailSenderService.getEmailSender(senderCode);</span>
+<span class="fc" id="L145">        final EmailSenderDto emailSender = emailSenderService.getEmailSender(senderCode);</span>
 
-<span class="fc" id="L144">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L145">        response.put(&quot;senderCode&quot;, senderCode);</span>
+<span class="fc" id="L147">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L148">        response.put(&quot;senderCode&quot;, senderCode);</span>
 
-<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (null == emailSender) {</span>
-<span class="nc" id="L148">            return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.NOT_FOUND);</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (null == emailSender) {</span>
+<span class="nc" id="L151">            return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.NOT_FOUND);</span>
         }
         else {
-<span class="fc" id="L151">            emailSenderService.deleteEmailSender(senderCode);</span>
-<span class="fc" id="L152">            return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L154">            emailSenderService.deleteEmailSender(senderCode);</span>
+<span class="fc" id="L155">            return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
         }
     }
 
