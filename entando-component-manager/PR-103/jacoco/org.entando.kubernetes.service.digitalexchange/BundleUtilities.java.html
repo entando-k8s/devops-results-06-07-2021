@@ -110,7 +110,7 @@ public class BundleUtilities {
 
     public static String composeDeploymentBaseName(PluginDescriptor descriptor) {
 
-<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (!StringUtils.isEmpty(descriptor.getDeploymentBaseName())) {</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (StringUtils.hasLength(descriptor.getDeploymentBaseName())) {</span>
 <span class="fc" id="L114">            return makeKubernetesCompatible(descriptor.getDeploymentBaseName());</span>
         } else {
 <span class="fc" id="L116">            return composeNameFromDockerImage(descriptor.getDockerImage());</span>
@@ -122,7 +122,7 @@ public class BundleUtilities {
         String deploymentBaseName;
         String errorSuffix;
 
-<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (!StringUtils.isEmpty(descriptor.getDeploymentBaseName())) {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (StringUtils.hasLength(descriptor.getDeploymentBaseName())) {</span>
 <span class="fc" id="L126">            deploymentBaseName = makeKubernetesCompatible(descriptor.getDeploymentBaseName());</span>
 <span class="fc" id="L127">            errorSuffix = DEPLOYMENT_BASE_NAME_MAX_LENGHT_ERROR_DEPLOYMENT_SUFFIX;</span>
         } else {
@@ -279,9 +279,8 @@ public class BundleUtilities {
 <span class="fc" id="L279">                .entrySet().stream()</span>
 <span class="fc" id="L280">                .filter(entry -&gt; entry.getKey().equals(BUNDLE_TYPE_LABEL_NAME))</span>
 <span class="fc" id="L281">                .findFirst()</span>
-<span class="fc" id="L282">                .map(bundleTypeEntry -&gt; BundleType</span>
-<span class="fc" id="L283">                        .valueOf(bundleTypeEntry.getValue().toUpperCase().replace(&quot;-&quot;, &quot;_&quot;)))</span>
-<span class="fc" id="L284">                .orElse(BundleType.STANDARD_BUNDLE);</span>
+<span class="fc" id="L282">                .map(bundleTypeEntry -&gt; BundleType.valueOf(bundleTypeEntry.getValue()))</span>
+<span class="fc" id="L283">                .orElse(BundleType.STANDARD_BUNDLE);</span>
     }
 
 
@@ -295,11 +294,11 @@ public class BundleUtilities {
      */
     public static String determineBundleResourceRootFolder(BundleReader bundleReader) throws IOException {
 
-<span class="fc" id="L298">        BundleType bundleType = bundleReader.readBundleDescriptor().getBundleType();</span>
+<span class="fc" id="L297">        BundleType bundleType = bundleReader.readBundleDescriptor().getBundleType();</span>
 
-<span class="fc bfc" id="L300" title="All 4 branches covered.">        return &quot;/&quot; + (null == bundleType || bundleType == BundleType.STANDARD_BUNDLE</span>
-<span class="fc" id="L301">                        ? bundleReader.getBundleCode()</span>
-<span class="fc" id="L302">                        : &quot;&quot;);</span>
+<span class="fc bfc" id="L299" title="All 4 branches covered.">        return &quot;/&quot; + (null == bundleType || bundleType == BundleType.STANDARD_BUNDLE</span>
+<span class="fc" id="L300">                        ? bundleReader.getBundleCode()</span>
+<span class="fc" id="L301">                        : &quot;&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
