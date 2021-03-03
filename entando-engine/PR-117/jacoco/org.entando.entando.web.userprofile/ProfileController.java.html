@@ -77,7 +77,7 @@ import javax.validation.Valid;
 <span class="fc" id="L77">        this.profileValidator = profileValidator;</span>
 <span class="fc" id="L78">    }</span>
 
-    @RestAccessControl(permission = Permission.MANAGE_USER_PROFILES)
+    @RestAccessControl(permission = {Permission.MANAGE_USER_PROFILES, Permission.MANAGE_USERS})
     @RequestMapping(value = &quot;/userProfiles/{username}&quot;, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;EntityDto&gt;&gt; getUserProfile(@PathVariable String username) throws JsonProcessingException {
 <span class="fc" id="L83">        logger.debug(&quot;Requested profile -&gt; {}&quot;, username);</span>
@@ -135,39 +135,38 @@ import javax.validation.Valid;
 <span class="fc" id="L135">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
-
-    @RestAccessControl(permission = Permission.MANAGE_USER_PROFILES)
+    @RestAccessControl(permission = {Permission.MANAGE_USER_PROFILES, Permission.MANAGE_USERS})
     @RequestMapping(value = &quot;/userProfiles/{username}&quot;, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;EntityDto&gt;&gt; updateUserProfile(@PathVariable String username,
             @Valid @RequestBody EntityDto bodyRequest, BindingResult bindingResult) {
-<span class="fc" id="L143">        logger.debug(&quot;Update user profile -&gt; {}&quot;, bodyRequest);</span>
-<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L145">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L142">        logger.debug(&quot;Update user profile -&gt; {}&quot;, bodyRequest);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L144">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L147">        this.getProfileValidator().validateBodyName(username, bodyRequest, bindingResult);</span>
-<span class="fc" id="L148">        EntityDto response = this.getUserProfileService().updateUserProfile(bodyRequest, bindingResult);</span>
-<span class="pc bpc" id="L149" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L150">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L146">        this.getProfileValidator().validateBodyName(username, bodyRequest, bindingResult);</span>
+<span class="fc" id="L147">        EntityDto response = this.getUserProfileService().updateUserProfile(bodyRequest, bindingResult);</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L149">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L152">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L151">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
     @PutMapping(value = &quot;/userProfiles/updateMyProfile&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;EntityDto&gt;&gt; updateMyProfile(@ModelAttribute(&quot;user&quot;) UserDetails user,
                                                                          @Valid @RequestBody EntityDto bodyRequest, BindingResult bindingResult) {
-<span class="fc" id="L158">        logger.debug(&quot;Update profile for the logged user {} -&gt; {}&quot;, user.getUsername(), bodyRequest);</span>
-<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L160">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L157">        logger.debug(&quot;Update profile for the logged user {} -&gt; {}&quot;, user.getUsername(), bodyRequest);</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L159">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L162">        this.getProfileValidator().validateBodyName(user.getUsername(), bodyRequest, bindingResult);</span>
-<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L164">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L161">        this.getProfileValidator().validateBodyName(user.getUsername(), bodyRequest, bindingResult);</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L163">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L166">        EntityDto response = this.getUserProfileService().updateUserProfile(bodyRequest, bindingResult);</span>
-<span class="pc bpc" id="L167" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L168">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L165">        EntityDto response = this.getUserProfileService().updateUserProfile(bodyRequest, bindingResult);</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L167">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L170">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L169">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
 }
