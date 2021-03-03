@@ -155,18 +155,15 @@ import javax.validation.Valid;
     public ResponseEntity&lt;SimpleRestResponse&lt;EntityDto&gt;&gt; updateMyProfile(@ModelAttribute(&quot;user&quot;) UserDetails user,
                                                                          @Valid @RequestBody EntityDto bodyRequest, BindingResult bindingResult) {
 <span class="fc" id="L157">        logger.debug(&quot;Update profile for the logged user {} -&gt; {}&quot;, user.getUsername(), bodyRequest);</span>
-<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L159">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L158">        this.getProfileValidator().validateBodyName(user.getUsername(), bodyRequest, bindingResult);</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L160">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L161">        this.getProfileValidator().validateBodyName(user.getUsername(), bodyRequest, bindingResult);</span>
-<span class="pc bpc" id="L162" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L163">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L162">        EntityDto response = this.getUserProfileService().updateUserProfile(bodyRequest, bindingResult);</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="nc" id="L164">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L165">        EntityDto response = this.getUserProfileService().updateUserProfile(bodyRequest, bindingResult);</span>
-<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L167">            throw new ValidationGenericException(bindingResult);</span>
-        }
-<span class="fc" id="L169">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L166">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
 }
