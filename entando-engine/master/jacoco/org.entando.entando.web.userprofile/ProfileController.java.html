@@ -75,7 +75,7 @@ import org.entando.entando.web.common.model.SimpleRestResponse;
 <span class="fc" id="L75">        this.profileValidator = profileValidator;</span>
 <span class="fc" id="L76">    }</span>
 
-    @RestAccessControl(permission = Permission.MANAGE_USER_PROFILES)
+    @RestAccessControl(permission = {Permission.MANAGE_USER_PROFILES, Permission.MANAGE_USERS})
     @RequestMapping(value = &quot;/userProfiles/{username}&quot;, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;EntityDto&gt;&gt; getUserProfile(@PathVariable String username) throws JsonProcessingException {
 <span class="fc" id="L81">        logger.debug(&quot;Requested profile -&gt; {}&quot;, username);</span>
@@ -133,7 +133,7 @@ import org.entando.entando.web.common.model.SimpleRestResponse;
 <span class="fc" id="L133">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
-    @RestAccessControl(permission = Permission.MANAGE_USER_PROFILES)
+    @RestAccessControl(permission = {Permission.MANAGE_USER_PROFILES, Permission.MANAGE_USERS})
     @RequestMapping(value = &quot;/userProfiles/{username}&quot;, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;EntityDto&gt;&gt; updateUserProfile(@PathVariable String username,
             @Valid @RequestBody EntityDto bodyRequest, BindingResult bindingResult) {
