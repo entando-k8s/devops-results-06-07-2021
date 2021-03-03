@@ -34,12 +34,12 @@ import java.util.Locale;
 import java.util.Map;
 import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.spi.common.ResourceUtils;
+import org.entando.kubernetes.controller.spi.common.SecretUtils;
 import org.entando.kubernetes.controller.spi.deployable.Ingressing;
 import org.entando.kubernetes.controller.spi.deployable.IngressingDeployable;
 import org.entando.kubernetes.controller.support.client.IngressClient;
 import org.entando.kubernetes.controller.support.common.EntandoOperatorConfig;
 import org.entando.kubernetes.controller.support.common.KubeUtils;
-import org.entando.kubernetes.controller.support.common.TlsHelper;
 import org.entando.kubernetes.model.EntandoCustomResource;
 
 public class IngressCreator extends AbstractK8SResourceCreator {
@@ -146,7 +146,7 @@ public class IngressCreator extends AbstractK8SResourceCreator {
     private Map&lt;String, String&gt; forNginxIngress(IngressingDeployable&lt;?&gt; deployable) {
 <span class="fc" id="L147">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
 <span class="fc" id="L148">        EntandoOperatorConfig.getIngressClass().ifPresent(s -&gt; result.put(&quot;kubernetes.io/ingress.class&quot;, s));</span>
-<span class="fc bfc" id="L149" title="All 4 branches covered.">        if (TlsHelper.canAutoCreateTlsSecret() || deployable.getTlsSecretName().isPresent()) {</span>
+<span class="pc bpc" id="L149" title="1 of 4 branches missed.">        if (EntandoOperatorConfig.getTlsSecretName().isPresent() || EntandoOperatorConfig.useAutoCertGeneration()) {</span>
 
             //for cases where we have https available but the Keycloak redirect was specified as http
 <span class="fc" id="L152">            result.put(&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;, &quot;true&quot;);</span>
@@ -160,19 +160,23 @@ public class IngressCreator extends AbstractK8SResourceCreator {
 
 <span class="fc" id="L161">        deployable.getTlsSecretName().ifPresent(s -&gt;</span>
 <span class="fc" id="L162">                result.add(new IngressTLSBuilder().withSecretName(s).withHosts(determineIngressHost(ingressClient, deployable)).build()));</span>
-<span class="fc bfc" id="L163" title="All 4 branches covered.">        if (result.isEmpty() &amp;&amp; TlsHelper.canAutoCreateTlsSecret()) {</span>
-<span class="fc" id="L164">            result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>
-<span class="fc" id="L165">                    .withSecretName(entandoCustomResource.getMetadata().getName() + &quot;-tls-secret&quot;).build());</span>
-
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (result.isEmpty()) {</span>
+<span class="fc" id="L164">            EntandoOperatorConfig.getTlsSecretName().ifPresent(s -&gt;</span>
+<span class="fc" id="L165">                    result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>
+<span class="fc" id="L166">                            .withSecretName(s).build()));</span>
         }
-<span class="fc" id="L168">        return result;</span>
+<span class="pc bpc" id="L168" title="1 of 4 branches missed.">        if (result.isEmpty() &amp;&amp; EntandoOperatorConfig.useAutoCertGeneration()) {</span>
+<span class="nc" id="L169">            result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>
+<span class="nc" id="L170">                    .withSecretName(SecretUtils.EMPTY_TLS_SECRET_NAME).build());</span>
+        }
+<span class="fc" id="L172">        return result;</span>
     }
 
     private String determineIngressHost(IngressClient ingressClient, IngressingDeployable&lt;?&gt; deployable) {
-<span class="fc" id="L172">        return deployable.getIngressHostName()</span>
-<span class="fc" id="L173">                .orElse(entandoCustomResource.getMetadata().getName() + &quot;-&quot; + entandoCustomResource.getMetadata().getNamespace() + &quot;.&quot;</span>
-<span class="fc" id="L174">                        + determineRoutingSuffix(</span>
-<span class="fc" id="L175">                        ingressClient.getMasterUrlHost()));</span>
+<span class="fc" id="L176">        return deployable.getIngressHostName()</span>
+<span class="fc" id="L177">                .orElse(entandoCustomResource.getMetadata().getName() + &quot;-&quot; + entandoCustomResource.getMetadata().getNamespace() + &quot;.&quot;</span>
+<span class="fc" id="L178">                        + determineRoutingSuffix(</span>
+<span class="fc" id="L179">                        ingressClient.getMasterUrlHost()));</span>
     }
 
 }
