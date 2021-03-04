@@ -89,9 +89,9 @@ import javax.validation.Valid;
     @RestAccessControl(permission = Permission.BACKOFFICE)
     @GetMapping(value = &quot;/userProfiles/myProfile&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;EntityDto&gt;&gt; getMyProfile(@ModelAttribute(&quot;user&quot;) UserDetails user) {
-<span class="nc" id="L92">        final EntityDto userProfileEntityDto = getUserProfileEntityDto(user.getUsername());</span>
-<span class="nc" id="L93">        logger.debug(&quot;Main Response -&gt; {}&quot;, userProfileEntityDto);</span>
-<span class="nc" id="L94">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(userProfileEntityDto), HttpStatus.OK);</span>
+<span class="fc" id="L92">        final EntityDto userProfileEntityDto = getUserProfileEntityDto(user.getUsername());</span>
+<span class="fc" id="L93">        logger.debug(&quot;Main Response -&gt; {}&quot;, userProfileEntityDto);</span>
+<span class="fc" id="L94">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(userProfileEntityDto), HttpStatus.OK);</span>
     }
 
     private EntityDto getUserProfileEntityDto(final String username) {
@@ -168,16 +168,16 @@ import javax.validation.Valid;
     @RestAccessControl(permission = Permission.BACKOFFICE)
     public ResponseEntity&lt;SimpleRestResponse&lt;EntityDto&gt;&gt; updateMyProfile(@ModelAttribute(&quot;user&quot;) UserDetails user,
                                                                          @Valid @RequestBody EntityDto bodyRequest, BindingResult bindingResult) {
-<span class="nc" id="L171">        logger.debug(&quot;Update profile for the logged user {} -&gt; {}&quot;, user.getUsername(), bodyRequest);</span>
-<span class="nc" id="L172">        this.getProfileValidator().validateBodyName(user.getUsername(), bodyRequest, bindingResult);</span>
-<span class="nc bnc" id="L173" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L171">        logger.debug(&quot;Update profile for the logged user {} -&gt; {}&quot;, user.getUsername(), bodyRequest);</span>
+<span class="fc" id="L172">        this.getProfileValidator().validateBodyName(user.getUsername(), bodyRequest, bindingResult);</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
 <span class="nc" id="L174">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="nc" id="L176">        EntityDto response = this.getUserProfileService().updateUserProfile(bodyRequest, bindingResult);</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L176">        EntityDto response = this.getUserProfileService().updateUserProfile(bodyRequest, bindingResult);</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
 <span class="nc" id="L178">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="nc" id="L180">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L180">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
 }
