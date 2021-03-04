@@ -23,63 +23,62 @@ import java.util.Optional;
 import org.entando.kubernetes.controller.spi.container.DeployableContainer;
 import org.entando.kubernetes.controller.spi.container.IngressingContainer;
 import org.entando.kubernetes.controller.spi.container.ParameterizableContainer;
-import org.entando.kubernetes.controller.spi.container.TlsAware;
 import org.entando.kubernetes.model.app.EntandoApp;
 
-public class AppBuilderDeployableContainer implements DeployableContainer, IngressingContainer, TlsAware, ParameterizableContainer {
+public class AppBuilderDeployableContainer implements DeployableContainer, IngressingContainer, ParameterizableContainer {
 
     private static final String ENTANDO_APP_BUILDER_IMAGE_NAME = &quot;entando/app-builder&quot;;
     private final EntandoApp entandoApp;
 
-<span class="fc" id="L34">    public AppBuilderDeployableContainer(EntandoApp entandoApp) {</span>
-<span class="fc" id="L35">        this.entandoApp = entandoApp;</span>
-<span class="fc" id="L36">    }</span>
+<span class="fc" id="L33">    public AppBuilderDeployableContainer(EntandoApp entandoApp) {</span>
+<span class="fc" id="L34">        this.entandoApp = entandoApp;</span>
+<span class="fc" id="L35">    }</span>
 
     @Override
     public int getMemoryLimitMebibytes() {
-<span class="fc" id="L40">        return 512;</span>
+<span class="fc" id="L39">        return 512;</span>
     }
 
     @Override
     public int getCpuLimitMillicores() {
-<span class="fc" id="L45">        return 500;</span>
+<span class="fc" id="L44">        return 500;</span>
     }
 
     @Override
     public String determineImageToUse() {
-<span class="fc" id="L50">        return ENTANDO_APP_BUILDER_IMAGE_NAME;</span>
+<span class="fc" id="L49">        return ENTANDO_APP_BUILDER_IMAGE_NAME;</span>
     }
 
     @Override
     public String getNameQualifier() {
-<span class="fc" id="L55">        return &quot;appbuilder&quot;;</span>
+<span class="fc" id="L54">        return &quot;appbuilder&quot;;</span>
     }
 
     @Override
     public int getPrimaryPort() {
-<span class="fc" id="L60">        return 8081;</span>
+<span class="fc" id="L59">        return 8081;</span>
     }
 
     @Override
     public String getWebContextPath() {
-<span class="fc" id="L65">        return &quot;/app-builder/&quot;;</span>
+<span class="fc" id="L64">        return &quot;/app-builder/&quot;;</span>
     }
 
     @Override
     public Optional&lt;String&gt; getHealthCheckPath() {
-<span class="fc" id="L70">        return Optional.of(&quot;/app-builder/favicon-entando.png&quot;);</span>
+<span class="fc" id="L69">        return Optional.of(&quot;/app-builder/favicon-entando.png&quot;);</span>
     }
 
     @Override
     public List&lt;EnvVar&gt; getEnvironmentVariables() {
-<span class="fc" id="L75">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L76">        vars.add(new EnvVar(&quot;DOMAIN&quot;, entandoApp.getSpec().getIngressPath().orElse(&quot;/entando-de-app&quot;), null));</span>
-<span class="fc" id="L77">        return vars;</span>
+<span class="fc" id="L74">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L75">        vars.add(new EnvVar(&quot;DOMAIN&quot;, entandoApp.getSpec().getIngressPath().orElse(&quot;/entando-de-app&quot;), null));</span>
+<span class="fc" id="L76">        return vars;</span>
     }
 
     @Override
     public List&lt;EnvVar&gt; getEnvironmentVariableOverrides() {
-<span class="fc" id="L82">        return entandoApp.getSpec().getEnvironmentVariables();</span>
+<span class="fc" id="L81">        return entandoApp.getSpec().getEnvironmentVariables();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
