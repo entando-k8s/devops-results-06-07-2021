@@ -19,6 +19,8 @@ package org.entando.kubernetes.controller.keycloakserver;
 import static java.lang.String.format;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.Secret;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,16 +37,16 @@ import org.entando.kubernetes.controller.spi.container.DockerImageInfo;
 import org.entando.kubernetes.controller.spi.container.IngressingContainer;
 import org.entando.kubernetes.controller.spi.container.ParameterizableContainer;
 import org.entando.kubernetes.controller.spi.container.PersistentVolumeAware;
-import org.entando.kubernetes.controller.spi.container.TlsAware;
+import org.entando.kubernetes.controller.spi.container.SecretToMount;
+import org.entando.kubernetes.controller.spi.container.TrustStoreAware;
 import org.entando.kubernetes.controller.spi.result.DatabaseServiceResult;
-import org.entando.kubernetes.controller.support.common.EntandoOperatorConfig;
 import org.entando.kubernetes.controller.support.common.FluentTernary;
 import org.entando.kubernetes.model.DbmsVendor;
 import org.entando.kubernetes.model.EntandoResourceRequirements;
 import org.entando.kubernetes.model.keycloakserver.EntandoKeycloakServer;
 import org.entando.kubernetes.model.keycloakserver.StandardKeycloakImage;
 
-public class KeycloakDeployableContainer implements IngressingContainer, DbAware, TlsAware, PersistentVolumeAware,
+public class KeycloakDeployableContainer implements IngressingContainer, DbAware, PersistentVolumeAware,
         ParameterizableContainer, ConfigurableResourceContainer {
 
     private static final String COMMUNITY_KEYCLOAK_IMAGE_NAME = &quot;entando/entando-keycloak&quot;;
@@ -52,159 +54,180 @@ public class KeycloakDeployableContainer implements IngressingContainer, DbAware
 
     private final EntandoKeycloakServer keycloakServer;
     private final DatabaseServiceResult databaseServiceResult;
+    private final Secret caCertSecret;
     private final List&lt;DatabaseSchemaConnectionInfo&gt; databaseSchemaConnectionInfos;
 
-<span class="fc" id="L57">    public KeycloakDeployableContainer(EntandoKeycloakServer keycloakServer, DatabaseServiceResult databaseServiceResult) {</span>
-<span class="fc" id="L58">        this.keycloakServer = keycloakServer;</span>
-<span class="fc" id="L59">        this.databaseServiceResult = databaseServiceResult;</span>
-<span class="fc" id="L60">        databaseSchemaConnectionInfos = Optional.ofNullable(databaseServiceResult)</span>
-<span class="fc" id="L61">                .map(databaseServiceResult1 -&gt; DbAware.buildDatabaseSchemaConnectionInfo(keycloakServer,</span>
-<span class="fc" id="L62">                        databaseServiceResult, Collections.singletonList(&quot;db&quot;)))</span>
-<span class="fc" id="L63">                .orElse(Collections.emptyList());</span>
-<span class="fc" id="L64">    }</span>
+    public KeycloakDeployableContainer(EntandoKeycloakServer keycloakServer, DatabaseServiceResult databaseServiceResult,
+<span class="fc" id="L61">            Secret caCertSecret) {</span>
+<span class="fc" id="L62">        this.keycloakServer = keycloakServer;</span>
+<span class="fc" id="L63">        this.databaseServiceResult = databaseServiceResult;</span>
+<span class="fc" id="L64">        this.caCertSecret = caCertSecret;</span>
+<span class="fc" id="L65">        databaseSchemaConnectionInfos = Optional.ofNullable(databaseServiceResult)</span>
+<span class="fc" id="L66">                .map(databaseServiceResult1 -&gt; DbAware.buildDatabaseSchemaConnectionInfo(keycloakServer,</span>
+<span class="fc" id="L67">                        databaseServiceResult, Collections.singletonList(&quot;db&quot;)))</span>
+<span class="fc" id="L68">                .orElse(Collections.emptyList());</span>
+<span class="fc" id="L69">    }</span>
 
     public static String secretName(EntandoKeycloakServer keycloakServer) {
-<span class="fc" id="L67">        return keycloakServer.getMetadata().getName() + &quot;-admin-secret&quot;;</span>
+<span class="fc" id="L72">        return keycloakServer.getMetadata().getName() + &quot;-admin-secret&quot;;</span>
+    }
+
+    @Override
+    public Optional&lt;Integer&gt; getMaximumStartupTimeSeconds() {
+<span class="fc" id="L77">        return Optional.of(180);</span>
     }
 
     @Override
     public DockerImageInfo getDockerImageInfo() {
-<span class="fc" id="L72">        return new DockerImageInfo(keycloakServer.getSpec().getCustomImage()</span>
-<span class="fc" id="L73">                .orElse(determineStandardImageName()));</span>
+<span class="fc" id="L82">        return new DockerImageInfo(keycloakServer.getSpec().getCustomImage()</span>
+<span class="fc" id="L83">                .orElse(determineStandardImageName()));</span>
     }
 
     private String determineStandardImageName() {
-<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (determineStandardKeycloakImage() == StandardKeycloakImage.REDHAT_SSO) {</span>
-<span class="fc" id="L78">            return REDHAT_SSO_IMAGE_NAME;</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (determineStandardKeycloakImage() == StandardKeycloakImage.REDHAT_SSO) {</span>
+<span class="fc" id="L88">            return REDHAT_SSO_IMAGE_NAME;</span>
         } else {
-<span class="fc" id="L80">            return COMMUNITY_KEYCLOAK_IMAGE_NAME;</span>
+<span class="fc" id="L90">            return COMMUNITY_KEYCLOAK_IMAGE_NAME;</span>
         }
     }
 
+    @Override
+    public List&lt;SecretToMount&gt; getSecretsToMount() {
+<span class="fc" id="L96">        List&lt;SecretToMount&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L97">        Optional.ofNullable(caCertSecret).ifPresent(</span>
+<span class="fc" id="L98">                s -&gt; result.add(new SecretToMount(s.getMetadata().getName(), caCertsFolder(s))));</span>
+<span class="fc" id="L99">        return result;</span>
+    }
+
+    protected String caCertsFolder(Secret s) {
+<span class="fc" id="L103">        return TrustStoreAware.CERT_SECRET_MOUNT_ROOT + File.separator + s.getMetadata().getName();</span>
+    }
+
     private StandardKeycloakImage determineStandardKeycloakImage() {
-<span class="fc" id="L85">        return EntandoKeycloakHelper.determineStandardImage(keycloakServer);</span>
+<span class="fc" id="L107">        return EntandoKeycloakHelper.determineStandardImage(keycloakServer);</span>
     }
 
     @Override
     public int getMemoryLimitMebibytes() {
-<span class="fc" id="L90">        return 768;</span>
+<span class="fc" id="L112">        return 768;</span>
     }
 
     @Override
     public int getCpuLimitMillicores() {
-<span class="fc" id="L95">        return 1000;</span>
+<span class="fc" id="L117">        return 1000;</span>
     }
 
     @Override
     public String getNameQualifier() {
-<span class="fc" id="L100">        return NameUtils.DEFAULT_SERVER_QUALIFIER;</span>
+<span class="fc" id="L122">        return NameUtils.DEFAULT_SERVER_QUALIFIER;</span>
     }
 
     @Override
     public int getPrimaryPort() {
-<span class="fc" id="L105">        return 8080;</span>
+<span class="fc" id="L127">        return 8080;</span>
     }
 
     @Override
     public List&lt;EnvVar&gt; getEnvironmentVariables() {
-<span class="fc" id="L110">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (determineStandardKeycloakImage() == StandardKeycloakImage.REDHAT_SSO) {</span>
-<span class="fc" id="L112">            vars.add(</span>
-<span class="fc" id="L113">                    new EnvVar(&quot;SSO_ADMIN_USERNAME&quot;, null, SecretUtils.secretKeyRef(secretName(keycloakServer), SecretUtils.USERNAME_KEY)));</span>
-<span class="fc" id="L114">            vars.add(new EnvVar(&quot;SSO_ADMIN_PASSWORD&quot;, null,</span>
-<span class="fc" id="L115">                    SecretUtils.secretKeyRef(secretName(keycloakServer), SecretUtils.PASSSWORD_KEY)));</span>
+<span class="fc" id="L132">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (determineStandardKeycloakImage() == StandardKeycloakImage.REDHAT_SSO) {</span>
+<span class="fc" id="L134">            vars.add(</span>
+<span class="fc" id="L135">                    new EnvVar(&quot;SSO_ADMIN_USERNAME&quot;, null, SecretUtils.secretKeyRef(secretName(keycloakServer), SecretUtils.USERNAME_KEY)));</span>
+<span class="fc" id="L136">            vars.add(new EnvVar(&quot;SSO_ADMIN_PASSWORD&quot;, null,</span>
+<span class="fc" id="L137">                    SecretUtils.secretKeyRef(secretName(keycloakServer), SecretUtils.PASSSWORD_KEY)));</span>
         } else {
-<span class="fc" id="L117">            vars.add(new EnvVar(&quot;KEYCLOAK_USER&quot;, null, SecretUtils.secretKeyRef(secretName(keycloakServer), SecretUtils.USERNAME_KEY)));</span>
-<span class="fc" id="L118">            vars.add(</span>
-<span class="fc" id="L119">                    new EnvVar(&quot;KEYCLOAK_PASSWORD&quot;, null, SecretUtils.secretKeyRef(secretName(keycloakServer), SecretUtils.PASSSWORD_KEY)));</span>
+<span class="fc" id="L139">            vars.add(new EnvVar(&quot;KEYCLOAK_USER&quot;, null, SecretUtils.secretKeyRef(secretName(keycloakServer), SecretUtils.USERNAME_KEY)));</span>
+<span class="fc" id="L140">            vars.add(</span>
+<span class="fc" id="L141">                    new EnvVar(&quot;KEYCLOAK_PASSWORD&quot;, null, SecretUtils.secretKeyRef(secretName(keycloakServer), SecretUtils.PASSSWORD_KEY)));</span>
         }
-<span class="fc" id="L121">        vars.add(new EnvVar(&quot;PROXY_ADDRESS_FORWARDING&quot;, &quot;true&quot;, null));</span>
-<span class="fc" id="L122">        return vars;</span>
+<span class="fc" id="L143">        vars.add(new EnvVar(&quot;PROXY_ADDRESS_FORWARDING&quot;, &quot;true&quot;, null));</span>
+<span class="fc" id="L144">        Optional.ofNullable(caCertSecret).ifPresent(s -&gt; vars.add(getX509CaBundleVariable(s)));</span>
+<span class="fc" id="L145">        return vars;</span>
     }
 
     @Override
     public List&lt;EnvVar&gt; getDatabaseConnectionVariables() {
-<span class="fc" id="L127">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (EntandoKeycloakHelper.determineDbmsVendor(keycloakServer) == DbmsVendor.EMBEDDED) {</span>
-<span class="fc" id="L129">            vars.add(new EnvVar(&quot;DB_VENDOR&quot;, &quot;h2&quot;, null));</span>
+<span class="fc" id="L150">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (EntandoKeycloakHelper.determineDbmsVendor(keycloakServer) == DbmsVendor.EMBEDDED) {</span>
+<span class="fc" id="L152">            vars.add(new EnvVar(&quot;DB_VENDOR&quot;, &quot;h2&quot;, null));</span>
         } else {
-<span class="fc" id="L131">            DatabaseSchemaConnectionInfo databaseSchemaConnectionInfo = databaseSchemaConnectionInfos.get(0);</span>
-<span class="fc bfc" id="L132" title="All 2 branches covered.">            if (determineStandardKeycloakImage() == StandardKeycloakImage.REDHAT_SSO) {</span>
-<span class="fc" id="L133">                String driverName = databaseSchemaConnectionInfo.getVendor().getVendorConfig().getName();</span>
-<span class="fc" id="L134">                vars.add(new EnvVar(format(&quot;DB_%s_SERVICE_HOST&quot;, driverName.toUpperCase(Locale.ROOT)),</span>
-<span class="fc" id="L135">                        databaseSchemaConnectionInfo.getInternalServiceHostname(), null));</span>
-<span class="fc" id="L136">                vars.add(new EnvVar(format(&quot;DB_%s_SERVICE_PORT&quot;, driverName.toUpperCase(Locale.ROOT)),</span>
-<span class="fc" id="L137">                        databaseSchemaConnectionInfo.getPort(), null));</span>
-<span class="fc" id="L138">                vars.add(new EnvVar(&quot;DB_SERVICE_PREFIX_MAPPING&quot;, format(&quot;db-%s=DB&quot;, driverName), null));</span>
-<span class="fc" id="L139">                vars.add(new EnvVar(&quot;DB_USERNAME&quot;, null, databaseSchemaConnectionInfo.getUsernameRef()));</span>
-<span class="fc" id="L140">            } else {</span>
+<span class="fc" id="L154">            DatabaseSchemaConnectionInfo databaseSchemaConnectionInfo = databaseSchemaConnectionInfos.get(0);</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">            if (determineStandardKeycloakImage() == StandardKeycloakImage.REDHAT_SSO) {</span>
+<span class="fc" id="L156">                String driverName = databaseSchemaConnectionInfo.getVendor().getVendorConfig().getName();</span>
+<span class="fc" id="L157">                vars.add(new EnvVar(format(&quot;DB_%s_SERVICE_HOST&quot;, driverName.toUpperCase(Locale.ROOT)),</span>
+<span class="fc" id="L158">                        databaseSchemaConnectionInfo.getInternalServiceHostname(), null));</span>
+<span class="fc" id="L159">                vars.add(new EnvVar(format(&quot;DB_%s_SERVICE_PORT&quot;, driverName.toUpperCase(Locale.ROOT)),</span>
+<span class="fc" id="L160">                        databaseSchemaConnectionInfo.getPort(), null));</span>
+<span class="fc" id="L161">                vars.add(new EnvVar(&quot;DB_SERVICE_PREFIX_MAPPING&quot;, format(&quot;db-%s=DB&quot;, driverName), null));</span>
+<span class="fc" id="L162">                vars.add(new EnvVar(&quot;DB_USERNAME&quot;, null, databaseSchemaConnectionInfo.getUsernameRef()));</span>
+<span class="fc" id="L163">            } else {</span>
 
-<span class="fc" id="L142">                vars.add(new EnvVar(&quot;DB_ADDR&quot;, databaseSchemaConnectionInfo.getInternalServiceHostname(), null));</span>
-<span class="fc" id="L143">                vars.add(new EnvVar(&quot;DB_PORT&quot;, databaseSchemaConnectionInfo.getPort(), null));</span>
-<span class="fc" id="L144">                vars.add(new EnvVar(&quot;DB_SCHEMA&quot;, databaseSchemaConnectionInfo.getSchemaName(), null));</span>
-<span class="fc" id="L145">                vars.add(new EnvVar(&quot;DB_USER&quot;, null, databaseSchemaConnectionInfo.getUsernameRef()));</span>
+<span class="fc" id="L165">                vars.add(new EnvVar(&quot;DB_ADDR&quot;, databaseSchemaConnectionInfo.getInternalServiceHostname(), null));</span>
+<span class="fc" id="L166">                vars.add(new EnvVar(&quot;DB_PORT&quot;, databaseSchemaConnectionInfo.getPort(), null));</span>
+<span class="fc" id="L167">                vars.add(new EnvVar(&quot;DB_SCHEMA&quot;, databaseSchemaConnectionInfo.getSchemaName(), null));</span>
+<span class="fc" id="L168">                vars.add(new EnvVar(&quot;DB_USER&quot;, null, databaseSchemaConnectionInfo.getUsernameRef()));</span>
             }
-<span class="fc" id="L147">            vars.add(new EnvVar(&quot;DB_VENDOR&quot;, determineKeycloaksNonStandardDbVendorName(databaseSchemaConnectionInfo), null));</span>
-<span class="fc" id="L148">            vars.add(new EnvVar(&quot;DB_DATABASE&quot;, databaseSchemaConnectionInfo.getDatabase(), null));</span>
-<span class="fc" id="L149">            vars.add(new EnvVar(&quot;DB_PASSWORD&quot;, null, databaseSchemaConnectionInfo.getPasswordRef()));</span>
-<span class="fc" id="L150">            vars.add(new EnvVar(&quot;JDBC_PARAMS&quot;,</span>
-<span class="pc" id="L151">                    databaseServiceResult.getJdbcParameters().entrySet().stream().map(entry -&gt; entry.getKey() + &quot;=&quot; + entry.getValue())</span>
-<span class="fc" id="L152">                            .collect(</span>
-<span class="fc" id="L153">                                    Collectors.joining(&quot;&amp;&quot;)), null));</span>
+<span class="fc" id="L170">            vars.add(new EnvVar(&quot;DB_VENDOR&quot;, determineKeycloaksNonStandardDbVendorName(databaseSchemaConnectionInfo), null));</span>
+<span class="fc" id="L171">            vars.add(new EnvVar(&quot;DB_DATABASE&quot;, databaseSchemaConnectionInfo.getDatabase(), null));</span>
+<span class="fc" id="L172">            vars.add(new EnvVar(&quot;DB_PASSWORD&quot;, null, databaseSchemaConnectionInfo.getPasswordRef()));</span>
+<span class="fc" id="L173">            vars.add(new EnvVar(&quot;JDBC_PARAMS&quot;,</span>
+<span class="pc" id="L174">                    databaseServiceResult.getJdbcParameters().entrySet().stream().map(entry -&gt; entry.getKey() + &quot;=&quot; + entry.getValue())</span>
+<span class="fc" id="L175">                            .collect(</span>
+<span class="fc" id="L176">                                    Collectors.joining(&quot;&amp;&quot;)), null));</span>
 
         }
-<span class="fc" id="L156">        return vars;</span>
+<span class="fc" id="L179">        return vars;</span>
     }
 
     @Override
     public List&lt;DatabaseSchemaConnectionInfo&gt; getSchemaConnectionInfo() {
-<span class="fc" id="L161">        return this.databaseSchemaConnectionInfos;</span>
+<span class="fc" id="L184">        return this.databaseSchemaConnectionInfos;</span>
     }
 
-    @Override
-    public List&lt;EnvVar&gt; getTlsVariables() {
-<span class="fc" id="L166">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L167">        String certFiles = EntandoOperatorConfig.getCertificateAuthorityCertPaths().stream()</span>
-<span class="fc" id="L168">                .map(path -&gt; SecretUtils.standardCertPathOf(path.getFileName().toString()))</span>
-<span class="fc" id="L169">                .collect(Collectors.joining(&quot; &quot;));</span>
-<span class="fc" id="L170">        vars.add(new EnvVar(&quot;X509_CA_BUNDLE&quot;,</span>
+    public EnvVar getX509CaBundleVariable(Secret caCertSecret) {
+
+<span class="fc" id="L189">        String certFiles = caCertSecret.getData().keySet().stream()</span>
+<span class="fc" id="L190">                .map(fileName -&gt; caCertsFolder(caCertSecret) + File.separator + fileName)</span>
+<span class="fc" id="L191">                .collect(Collectors.joining(&quot; &quot;));</span>
+<span class="fc" id="L192">        final String certfilelocations =</span>
                 &quot;/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt /var/run/secrets/kubernetes.io/serviceaccount/ca.crt &quot;
-                        + certFiles, null));
-<span class="fc" id="L173">        return vars;</span>
+                        + certFiles;
+<span class="fc" id="L195">        return new EnvVar(&quot;X509_CA_BUNDLE&quot;,</span>
+                certfilelocations, null);
     }
 
     private String determineKeycloaksNonStandardDbVendorName(DatabaseSchemaConnectionInfo databaseSchemaConnectionInfo) {
-<span class="pc bpc" id="L177" title="1 of 2 branches missed.">        return FluentTernary.use(&quot;postgres&quot;).when(databaseSchemaConnectionInfo.getVendor().getVendorConfig() == DbmsVendorConfig.POSTGRESQL)</span>
-<span class="fc" id="L178">                .orElse(databaseSchemaConnectionInfo.getVendor().getVendorConfig().getName());</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        return FluentTernary.use(&quot;postgres&quot;).when(databaseSchemaConnectionInfo.getVendor().getVendorConfig() == DbmsVendorConfig.POSTGRESQL)</span>
+<span class="fc" id="L201">                .orElse(databaseSchemaConnectionInfo.getVendor().getVendorConfig().getName());</span>
     }
 
     @Override
     public String getWebContextPath() {
-<span class="fc" id="L183">        return &quot;/auth&quot;;</span>
+<span class="fc" id="L206">        return &quot;/auth&quot;;</span>
     }
 
     @Override
     public Optional&lt;String&gt; getHealthCheckPath() {
-<span class="fc" id="L188">        return Optional.of(getWebContextPath());</span>
+<span class="fc" id="L211">        return Optional.of(getWebContextPath());</span>
     }
 
     @Override
     public String getVolumeMountPath() {
-<span class="fc bfc" id="L193" title="All 2 branches covered.">        if (determineStandardKeycloakImage() == StandardKeycloakImage.REDHAT_SSO) {</span>
-<span class="fc" id="L194">            return &quot;/opt/eap/standalone/data&quot;;</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        if (determineStandardKeycloakImage() == StandardKeycloakImage.REDHAT_SSO) {</span>
+<span class="fc" id="L217">            return &quot;/opt/eap/standalone/data&quot;;</span>
         } else {
-<span class="fc" id="L196">            return &quot;/opt/jboss/keycloak/standalone/data&quot;;</span>
+<span class="fc" id="L219">            return &quot;/opt/jboss/keycloak/standalone/data&quot;;</span>
         }
     }
 
     @Override
     public Optional&lt;EntandoResourceRequirements&gt; getResourceRequirementsOverride() {
-<span class="fc" id="L202">        return keycloakServer.getSpec().getResourceRequirements();</span>
+<span class="fc" id="L225">        return keycloakServer.getSpec().getResourceRequirements();</span>
     }
 
     @Override
     public List&lt;EnvVar&gt; getEnvironmentVariableOverrides() {
-<span class="fc" id="L207">        return keycloakServer.getSpec().getEnvironmentVariables();</span>
+<span class="fc" id="L230">        return keycloakServer.getSpec().getEnvironmentVariables();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
