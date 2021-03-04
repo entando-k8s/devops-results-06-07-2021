@@ -43,7 +43,13 @@ public class EntandoBundleComponentJobEntity implements TrackableJob, HasInstall
     @Column
     private String componentId;
     @Column
-    private String errorMessage;
+    private Integer installErrorCode;
+    @Column
+    private String installErrorMessage;
+    @Column
+    private Integer rollbackErrorCode;
+    @Column
+    private String rollbackErrorMessage;
     @Column
     private String checksum;
     @Column
@@ -59,24 +65,27 @@ public class EntandoBundleComponentJobEntity implements TrackableJob, HasInstall
     private LocalDateTime finishedAt;
 
     public static EntandoBundleComponentJobEntity getNewCopy(EntandoBundleComponentJobEntity o) {
-<span class="fc" id="L62">        EntandoBundleComponentJobEntity newComponent = new EntandoBundleComponentJobEntity();</span>
-<span class="fc" id="L63">        newComponent.setParentJob(o.getParentJob());</span>
-<span class="fc" id="L64">        newComponent.setComponentType(o.getComponentType());</span>
-<span class="fc" id="L65">        newComponent.setComponentId(o.getComponentId());</span>
-<span class="fc" id="L66">        newComponent.setChecksum(o.getChecksum());</span>
-<span class="fc" id="L67">        newComponent.setStartedAt(o.getStartedAt());</span>
-<span class="fc" id="L68">        newComponent.setFinishedAt(o.getFinishedAt());</span>
-<span class="fc" id="L69">        newComponent.setStatus(o.getStatus());</span>
-<span class="fc" id="L70">        newComponent.setAction(o.getAction());</span>
-<span class="fc" id="L71">        newComponent.setInstallable(o.getInstallable());</span>
-<span class="fc" id="L72">        newComponent.setErrorMessage(o.getErrorMessage());</span>
-<span class="fc" id="L73">        return newComponent;</span>
+<span class="fc" id="L68">        EntandoBundleComponentJobEntity newComponent = new EntandoBundleComponentJobEntity();</span>
+<span class="fc" id="L69">        newComponent.setParentJob(o.getParentJob());</span>
+<span class="fc" id="L70">        newComponent.setComponentType(o.getComponentType());</span>
+<span class="fc" id="L71">        newComponent.setComponentId(o.getComponentId());</span>
+<span class="fc" id="L72">        newComponent.setChecksum(o.getChecksum());</span>
+<span class="fc" id="L73">        newComponent.setStartedAt(o.getStartedAt());</span>
+<span class="fc" id="L74">        newComponent.setFinishedAt(o.getFinishedAt());</span>
+<span class="fc" id="L75">        newComponent.setStatus(o.getStatus());</span>
+<span class="fc" id="L76">        newComponent.setAction(o.getAction());</span>
+<span class="fc" id="L77">        newComponent.setInstallable(o.getInstallable());</span>
+<span class="fc" id="L78">        newComponent.setInstallErrorMessage(o.getInstallErrorMessage());</span>
+<span class="fc" id="L79">        newComponent.setInstallErrorCode(o.getInstallErrorCode());</span>
+<span class="fc" id="L80">        newComponent.setRollbackErrorMessage(o.getRollbackErrorMessage());</span>
+<span class="fc" id="L81">        newComponent.setRollbackErrorCode(o.getRollbackErrorCode());</span>
+<span class="fc" id="L82">        return newComponent;</span>
     }
 
     @PrePersist
     public void generateId() {
-<span class="fc" id="L78">        this.id = UUID.randomUUID();</span>
-<span class="fc" id="L79">    }</span>
+<span class="fc" id="L87">        this.id = UUID.randomUUID();</span>
+<span class="fc" id="L88">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

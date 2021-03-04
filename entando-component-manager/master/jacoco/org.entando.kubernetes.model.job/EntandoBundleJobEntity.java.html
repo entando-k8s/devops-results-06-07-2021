@@ -41,54 +41,53 @@ public class EntandoBundleJobEntity implements TrackableJob, HasProgress {
     @Column
     @Type(type = &quot;uuid-char&quot;)
     private UUID id;
-
     @Column
     private String componentId;
-
     @Column
     private String componentName;
-
     @Column
     private String componentVersion;
-
     @Column
     private LocalDateTime startedAt;
-
     @Column
     private LocalDateTime finishedAt;
-
     @Column
     private String userId;
-
     @Column
     private double progress;
-
     @Column
     @Enumerated(EnumType.STRING)
     private JobStatus status;
-
     @Column
-    private String errorMessage;
+    private Integer installErrorCode;
+    @Column
+    private String installErrorMessage;
+    @Column
+    private Integer rollbackErrorCode;
+    @Column
+    private String rollbackErrorMessage;
 
     @PrePersist
     public void generateId() {
-<span class="fc" id="L75">        this.id = UUID.randomUUID();</span>
-<span class="fc" id="L76">    }</span>
+<span class="fc" id="L72">        this.id = UUID.randomUUID();</span>
+<span class="fc" id="L73">    }</span>
 
     public EntandoBundleJobEntity clone() {
-<span class="nc" id="L79">        EntandoBundleJobEntity newEntity = new EntandoBundleJobEntity();</span>
-<span class="nc" id="L80">        newEntity.setId(this.id);</span>
-<span class="nc" id="L81">        newEntity.setProgress(this.progress);</span>
-<span class="nc" id="L82">        newEntity.setStatus(this.status);</span>
-<span class="nc" id="L83">        newEntity.setComponentName(this.componentName);</span>
-<span class="nc" id="L84">        newEntity.setComponentId(this.componentId);</span>
-<span class="nc" id="L85">        newEntity.setComponentVersion(this.componentVersion);</span>
-<span class="nc" id="L86">        newEntity.setErrorMessage(this.errorMessage);</span>
+<span class="nc" id="L76">        EntandoBundleJobEntity newEntity = new EntandoBundleJobEntity();</span>
+<span class="nc" id="L77">        newEntity.setId(this.id);</span>
+<span class="nc" id="L78">        newEntity.setProgress(this.progress);</span>
+<span class="nc" id="L79">        newEntity.setStatus(this.status);</span>
+<span class="nc" id="L80">        newEntity.setComponentName(this.componentName);</span>
+<span class="nc" id="L81">        newEntity.setComponentId(this.componentId);</span>
+<span class="nc" id="L82">        newEntity.setComponentVersion(this.componentVersion);</span>
+<span class="nc" id="L83">        newEntity.setInstallErrorCode(this.installErrorCode);</span>
+<span class="nc" id="L84">        newEntity.setInstallErrorMessage(this.installErrorMessage);</span>
+<span class="nc" id="L85">        newEntity.setRollbackErrorCode(this.rollbackErrorCode);</span>
+<span class="nc" id="L86">        newEntity.setRollbackErrorMessage(this.rollbackErrorMessage);</span>
 <span class="nc" id="L87">        newEntity.setStartedAt(this.startedAt);</span>
 <span class="nc" id="L88">        newEntity.setFinishedAt(this.finishedAt);</span>
 <span class="nc" id="L89">        newEntity.setUserId(this.userId);</span>
 <span class="nc" id="L90">        return newEntity;</span>
     }
-
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

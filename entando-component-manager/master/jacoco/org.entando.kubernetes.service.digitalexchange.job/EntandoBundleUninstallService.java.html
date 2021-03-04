@@ -135,61 +135,60 @@ public class EntandoBundleUninstallService implements EntandoBundleJobExecutor {
 <span class="fc" id="L135">                log.info(&quot;Component &quot; + parentJob.getComponentId() + &quot; uninstalled successfully&quot;);</span>
 
 <span class="fc" id="L137">            } catch (Exception ex) {</span>
+<span class="fc" id="L138">                log.error(&quot;An error occurred while uninstalling component &quot; + parentJob.getComponentId(), ex);</span>
+<span class="fc" id="L139">                parentJobResult.setStatus(JobStatus.UNINSTALL_ERROR);</span>
+<span class="fc" id="L140">                parentJobResult.setInstallException(ex);</span>
+<span class="fc" id="L141">            }</span>
 
-<span class="fc" id="L139">                log.error(&quot;An error occurred while uninstalling component &quot; + parentJob.getComponentId(), ex);</span>
-<span class="fc" id="L140">                parentJobResult.setStatus(JobStatus.UNINSTALL_ERROR);</span>
-<span class="fc" id="L141">                parentJobResult.setException(ex);</span>
-<span class="fc" id="L142">            }</span>
-
-<span class="fc" id="L144">            parentJobTracker.finishTracking(parentJobResult);</span>
-<span class="fc" id="L145">        });</span>
-<span class="fc" id="L146">    }</span>
+<span class="fc" id="L143">            parentJobTracker.finishTracking(parentJobResult);</span>
+<span class="fc" id="L144">        });</span>
+<span class="fc" id="L145">    }</span>
 
     private JobTracker&lt;EntandoBundleComponentJobEntity&gt; trackExecution(EntandoBundleComponentJobEntity cj,
             Function&lt;Installable, JobResult&gt; action) {
-<span class="fc" id="L150">        JobTracker&lt;EntandoBundleComponentJobEntity&gt; cjt = new JobTracker&lt;&gt;(cj, compJobRepo);</span>
-<span class="fc" id="L151">        cjt.startTracking(JobStatus.UNINSTALL_IN_PROGRESS);</span>
-<span class="fc" id="L152">        JobResult result = action.apply(cj.getInstallable());</span>
-<span class="fc" id="L153">        cjt.finishTracking(result);</span>
-<span class="fc" id="L154">        return cjt;</span>
+<span class="fc" id="L149">        JobTracker&lt;EntandoBundleComponentJobEntity&gt; cjt = new JobTracker&lt;&gt;(cj, compJobRepo);</span>
+<span class="fc" id="L150">        cjt.startTracking(JobStatus.UNINSTALL_IN_PROGRESS);</span>
+<span class="fc" id="L151">        JobResult result = action.apply(cj.getInstallable());</span>
+<span class="fc" id="L152">        cjt.finishTracking(result);</span>
+<span class="fc" id="L153">        return cjt;</span>
     }
 
     private Queue&lt;EntandoBundleComponentJobEntity&gt; createUninstallComponentJobs(EntandoBundleJobEntity parentJob,
             EntandoBundleJobEntity referenceJob) {
-<span class="fc" id="L159">        List&lt;EntandoBundleComponentJobEntity&gt; installJobs = compJobRepo.findAllByParentJob(referenceJob);</span>
-<span class="fc" id="L160">        return installJobs.stream()</span>
-<span class="fc" id="L161">                .map(cj -&gt; {</span>
-<span class="fc" id="L162">                    Installable&lt;?&gt; i = processorMap.get(cj.getComponentType()).process(cj);</span>
-<span class="fc" id="L163">                    EntandoBundleComponentJobEntity uninstallCopy = EntandoBundleComponentJobEntity.getNewCopy(cj);</span>
-<span class="fc" id="L164">                    uninstallCopy.setParentJob(parentJob);</span>
-<span class="fc" id="L165">                    uninstallCopy.setStatus(JobStatus.UNINSTALL_CREATED);</span>
-<span class="fc" id="L166">                    uninstallCopy.setAction(cj.getAction());</span>
-<span class="fc" id="L167">                    uninstallCopy.setInstallable(i);</span>
-<span class="fc" id="L168">                    return uninstallCopy;</span>
+<span class="fc" id="L158">        List&lt;EntandoBundleComponentJobEntity&gt; installJobs = compJobRepo.findAllByParentJob(referenceJob);</span>
+<span class="fc" id="L159">        return installJobs.stream()</span>
+<span class="fc" id="L160">                .map(cj -&gt; {</span>
+<span class="fc" id="L161">                    Installable&lt;?&gt; i = processorMap.get(cj.getComponentType()).process(cj);</span>
+<span class="fc" id="L162">                    EntandoBundleComponentJobEntity uninstallCopy = EntandoBundleComponentJobEntity.getNewCopy(cj);</span>
+<span class="fc" id="L163">                    uninstallCopy.setParentJob(parentJob);</span>
+<span class="fc" id="L164">                    uninstallCopy.setStatus(JobStatus.UNINSTALL_CREATED);</span>
+<span class="fc" id="L165">                    uninstallCopy.setAction(cj.getAction());</span>
+<span class="fc" id="L166">                    uninstallCopy.setInstallable(i);</span>
+<span class="fc" id="L167">                    return uninstallCopy;</span>
                 })
-<span class="fc" id="L170">                .sorted(Comparator</span>
-<span class="fc" id="L171">                        .comparingInt(cj -&gt; ((EntandoBundleComponentJobEntity) cj).getInstallable().getPriority())</span>
-<span class="fc" id="L172">                        .reversed())</span>
-<span class="fc" id="L173">                .collect(Collectors.toCollection(ArrayDeque::new));</span>
+<span class="fc" id="L169">                .sorted(Comparator</span>
+<span class="fc" id="L170">                        .comparingInt(cj -&gt; ((EntandoBundleComponentJobEntity) cj).getInstallable().getPriority())</span>
+<span class="fc" id="L171">                        .reversed())</span>
+<span class="fc" id="L172">                .collect(Collectors.toCollection(ArrayDeque::new));</span>
     }
 
     private JobResult executeUninstall(Installable&lt;?&gt; installable) {
 
-<span class="fc" id="L178">        CompletableFuture&lt;?&gt; future = installable.uninstall();</span>
-<span class="fc" id="L179">        CompletableFuture&lt;JobResult&gt; uninstallResult = future</span>
-<span class="fc" id="L180">                .thenApply(vd -&gt; {</span>
-<span class="fc" id="L181">                    log.debug(&quot;Installable '{}' uninstalled successfully&quot;, installable.getName());</span>
-<span class="fc" id="L182">                    return JobResult.builder().status(JobStatus.UNINSTALL_COMPLETED).build();</span>
-<span class="fc" id="L183">                }).exceptionally(th -&gt; {</span>
-<span class="fc" id="L184">                    log.error(&quot;Installable '{}' had errors during uninstall&quot;, installable.getName(), th.getCause());</span>
-<span class="fc" id="L185">                    String message = getMeaningfulErrorMessage(th);</span>
-<span class="fc" id="L186">                    return JobResult.builder()</span>
-<span class="fc" id="L187">                            .status(JobStatus.UNINSTALL_ERROR)</span>
-<span class="fc" id="L188">                            .exception(new Exception(message))</span>
-<span class="fc" id="L189">                            .build();</span>
+<span class="fc" id="L177">        CompletableFuture&lt;?&gt; future = installable.uninstall();</span>
+<span class="fc" id="L178">        CompletableFuture&lt;JobResult&gt; uninstallResult = future</span>
+<span class="fc" id="L179">                .thenApply(vd -&gt; {</span>
+<span class="fc" id="L180">                    log.debug(&quot;Installable '{}' uninstalled successfully&quot;, installable.getName());</span>
+<span class="fc" id="L181">                    return JobResult.builder().status(JobStatus.UNINSTALL_COMPLETED).build();</span>
+<span class="fc" id="L182">                }).exceptionally(th -&gt; {</span>
+<span class="fc" id="L183">                    log.error(&quot;Installable '{}' had errors during uninstall&quot;, installable.getName(), th.getCause());</span>
+<span class="fc" id="L184">                    String message = getMeaningfulErrorMessage(th);</span>
+<span class="fc" id="L185">                    return JobResult.builder()</span>
+<span class="fc" id="L186">                            .status(JobStatus.UNINSTALL_ERROR)</span>
+<span class="fc" id="L187">                            .installException(new EntandoComponentManagerException(message))</span>
+<span class="fc" id="L188">                            .build();</span>
                 });
 
-<span class="fc" id="L192">        return uninstallResult.join();</span>
+<span class="fc" id="L191">        return uninstallResult.join();</span>
     }
 
 }
