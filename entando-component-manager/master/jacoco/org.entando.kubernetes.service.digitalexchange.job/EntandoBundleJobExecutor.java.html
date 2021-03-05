@@ -23,13 +23,13 @@ public interface EntandoBundleJobExecutor {
 <span class="fc" id="L23">        String message = String</span>
 <span class="fc" id="L24">                .format(&quot;Rest client exception (status code %d) - %s&quot;, e.getRawStatusCode(), status.getReasonPhrase());</span>
 <span class="fc" id="L25">        String respBody = e.getResponseBodyAsString();</span>
-<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        if (!respBody.isEmpty()) {</span>
-<span class="nc" id="L27">            String parsedErrorMessage = parseEntandoCoreError(respBody);</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (!respBody.isEmpty()) {</span>
+<span class="fc" id="L27">            String parsedErrorMessage = parseEntandoCoreError(respBody);</span>
             // object comparison: if the returned string is the same =&gt; regex didn't match
-<span class="nc bnc" id="L29" title="All 2 branches missed.">            if (respBody == parsedErrorMessage) {   // NOSONAR</span>
-<span class="nc" id="L30">                parsedErrorMessage = parseEntandoK8SServiceError(respBody);</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">            if (respBody == parsedErrorMessage) {   // NOSONAR</span>
+<span class="fc" id="L30">                parsedErrorMessage = parseEntandoK8SServiceError(respBody);</span>
             }
-<span class="nc" id="L32">            message = message + &quot; - &quot; + parsedErrorMessage;</span>
+<span class="fc" id="L32">            message = message + &quot; - &quot; + parsedErrorMessage;</span>
         }
 <span class="fc" id="L34">        return message;</span>
     }
@@ -40,8 +40,8 @@ public interface EntandoBundleJobExecutor {
      * @return the parsed error message or the received responseBody
      */
     private String parseEntandoCoreError(String responseBody) {
-<span class="nc" id="L43">        Matcher matcher = Pattern.compile(ENTANDO_CORE_MESSAGE_REGEX).matcher(responseBody);</span>
-<span class="nc bnc" id="L44" title="All 2 branches missed.">        return matcher.find() ? matcher.group(1) : responseBody;</span>
+<span class="fc" id="L43">        Matcher matcher = Pattern.compile(ENTANDO_CORE_MESSAGE_REGEX).matcher(responseBody);</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        return matcher.find() ? matcher.group(1) : responseBody;</span>
     }
 
     /**
@@ -50,8 +50,8 @@ public interface EntandoBundleJobExecutor {
      * @return the parsed error message or the received responseBody
      */
     private String parseEntandoK8SServiceError(String responseBody) {
-<span class="nc" id="L53">        Matcher matcher = Pattern.compile(ENTANDO_K8S_SERVICE_MESSAGE_REGEX).matcher(responseBody);</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        return matcher.find() ? matcher.group(1) : responseBody;</span>
+<span class="fc" id="L53">        Matcher matcher = Pattern.compile(ENTANDO_K8S_SERVICE_MESSAGE_REGEX).matcher(responseBody);</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        return matcher.find() ? matcher.group(1) : responseBody;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
