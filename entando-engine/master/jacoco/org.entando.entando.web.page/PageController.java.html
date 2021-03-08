@@ -238,7 +238,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 
     @ActivityStreamAuditable
-    @RestAccessControl(permission = Permission.MANAGE_PAGES)
+    @RestAccessControl(permission = {Permission.MANAGE_PAGES, Permission.CONTENT_SUPERVISOR})
     @RequestMapping(value = &quot;/pages/{pageCode}/status&quot;, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;RestResponse&lt;PageDto, Map&lt;String, String&gt;&gt;&gt; updatePageStatus(
             @ModelAttribute(&quot;user&quot;) UserDetails user, @PathVariable String pageCode,
