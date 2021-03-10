@@ -18,18 +18,18 @@ public enum BundleType {
 
     private final String type;
 
-    private static final Map&lt;String, BundleType&gt; ENUM_MAP;
+    private static final Map&lt;String, BundleType&gt; typeToBundleType;
 
     static {
 <span class="fc" id="L24">        Map&lt;String, BundleType&gt; map = new ConcurrentHashMap&lt;&gt;();</span>
 <span class="fc bfc" id="L25" title="All 2 branches covered.">        for (BundleType instance : BundleType.values()) {</span>
 <span class="fc" id="L26">            map.put(instance.getType().toLowerCase(),instance);</span>
         }
-<span class="fc" id="L28">        ENUM_MAP = Collections.unmodifiableMap(map);</span>
+<span class="fc" id="L28">        typeToBundleType = Collections.unmodifiableMap(map);</span>
 <span class="fc" id="L29">    }</span>
 
-    public static BundleType getFromType(String type) {
-<span class="fc" id="L32">        return ENUM_MAP.get(type.toLowerCase());</span>
+    public static BundleType fromType(String type) {
+<span class="fc" id="L32">        return typeToBundleType.get(type.toLowerCase());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
