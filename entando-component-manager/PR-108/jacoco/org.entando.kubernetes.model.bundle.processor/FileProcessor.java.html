@@ -90,59 +90,58 @@ public class FileProcessor extends BaseComponentProcessor&lt;FileDescriptor&gt; 
 <span class="fc" id="L90">                    installables.add(new FileInstallable(engineService, fileDescriptor, action));</span>
 <span class="fc" id="L91">                }</span>
             }
-<span class="nc" id="L93">        } catch (IOException e) {</span>
-<span class="nc" id="L94">            throw new EntandoComponentManagerException(</span>
-<span class="nc" id="L95">                    String.format(&quot;Error processing %s components&quot;, getSupportedComponentType().getTypeName()), e);</span>
-<span class="fc" id="L96">        }</span>
+<span class="fc" id="L93">        } catch (IOException e) {</span>
+<span class="nc" id="L94">            throwMeaningfulException(e);</span>
+<span class="fc" id="L95">        }</span>
 
-<span class="fc" id="L98">        return installables;</span>
+<span class="fc" id="L97">        return installables;</span>
     }
 
     @Override
     public List&lt;Installable&lt;FileDescriptor&gt;&gt; process(List&lt;EntandoBundleComponentJobEntity&gt; components) {
-<span class="fc" id="L103">        return components.stream()</span>
-<span class="pc bpc" id="L104" title="1 of 2 branches missed.">                .filter(c -&gt; c.getComponentType() == getSupportedComponentType())</span>
-<span class="fc" id="L105">                .map(c -&gt; new FileInstallable(engineService, this.buildDescriptorFromComponentJob(c), c.getAction()))</span>
-<span class="fc" id="L106">                .collect(Collectors.toList());</span>
+<span class="fc" id="L102">        return components.stream()</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                .filter(c -&gt; c.getComponentType() == getSupportedComponentType())</span>
+<span class="fc" id="L104">                .map(c -&gt; new FileInstallable(engineService, this.buildDescriptorFromComponentJob(c), c.getAction()))</span>
+<span class="fc" id="L105">                .collect(Collectors.toList());</span>
     }
 
     @Override
     public FileDescriptor buildDescriptorFromComponentJob(EntandoBundleComponentJobEntity component) {
-<span class="fc" id="L111">        File file = FileUtils.getFile(component.getComponentId());</span>
-<span class="fc" id="L112">        return FileDescriptor.builder()</span>
-<span class="fc" id="L113">                .folder(file.getParent())</span>
-<span class="fc" id="L114">                .filename(file.getName())</span>
-<span class="fc" id="L115">                .build();</span>
+<span class="fc" id="L110">        File file = FileUtils.getFile(component.getComponentId());</span>
+<span class="fc" id="L111">        return FileDescriptor.builder()</span>
+<span class="fc" id="L112">                .folder(file.getParent())</span>
+<span class="fc" id="L113">                .filename(file.getName())</span>
+<span class="fc" id="L114">                .build();</span>
     }
 
 
     @Override
     public Reportable getReportable(BundleReader bundleReader, ComponentProcessor&lt;?&gt; componentProcessor) {
 
-<span class="fc" id="L122">        List&lt;String&gt; idList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L121">        List&lt;String&gt; idList = new ArrayList&lt;&gt;();</span>
 
         try {
-<span class="pc bpc" id="L125" title="1 of 2 branches missed.">            if (bundleReader.containsResourceFolder()) {</span>
-<span class="fc" id="L126">                final String resourceFolder = BundleUtilities.determineBundleResourceRootFolder(bundleReader);</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">            if (bundleReader.containsResourceFolder()) {</span>
+<span class="fc" id="L125">                final String resourceFolder = BundleUtilities.determineBundleResourceRootFolder(bundleReader);</span>
 
-<span class="fc" id="L128">                List&lt;String&gt; resourceFiles = bundleReader.getResourceFiles().stream().sorted()</span>
-<span class="fc" id="L129">                        .collect(Collectors.toList());</span>
-<span class="fc bfc" id="L130" title="All 2 branches covered.">                for (final String resourceFile : resourceFiles) {</span>
+<span class="fc" id="L127">                List&lt;String&gt; resourceFiles = bundleReader.getResourceFiles().stream().sorted()</span>
+<span class="fc" id="L128">                        .collect(Collectors.toList());</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                for (final String resourceFile : resourceFiles) {</span>
 
-<span class="fc" id="L132">                    Path fileFolder = Paths.get(BundleProperty.RESOURCES_FOLDER_PATH.getValue())</span>
-<span class="fc" id="L133">                            .relativize(Paths.get(resourceFile));</span>
+<span class="fc" id="L131">                    Path fileFolder = Paths.get(BundleProperty.RESOURCES_FOLDER_PATH.getValue())</span>
+<span class="fc" id="L132">                            .relativize(Paths.get(resourceFile));</span>
 
-<span class="fc" id="L135">                    String file = Paths.get(resourceFolder).resolve(fileFolder).toString();</span>
-<span class="fc" id="L136">                    idList.add(file);</span>
-<span class="fc" id="L137">                }</span>
+<span class="fc" id="L134">                    String file = Paths.get(resourceFolder).resolve(fileFolder).toString();</span>
+<span class="fc" id="L135">                    idList.add(file);</span>
+<span class="fc" id="L136">                }</span>
             }
 
-<span class="fc" id="L140">            return new Reportable(componentProcessor.getSupportedComponentType(), idList,</span>
-<span class="fc" id="L141">                    this.getReportableRemoteHandler());</span>
+<span class="fc" id="L139">            return new Reportable(componentProcessor.getSupportedComponentType(), idList,</span>
+<span class="fc" id="L140">                    this.getReportableRemoteHandler());</span>
 
-<span class="nc" id="L143">        } catch (IOException e) {</span>
-<span class="nc" id="L144">            throw new EntandoComponentManagerException(String.format(&quot;Error generating Reportable for %s type&quot;,</span>
-<span class="nc" id="L145">                    componentProcessor.getSupportedComponentType().getTypeName()), e);</span>
+<span class="nc" id="L142">        } catch (IOException e) {</span>
+<span class="nc" id="L143">            throw new EntandoComponentManagerException(String.format(&quot;Error generating Reportable for %s type&quot;,</span>
+<span class="nc" id="L144">                    componentProcessor.getSupportedComponentType().getTypeName()), e);</span>
         }
     }
 }

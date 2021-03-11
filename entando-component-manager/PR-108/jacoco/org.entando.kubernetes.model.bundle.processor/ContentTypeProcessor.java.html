@@ -12,7 +12,6 @@ import org.entando.kubernetes.client.core.EntandoCoreClient;
 import org.entando.kubernetes.controller.digitalexchange.job.model.AnalysisReport;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallActionsByComponentType;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallRequest.InstallAction;
-import org.entando.kubernetes.exception.EntandoComponentManagerException;
 import org.entando.kubernetes.model.bundle.ComponentType;
 import org.entando.kubernetes.model.bundle.descriptor.ComponentSpecDescriptor;
 import org.entando.kubernetes.model.bundle.descriptor.contenttype.ContentTypeDescriptor;
@@ -26,7 +25,7 @@ import org.springframework.stereotype.Service;
 /**
  * Processor to handle Bundles with CMS ContentTypes.
  */
-<span class="fc" id="L29">@Slf4j</span>
+<span class="fc" id="L28">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
 public class ContentTypeProcessor extends BaseComponentProcessor&lt;ContentTypeDescriptor&gt;
@@ -36,32 +35,33 @@ public class ContentTypeProcessor extends BaseComponentProcessor&lt;ContentTypeD
 
     @Override
     public ComponentType getSupportedComponentType() {
-<span class="fc" id="L39">        return ComponentType.CONTENT_TYPE;</span>
+<span class="fc" id="L38">        return ComponentType.CONTENT_TYPE;</span>
     }
 
     @Override
     public Class&lt;ContentTypeDescriptor&gt; getDescriptorClass() {
-<span class="fc" id="L44">        return ContentTypeDescriptor.class;</span>
+<span class="fc" id="L43">        return ContentTypeDescriptor.class;</span>
     }
 
     @Override
     public Optional&lt;Function&lt;ComponentSpecDescriptor, List&lt;String&gt;&gt;&gt; getComponentSelectionFn() {
-<span class="fc" id="L49">        return Optional.of(ComponentSpecDescriptor::getContentTypes);</span>
+<span class="fc" id="L48">        return Optional.of(ComponentSpecDescriptor::getContentTypes);</span>
     }
 
     @Override
     public List&lt;Installable&lt;ContentTypeDescriptor&gt;&gt; process(BundleReader bundleReader) {
-<span class="fc" id="L54">        return this.process(bundleReader, InstallAction.CREATE, new InstallActionsByComponentType(),</span>
+<span class="fc" id="L53">        return this.process(bundleReader, InstallAction.CREATE, new InstallActionsByComponentType(),</span>
                 new AnalysisReport());
     }
 
     @Override
     public List&lt;Installable&lt;ContentTypeDescriptor&gt;&gt; process(BundleReader bundleReader, InstallAction conflictStrategy,
             InstallActionsByComponentType actions, AnalysisReport report) {
-        try {
-<span class="fc" id="L62">            final List&lt;String&gt; descriptorList = getDescriptorList(bundleReader);</span>
 
-<span class="fc" id="L64">            List&lt;Installable&lt;ContentTypeDescriptor&gt;&gt; installables = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L61">        List&lt;Installable&lt;ContentTypeDescriptor&gt;&gt; installables = new LinkedList&lt;&gt;();</span>
+
+        try {
+<span class="fc" id="L64">            final List&lt;String&gt; descriptorList = getDescriptorList(bundleReader);</span>
 
 <span class="fc bfc" id="L66" title="All 2 branches covered.">            for (String fileName : descriptorList) {</span>
 <span class="fc" id="L67">                ContentTypeDescriptor contentTypeDescriptor = bundleReader</span>
@@ -71,11 +71,11 @@ public class ContentTypeProcessor extends BaseComponentProcessor&lt;ContentTypeD
 <span class="fc" id="L71">                installables.add(new ContentTypeInstallable(engineService, contentTypeDescriptor, action));</span>
 <span class="fc" id="L72">            }</span>
 
-<span class="fc" id="L74">            return installables;</span>
-<span class="nc" id="L75">        } catch (IOException e) {</span>
-<span class="nc" id="L76">            throw new EntandoComponentManagerException(</span>
-<span class="nc" id="L77">                    String.format(&quot;Error processing %s components&quot;, getSupportedComponentType().getTypeName()), e);</span>
-        }
+<span class="fc" id="L74">        } catch (IOException e) {</span>
+<span class="nc" id="L75">            throwMeaningfulException(e);</span>
+<span class="fc" id="L76">        }</span>
+
+<span class="fc" id="L78">        return installables;</span>
     }
 
     @Override
