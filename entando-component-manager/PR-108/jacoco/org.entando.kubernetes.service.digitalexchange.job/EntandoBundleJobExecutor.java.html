@@ -11,14 +11,14 @@ public interface EntandoBundleJobExecutor {
     String ENTANDO_CORE_MESSAGE_REGEX = &quot;message\&quot;:\&quot;([^\n\r]*)\&quot;&quot;;
     String ENTANDO_K8S_SERVICE_MESSAGE_REGEX = &quot;message\\=([^\n\r]*), metadata&quot;;
 
-    default String getMeaningfulErrorMessage(Throwable th, Installable installable) {
+    default String getMeaningfulErrorMessage(Throwable th, Installable&lt;?&gt; installable) {
 <span class="fc bfc" id="L15" title="All 2 branches covered.">        if (th.getCause() instanceof RestClientResponseException) {</span>
 <span class="fc" id="L16">            return getMeaningfulErrorMessage((RestClientResponseException) th.getCause(), installable);</span>
         }
 <span class="fc" id="L18">        return th.getMessage();</span>
     }
 
-    default String getMeaningfulErrorMessage(RestClientResponseException e, Installable installable) {
+    default String getMeaningfulErrorMessage(RestClientResponseException e, Installable&lt;?&gt; installable) {
 <span class="fc" id="L22">        HttpStatus status = HttpStatus.valueOf(e.getRawStatusCode());</span>
 
 <span class="fc" id="L24">        String message = String</span>
