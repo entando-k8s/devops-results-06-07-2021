@@ -12,7 +12,6 @@ import org.entando.kubernetes.client.core.EntandoCoreClient;
 import org.entando.kubernetes.controller.digitalexchange.job.model.AnalysisReport;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallActionsByComponentType;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallRequest.InstallAction;
-import org.entando.kubernetes.exception.EntandoComponentManagerException;
 import org.entando.kubernetes.model.bundle.ComponentType;
 import org.entando.kubernetes.model.bundle.descriptor.ComponentSpecDescriptor;
 import org.entando.kubernetes.model.bundle.descriptor.FragmentDescriptor;
@@ -23,7 +22,7 @@ import org.entando.kubernetes.model.bundle.reportable.EntandoEngineReportablePro
 import org.entando.kubernetes.model.job.EntandoBundleComponentJobEntity;
 import org.springframework.stereotype.Service;
 
-<span class="fc" id="L26">@Slf4j</span>
+<span class="fc" id="L25">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
 public class FragmentProcessor extends BaseComponentProcessor&lt;FragmentDescriptor&gt; implements
@@ -33,61 +32,64 @@ public class FragmentProcessor extends BaseComponentProcessor&lt;FragmentDescrip
 
     @Override
     public ComponentType getSupportedComponentType() {
-<span class="fc" id="L36">        return ComponentType.FRAGMENT;</span>
+<span class="fc" id="L35">        return ComponentType.FRAGMENT;</span>
     }
 
     @Override
     public Class&lt;FragmentDescriptor&gt; getDescriptorClass() {
-<span class="fc" id="L41">        return FragmentDescriptor.class;</span>
+<span class="fc" id="L40">        return FragmentDescriptor.class;</span>
     }
 
     @Override
     public Optional&lt;Function&lt;ComponentSpecDescriptor, List&lt;String&gt;&gt;&gt; getComponentSelectionFn() {
-<span class="fc" id="L46">        return Optional.of(ComponentSpecDescriptor::getFragments);</span>
+<span class="fc" id="L45">        return Optional.of(ComponentSpecDescriptor::getFragments);</span>
     }
 
     @Override
     public List&lt;Installable&lt;FragmentDescriptor&gt;&gt; process(BundleReader bundleReader) {
-<span class="nc" id="L51">        return this.process(bundleReader, InstallAction.CREATE, new InstallActionsByComponentType(),</span>
+<span class="nc" id="L50">        return this.process(bundleReader, InstallAction.CREATE, new InstallActionsByComponentType(),</span>
                 new AnalysisReport());
     }
 
     @Override
     public List&lt;Installable&lt;FragmentDescriptor&gt;&gt; process(BundleReader bundleReader, InstallAction conflictStrategy,
             InstallActionsByComponentType actions, AnalysisReport report) {
-        try {
-<span class="fc" id="L59">            final List&lt;String&gt; descriptorList = getDescriptorList(bundleReader);</span>
-<span class="fc" id="L60">            List&lt;Installable&lt;FragmentDescriptor&gt;&gt; installableList = new ArrayList&lt;&gt;();</span>
 
-<span class="fc bfc" id="L62" title="All 2 branches covered.">            for (String fileName : descriptorList) {</span>
-<span class="fc" id="L63">                FragmentDescriptor frDesc = bundleReader.readDescriptorFile(fileName, FragmentDescriptor.class);</span>
-<span class="fc bfc" id="L64" title="All 2 branches covered.">                if (frDesc.getGuiCodePath() != null) {</span>
-<span class="fc" id="L65">                    String gcp = getRelativePath(fileName, frDesc.getGuiCodePath());</span>
-<span class="fc" id="L66">                    frDesc.setGuiCode(bundleReader.readFileAsString(gcp));</span>
+<span class="fc" id="L58">        List&lt;Installable&lt;FragmentDescriptor&gt;&gt; installableList = new ArrayList&lt;&gt;();</span>
+
+        try {
+<span class="fc" id="L61">            final List&lt;String&gt; descriptorList = getDescriptorList(bundleReader);</span>
+
+<span class="fc bfc" id="L63" title="All 2 branches covered.">            for (String fileName : descriptorList) {</span>
+<span class="fc" id="L64">                FragmentDescriptor frDesc = bundleReader.readDescriptorFile(fileName, FragmentDescriptor.class);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">                if (frDesc.getGuiCodePath() != null) {</span>
+<span class="fc" id="L66">                    String gcp = getRelativePath(fileName, frDesc.getGuiCodePath());</span>
+<span class="fc" id="L67">                    frDesc.setGuiCode(bundleReader.readFileAsString(gcp));</span>
                 }
-<span class="fc" id="L68">                InstallAction action = extractInstallAction(frDesc.getCode(), actions, conflictStrategy, report);</span>
-<span class="fc" id="L69">                installableList.add(new FragmentInstallable(engineService, frDesc, action));</span>
-<span class="fc" id="L70">            }</span>
-<span class="fc" id="L71">            return installableList;</span>
-<span class="nc" id="L72">        } catch (IOException e) {</span>
-<span class="nc" id="L73">            throw new EntandoComponentManagerException(&quot;Error reading bundle&quot;, e);</span>
-        }
+<span class="fc" id="L69">                InstallAction action = extractInstallAction(frDesc.getCode(), actions, conflictStrategy, report);</span>
+<span class="fc" id="L70">                installableList.add(new FragmentInstallable(engineService, frDesc, action));</span>
+<span class="fc" id="L71">            }</span>
+<span class="fc" id="L72">        } catch (IOException e) {</span>
+<span class="fc" id="L73">            throw makeMeaningfulException(e);</span>
+<span class="fc" id="L74">        }</span>
+
+<span class="fc" id="L76">        return installableList;</span>
     }
 
     @Override
     public List&lt;Installable&lt;FragmentDescriptor&gt;&gt; process(List&lt;EntandoBundleComponentJobEntity&gt; components) {
-<span class="fc" id="L79">        return components.stream()</span>
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">                .filter(c -&gt; c.getComponentType() == getSupportedComponentType())</span>
-<span class="fc" id="L81">                .map(c -&gt; new FragmentInstallable(engineService, this.buildDescriptorFromComponentJob(c),</span>
-<span class="fc" id="L82">                        c.getAction()))</span>
-<span class="fc" id="L83">                .collect(Collectors.toList());</span>
+<span class="fc" id="L81">        return components.stream()</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">                .filter(c -&gt; c.getComponentType() == getSupportedComponentType())</span>
+<span class="fc" id="L83">                .map(c -&gt; new FragmentInstallable(engineService, this.buildDescriptorFromComponentJob(c),</span>
+<span class="fc" id="L84">                        c.getAction()))</span>
+<span class="fc" id="L85">                .collect(Collectors.toList());</span>
     }
 
     @Override
     public FragmentDescriptor buildDescriptorFromComponentJob(EntandoBundleComponentJobEntity component) {
-<span class="fc" id="L88">        return FragmentDescriptor.builder()</span>
-<span class="fc" id="L89">                .code(component.getComponentId())</span>
-<span class="fc" id="L90">                .build();</span>
+<span class="fc" id="L90">        return FragmentDescriptor.builder()</span>
+<span class="fc" id="L91">                .code(component.getComponentId())</span>
+<span class="fc" id="L92">                .build();</span>
     }
 
 }

@@ -90,8 +90,8 @@ public class FileProcessor extends BaseComponentProcessor&lt;FileDescriptor&gt; 
 <span class="fc" id="L90">                    installables.add(new FileInstallable(engineService, fileDescriptor, action));</span>
 <span class="fc" id="L91">                }</span>
             }
-<span class="nc" id="L93">        } catch (IOException e) {</span>
-<span class="nc" id="L94">            throw new EntandoComponentManagerException(&quot;Error reading bundle&quot;, e);</span>
+<span class="fc" id="L93">        } catch (IOException e) {</span>
+<span class="fc" id="L94">            throw makeMeaningfulException(e);</span>
 <span class="fc" id="L95">        }</span>
 
 <span class="fc" id="L97">        return installables;</span>
@@ -140,7 +140,8 @@ public class FileProcessor extends BaseComponentProcessor&lt;FileDescriptor&gt; 
 <span class="fc" id="L140">                    this.getReportableRemoteHandler());</span>
 
 <span class="nc" id="L142">        } catch (IOException e) {</span>
-<span class="nc" id="L143">            throw new EntandoComponentManagerException(&quot;Error reading bundle&quot;, e);</span>
+<span class="nc" id="L143">            throw new EntandoComponentManagerException(String.format(&quot;Error generating Reportable for %s type&quot;,</span>
+<span class="nc" id="L144">                    componentProcessor.getSupportedComponentType().getTypeName()), e);</span>
         }
     }
 }

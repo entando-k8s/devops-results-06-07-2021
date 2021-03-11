@@ -5,30 +5,36 @@ import org.entando.kubernetes.controller.digitalexchange.job.model.AnalysisRepor
 import org.entando.kubernetes.controller.digitalexchange.job.model.AnalysisReport.Status;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallActionsByComponentType;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallRequest.InstallAction;
+import org.entando.kubernetes.exception.EntandoComponentManagerException;
 import org.entando.kubernetes.model.bundle.descriptor.Descriptor;
 
-<span class="fc" id="L10">public abstract class BaseComponentProcessor&lt;T extends Descriptor&gt; implements ComponentProcessor&lt;T&gt; {</span>
+<span class="fc" id="L11">public abstract class BaseComponentProcessor&lt;T extends Descriptor&gt; implements ComponentProcessor&lt;T&gt; {</span>
 
     protected InstallAction extractInstallAction(String componentCode, InstallActionsByComponentType actions,
             InstallAction conflictStrategy, AnalysisReport report) {
 
-<span class="fc" id="L15">        Map&lt;String, InstallAction&gt; actionsByType = actions.getActionsByType(getSupportedComponentType());</span>
-<span class="pc bpc" id="L16" title="1 of 2 branches missed.">        if (actionsByType.containsKey(componentCode)) {</span>
-<span class="nc" id="L17">            return actionsByType.get(componentCode);</span>
+<span class="fc" id="L16">        Map&lt;String, InstallAction&gt; actionsByType = actions.getActionsByType(getSupportedComponentType());</span>
+<span class="pc bpc" id="L17" title="1 of 2 branches missed.">        if (actionsByType.containsKey(componentCode)) {</span>
+<span class="nc" id="L18">            return actionsByType.get(componentCode);</span>
         }
 
-<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (isConflict(componentCode, report)) {</span>
-<span class="fc" id="L21">            return conflictStrategy;</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        if (isConflict(componentCode, report)) {</span>
+<span class="fc" id="L22">            return conflictStrategy;</span>
         }
 
-<span class="fc" id="L24">        return InstallAction.CREATE;</span>
+<span class="fc" id="L25">        return InstallAction.CREATE;</span>
     }
 
     protected boolean isConflict(String contentId, AnalysisReport report) {
-<span class="fc" id="L28">        Map&lt;String, Status&gt; reportByType = report.getReportByType(getSupportedComponentType());</span>
+<span class="fc" id="L29">        Map&lt;String, Status&gt; reportByType = report.getReportByType(getSupportedComponentType());</span>
 
-<span class="fc bfc" id="L30" title="All 2 branches covered.">        return reportByType.containsKey(contentId)</span>
-<span class="fc bfc" id="L31" title="All 2 branches covered.">                &amp;&amp; reportByType.get(contentId) != Status.NEW;</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        return reportByType.containsKey(contentId)</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">                &amp;&amp; reportByType.get(contentId) != Status.NEW;</span>
+    }
+
+    protected EntandoComponentManagerException makeMeaningfulException(Exception e) {
+<span class="fc" id="L36">        return new EntandoComponentManagerException(</span>
+<span class="fc" id="L37">                String.format(&quot;Error processing %s components&quot;, getSupportedComponentType().getTypeName()), e);</span>
     }
 
 }
