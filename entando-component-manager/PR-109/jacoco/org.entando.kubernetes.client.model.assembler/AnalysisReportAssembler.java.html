@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalysisReportAssembler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Component Manager</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.client.model.assembler</a> &gt; <span class="el_source">AnalysisReportAssembler.java</span></div><h1>AnalysisReportAssembler.java</h1><pre class="source lang-java linenums">/**
+ * assembler pattern to adapt AnalysisReport to ClientAnalysisReport and viceversa.
+ */
+
+package org.entando.kubernetes.client.model.assembler;
+
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.entando.kubernetes.client.model.ClientAnalysisReport;
+import org.entando.kubernetes.controller.digitalexchange.job.model.AnalysisReport;
+import org.entando.kubernetes.controller.digitalexchange.job.model.AnalysisReportComponentResult;
+import org.entando.kubernetes.controller.digitalexchange.job.model.Status;
+
+public class AnalysisReportAssembler {
+
+    private AnalysisReportAssembler() {
+    }
+
+    public static AnalysisReport toAnalysisReport(ClientAnalysisReport clientAnalysisReport) {
+
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (null == clientAnalysisReport) {</span>
+<span class="fc" id="L24">            return new AnalysisReport();</span>
+        }
+
+<span class="fc" id="L27">        return AnalysisReport.builder()</span>
+<span class="fc" id="L28">                .hasConflictsPresent(clientAnalysisReportHasConflicts(clientAnalysisReport))</span>
+<span class="fc" id="L29">                .widgets(toAnalysisReportComponentResult(clientAnalysisReport.getWidgets()))</span>
+<span class="fc" id="L30">                .fragments(toAnalysisReportComponentResult(clientAnalysisReport.getFragments()))</span>
+<span class="fc" id="L31">                .pages(toAnalysisReportComponentResult(clientAnalysisReport.getPages()))</span>
+<span class="fc" id="L32">                .pageTemplates(toAnalysisReportComponentResult(clientAnalysisReport.getPageTemplates()))</span>
+<span class="fc" id="L33">                .contents(toAnalysisReportComponentResult(clientAnalysisReport.getContents()))</span>
+<span class="fc" id="L34">                .contentTemplates(toAnalysisReportComponentResult(clientAnalysisReport.getContentTemplates()))</span>
+<span class="fc" id="L35">                .contentTypes(toAnalysisReportComponentResult(clientAnalysisReport.getContentTypes()))</span>
+<span class="fc" id="L36">                .assets(toAnalysisReportComponentResult(clientAnalysisReport.getAssets()))</span>
+<span class="fc" id="L37">                .directories(toAnalysisReportComponentResult(clientAnalysisReport.getDirectories()))</span>
+<span class="fc" id="L38">                .resources(toAnalysisReportComponentResult(clientAnalysisReport.getResources()))</span>
+<span class="fc" id="L39">                .plugins(toAnalysisReportComponentResult(clientAnalysisReport.getPlugins()))</span>
+<span class="fc" id="L40">                .categories(toAnalysisReportComponentResult(clientAnalysisReport.getCategories()))</span>
+<span class="fc" id="L41">                .groups(toAnalysisReportComponentResult(clientAnalysisReport.getGroups()))</span>
+<span class="fc" id="L42">                .labels(toAnalysisReportComponentResult(clientAnalysisReport.getLabels()))</span>
+<span class="fc" id="L43">                .languages(toAnalysisReportComponentResult(clientAnalysisReport.getLanguages()))</span>
+<span class="fc" id="L44">                .build();</span>
+    }
+
+
+    private static Map&lt;String, AnalysisReportComponentResult&gt; toAnalysisReportComponentResult(
+            Map&lt;String, Status&gt; components) {
+
+<span class="fc" id="L51">        return components.entrySet().stream()</span>
+<span class="fc" id="L52">                .map(entry -&gt; new AbstractMap.SimpleEntry&lt;&gt;(entry.getKey(), new AnalysisReportComponentResult(</span>
+<span class="fc" id="L53">                        entry.getValue(), null, &quot;&quot;)))</span>
+<span class="fc" id="L54">                .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));</span>
+    }
+
+
+    private static boolean clientAnalysisReportHasConflicts(ClientAnalysisReport clientAnalysisReport) {
+
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        return componentsHaveConflicts(clientAnalysisReport.getWidgets())</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">                || componentsHaveConflicts(clientAnalysisReport.getFragments())</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getPages())</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getPageTemplates())</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getContents())</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getContentTemplates())</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getContentTypes())</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getAssets())</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getDirectories())</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getResources())</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getPlugins())</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getCategories())</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getGroups())</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getLabels())</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">                || componentsHaveConflicts(clientAnalysisReport.getLanguages());</span>
+    }
+
+
+    private static boolean componentsHaveConflicts(Map&lt;String, Status&gt; components) {
+
+<span class="fc" id="L80">        return components.values().stream()</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                .anyMatch(status -&gt; status == Status.DIFF);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
