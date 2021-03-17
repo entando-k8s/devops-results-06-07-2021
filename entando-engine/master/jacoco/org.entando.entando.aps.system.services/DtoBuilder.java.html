@@ -34,9 +34,12 @@ import java.util.List;
         }
 <span class="fc" id="L35">        List&lt;O&gt; dto = new ArrayList&lt;&gt;();</span>
 <span class="fc bfc" id="L36" title="All 2 branches covered.">        for (I entry : list) {</span>
-<span class="fc" id="L37">            dto.add(convert(entry));</span>
-<span class="fc" id="L38">        }</span>
-<span class="fc" id="L39">        return dto;</span>
+<span class="fc" id="L37">            O convertedEntry = convert(entry);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            if (convertedEntry != null) {</span>
+<span class="fc" id="L39">                dto.add(convertedEntry);</span>
+            }
+<span class="fc" id="L41">        }</span>
+<span class="fc" id="L42">        return dto;</span>
     }
 
     protected abstract O toDto(I src);
