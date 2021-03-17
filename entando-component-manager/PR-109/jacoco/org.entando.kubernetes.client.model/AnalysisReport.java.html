@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalysisReport.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Component Manager</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.client.model</a> &gt; <span class="el_source">AnalysisReport.java</span></div><h1>AnalysisReport.java</h1><pre class="source lang-java linenums">package org.entando.kubernetes.client.model;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+import org.entando.kubernetes.controller.digitalexchange.job.model.Status;
+import org.springframework.util.CollectionUtils;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(chain = true)
+public class AnalysisReport {
+
+    @Default
+    private Map&lt;String, Status&gt; widgets = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; fragments = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; pages = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; pageTemplates = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; contents = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; contentTemplates = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; contentTypes = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; assets = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; directories = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; resources = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; plugins = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; categories = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; groups = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; labels = new HashMap&lt;&gt;();
+    @Default
+    private Map&lt;String, Status&gt; languages = new HashMap&lt;&gt;();
+
+
+    /**
+     * merge the current AnalysisReport and the received one.
+     *
+     * @param other the AnalysisReport to merge with the current one
+     * @return a new AnalysisReport resulting by the merge
+     */
+    public AnalysisReport merge(AnalysisReport other) {
+
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (null == other) {</span>
+<span class="nc" id="L63">            return this;</span>
+        }
+
+<span class="nc" id="L66">        return AnalysisReport.builder()</span>
+<span class="nc" id="L67">                .widgets(this.getNotNullAnalysisReportComponent(AnalysisReport::getWidgets, other))</span>
+<span class="nc" id="L68">                .fragments(this.getNotNullAnalysisReportComponent(AnalysisReport::getFragments, other))</span>
+<span class="nc" id="L69">                .pages(this.getNotNullAnalysisReportComponent(AnalysisReport::getPages, other))</span>
+<span class="nc" id="L70">                .pageTemplates(this.getNotNullAnalysisReportComponent(AnalysisReport::getPageTemplates, other))</span>
+<span class="nc" id="L71">                .contents(this.getNotNullAnalysisReportComponent(AnalysisReport::getContents, other))</span>
+<span class="nc" id="L72">                .contentTemplates(this.getNotNullAnalysisReportComponent(AnalysisReport::getContentTemplates, other))</span>
+<span class="nc" id="L73">                .contentTypes(this.getNotNullAnalysisReportComponent(AnalysisReport::getContentTypes, other))</span>
+<span class="nc" id="L74">                .assets(this.getNotNullAnalysisReportComponent(AnalysisReport::getAssets, other))</span>
+<span class="nc" id="L75">                .resources(this.getNotNullAnalysisReportComponent(AnalysisReport::getResources, other))</span>
+<span class="nc" id="L76">                .plugins(this.getNotNullAnalysisReportComponent(AnalysisReport::getPlugins, other))</span>
+<span class="nc" id="L77">                .categories(this.getNotNullAnalysisReportComponent(AnalysisReport::getCategories, other))</span>
+<span class="nc" id="L78">                .groups(this.getNotNullAnalysisReportComponent(AnalysisReport::getGroups, other))</span>
+<span class="nc" id="L79">                .labels(this.getNotNullAnalysisReportComponent(AnalysisReport::getLabels, other))</span>
+<span class="nc" id="L80">                .languages(this.getNotNullAnalysisReportComponent(AnalysisReport::getLanguages, other))</span>
+<span class="nc" id="L81">                .build();</span>
+    }
+
+    /**
+     * apply the received function to the current AnalysisReport. if the result is not null, return it. otherwise apply
+     * the function to the other AnalysisReport received and return its result
+     *
+     * @param getAnalysisReportComponentFn a function that get an AnalysisReport and returns the desired Map object
+     * @param other                        the other AnalysisReport
+     * @return the result of the received function on the current object if the result is not null, otherwise the result
+     *          of the received function on the other object
+     */
+    private Map&lt;String, Status&gt; getNotNullAnalysisReportComponent(
+            Function&lt;AnalysisReport, Map&lt;String, Status&gt;&gt; getAnalysisReportComponentFn, AnalysisReport other) {
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        return !CollectionUtils.isEmpty(getAnalysisReportComponentFn.apply(this))</span>
+<span class="nc" id="L97">                ? getAnalysisReportComponentFn.apply(this)</span>
+<span class="nc" id="L98">                : getAnalysisReportComponentFn.apply(other);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
