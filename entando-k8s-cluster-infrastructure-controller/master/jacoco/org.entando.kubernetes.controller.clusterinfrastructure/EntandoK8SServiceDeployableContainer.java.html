@@ -130,6 +130,7 @@ public class EntandoK8SServiceDeployableContainer
 <span class="nc" id="L130">        return Arrays.asList(new KubernetesPermission(&quot;entando.org&quot;, &quot;*&quot;, &quot;*&quot;),</span>
                 new KubernetesPermission(&quot;&quot;, &quot;secrets&quot;, &quot;create&quot;, &quot;get&quot;, &quot;update&quot;, &quot;delete&quot;),
                 new KubernetesPermission(&quot;&quot;, &quot;configmaps&quot;, &quot;*&quot;),
+                new KubernetesPermission(&quot;extensions&quot;, &quot;ingresses&quot;, &quot;*&quot;),
                 new KubernetesPermission(&quot;&quot;, &quot;namespaces&quot;, &quot;get&quot;)
         );
     }
@@ -137,29 +138,29 @@ public class EntandoK8SServiceDeployableContainer
     @Override
     public List&lt;DatabaseSchemaConnectionInfo&gt; getSchemaConnectionInfo() {
         //No database. This is legacy inherited from SpringBootDeployableContainer
-<span class="nc" id="L140">        return Collections.emptyList();</span>
+<span class="nc" id="L141">        return Collections.emptyList();</span>
     }
 
     @Override
     public Optional&lt;DbmsVendor&gt; getDbms() {
         //No database. This is legacy inherited from SpringBootDeployableContainer
-<span class="fc" id="L146">        return Optional.empty();</span>
+<span class="fc" id="L147">        return Optional.empty();</span>
     }
 
     @Override
     public Optional&lt;DatabaseSchemaConnectionInfo&gt; getDatabaseSchema() {
         //No database. This is legacy inherited from SpringBootDeployableContainer
-<span class="fc" id="L152">        return Optional.empty();</span>
+<span class="fc" id="L153">        return Optional.empty();</span>
     }
 
     @Override
     public Optional&lt;EntandoResourceRequirements&gt; getResourceRequirementsOverride() {
-<span class="fc" id="L157">        return entandoClusterInfrastructure.getSpec().getResourceRequirements();</span>
+<span class="fc" id="L158">        return entandoClusterInfrastructure.getSpec().getResourceRequirements();</span>
     }
 
     @Override
     public List&lt;EnvVar&gt; getEnvironmentVariableOverrides() {
-<span class="fc" id="L162">        return entandoClusterInfrastructure.getSpec().getEnvironmentVariables();</span>
+<span class="fc" id="L163">        return entandoClusterInfrastructure.getSpec().getEnvironmentVariables();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
