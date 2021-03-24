@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.entando.kubernetes.client.core.EntandoCoreClient;
-import org.entando.kubernetes.controller.digitalexchange.job.model.AnalysisReport;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallAction;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallActionsByComponentType;
-import org.entando.kubernetes.controller.digitalexchange.job.model.InstallRequest.InstallAction;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallPlan;
 import org.entando.kubernetes.model.bundle.ComponentType;
 import org.entando.kubernetes.model.bundle.descriptor.ComponentSpecDescriptor;
 import org.entando.kubernetes.model.bundle.descriptor.LabelDescriptor;
@@ -56,12 +56,12 @@ public class LabelProcessor extends BaseComponentProcessor&lt;LabelDescriptor&gt
     @Override
     public List&lt;Installable&lt;LabelDescriptor&gt;&gt; process(BundleReader bundleReader) {
 <span class="fc" id="L58">        return this.process(bundleReader, InstallAction.CREATE, new InstallActionsByComponentType(),</span>
-                new AnalysisReport());
+                new InstallPlan());
     }
 
     @Override
     public List&lt;Installable&lt;LabelDescriptor&gt;&gt; process(BundleReader bundleReader, InstallAction conflictStrategy,
-            InstallActionsByComponentType actions, AnalysisReport report) {
+            InstallActionsByComponentType actions, InstallPlan report) {
 
 <span class="fc" id="L66">        final List&lt;Installable&lt;LabelDescriptor&gt;&gt; installables = new LinkedList&lt;&gt;();</span>
 

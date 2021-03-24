@@ -3,7 +3,7 @@
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.entando.kubernetes.client.core.EntandoCoreClient;
-import org.entando.kubernetes.controller.digitalexchange.job.model.InstallRequest.InstallAction;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallAction;
 import org.entando.kubernetes.model.bundle.ComponentType;
 import org.entando.kubernetes.model.bundle.descriptor.GroupDescriptor;
 
@@ -38,7 +38,7 @@ public class GroupInstallable extends Installable&lt;GroupDescriptor&gt; {
     @Override
     public CompletableFuture&lt;Void&gt; uninstall() {
 <span class="fc" id="L40">        return CompletableFuture.runAsync(() -&gt; {</span>
-<span class="fc" id="L41">            log.info(&quot;Removing Label {}&quot;, getName());</span>
+<span class="fc" id="L41">            log.info(&quot;Removing Group {}&quot;, getName());</span>
 <span class="fc bfc" id="L42" title="All 2 branches covered.">            if (shouldCreate()) {</span>
 <span class="fc" id="L43">                engineService.deleteGroup(getName());</span>
             }

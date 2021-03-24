@@ -8,8 +8,8 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.entando.kubernetes.controller.digitalexchange.job.model.AnalysisReport;
-import org.entando.kubernetes.controller.digitalexchange.job.model.AnalysisRequest;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallPlan;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallPlansRequest;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallRequest;
 import org.entando.kubernetes.exception.digitalexchange.InvalidBundleException;
 import org.entando.kubernetes.exception.job.JobConflictException;
@@ -42,20 +42,20 @@ public class EntandoBundleOperationResourceController implements EntandoBundleOp
     private final @NonNull EntandoBundleUninstallService uninstallService;
 
     @Override
-    public ResponseEntity&lt;SimpleRestResponse&lt;AnalysisReport&gt;&gt; analysis(
+    public ResponseEntity&lt;SimpleRestResponse&lt;InstallPlan&gt;&gt; installPlans(
             @PathVariable(&quot;component&quot;) String componentId,
-            @RequestBody(required = false) AnalysisRequest analysisRequest) {
+            @RequestBody(required = false) InstallPlansRequest installPlansRequest) {
 
-<span class="fc" id="L49">        final AnalysisRequest request = Optional.ofNullable(analysisRequest).orElse(new AnalysisRequest());</span>
+<span class="fc" id="L49">        final InstallPlansRequest request = Optional.ofNullable(installPlansRequest).orElse(new InstallPlansRequest());</span>
 
 <span class="fc" id="L51">        EntandoDeBundle bundle = kubeService.getBundleByName(componentId)</span>
 <span class="pc" id="L52">                .orElseThrow(() -&gt; new BundleNotFoundException(componentId));</span>
 <span class="fc" id="L53">        EntandoDeBundleTag tag = getBundleTagOrFail(bundle, request.getVersion());</span>
 
-<span class="fc" id="L55">        AnalysisReport report = installService</span>
-<span class="fc" id="L56">                .performInstallAnalysis(bundle, tag, EntandoBundleInstallService.PERFORM_CONCURRENT_CHECKS);</span>
+<span class="fc" id="L55">        InstallPlan installPlan = installService</span>
+<span class="fc" id="L56">                .generateInstallPlan(bundle, tag, EntandoBundleInstallService.PERFORM_CONCURRENT_CHECKS);</span>
 
-<span class="fc" id="L58">        return ResponseEntity.ok(new SimpleRestResponse&lt;&gt;(report));</span>
+<span class="fc" id="L58">        return ResponseEntity.ok(new SimpleRestResponse&lt;&gt;(installPlan));</span>
     }
 
     @Override
