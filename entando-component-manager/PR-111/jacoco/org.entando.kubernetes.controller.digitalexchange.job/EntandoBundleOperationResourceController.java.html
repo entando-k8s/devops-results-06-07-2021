@@ -120,45 +120,55 @@ public class EntandoBundleOperationResourceController implements EntandoBundleOp
     }
 
     @Override
+    public SimpleRestResponse&lt;EntandoBundleJobEntity&gt; getLastInstallJobWithInstallPlan(String componentId) {
+<span class="fc" id="L124">        EntandoBundleJobEntity lastInstallJob = jobService.getJobs(componentId)</span>
+<span class="fc" id="L125">                .stream().filter(j -&gt; j.getStatus().isOfType(JobType.INSTALL))</span>
+<span class="fc" id="L126">                .findFirst()</span>
+<span class="fc" id="L127">                .orElseThrow(JobNotFoundException::new);</span>
+
+<span class="fc" id="L129">        return new SimpleRestResponse&lt;&gt;(lastInstallJob);</span>
+    }
+
+    @Override
     public ResponseEntity&lt;SimpleRestResponse&lt;EntandoBundleJobEntity&gt;&gt; uninstall(
             @PathVariable(&quot;component&quot;) String componentId, HttpServletRequest request) {
 
         try {
-<span class="fc" id="L127">            EntandoBundleJobEntity uninstallJob = uninstallService.uninstall(componentId);</span>
-<span class="fc" id="L128">            return ResponseEntity.created(</span>
-<span class="fc" id="L129">                    getJobLocationURI(uninstallJob))</span>
-<span class="fc" id="L130">                    .body(new SimpleRestResponse&lt;&gt;(uninstallJob));</span>
-<span class="fc" id="L131">        } catch (JobConflictException e) {</span>
-<span class="fc" id="L132">            SimpleRestResponse&lt;EntandoBundleJobEntity&gt; restResponse = new SimpleRestResponse&lt;&gt;();</span>
-<span class="fc" id="L133">            restResponse.setErrors(Collections.singletonList(new RestError(&quot;100&quot;, e.getMessage())));</span>
+<span class="fc" id="L137">            EntandoBundleJobEntity uninstallJob = uninstallService.uninstall(componentId);</span>
+<span class="fc" id="L138">            return ResponseEntity.created(</span>
+<span class="fc" id="L139">                    getJobLocationURI(uninstallJob))</span>
+<span class="fc" id="L140">                    .body(new SimpleRestResponse&lt;&gt;(uninstallJob));</span>
+<span class="fc" id="L141">        } catch (JobConflictException e) {</span>
+<span class="fc" id="L142">            SimpleRestResponse&lt;EntandoBundleJobEntity&gt; restResponse = new SimpleRestResponse&lt;&gt;();</span>
+<span class="fc" id="L143">            restResponse.setErrors(Collections.singletonList(new RestError(&quot;100&quot;, e.getMessage())));</span>
 
-<span class="fc" id="L135">            return ResponseEntity.status(e.getStatus())</span>
-<span class="fc" id="L136">                    .body(restResponse);</span>
+<span class="fc" id="L145">            return ResponseEntity.status(e.getStatus())</span>
+<span class="fc" id="L146">                    .body(restResponse);</span>
         }
     }
 
     @Override
     public SimpleRestResponse&lt;EntandoBundleJobEntity&gt; getLastUninstallJob(
             @PathVariable(&quot;component&quot;) String componentId) {
-<span class="nc" id="L143">        EntandoBundleJobEntity lastUninstallJob = jobService.getJobs(componentId)</span>
-<span class="nc" id="L144">                .stream()</span>
-<span class="nc" id="L145">                .filter(j -&gt; j.getStatus().isOfType(JobType.UNINSTALL))</span>
-<span class="nc" id="L146">                .findFirst()</span>
-<span class="nc" id="L147">                .orElseThrow(JobNotFoundException::new);</span>
-<span class="nc" id="L148">        return new SimpleRestResponse&lt;&gt;(lastUninstallJob);</span>
+<span class="nc" id="L153">        EntandoBundleJobEntity lastUninstallJob = jobService.getJobs(componentId)</span>
+<span class="nc" id="L154">                .stream()</span>
+<span class="nc" id="L155">                .filter(j -&gt; j.getStatus().isOfType(JobType.UNINSTALL))</span>
+<span class="nc" id="L156">                .findFirst()</span>
+<span class="nc" id="L157">                .orElseThrow(JobNotFoundException::new);</span>
+<span class="nc" id="L158">        return new SimpleRestResponse&lt;&gt;(lastUninstallJob);</span>
     }
 
     private URI getJobLocationURI(EntandoBundleJobEntity job) {
-<span class="fc" id="L152">        return MvcUriComponentsBuilder</span>
-<span class="fc" id="L153">                .fromMethodCall(on(EntandoBundleJobResourceController.class).getJob(job.getId().toString()))</span>
-<span class="fc" id="L154">                .build().toUri();</span>
+<span class="fc" id="L162">        return MvcUriComponentsBuilder</span>
+<span class="fc" id="L163">                .fromMethodCall(on(EntandoBundleJobResourceController.class).getJob(job.getId().toString()))</span>
+<span class="fc" id="L164">                .build().toUri();</span>
     }
 
     private EntandoDeBundleTag getBundleTagOrFail(EntandoDeBundle bundle, String version) {
-<span class="fc" id="L158">        String versionToFind = BundleUtilities.getBundleVersionOrFail(bundle, version);</span>
-<span class="fc" id="L159">        return bundle.getSpec().getTags().stream().filter(t -&gt; t.getVersion().equals(versionToFind)).findAny()</span>
-<span class="fc" id="L160">                .orElseThrow(</span>
-<span class="nc" id="L161">                        () -&gt; new InvalidBundleException(&quot;Version &quot; + version + &quot; not defined in bundle versions&quot;));</span>
+<span class="fc" id="L168">        String versionToFind = BundleUtilities.getBundleVersionOrFail(bundle, version);</span>
+<span class="fc" id="L169">        return bundle.getSpec().getTags().stream().filter(t -&gt; t.getVersion().equals(versionToFind)).findAny()</span>
+<span class="fc" id="L170">                .orElseThrow(</span>
+<span class="nc" id="L171">                        () -&gt; new InvalidBundleException(&quot;Version &quot; + version + &quot; not defined in bundle versions&quot;));</span>
     }
 
 }
