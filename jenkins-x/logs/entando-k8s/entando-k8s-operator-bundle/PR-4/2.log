@@ -1,0 +1,109 @@
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-b6h87-2[0m stage [32mfrom-build-pack[0m and container [32mstep-credential-initializer-9snqs[0m
+{"level":"warn","ts":1617013435.2495186,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: \"ref: refs/heads/0.8.0-**-support-backwards-incompats\" is not a valid GitHub commit ID"}
+{"level":"info","ts":1617013435.2620447,"logger":"fallback-logger","caller":"creds-init/main.go:40","msg":"Credentials initialized."}
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-b6h87-2[0m stage [32mfrom-build-pack[0m and container [32mstep-working-dir-initializer-f8mbk[0m
+{"level":"warn","ts":1617013441.0503414,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: open /var/run/ko/HEAD: no such file or directory"}
+{"level":"info","ts":1617013441.0749068,"logger":"fallback-logger","caller":"bash/main.go:64","msg":"Successfully e**cuted command \"sh -c mkdir -p /workspace/source\"; output "}
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-b6h87-2[0m stage [32mfrom-build-pack[0m and container [32mstep-place-tools[0m
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-b6h87-2[0m stage [32mfrom-build-pack[0m and container [32mstep-git-source-entando-k8s-entando-k8s-operato-ls8rj[0m
+{"level":"warn","ts":1617013529.4069622,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: \"ref: refs/heads/0.8.0-**-support-backwards-incompats\" is not a valid GitHub commit ID"}
+{"level":"info","ts":1617013530.1638358,"logger":"fallback-logger","caller":"git/git.go:103","msg":"Successfully cloned https://github.com/entando-k8s/entando-k8s-operator-bundle.git @ master in path /workspace/source"}
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-b6h87-2[0m stage [32mfrom-build-pack[0m and container [32mstep-git-merge[0m
+Using SHAs from PULL_REFS=master:b08856be4e8d3bf81174ec19c595bc293e5827c9,4:e5f6e29f4fd026487d599ddb60b57868c88d796a
+DEBUG: ran git fetch --unshallow origin e5f6e29f4fd026487d599ddb60b57868c88d796a: b08856be4e8d3bf81174ec19c595bc293e5827c9: in 
+DEBUG: ran git checkout master in 
+DEBUG: ran git reset --hard b08856be4e8d3bf81174ec19c595bc293e5827c9 in 
+DEBUG: ran clean --force -d . in 
+DEBUG: ran git merge e5f6e29f4fd026487d599ddb60b57868c88d796a in 
+Merged SHA e5f6e29f4fd026487d599ddb60b57868c88d796a with commit message '#ENG-2068 latest controller-coordinator' into base branch master
+Merged SHA 65f3a67645df1dada5a30791dee57f56e8b1a792 with commit message '#ENG-2068 latest controller-coordinator' into base branch master
+Merged SHA 11a2912112ae9a24e463519efccb79c4d90b5ddc with commit message 'ENG-2068 using latest ubi images' into base branch master
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-b6h87-2[0m stage [32mfrom-build-pack[0m and container [32mstep-build-set-csv-version[0m
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-b6h87-2[0m stage [32mfrom-build-pack[0m and container [32mstep-build-container-build[0m
+This avoids unwanted kaniko command substitution
+Generating tags...
+ - entando/entando-k8s-operator-bundle -> docker.io/entando/entando-k8s-operator-bundle:0.0.0-SNAPSHOT-PR-4-2
+Checking cache...
+ - entando/entando-k8s-operator-bundle: Not found. Building
+Building [entando/entando-k8s-operator-bundle]...
+Sending build context to Docker daemon  141.8kB
+Step 1/18 : FROM scratch
+ ---> 
+Step 2/18 : LABEL operators.operatorframework.io.bundle.channels.v1 alpha,beta,stable
+ ---> Using cache
+ ---> 1e6df440f022
+Step 3/18 : LABEL operators.operatorframework.io.bundle.manifests.v1 manifests/
+ ---> Using cache
+ ---> a72b3d3a7acf
+Step 4/18 : LABEL operators.operatorframework.io.bundle.mediatype.v1 registry+v1
+ ---> Using cache
+ ---> bc71fe591299
+Step 5/18 : LABEL operators.operatorframework.io.bundle.metadata.v1 metadata/
+ ---> Using cache
+ ---> 5ea67f194590
+Step 6/18 : LABEL operators.operatorframework.io.bundle.package.v1 entando-k8s-operator
+ ---> Using cache
+ ---> 63071b3ac151
+Step 7/18 : LABEL operators.operatorframework.io.metrics.builder operator-sdk-v1.2.0
+ ---> Using cache
+ ---> 3d652324d90b
+Step 8/18 : LABEL operators.operatorframework.io.bundle.channel.default.v1 alpha
+ ---> Using cache
+ ---> c51a583d4e6b
+Step 9/18 : LABEL operators.operatorframework.io.metrics.mediatype.v1 metrics+v1
+ ---> Running in 8a73fa006ef4
+ ---> 0b44808a0154
+Step 10/18 : LABEL operators.operatorframework.io.metrics.project_layout helm.sdk.operatorframework.io/v1
+ ---> Running in decb5050dde7
+ ---> ea24b0a6d974
+Step 11/18 : LABEL operators.operatorframework.io.test.config.v1 tests/scorecard/
+ ---> Running in 59258ef35d41
+ ---> bf7c762630de
+Step 12/18 : LABEL operators.operatorframework.io.test.mediatype.v1 scorecard+v1
+ ---> Running in a3b6fc029faa
+ ---> 775ebc5291f7
+Step 13/18 : LABEL com.redhat.openshift.versions "v4.6"
+ ---> Running in b81bc57b89bb
+ ---> ab1dca230e12
+Step 14/18 : LABEL com.redhat.delivery.operator.bundle ****
+ ---> Running in 164c556e3462
+ ---> 94f6be410142
+Step 15/18 : LABEL com.redhat.delivery.backport false
+ ---> Running in ae2b8a2f168d
+ ---> 811d4d272292
+Step 16/18 : COPY manifests /manifests/
+ ---> a49f5b3e32c2
+Step 17/18 : COPY metadata /metadata/
+ ---> e985a221f0bc
+Step 18/18 : COPY tests/scorecard /tests/scorecard/
+ ---> 1268bb44b7ca
+Successfully built 1268bb44b7ca
+The push refers to a repository [docker.io/entando/entando-k8s-operator-bundle]
+c1f6c1c88751: Preparing
+39b3d76ad031: Preparing
+25d3d38b921f: Preparing
+c1f6c1c88751: Pushed
+25d3d38b921f: Pushed
+39b3d76ad031: Pushed
+0.0.0-SNAPSHOT-PR-4-2: digest: sha256:b0f652272d2171437d0eea8fee0d13cbd2b8b2f841b0343fba65d039f032a175 size: 940
+There is a new version (1.21.0) of Skaffold available. Download it at https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-b6h87-2[0m stage [32mfrom-build-pack[0m and container [32mstep-build-verify-bundle[0m
+time="2021-03-29T10:25:47Z" level=info msg="Unpacking image layers"
+time="2021-03-29T10:25:47Z" level=info msg="running /usr/bin/docker pull docker.io/entando/entando-k8s-operator-bundle:0.0.0-SNAPSHOT-PR-4-2"
+time="2021-03-29T10:25:48Z" level=info msg="running docker create"
+time="2021-03-29T10:25:48Z" level=info msg="running docker cp"
+time="2021-03-29T10:25:48Z" level=info msg="running docker rm"
+time="2021-03-29T10:25:49Z" level=info msg="Found annotations file" bundle-dir=/tmp/bundle-818832567 container-tool=docker
+time="2021-03-29T10:25:49Z" level=info msg="Could not find optional dependencies file" bundle-dir=/tmp/bundle-818832567 container-tool=docker
+time="2021-03-29T10:25:49Z" level=error msg="Error: Value : (entando-k8s-operator.v0.0.0-SNAPSHOT-PR-4-2) metadata.name \"entando-k8s-operator.v0.0.0-SNAPSHOT-PR-4-2\" is invalid:\n[a lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com', regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')]"
+[31m
+Pipeline failed on stage 'from-build-pack' : container 'step-build-verify-bundle'. The execution of the pipeline has stopped.[0m
