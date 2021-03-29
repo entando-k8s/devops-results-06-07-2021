@@ -54,7 +54,7 @@ public class InstallPlan {
     @Default
     private Map&lt;String, ComponentInstallPlan&gt; languages = new HashMap&lt;&gt;();
 
-    public Map&lt;String, ComponentInstallPlan&gt; getReportByType(ComponentType type) {
+    public Map&lt;String, ComponentInstallPlan&gt; getPlanByType(ComponentType type) {
 <span class="fc bfc" id="L58" title="All 16 branches covered.">        switch (type) {</span>
             case WIDGET:
 <span class="fc" id="L60">                return widgets;</span>
@@ -107,38 +107,38 @@ public class InstallPlan {
 <span class="fc" id="L107">        return InstallPlan.builder()</span>
 <span class="fc" id="L108">                .hasConflicts(</span>
 <span class="pc bpc" id="L109" title="3 of 4 branches missed.">                        Boolean.TRUE.equals(this.hasConflicts) || Boolean.TRUE.equals(other.hasConflicts))</span>
-<span class="fc" id="L110">                .widgets(this.getNotNullAnalysisReportComponent(InstallPlan::getWidgets, other))</span>
-<span class="fc" id="L111">                .fragments(this.getNotNullAnalysisReportComponent(InstallPlan::getFragments, other))</span>
-<span class="fc" id="L112">                .pages(this.getNotNullAnalysisReportComponent(InstallPlan::getPages, other))</span>
-<span class="fc" id="L113">                .pageTemplates(this.getNotNullAnalysisReportComponent(InstallPlan::getPageTemplates, other))</span>
-<span class="fc" id="L114">                .contents(this.getNotNullAnalysisReportComponent(InstallPlan::getContents, other))</span>
-<span class="fc" id="L115">                .contentTemplates(this.getNotNullAnalysisReportComponent(InstallPlan::getContentTemplates, other))</span>
-<span class="fc" id="L116">                .contentTypes(this.getNotNullAnalysisReportComponent(InstallPlan::getContentTypes, other))</span>
-<span class="fc" id="L117">                .assets(this.getNotNullAnalysisReportComponent(InstallPlan::getAssets, other))</span>
-<span class="fc" id="L118">                .resources(this.getNotNullAnalysisReportComponent(InstallPlan::getResources, other))</span>
-<span class="fc" id="L119">                .plugins(this.getNotNullAnalysisReportComponent(InstallPlan::getPlugins, other))</span>
-<span class="fc" id="L120">                .categories(this.getNotNullAnalysisReportComponent(InstallPlan::getCategories, other))</span>
-<span class="fc" id="L121">                .groups(this.getNotNullAnalysisReportComponent(InstallPlan::getGroups, other))</span>
-<span class="fc" id="L122">                .labels(this.getNotNullAnalysisReportComponent(InstallPlan::getLabels, other))</span>
-<span class="fc" id="L123">                .languages(this.getNotNullAnalysisReportComponent(InstallPlan::getLanguages, other))</span>
+<span class="fc" id="L110">                .widgets(this.getNotNullInstallPlanComponent(InstallPlan::getWidgets, other))</span>
+<span class="fc" id="L111">                .fragments(this.getNotNullInstallPlanComponent(InstallPlan::getFragments, other))</span>
+<span class="fc" id="L112">                .pages(this.getNotNullInstallPlanComponent(InstallPlan::getPages, other))</span>
+<span class="fc" id="L113">                .pageTemplates(this.getNotNullInstallPlanComponent(InstallPlan::getPageTemplates, other))</span>
+<span class="fc" id="L114">                .contents(this.getNotNullInstallPlanComponent(InstallPlan::getContents, other))</span>
+<span class="fc" id="L115">                .contentTemplates(this.getNotNullInstallPlanComponent(InstallPlan::getContentTemplates, other))</span>
+<span class="fc" id="L116">                .contentTypes(this.getNotNullInstallPlanComponent(InstallPlan::getContentTypes, other))</span>
+<span class="fc" id="L117">                .assets(this.getNotNullInstallPlanComponent(InstallPlan::getAssets, other))</span>
+<span class="fc" id="L118">                .resources(this.getNotNullInstallPlanComponent(InstallPlan::getResources, other))</span>
+<span class="fc" id="L119">                .plugins(this.getNotNullInstallPlanComponent(InstallPlan::getPlugins, other))</span>
+<span class="fc" id="L120">                .categories(this.getNotNullInstallPlanComponent(InstallPlan::getCategories, other))</span>
+<span class="fc" id="L121">                .groups(this.getNotNullInstallPlanComponent(InstallPlan::getGroups, other))</span>
+<span class="fc" id="L122">                .labels(this.getNotNullInstallPlanComponent(InstallPlan::getLabels, other))</span>
+<span class="fc" id="L123">                .languages(this.getNotNullInstallPlanComponent(InstallPlan::getLanguages, other))</span>
 <span class="fc" id="L124">                .build();</span>
     }
 
     /**
-     * apply the received function to the current AnalysisReport. if the result is not null, return it. otherwise apply
-     * the function to the other AnalysisReport received and return its result
+     * apply the received function to the current InstallPlan. if the result is not null, return it. otherwise apply
+     * the function to the other InstallPlan received and return its result
      *
-     * @param getAnalysisReportComponentFn a function that get an AnalysisReport and returns the desired Map object
-     * @param other                        the other AnalysisReport
+     * @param getInstallPlanComponentFn a function that get an InstallPlan and returns the desired Map object
+     * @param other                        the other InstallPlan
      * @return the result of the received function on the current object if the result is not null, otherwise the result
      *          of the received function on the other object
      */
-    private Map&lt;String, ComponentInstallPlan&gt; getNotNullAnalysisReportComponent(
-            Function&lt;InstallPlan, Map&lt;String, ComponentInstallPlan&gt;&gt; getAnalysisReportComponentFn, InstallPlan other) {
+    private Map&lt;String, ComponentInstallPlan&gt; getNotNullInstallPlanComponent(
+            Function&lt;InstallPlan, Map&lt;String, ComponentInstallPlan&gt;&gt; getInstallPlanComponentFn, InstallPlan other) {
 
-<span class="fc bfc" id="L139" title="All 2 branches covered.">        return !CollectionUtils.isEmpty(getAnalysisReportComponentFn.apply(this))</span>
-<span class="fc" id="L140">                ? getAnalysisReportComponentFn.apply(this)</span>
-<span class="fc" id="L141">                : getAnalysisReportComponentFn.apply(other);</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        return !CollectionUtils.isEmpty(getInstallPlanComponentFn.apply(this))</span>
+<span class="fc" id="L140">                ? getInstallPlanComponentFn.apply(this)</span>
+<span class="fc" id="L141">                : getInstallPlanComponentFn.apply(other);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

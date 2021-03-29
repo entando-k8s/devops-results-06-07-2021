@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.entando.kubernetes.client.core.EntandoCoreClient;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallAction;
-import org.entando.kubernetes.controller.digitalexchange.job.model.InstallActionsByComponentType;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallPlan;
 import org.entando.kubernetes.model.bundle.ComponentType;
 import org.entando.kubernetes.model.bundle.descriptor.ComponentSpecDescriptor;
@@ -25,7 +24,7 @@ import org.springframework.stereotype.Service;
 /**
  * Processor to handle Page Templates.
  */
-<span class="fc" id="L28">@Slf4j</span>
+<span class="fc" id="L27">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
 public class PageTemplateProcessor extends BaseComponentProcessor&lt;PageTemplateDescriptor&gt; implements
@@ -35,67 +34,66 @@ public class PageTemplateProcessor extends BaseComponentProcessor&lt;PageTemplat
 
     @Override
     public ComponentType getSupportedComponentType() {
-<span class="fc" id="L38">        return ComponentType.PAGE_TEMPLATE;</span>
+<span class="fc" id="L37">        return ComponentType.PAGE_TEMPLATE;</span>
     }
 
     @Override
     public Class&lt;PageTemplateDescriptor&gt; getDescriptorClass() {
-<span class="fc" id="L43">        return PageTemplateDescriptor.class;</span>
+<span class="fc" id="L42">        return PageTemplateDescriptor.class;</span>
     }
 
     @Override
     public Optional&lt;Function&lt;ComponentSpecDescriptor, List&lt;String&gt;&gt;&gt; getComponentSelectionFn() {
-<span class="fc" id="L48">        return Optional.of(ComponentSpecDescriptor::getPageTemplates);</span>
+<span class="fc" id="L47">        return Optional.of(ComponentSpecDescriptor::getPageTemplates);</span>
     }
 
     @Override
     public List&lt;Installable&lt;PageTemplateDescriptor&gt;&gt; process(BundleReader bundleReader) {
-<span class="fc" id="L53">        return this.process(bundleReader, InstallAction.CREATE, new InstallActionsByComponentType(),</span>
-                new InstallPlan());
+<span class="fc" id="L52">        return this.process(bundleReader, InstallAction.CREATE, new InstallPlan());</span>
     }
 
     @Override
     public List&lt;Installable&lt;PageTemplateDescriptor&gt;&gt; process(BundleReader bundleReader, InstallAction conflictStrategy,
-            InstallActionsByComponentType actions, InstallPlan report) {
+            InstallPlan installPlan) {
 
-<span class="fc" id="L61">        List&lt;Installable&lt;PageTemplateDescriptor&gt;&gt; installables = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L59">        List&lt;Installable&lt;PageTemplateDescriptor&gt;&gt; installables = new LinkedList&lt;&gt;();</span>
 
         try {
-<span class="fc" id="L64">            final List&lt;String&gt; descriptorList = getDescriptorList(bundleReader);</span>
+<span class="fc" id="L62">            final List&lt;String&gt; descriptorList = getDescriptorList(bundleReader);</span>
 
-<span class="fc bfc" id="L66" title="All 2 branches covered.">            for (String fileName : descriptorList) {</span>
-<span class="fc" id="L67">                PageTemplateDescriptor pageTemplateDescriptor = bundleReader</span>
-<span class="fc" id="L68">                        .readDescriptorFile(fileName, PageTemplateDescriptor.class);</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">                if (pageTemplateDescriptor.getTemplatePath() != null) {</span>
-<span class="fc" id="L70">                    String tp = getRelativePath(fileName, pageTemplateDescriptor.getTemplatePath());</span>
-<span class="fc" id="L71">                    pageTemplateDescriptor.setTemplate(bundleReader.readFileAsString(tp));</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            for (String fileName : descriptorList) {</span>
+<span class="fc" id="L65">                PageTemplateDescriptor pageTemplateDescriptor = bundleReader</span>
+<span class="fc" id="L66">                        .readDescriptorFile(fileName, PageTemplateDescriptor.class);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">                if (pageTemplateDescriptor.getTemplatePath() != null) {</span>
+<span class="fc" id="L68">                    String tp = getRelativePath(fileName, pageTemplateDescriptor.getTemplatePath());</span>
+<span class="fc" id="L69">                    pageTemplateDescriptor.setTemplate(bundleReader.readFileAsString(tp));</span>
                 }
-<span class="fc" id="L73">                InstallAction action = extractInstallAction(pageTemplateDescriptor.getCode(), actions, conflictStrategy,</span>
-                        report);
-<span class="fc" id="L75">                installables.add(new PageTemplateInstallable(engineService, pageTemplateDescriptor, action));</span>
-<span class="fc" id="L76">            }</span>
+<span class="fc" id="L71">                InstallAction action = extractInstallAction(pageTemplateDescriptor.getCode(), conflictStrategy,</span>
+                        installPlan);
+<span class="fc" id="L73">                installables.add(new PageTemplateInstallable(engineService, pageTemplateDescriptor, action));</span>
+<span class="fc" id="L74">            }</span>
 
-<span class="fc" id="L78">        } catch (IOException e) {</span>
-<span class="fc" id="L79">            throw makeMeaningfulException(e);</span>
-<span class="fc" id="L80">        }</span>
+<span class="fc" id="L76">        } catch (IOException e) {</span>
+<span class="fc" id="L77">            throw makeMeaningfulException(e);</span>
+<span class="fc" id="L78">        }</span>
 
-<span class="fc" id="L82">        return installables;</span>
+<span class="fc" id="L80">        return installables;</span>
     }
 
     @Override
     public List&lt;Installable&lt;PageTemplateDescriptor&gt;&gt; process(List&lt;EntandoBundleComponentJobEntity&gt; components) {
-<span class="fc" id="L87">        return components.stream()</span>
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                .filter(c -&gt; c.getComponentType() == getSupportedComponentType())</span>
-<span class="fc" id="L89">                .map(c -&gt; new PageTemplateInstallable(engineService, this.buildDescriptorFromComponentJob(c),</span>
-<span class="fc" id="L90">                        c.getAction()))</span>
-<span class="fc" id="L91">                .collect(Collectors.toList());</span>
+<span class="fc" id="L85">        return components.stream()</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                .filter(c -&gt; c.getComponentType() == getSupportedComponentType())</span>
+<span class="fc" id="L87">                .map(c -&gt; new PageTemplateInstallable(engineService, this.buildDescriptorFromComponentJob(c),</span>
+<span class="fc" id="L88">                        c.getAction()))</span>
+<span class="fc" id="L89">                .collect(Collectors.toList());</span>
     }
 
     @Override
     public PageTemplateDescriptor buildDescriptorFromComponentJob(EntandoBundleComponentJobEntity component) {
-<span class="fc" id="L96">        return PageTemplateDescriptor.builder()</span>
-<span class="fc" id="L97">                .code(component.getComponentId())</span>
-<span class="fc" id="L98">                .build();</span>
+<span class="fc" id="L94">        return PageTemplateDescriptor.builder()</span>
+<span class="fc" id="L95">                .code(component.getComponentId())</span>
+<span class="fc" id="L96">                .build();</span>
     }
 
 }

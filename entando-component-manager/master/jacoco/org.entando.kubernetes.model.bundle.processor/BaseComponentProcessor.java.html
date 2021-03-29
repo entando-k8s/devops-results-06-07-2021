@@ -3,39 +3,52 @@
 import java.util.Map;
 import org.entando.kubernetes.controller.digitalexchange.job.model.ComponentInstallPlan;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallAction;
-import org.entando.kubernetes.controller.digitalexchange.job.model.InstallActionsByComponentType;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallPlan;
 import org.entando.kubernetes.controller.digitalexchange.job.model.Status;
 import org.entando.kubernetes.exception.EntandoComponentManagerException;
 import org.entando.kubernetes.model.bundle.descriptor.Descriptor;
 
-<span class="fc" id="L12">public abstract class BaseComponentProcessor&lt;T extends Descriptor&gt; implements ComponentProcessor&lt;T&gt; {</span>
+<span class="fc" id="L11">public abstract class BaseComponentProcessor&lt;T extends Descriptor&gt; implements ComponentProcessor&lt;T&gt; {</span>
 
-    protected InstallAction extractInstallAction(String componentCode, InstallActionsByComponentType actions,
-            InstallAction conflictStrategy, InstallPlan report) {
+    protected InstallAction extractInstallAction(String componentCode,
+            InstallAction conflictStrategy, InstallPlan installPlan) {
 
-<span class="fc" id="L17">        Map&lt;String, InstallAction&gt; actionsByType = actions.getActionsByType(getSupportedComponentType());</span>
-<span class="pc bpc" id="L18" title="1 of 2 branches missed.">        if (actionsByType.containsKey(componentCode)) {</span>
-<span class="nc" id="L19">            return actionsByType.get(componentCode);</span>
+<span class="fc" id="L16">        Map&lt;String, ComponentInstallPlan&gt; compInstallPlansByType = installPlan</span>
+<span class="fc" id="L17">                .getPlanByType(getSupportedComponentType());</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">        if (installActionExistForComponent(compInstallPlansByType, componentCode)) {</span>
+<span class="fc" id="L19">            return compInstallPlansByType.get(componentCode).getAction();</span>
         }
 
-<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (isConflict(componentCode, report)) {</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (isConflict(componentCode, installPlan)) {</span>
 <span class="fc" id="L23">            return conflictStrategy;</span>
         }
 
 <span class="fc" id="L26">        return InstallAction.CREATE;</span>
     }
 
-    protected boolean isConflict(String contentId, InstallPlan report) {
-<span class="fc" id="L30">        Map&lt;String, ComponentInstallPlan&gt; reportByType = report.getReportByType(getSupportedComponentType());</span>
+    /**
+     * check if the received compInstallPlansByType map contains a value for the key represented by componentCode.
+     * @param compInstallPlansByType the map in which search for the InstallAction
+     * @param componentCode the code of the component of which search the InstallAction
+     * @return true if the map contains a ComponentInstallPlan with a valid InstallAction for the desired component code
+     */
+    private boolean installActionExistForComponent(Map&lt;String, ComponentInstallPlan&gt; compInstallPlansByType,
+            String componentCode) {
 
-<span class="fc bfc" id="L32" title="All 2 branches covered.">        return reportByType.containsKey(contentId)</span>
-<span class="fc bfc" id="L33" title="All 2 branches covered.">                &amp;&amp; reportByType.get(contentId).getStatus() != Status.NEW;</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        return compInstallPlansByType.containsKey(componentCode)</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">                &amp;&amp; null != compInstallPlansByType.get(componentCode).getAction();</span>
+    }
+
+    protected boolean isConflict(String contentId, InstallPlan installPlan) {
+<span class="fc" id="L43">        Map&lt;String, ComponentInstallPlan&gt; planByType = installPlan.getPlanByType(getSupportedComponentType());</span>
+
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        return planByType.containsKey(contentId)</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">                &amp;&amp; planByType.get(contentId).getStatus() != Status.NEW;</span>
     }
 
     protected EntandoComponentManagerException makeMeaningfulException(Exception e) {
-<span class="fc" id="L37">        return new EntandoComponentManagerException(</span>
-<span class="fc" id="L38">                String.format(&quot;Error processing %s components&quot;, getSupportedComponentType().getTypeName()), e);</span>
+<span class="fc" id="L50">        return new EntandoComponentManagerException(</span>
+<span class="fc" id="L51">                String.format(&quot;Error processing %s components&quot;, getSupportedComponentType().getTypeName()), e);</span>
     }
 
 }
