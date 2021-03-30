@@ -26,58 +26,65 @@ public abstract class EntandoDeploymentSpecFluent&lt;F extends EntandoDeployment
     protected String serviceAccountToUse;
     protected List&lt;EnvVar&gt; environmentVariables;
     protected EntandoResourceRequirements resourceRequirements;
+    protected String storageClass;
 
-<span class="fc" id="L30">    protected EntandoDeploymentSpecFluent() {</span>
+<span class="fc" id="L31">    protected EntandoDeploymentSpecFluent() {</span>
 
-<span class="fc" id="L32">    }</span>
+<span class="fc" id="L33">    }</span>
 
-<span class="fc" id="L34">    protected EntandoDeploymentSpecFluent(EntandoDeploymentSpec spec) {</span>
-<span class="fc" id="L35">        this.replicas = spec.getReplicas().orElse(null);</span>
-<span class="fc" id="L36">        this.serviceAccountToUse = spec.getServiceAccountToUse().orElse(null);</span>
-<span class="fc" id="L37">        this.environmentVariables = new ArrayList&lt;&gt;(spec.getEnvironmentVariables());</span>
-<span class="fc" id="L38">        this.resourceRequirements = spec.getResourceRequirements().orElse(null);</span>
+<span class="fc" id="L35">    protected EntandoDeploymentSpecFluent(EntandoDeploymentSpec spec) {</span>
+<span class="fc" id="L36">        this.replicas = spec.getReplicas().orElse(null);</span>
+<span class="fc" id="L37">        this.serviceAccountToUse = spec.getServiceAccountToUse().orElse(null);</span>
+<span class="fc" id="L38">        this.environmentVariables = new ArrayList&lt;&gt;(spec.getEnvironmentVariables());</span>
+<span class="fc" id="L39">        this.resourceRequirements = spec.getResourceRequirements().orElse(null);</span>
+<span class="fc" id="L40">        this.storageClass = spec.getStorageClass().orElse(null);</span>
 
-<span class="fc" id="L40">    }</span>
+<span class="fc" id="L42">    }</span>
 
     public final F withServiceAccountToUse(String serviceAccountToUse) {
-<span class="fc" id="L43">        this.serviceAccountToUse = serviceAccountToUse;</span>
-<span class="fc" id="L44">        return thisAsF();</span>
+<span class="fc" id="L45">        this.serviceAccountToUse = serviceAccountToUse;</span>
+<span class="fc" id="L46">        return thisAsF();</span>
     }
 
     public final F withReplicas(Integer replicas) {
-<span class="fc" id="L48">        this.replicas = replicas;</span>
-<span class="fc" id="L49">        return thisAsF();</span>
+<span class="fc" id="L50">        this.replicas = replicas;</span>
+<span class="fc" id="L51">        return thisAsF();</span>
+    }
+
+    public final F withStorageClass(String storageClass) {
+<span class="fc" id="L55">        this.storageClass = storageClass;</span>
+<span class="fc" id="L56">        return thisAsF();</span>
     }
 
     public F withEnvironmentVariables(List&lt;EnvVar&gt; environmentVariables) {
-<span class="fc" id="L53">        this.environmentVariables = new ArrayList&lt;&gt;(environmentVariables);</span>
-<span class="fc" id="L54">        return thisAsF();</span>
+<span class="fc" id="L60">        this.environmentVariables = new ArrayList&lt;&gt;(environmentVariables);</span>
+<span class="fc" id="L61">        return thisAsF();</span>
     }
 
     public F addToEnvironmentVariables(String name, String value) {
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (this.environmentVariables == null) {</span>
-<span class="nc" id="L59">            this.environmentVariables = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (this.environmentVariables == null) {</span>
+<span class="nc" id="L66">            this.environmentVariables = new ArrayList&lt;&gt;();</span>
         }
-<span class="fc" id="L61">        this.environmentVariables.add(new EnvVar(name, value, null));</span>
-<span class="fc" id="L62">        return thisAsF();</span>
+<span class="fc" id="L68">        this.environmentVariables.add(new EnvVar(name, value, null));</span>
+<span class="fc" id="L69">        return thisAsF();</span>
     }
 
     public EntandoResourceRequirementsNested editResourceRequirements() {
-<span class="fc" id="L66">        return new EntandoResourceRequirementsNested(thisAsF(), resourceRequirements);</span>
+<span class="fc" id="L73">        return new EntandoResourceRequirementsNested(thisAsF(), resourceRequirements);</span>
     }
 
     public EntandoResourceRequirementsNested withNewResourceRequirements() {
-<span class="fc" id="L70">        return new EntandoResourceRequirementsNested(thisAsF());</span>
+<span class="fc" id="L77">        return new EntandoResourceRequirementsNested(thisAsF());</span>
     }
 
     public F withResourceRequirements(EntandoResourceRequirements resourceRequirements) {
-<span class="fc" id="L74">        this.resourceRequirements = resourceRequirements;</span>
-<span class="fc" id="L75">        return thisAsF();</span>
+<span class="fc" id="L81">        this.resourceRequirements = resourceRequirements;</span>
+<span class="fc" id="L82">        return thisAsF();</span>
     }
 
     @SuppressWarnings(&quot;unchecked&quot;)
     protected F thisAsF() {
-<span class="fc" id="L80">        return (F) this;</span>
+<span class="fc" id="L87">        return (F) this;</span>
     }
 
     public class EntandoResourceRequirementsNested extends
@@ -85,22 +92,22 @@ public abstract class EntandoDeploymentSpecFluent&lt;F extends EntandoDeployment
 
         private F parent;
 
-<span class="fc" id="L88">        public EntandoResourceRequirementsNested(F parent, EntandoResourceRequirements resourceRequirements) {</span>
-<span class="fc" id="L89">            super(resourceRequirements);</span>
-<span class="fc" id="L90">            this.parent = parent;</span>
-<span class="fc" id="L91">        }</span>
+<span class="fc" id="L95">        public EntandoResourceRequirementsNested(F parent, EntandoResourceRequirements resourceRequirements) {</span>
+<span class="fc" id="L96">            super(resourceRequirements);</span>
+<span class="fc" id="L97">            this.parent = parent;</span>
+<span class="fc" id="L98">        }</span>
 
-<span class="fc" id="L93">        public EntandoResourceRequirementsNested(F parent) {</span>
-<span class="fc" id="L94">            this.parent = parent;</span>
-<span class="fc" id="L95">        }</span>
+<span class="fc" id="L100">        public EntandoResourceRequirementsNested(F parent) {</span>
+<span class="fc" id="L101">            this.parent = parent;</span>
+<span class="fc" id="L102">        }</span>
 
         public F done() {
-<span class="fc" id="L98">            this.parent.withResourceRequirements(build());</span>
-<span class="fc" id="L99">            return this.parent;</span>
+<span class="fc" id="L105">            this.parent.withResourceRequirements(build());</span>
+<span class="fc" id="L106">            return this.parent;</span>
         }
 
         public F endResourceRequirements() {
-<span class="fc" id="L103">            return done();</span>
+<span class="fc" id="L110">            return done();</span>
         }
     }
 }

@@ -18,6 +18,7 @@ package org.entando.kubernetes.model;
 
 import static java.util.Optional.ofNullable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import java.util.List;
 import java.util.Optional;
@@ -27,8 +28,8 @@ public abstract class KeycloakAwareSpec extends EntandoIngressingDeploymentSpec 
     protected KeycloakToUse keycloakToUse;
 
     protected KeycloakAwareSpec() {
-<span class="nc" id="L30">        super();</span>
-<span class="nc" id="L31">    }</span>
+<span class="nc" id="L31">        super();</span>
+<span class="nc" id="L32">    }</span>
 
     //Acceptable because it is only used from JsonCreator constructors
     @SuppressWarnings(&quot;java:S107&quot;)
@@ -40,13 +41,14 @@ public abstract class KeycloakAwareSpec extends EntandoIngressingDeploymentSpec 
             String serviceAccountToUse,
             List&lt;EnvVar&gt; environmentVariables,
             EntandoResourceRequirements resourceRequirements,
-            KeycloakToUse keycloakToUse) {
-<span class="fc" id="L44">        super(ingressHostName, tlsSecretName, replicas, dbms, serviceAccountToUse, environmentVariables, resourceRequirements);</span>
-<span class="fc" id="L45">        this.keycloakToUse = keycloakToUse;</span>
-<span class="fc" id="L46">    }</span>
+            KeycloakToUse keycloakToUse,
+            String storageClass) {
+<span class="fc" id="L46">        super(ingressHostName, tlsSecretName, replicas, dbms, serviceAccountToUse, environmentVariables, resourceRequirements,storageClass);</span>
+<span class="fc" id="L47">        this.keycloakToUse = keycloakToUse;</span>
+<span class="fc" id="L48">    }</span>
 
     public Optional&lt;KeycloakToUse&gt; getKeycloakToUse() {
-<span class="fc" id="L49">        return ofNullable(keycloakToUse);</span>
+<span class="fc" id="L51">        return ofNullable(keycloakToUse);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

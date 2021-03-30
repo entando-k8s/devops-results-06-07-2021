@@ -50,25 +50,26 @@ public abstract class EntandoIngressingDeploymentSpec extends EntandoDeploymentS
             DbmsVendor dbms,
             String serviceAccountToUse,
             List&lt;EnvVar&gt; environmentVariables,
-            EntandoResourceRequirements resourceRequirements) {
-<span class="fc" id="L54">        super(replicas, serviceAccountToUse, environmentVariables, resourceRequirements);</span>
-<span class="fc" id="L55">        this.ingressHostName = ingressHostName;</span>
-<span class="fc" id="L56">        this.tlsSecretName = tlsSecretName;</span>
-<span class="fc" id="L57">        this.dbms = dbms;</span>
-<span class="fc" id="L58">    }</span>
+            EntandoResourceRequirements resourceRequirements,
+            String storageClass) {
+<span class="fc" id="L55">        super(replicas, serviceAccountToUse, environmentVariables, resourceRequirements, storageClass);</span>
+<span class="fc" id="L56">        this.ingressHostName = ingressHostName;</span>
+<span class="fc" id="L57">        this.tlsSecretName = tlsSecretName;</span>
+<span class="fc" id="L58">        this.dbms = dbms;</span>
+<span class="fc" id="L59">    }</span>
 
     public Optional&lt;DbmsVendor&gt; getDbms() {
-<span class="fc" id="L61">        return ofNullable(dbms);</span>
+<span class="fc" id="L62">        return ofNullable(dbms);</span>
     }
 
     @Override
     public Optional&lt;String&gt; getIngressHostName() {
-<span class="fc" id="L66">        return Optional.ofNullable(ingressHostName);</span>
+<span class="fc" id="L67">        return Optional.ofNullable(ingressHostName);</span>
     }
 
     @Override
     public Optional&lt;String&gt; getTlsSecretName() {
-<span class="fc" id="L71">        return Optional.ofNullable(tlsSecretName);</span>
+<span class="fc" id="L72">        return Optional.ofNullable(tlsSecretName);</span>
     }
 
 }

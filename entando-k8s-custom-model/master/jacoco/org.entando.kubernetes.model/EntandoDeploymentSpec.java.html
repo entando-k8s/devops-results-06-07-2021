@@ -42,34 +42,41 @@ public abstract class EntandoDeploymentSpec implements Serializable {
     private String serviceAccountToUse;
     private List&lt;EnvVar&gt; environmentVariables;
     private EntandoResourceRequirements resourceRequirements;
+    private String storageClass;
 
-<span class="nc" id="L46">    protected EntandoDeploymentSpec() {</span>
-<span class="nc" id="L47">    }</span>
+<span class="nc" id="L47">    protected EntandoDeploymentSpec() {</span>
+<span class="nc" id="L48">    }</span>
 
     protected EntandoDeploymentSpec(Integer replicas,
             String serviceAccountToUse,
             List&lt;EnvVar&gt; environmentVariables,
-<span class="fc" id="L52">            EntandoResourceRequirements resourceRequirements) {</span>
-<span class="fc" id="L53">        this.replicas = replicas;</span>
-<span class="fc" id="L54">        this.serviceAccountToUse = serviceAccountToUse;</span>
-<span class="fc" id="L55">        this.environmentVariables = environmentVariables;</span>
-<span class="fc" id="L56">        this.resourceRequirements = resourceRequirements;</span>
-<span class="fc" id="L57">    }</span>
+            EntandoResourceRequirements resourceRequirements,
+<span class="fc" id="L54">            String storageClass) {</span>
+<span class="fc" id="L55">        this.replicas = replicas;</span>
+<span class="fc" id="L56">        this.serviceAccountToUse = serviceAccountToUse;</span>
+<span class="fc" id="L57">        this.environmentVariables = environmentVariables;</span>
+<span class="fc" id="L58">        this.resourceRequirements = resourceRequirements;</span>
+<span class="fc" id="L59">        this.storageClass = storageClass;</span>
+<span class="fc" id="L60">    }</span>
+
+    public Optional&lt;String&gt; getStorageClass() {
+<span class="fc" id="L63">        return ofNullable(storageClass);</span>
+    }
 
     public Optional&lt;Integer&gt; getReplicas() {
-<span class="fc" id="L60">        return ofNullable(replicas);</span>
+<span class="fc" id="L67">        return ofNullable(replicas);</span>
     }
 
     public List&lt;EnvVar&gt; getEnvironmentVariables() {
-<span class="fc bfc" id="L64" title="All 2 branches covered.">        return environmentVariables == null ? Collections.emptyList() : environmentVariables;</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        return environmentVariables == null ? Collections.emptyList() : environmentVariables;</span>
     }
 
     public Optional&lt;String&gt; getServiceAccountToUse() {
-<span class="fc" id="L68">        return ofNullable(serviceAccountToUse);</span>
+<span class="fc" id="L75">        return ofNullable(serviceAccountToUse);</span>
     }
 
     public Optional&lt;EntandoResourceRequirements&gt; getResourceRequirements() {
-<span class="fc" id="L72">        return Optional.ofNullable(resourceRequirements);</span>
+<span class="fc" id="L79">        return Optional.ofNullable(resourceRequirements);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

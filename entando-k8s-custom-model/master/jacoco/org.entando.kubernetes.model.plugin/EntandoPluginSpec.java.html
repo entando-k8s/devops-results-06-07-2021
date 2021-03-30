@@ -83,56 +83,57 @@ public class EntandoPluginSpec extends ClusterInfrastructureAwareSpec {
             @JsonProperty(&quot;connectionConfigNames&quot;) List&lt;String&gt; connectionConfigNames,
             @JsonProperty(&quot;clusterInfrastructureToUse&quot;) ResourceReference clusterInfrastructureToUse,
             @JsonProperty(&quot;companionContainers&quot;) List&lt;String&gt; companionContainers,
-            @JsonProperty(&quot;resourceRequirements&quot;) EntandoResourceRequirements resourceRequirements
+            @JsonProperty(&quot;resourceRequirements&quot;) EntandoResourceRequirements resourceRequirements,
+            @JsonProperty(&quot;storageClass&quot;) String storageClass
     ) {
-<span class="fc" id="L88">        super(ingressHostName, tlsSecretName, replicas, dbms, serviceAccountToUse, environmentVariables, resourceRequirements,</span>
-                keycloakToUse, clusterInfrastructureToUse);
-<span class="fc" id="L90">        this.image = image;</span>
-<span class="fc" id="L91">        this.ingressPath = ingressPath;</span>
-<span class="fc" id="L92">        this.keycloakToUse = keycloakToUse;</span>
-<span class="fc" id="L93">        this.healthCheckPath = healthCheckPath;</span>
-<span class="fc" id="L94">        this.roles = coalesce(roles, this.roles);</span>
-<span class="fc" id="L95">        this.permissions = coalesce(permissions, this.permissions);</span>
-<span class="fc" id="L96">        this.connectionConfigNames = coalesce(connectionConfigNames, this.connectionConfigNames);</span>
-<span class="fc" id="L97">        this.securityLevel = securityLevel;</span>
-<span class="fc" id="L98">        this.companionContainers = coalesce(companionContainers, this.companionContainers);</span>
-<span class="fc" id="L99">    }</span>
+<span class="fc" id="L89">        super(ingressHostName, tlsSecretName, replicas, dbms, serviceAccountToUse, environmentVariables, resourceRequirements,</span>
+                keycloakToUse, clusterInfrastructureToUse, storageClass);
+<span class="fc" id="L91">        this.image = image;</span>
+<span class="fc" id="L92">        this.ingressPath = ingressPath;</span>
+<span class="fc" id="L93">        this.keycloakToUse = keycloakToUse;</span>
+<span class="fc" id="L94">        this.healthCheckPath = healthCheckPath;</span>
+<span class="fc" id="L95">        this.roles = coalesce(roles, this.roles);</span>
+<span class="fc" id="L96">        this.permissions = coalesce(permissions, this.permissions);</span>
+<span class="fc" id="L97">        this.connectionConfigNames = coalesce(connectionConfigNames, this.connectionConfigNames);</span>
+<span class="fc" id="L98">        this.securityLevel = securityLevel;</span>
+<span class="fc" id="L99">        this.companionContainers = coalesce(companionContainers, this.companionContainers);</span>
+<span class="fc" id="L100">    }</span>
 
     public Optional&lt;PluginSecurityLevel&gt; getSecurityLevel() {
-<span class="fc" id="L102">        return ofNullable(securityLevel);</span>
+<span class="fc" id="L103">        return ofNullable(securityLevel);</span>
     }
 
     public String getImage() {
-<span class="fc" id="L106">        return image;</span>
+<span class="fc" id="L107">        return image;</span>
     }
 
     public List&lt;ExpectedRole&gt; getRoles() {
-<span class="fc" id="L110">        return roles;</span>
+<span class="fc" id="L111">        return roles;</span>
     }
 
     public List&lt;Permission&gt; getPermissions() {
-<span class="fc" id="L114">        return permissions;</span>
+<span class="fc" id="L115">        return permissions;</span>
     }
 
     public String getIngressPath() {
-<span class="fc" id="L118">        return ingressPath;</span>
+<span class="fc" id="L119">        return ingressPath;</span>
     }
 
     public String getHealthCheckPath() {
-<span class="fc" id="L122">        return healthCheckPath;</span>
+<span class="fc" id="L123">        return healthCheckPath;</span>
     }
 
     @Override
     public Optional&lt;KeycloakToUse&gt; getKeycloakToUse() {
-<span class="fc" id="L127">        return ofNullable(keycloakToUse);</span>
+<span class="fc" id="L128">        return ofNullable(keycloakToUse);</span>
     }
 
     public List&lt;String&gt; getConnectionConfigNames() {
-<span class="fc" id="L131">        return connectionConfigNames;</span>
+<span class="fc" id="L132">        return connectionConfigNames;</span>
     }
 
     public List&lt;String&gt; getCompanionContainers() {
-<span class="fc" id="L135">        return this.companionContainers;</span>
+<span class="fc" id="L136">        return this.companionContainers;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
