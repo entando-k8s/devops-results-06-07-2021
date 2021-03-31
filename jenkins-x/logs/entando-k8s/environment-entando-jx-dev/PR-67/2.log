@@ -1,0 +1,43 @@
+
+Showing logs for build [32mentando-k8s-environment-entando-jzvhg-2[0m stage [32mpr-checks[0m and container [32mstep-credential-initializer-zb7s9[0m
+{"level":"warn","ts":1617197445.5436232,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: \"ref: refs/heads/0.8.0-**-support-backwards-incompats\" is not a valid GitHub commit ID"}
+{"level":"info","ts":1617197445.5597515,"logger":"fallback-logger","caller":"creds-init/main.go:40","msg":"Credentials initialized."}
+
+Showing logs for build [32mentando-k8s-environment-entando-jzvhg-2[0m stage [32mpr-checks[0m and container [32mstep-working-dir-initializer-srbbb[0m
+{"level":"warn","ts":1617197455.0901453,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: open /var/run/ko/HEAD: no such file or directory"}
+{"level":"info","ts":1617197455.159117,"logger":"fallback-logger","caller":"bash/main.go:64","msg":"Successfully e**cuted command \"sh -c mkdir -p /workspace/source\"; output "}
+
+Showing logs for build [32mentando-k8s-environment-entando-jzvhg-2[0m stage [32mpr-checks[0m and container [32mstep-place-tools[0m
+
+Showing logs for build [32mentando-k8s-environment-entando-jzvhg-2[0m stage [32mpr-checks[0m and container [32mstep-git-source-entando-k8s-environment-entando-mdmn5[0m
+{"level":"warn","ts":1617197473.0973217,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: \"ref: refs/heads/0.8.0-**-support-backwards-incompats\" is not a valid GitHub commit ID"}
+{"level":"info","ts":1617197473.9134648,"logger":"fallback-logger","caller":"git/git.go:103","msg":"Successfully cloned https://github.com/entando-k8s/environment-**********-dev.git @ master in path /workspace/source"}
+
+Showing logs for build [32mentando-k8s-environment-entando-jzvhg-2[0m stage [32mpr-checks[0m and container [32mstep-git-merge[0m
+Using SHAs from PULL_REFS=master:b0dc329ea837a2a407ddd5775357e7a918f6704c,67:63b37cdc4fc521bccc0eb2e4afb6c0b6e0d43257
+DEBUG: ran git fetch --unshallow origin 63b37cdc4fc521bccc0eb2e4afb6c0b6e0d43257: b0dc329ea837a2a407ddd5775357e7a918f6704c: in 
+DEBUG: ran git checkout master in 
+DEBUG: ran git reset --hard b0dc329ea837a2a407ddd5775357e7a918f6704c in 
+DEBUG: ran clean --force -d . in 
+DEBUG: ran git merge 63b37cdc4fc521bccc0eb2e4afb6c0b6e0d43257 in 
+Merged SHA 63b37cdc4fc521bccc0eb2e4afb6c0b6e0d43257 with commit message 'update-**-requirements' into base branch master
+
+Showing logs for build [32mentando-k8s-environment-entando-jzvhg-2[0m stage [32mpr-checks[0m and container [32mstep-verify-parameters[0m
+
+Showing logs for build [32mentando-k8s-environment-entando-jzvhg-2[0m stage [32mpr-checks[0m and container [32mstep-lint-env-helm[0m
+rm -rf charts
+rm -rf requirements.lock
+helm init --client-only
+Creating /builder/home/.helm 
+Creating /builder/home/.helm/repository 
+Creating /builder/home/.helm/repository/cache 
+Creating /builder/home/.helm/repository/local 
+Creating /builder/home/.helm/plugins 
+Creating /builder/home/.helm/starters 
+Creating /builder/home/.helm/cache/archive 
+Creating /builder/home/.helm/repository/repositories.yaml 
+Adding stable repo with URL: https://kubernetes-charts.storage.googleapis.com 
+Error: error initializing: Looks like "https://kubernetes-charts.storage.googleapis.com" is not a valid chart repository or cannot be reached: Failed to fetch https://kubernetes-charts.storage.googleapis.com/index.yaml : 403 Forbidden
+make: *** [init] Error 1
+[31m
+Pipeline failed on stage 'pr-checks' : container 'step-lint-env-helm'. The execution of the pipeline has stopped.[0m
