@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallAction;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallActionsByComponentType;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallPlan;
 import org.entando.kubernetes.exception.EntandoComponentManagerException;
 import org.entando.kubernetes.model.bundle.ComponentType;
@@ -41,7 +42,7 @@ public interface ComponentProcessor&lt;T extends Descriptor&gt; {
     Optional&lt;Function&lt;ComponentSpecDescriptor, List&lt;String&gt;&gt;&gt; getComponentSelectionFn();
 
     default boolean doesComponentDscriptorContainMoreThanOneSingleEntity() {
-<span class="fc" id="L44">        return false;</span>
+<span class="fc" id="L45">        return false;</span>
     }
 
     /**
@@ -60,11 +61,13 @@ public interface ComponentProcessor&lt;T extends Descriptor&gt; {
      *
      * @param bundleReader     bundle reader capable of reading the bundle using it's descriptor
      * @param conflictStrategy default action in case of a component conflict
-     * @param installPlan     the InstallPlan for the current bundle
+     * @param actions          list of user provided actions in case of component conflicts
+     * @param report           a bundle analysis conflict report
      * @return Should return a list of Installables
      * @throws EntandoComponentManagerException in case of any error while reading any the file from the Zip package
      */
-    List&lt;Installable&lt;T&gt;&gt; process(BundleReader bundleReader, InstallAction conflictStrategy, InstallPlan installPlan);
+    List&lt;Installable&lt;T&gt;&gt; process(BundleReader bundleReader, InstallAction conflictStrategy,
+            InstallActionsByComponentType actions, InstallPlan report);
 
     /**
      * This method extracts a list of installable components from a list of {@link org.entando.kubernetes.model.job.EntandoBundleComponentJob}.
@@ -72,10 +75,10 @@ public interface ComponentProcessor&lt;T extends Descriptor&gt; {
     List&lt;Installable&lt;T&gt;&gt; process(List&lt;EntandoBundleComponentJobEntity&gt; components);
 
     default Installable&lt;T&gt; process(EntandoBundleComponentJobEntity componentJob) {
-<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (supportComponent(componentJob.getComponentType())) {</span>
-<span class="fc" id="L76">            return process(Collections.singletonList(componentJob)).get(0);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (supportComponent(componentJob.getComponentType())) {</span>
+<span class="fc" id="L79">            return process(Collections.singletonList(componentJob)).get(0);</span>
         }
-<span class="nc" id="L78">        return null;</span>
+<span class="nc" id="L81">        return null;</span>
     }
 
     T buildDescriptorFromComponentJob(EntandoBundleComponentJobEntity component);
@@ -83,11 +86,11 @@ public interface ComponentProcessor&lt;T extends Descriptor&gt; {
     ComponentType getSupportedComponentType();
 
     default boolean supportComponent(ComponentType ct) {
-<span class="fc" id="L86">        return this.getSupportedComponentType().equals(ct);</span>
+<span class="fc" id="L89">        return this.getSupportedComponentType().equals(ct);</span>
     }
 
     default String getRelativePath(String referenceFile, String fileName) {
-<span class="fc" id="L90">        return Paths.get(referenceFile).resolveSibling(fileName).toString();</span>
+<span class="fc" id="L93">        return Paths.get(referenceFile).resolveSibling(fileName).toString();</span>
     }
 
     /**
@@ -100,15 +103,15 @@ public interface ComponentProcessor&lt;T extends Descriptor&gt; {
      */
     default List&lt;String&gt; getDescriptorList(BundleReader bundleReader) throws IOException {
 
-<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (this.getComponentSelectionFn().isEmpty()) {</span>
-<span class="fc" id="L104">            throw new EntandoComponentManagerException(</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (this.getComponentSelectionFn().isEmpty()) {</span>
+<span class="fc" id="L107">            throw new EntandoComponentManagerException(</span>
                     &quot;Extracting components from BundleDescriptor for null componentSelectionFunction&quot;);
         }
 
-<span class="fc" id="L108">        BundleDescriptor descriptor = bundleReader.readBundleDescriptor();</span>
-<span class="fc" id="L109">        return ofNullable(descriptor.getComponents())</span>
-<span class="fc" id="L110">                .map(componentSpecDescriptor -&gt; getComponentSelectionFn().get().apply(componentSpecDescriptor))</span>
-<span class="fc" id="L111">                .orElse(new ArrayList&lt;&gt;());</span>
+<span class="fc" id="L111">        BundleDescriptor descriptor = bundleReader.readBundleDescriptor();</span>
+<span class="fc" id="L112">        return ofNullable(descriptor.getComponents())</span>
+<span class="fc" id="L113">                .map(componentSpecDescriptor -&gt; getComponentSelectionFn().get().apply(componentSpecDescriptor))</span>
+<span class="fc" id="L114">                .orElse(new ArrayList&lt;&gt;());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.entando.kubernetes.client.core.EntandoCoreClient;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallAction;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallActionsByComponentType;
 import org.entando.kubernetes.controller.digitalexchange.job.model.InstallPlan;
 import org.entando.kubernetes.model.bundle.ComponentType;
 import org.entando.kubernetes.model.bundle.descriptor.ComponentSpecDescriptor;
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Service;
 /**
  * Processor to handle Pages.
  */
-<span class="fc" id="L27">@Slf4j</span>
+<span class="fc" id="L28">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
 public class PageProcessor extends BaseComponentProcessor&lt;PageDescriptor&gt; implements EntandoEngineReportableProcessor {
@@ -33,59 +34,61 @@ public class PageProcessor extends BaseComponentProcessor&lt;PageDescriptor&gt; 
 
     @Override
     public ComponentType getSupportedComponentType() {
-<span class="fc" id="L36">        return ComponentType.PAGE;</span>
+<span class="fc" id="L37">        return ComponentType.PAGE;</span>
     }
 
     @Override
     public Class&lt;PageDescriptor&gt; getDescriptorClass() {
-<span class="fc" id="L41">        return PageDescriptor.class;</span>
+<span class="fc" id="L42">        return PageDescriptor.class;</span>
     }
 
     @Override
     public Optional&lt;Function&lt;ComponentSpecDescriptor, List&lt;String&gt;&gt;&gt; getComponentSelectionFn() {
-<span class="fc" id="L46">        return Optional.of(ComponentSpecDescriptor::getPages);</span>
+<span class="fc" id="L47">        return Optional.of(ComponentSpecDescriptor::getPages);</span>
     }
 
     @Override
     public List&lt;Installable&lt;PageDescriptor&gt;&gt; process(BundleReader bundleReader) {
-<span class="fc" id="L51">        return this.process(bundleReader, InstallAction.CREATE, new InstallPlan());</span>
+<span class="fc" id="L52">        return this.process(bundleReader, InstallAction.CREATE, new InstallActionsByComponentType(),</span>
+                new InstallPlan());
     }
 
     @Override
     public List&lt;Installable&lt;PageDescriptor&gt;&gt; process(BundleReader bundleReader, InstallAction conflictStrategy,
-            InstallPlan installPlan) {
+            InstallActionsByComponentType actions, InstallPlan report) {
 
-<span class="fc" id="L58">        List&lt;Installable&lt;PageDescriptor&gt;&gt; installables = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L60">        List&lt;Installable&lt;PageDescriptor&gt;&gt; installables = new LinkedList&lt;&gt;();</span>
 
         try {
-<span class="fc" id="L61">            final List&lt;String&gt; descriptorList = getDescriptorList(bundleReader);</span>
+<span class="fc" id="L63">            final List&lt;String&gt; descriptorList = getDescriptorList(bundleReader);</span>
 
-<span class="fc bfc" id="L63" title="All 2 branches covered.">            for (String fileName : descriptorList) {</span>
-<span class="fc" id="L64">                PageDescriptor pageDescriptor = bundleReader.readDescriptorFile(fileName, PageDescriptor.class);</span>
-<span class="fc" id="L65">                InstallAction action = extractInstallAction(pageDescriptor.getCode(), conflictStrategy, installPlan);</span>
-<span class="fc" id="L66">                installables.add(new PageInstallable(engineService, pageDescriptor, action));</span>
-<span class="fc" id="L67">            }</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            for (String fileName : descriptorList) {</span>
+<span class="fc" id="L66">                PageDescriptor pageDescriptor = bundleReader.readDescriptorFile(fileName, PageDescriptor.class);</span>
+<span class="fc" id="L67">                InstallAction action = extractInstallAction(pageDescriptor.getCode(), actions, conflictStrategy,</span>
+                        report);
+<span class="fc" id="L69">                installables.add(new PageInstallable(engineService, pageDescriptor, action));</span>
+<span class="fc" id="L70">            }</span>
 
-<span class="fc" id="L69">        } catch (IOException e) {</span>
-<span class="fc" id="L70">            throw makeMeaningfulException(e);</span>
-<span class="fc" id="L71">        }</span>
+<span class="fc" id="L72">        } catch (IOException e) {</span>
+<span class="fc" id="L73">            throw makeMeaningfulException(e);</span>
+<span class="fc" id="L74">        }</span>
 
-<span class="fc" id="L73">        return installables;</span>
+<span class="fc" id="L76">        return installables;</span>
     }
 
     @Override
     public List&lt;Installable&lt;PageDescriptor&gt;&gt; process(List&lt;EntandoBundleComponentJobEntity&gt; components) {
-<span class="fc" id="L78">        return components.stream()</span>
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">                .filter(c -&gt; c.getComponentType() == getSupportedComponentType())</span>
-<span class="fc" id="L80">                .map(c -&gt; new PageInstallable(engineService, this.buildDescriptorFromComponentJob(c), c.getAction()))</span>
-<span class="fc" id="L81">                .collect(Collectors.toList());</span>
+<span class="fc" id="L81">        return components.stream()</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">                .filter(c -&gt; c.getComponentType() == getSupportedComponentType())</span>
+<span class="fc" id="L83">                .map(c -&gt; new PageInstallable(engineService, this.buildDescriptorFromComponentJob(c), c.getAction()))</span>
+<span class="fc" id="L84">                .collect(Collectors.toList());</span>
     }
 
     @Override
     public PageDescriptor buildDescriptorFromComponentJob(EntandoBundleComponentJobEntity component) {
-<span class="fc" id="L86">        return PageDescriptor.builder()</span>
-<span class="fc" id="L87">                .code(component.getComponentId())</span>
-<span class="fc" id="L88">                .build();</span>
+<span class="fc" id="L89">        return PageDescriptor.builder()</span>
+<span class="fc" id="L90">                .code(component.getComponentId())</span>
+<span class="fc" id="L91">                .build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
