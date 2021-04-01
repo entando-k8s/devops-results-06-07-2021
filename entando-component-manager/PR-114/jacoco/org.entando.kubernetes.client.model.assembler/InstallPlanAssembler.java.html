@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InstallPlanAssembler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Component Manager</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.client.model.assembler</a> &gt; <span class="el_source">InstallPlanAssembler.java</span></div><h1>InstallPlanAssembler.java</h1><pre class="source lang-java linenums">/*
+  assembler pattern to adapt AnalysisReport to InstallPlan.
+ */
+
+package org.entando.kubernetes.client.model.assembler;
+
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.entando.kubernetes.client.model.AnalysisReport;
+import org.entando.kubernetes.controller.digitalexchange.job.model.ComponentInstallPlan;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallPlan;
+import org.entando.kubernetes.controller.digitalexchange.job.model.Status;
+
+public class InstallPlanAssembler {
+
+    private InstallPlanAssembler() {
+    }
+
+    public static InstallPlan toInstallPlan(AnalysisReport analysisReport) {
+
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (null == analysisReport) {</span>
+<span class="fc" id="L24">            return new InstallPlan();</span>
+        }
+
+<span class="fc" id="L27">        return InstallPlan.builder()</span>
+<span class="fc" id="L28">                .hasConflicts(analysisReportHasConflicts(analysisReport))</span>
+<span class="fc" id="L29">                .widgets(toComponentInstallPlan(analysisReport.getWidgets()))</span>
+<span class="fc" id="L30">                .fragments(toComponentInstallPlan(analysisReport.getFragments()))</span>
+<span class="fc" id="L31">                .pages(toComponentInstallPlan(analysisReport.getPages()))</span>
+<span class="fc" id="L32">                .pageTemplates(toComponentInstallPlan(analysisReport.getPageTemplates()))</span>
+<span class="fc" id="L33">                .contents(toComponentInstallPlan(analysisReport.getContents()))</span>
+<span class="fc" id="L34">                .contentTemplates(toComponentInstallPlan(analysisReport.getContentTemplates()))</span>
+<span class="fc" id="L35">                .contentTypes(toComponentInstallPlan(analysisReport.getContentTypes()))</span>
+<span class="fc" id="L36">                .assets(toComponentInstallPlan(analysisReport.getAssets()))</span>
+<span class="fc" id="L37">                .directories(toComponentInstallPlan(analysisReport.getDirectories()))</span>
+<span class="fc" id="L38">                .resources(toComponentInstallPlan(analysisReport.getResources()))</span>
+<span class="fc" id="L39">                .plugins(toComponentInstallPlan(analysisReport.getPlugins()))</span>
+<span class="fc" id="L40">                .categories(toComponentInstallPlan(analysisReport.getCategories()))</span>
+<span class="fc" id="L41">                .groups(toComponentInstallPlan(analysisReport.getGroups()))</span>
+<span class="fc" id="L42">                .labels(toComponentInstallPlan(analysisReport.getLabels()))</span>
+<span class="fc" id="L43">                .languages(toComponentInstallPlan(analysisReport.getLanguages()))</span>
+<span class="fc" id="L44">                .build();</span>
+    }
+
+
+    private static Map&lt;String, ComponentInstallPlan&gt; toComponentInstallPlan(
+            Map&lt;String, Status&gt; components) {
+
+<span class="fc" id="L51">        return components.entrySet().stream()</span>
+<span class="fc" id="L52">                .map(entry -&gt; new AbstractMap.SimpleEntry&lt;&gt;(entry.getKey(),</span>
+<span class="fc" id="L53">                        ComponentInstallPlan.builder().status(entry.getValue()).build()))</span>
+<span class="fc" id="L54">                .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));</span>
+    }
+
+
+    private static boolean analysisReportHasConflicts(AnalysisReport analysisReport) {
+
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        return componentsHaveConflicts(analysisReport.getWidgets())</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getFragments())</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getPages())</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getPageTemplates())</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">                || componentsHaveConflicts(analysisReport.getContents())</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getContentTemplates())</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getContentTypes())</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getAssets())</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getDirectories())</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getResources())</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">                || componentsHaveConflicts(analysisReport.getPlugins())</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getCategories())</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getGroups())</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getLabels())</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">                || componentsHaveConflicts(analysisReport.getLanguages());</span>
+    }
+
+
+    private static boolean componentsHaveConflicts(Map&lt;String, Status&gt; components) {
+
+<span class="fc" id="L80">        return components.values().stream()</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                .anyMatch(status -&gt; status == Status.DIFF);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
