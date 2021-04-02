@@ -99,12 +99,12 @@ import java.util.Map;
     @GetMapping(value = &quot;/myProfileType&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;UserProfileTypeDto&gt;&gt; getMyProfileType(@ModelAttribute(&quot;user&quot;) UserDetails user) {
 <span class="fc" id="L101">        logger.debug(&quot;Requested profile type for the logged user-&gt; {}&quot;, user.getUsername());</span>
-<span class="nc" id="L102">        UserDto userDto = userService.getUser(user.getUsername());</span>
-<span class="nc bnc" id="L103" title="All 6 branches missed.">        if (userDto != null &amp;&amp; userDto.getProfileType() != null &amp;&amp; userDto.getProfileType().getTypeCode() != null) {</span>
-<span class="nc" id="L104">            UserProfileTypeDto dto = this.getUserProfileTypeService()</span>
-<span class="nc" id="L105">                    .getUserProfileType(userDto.getProfileType().getTypeCode());</span>
-<span class="nc" id="L106">            logger.debug(&quot;Main Response -&gt; {}&quot;, dto);</span>
-<span class="nc" id="L107">            return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(dto), HttpStatus.OK);</span>
+<span class="fc" id="L102">        UserDto userDto = userService.getUser(user.getUsername());</span>
+<span class="pc bpc" id="L103" title="3 of 6 branches missed.">        if (userDto != null &amp;&amp; userDto.getProfileType() != null &amp;&amp; userDto.getProfileType().getTypeCode() != null) {</span>
+<span class="fc" id="L104">            UserProfileTypeDto dto = this.getUserProfileTypeService()</span>
+<span class="fc" id="L105">                    .getUserProfileType(userDto.getProfileType().getTypeCode());</span>
+<span class="fc" id="L106">            logger.debug(&quot;Main Response -&gt; {}&quot;, dto);</span>
+<span class="fc" id="L107">            return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(dto), HttpStatus.OK);</span>
         } else {
 <span class="nc" id="L109">            throw new ResourceNotFoundException(AbstractEntityTypeValidator.ERRCODE_ENTITY_TYPE_DOES_NOT_EXIST, OBJECT_NAME_PROFILE_TYPE, &quot;&quot;);</span>
         }
