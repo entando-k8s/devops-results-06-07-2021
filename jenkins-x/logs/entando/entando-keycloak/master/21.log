@@ -1,0 +1,220 @@
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-credential-initializer-rq5f6[0m
+{"level":"warn","ts":1617695860.8566315,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: \"ref: refs/heads/0.8.0-**-support-backwards-incompats\" is not a valid GitHub commit ID"}
+{"level":"info","ts":1617695860.8681624,"logger":"fallback-logger","caller":"creds-init/main.go:40","msg":"Credentials initialized."}
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-working-dir-initializer-xbs76[0m
+{"level":"warn","ts":1617695863.6337583,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: open /var/run/ko/HEAD: no such file or directory"}
+{"level":"info","ts":1617695863.6628015,"logger":"fallback-logger","caller":"bash/main.go:64","msg":"Successfully e**cuted command \"sh -c mkdir -p /workspace/source\"; output "}
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-place-tools[0m
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-git-source-entando-entando-keycloak-master-bcd7w[0m
+{"level":"warn","ts":1617695893.859133,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: \"ref: refs/heads/0.8.0-**-support-backwards-incompats\" is not a valid GitHub commit ID"}
+{"level":"info","ts":1617695895.8424072,"logger":"fallback-logger","caller":"git/git.go:103","msg":"Successfully cloned https://github.com/entando/entando-keycloak.git @ v6.3.8 in path /workspace/source"}
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-git-merge[0m
+Using SHAs from PULL_REFS=master:9823a9d4e104fa728dbb8970ec0227cb9e3b484b
+WARNING: no SHAs to merge, falling back to initial cloned commit
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-setup-jx-git-credentials[0m
+Generated Git credentials file /workspace/xdg_config/git/credentials
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-container-build1[0m
+This avoids unwanted kaniko command substitution
+Generating tags...
+ - entando/entando-keycloak -> docker.io/entando/entando-keycloak:6.3.8
+Checking cache...
+ - entando/entando-keycloak: Not found. Building
+Building [entando/entando-keycloak]...
+Sending build context to Docker daemon  546.3kBSending build context to Docker daemon  8.743MB
+Step 1/11 : FROM jboss/keycloak:12.0.2
+ ---> 7699b20daf8e
+Step 2/11 : LABEL MAINTAINER "Entando <dev@entando.com>"
+ ---> Using cache
+ ---> 4cc1923010b8
+Step 3/11 : ARG VERSION
+ ---> Using cache
+ ---> bb542d85aa9e
+Step 4/11 : LABEL name "Entando Keycloak" vendor "Entando" version "v${VERSION}" release "6" summary "Keycloak with Entando's themes and extensions." description "This is container hosts Keycloak along with themes created for Entando."
+ ---> Running in c930675c628a
+ ---> c88b22ccabde
+Step 5/11 : COPY LICENSE /licences/entando-lgpl.txt
+ ---> c9b4e579a583
+Step 6/11 : COPY themes /opt/jboss/keycloak/themes
+ ---> 39c5d0104a27
+Step 7/11 : COPY cli /opt/jboss/tools/cli
+ ---> 25f5fe4ca701
+Step 8/11 : RUN export KEYCLOAK_HTTP_PORT=8080 &&       cd  /opt/jboss/keycloak/modules/******/layers/base/com/******/jdbc/main/ &&       mkdir driver &&       curl https://repo1.maven.org/maven2/com/******/ojdbc/ojdbc8/19.3.0.0/ojdbc8-19.3.0.0.jar -o driver/ojdbc.jar
+ ---> Running in 7c7908997ae1
+
+[91m[0m[91m  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0[0m[91m100 4111k  100 4111k    0     0  15.2M      0 --:--:-- --:--:-- --:--:-- 15.2M
+[0m ---> d852b4ed7fd8
+Step 9/11 : ENV KEYCLOAK_DEFAULT_THEME "entando" KEYCLOAK_HOME "/opt/jboss/keycloak"
+ ---> Running in 94ba3b6ade28
+ ---> c768005b6940
+Step 10/11 : EXPOSE 8080
+ ---> Running in f3e77f1a03c6
+ ---> fc851db8b736
+Step 11/11 : CMD -b 0.0.0.0
+ ---> Running in f09763773c2d
+ ---> 2f76b629d9dd
+Successfully built 2f76b629d9dd
+The push refers to a repository [docker.io/entando/entando-keycloak]
+68503ada4c9d: Preparing
+7c8856879f41: Preparing
+0d445f426fce: Preparing
+866571deee8b: Preparing
+43876f2097d1: Preparing
+79fccfadc333: Preparing
+a655ed183a77: Preparing
+00af10937683: Preparing
+3aa55ff7bca1: Preparing
+79fccfadc333: Waiting
+a655ed183a77: Waiting
+3aa55ff7bca1: Waiting
+00af10937683: Waiting
+43876f2097d1: Layer already exists
+79fccfadc333: Layer already exists
+a655ed183a77: Layer already exists
+00af10937683: Layer already exists
+3aa55ff7bca1: Layer already exists
+7c8856879f41: Pushed
+866571deee8b: Pushed
+68503ada4c9d: Pushed
+0d445f426fce: Pushed
+6.3.8: digest: sha256:8629128f5e6c0d01c592b078499fedc9ad2bbb516c07ca47ca49ed35e2d323f4 size: 2209
+There is a new version (1.21.0) of Skaffold available. Download it at https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-post-build1[0m
+cat: VERSION: No such file or directory
+no CVE provider running in the current ** namespace so skip adding image to be analysed
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-update-image-map1[0m
+configmap/entando-docker-image-info-v6.3 patched
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-container-build2[0m
+This avoids unwanted kaniko command substitution
+Generating tags...
+ - entando/entando-redhat-sso -> docker.io/entando/entando-redhat-sso:6.3.8
+Checking cache...
+ - entando/entando-redhat-sso: Not found. Building
+Building [entando/entando-redhat-sso]...
+Sending build context to Docker daemon    554kBSending build context to Docker daemon  8.865MBSending build context to Docker daemon   15.4MB
+Step 1/14 : FROM registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4-25
+ ---> 2fa201c70f65
+Step 2/14 : LABEL MAINTAINER "Entando <dev@entando.com>"
+ ---> Using cache
+ ---> 318fd6e18393
+Step 3/14 : ARG VERSION
+ ---> Using cache
+ ---> cd36b13b00c5
+Step 4/14 : LABEL name "Entando Red Hat SSO" vendor "Entando" version "v${VERSION}" release "6" summary "Red Hat SSO with Entando's themes and extensions." description "This is container hosts Red Hat SSO along with themes created for Entando."
+ ---> Running in d635b389aa36
+ ---> 16daf2fa66e6
+Step 5/14 : COPY LICENSE /licences/entando-lgpl.txt
+ ---> 05e33317f316
+Step 6/14 : USER ****
+ ---> Running in 81d886a06eb1
+ ---> 378c634e7d49
+Step 7/14 : RUN microdnf -y update
+ ---> Running in 809ce84cb892
+
+[91m[0m[91m
+(microdnf:1): librhsm-WARNING **: 07:58:38.754: Found 0 entitlement certificates
+[0m[91m
+(microdnf:1): librhsm-WARNING **: 07:58:38.757: Found 0 entitlement certificates
+[0mDownloading metadata...
+Downloading metadata...
+Downloading metadata...
+Package                                Repository       Size
+Installing:                                                 
+ openssl-pkcs11-0.4.10-2.el8.x86_64    ubi-8-baseos  67.5 kB
+Upgrading:                                                  
+ openssl-1:1.1.1g-15.el8_3.x86_64      ubi-8-baseos 723.9 kB
+ openssl-libs-1:1.1.1g-15.el8_3.x86_64 ubi-8-baseos   1.5 MB
+Transaction Summary:
+ Installing:        1 packages
+ Reinstalling:      0 packages
+ Upgrading:         2 packages
+ Removing:          0 packages
+ Downgrading:       0 packages
+Downloading packages...
+Running transaction test...
+Updating: openssl;1:1.1.1g-15.el8_3;x86_64;ubi-8-baseos
+Updating: openssl-libs;1:1.1.1g-15.el8_3;x86_64;ubi-8-baseos
+Installing: openssl-pkcs11;0.4.10-2.el8;x86_64;ubi-8-baseos
+Cleanup: openssl;1:1.1.1g-12.el8_3;x86_64;installed
+Cleanup: openssl-libs;1:1.1.1g-12.el8_3;x86_64;installed
+Complete.
+ ---> ada0b70c3d61
+Step 8/14 : USER jboss
+ ---> Running in c2baeb7e88c4
+ ---> 9f22d0a2259e
+Step 9/14 : COPY themes /opt/eap/themes
+ ---> 7739a7acee78
+Step 10/14 : COPY redhat-sso/modules/ /opt/eap/modules/******/layers/openshift/
+ ---> 4393e43b5a9f
+Step 11/14 : COPY redhat-sso/standalone-openshift.xml /opt/eap/standalone/configuration/standalone-openshift.xml
+ ---> a1f61926c878
+Step 12/14 : COPY redhat-sso/datasource-common.sh /opt/eap/bin/launch/datasource-common.sh
+ ---> bb53f7d4ce76
+Step 13/14 : COPY LICENSE /licenses/entando-lgpl.txt
+ ---> 52b79ada0ad1
+Step 14/14 : ENV KEYCLOAK_DEFAULT_THEME "entando" KEYCLOAK_HOME "/opt/eap"
+ ---> Running in 94683f0e1e8d
+ ---> 28a464b32c45
+Successfully built 28a464b32c45
+The push refers to a repository [docker.io/entando/entando-redhat-sso]
+d6b940292859: Preparing
+46ff9550b2b4: Preparing
+8571acc1ae5b: Preparing
+8fa6fe3dc820: Preparing
+c64cfa24447e: Preparing
+69012238f481: Preparing
+ed0d88cb2211: Preparing
+0ad0ac7aecbe: Preparing
+04a05557bbad: Preparing
+821b0c400fe6: Preparing
+69012238f481: Waiting
+ed0d88cb2211: Waiting
+821b0c400fe6: Waiting
+04a05557bbad: Waiting
+d6b940292859: Pushed
+8571acc1ae5b: Pushed
+46ff9550b2b4: Pushed
+0ad0ac7aecbe: Layer already exists
+8fa6fe3dc820: Pushed
+04a05557bbad: Layer already exists
+c64cfa24447e: Pushed
+821b0c400fe6: Layer already exists
+ed0d88cb2211: Pushed
+69012238f481: Pushed
+6.3.8: digest: sha256:f77978cf4e3d6b6079c935645a04f2c2595657d3ee7246dedc25334cc5316491 size: 2417
+There is a new version (1.21.0) of Skaffold available. Download it at https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-post-build2[0m
+cat: VERSION: No such file or directory
+no CVE provider running in the current ** namespace so skip adding image to be analysed
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-update-image-map2[0m
+configmap/entando-docker-image-info-v6.3 patched
+
+Showing logs for build [32mentando-entando-keycloak-master-c8drq-21[0m stage [32mfrom-build-pack[0m and container [32mstep-promote-changelog[0m
+Converted /workspace/source to an unshallow repository
+Generating change log from git ref fe308521343e3c6d5b750cb3f2328b3b6a28c7fb => 94f6dd85dfb196a87ec20f4cfe516760f189119d
+Associating user ampie in users.jenkins.io with email ampie.private@gmail.com to git GitProvider user with login ampie-barnard as emails match
+Adding label jenkins.io/git-github-userid=ampie-barnard to user ampie in users.jenkins.io
+Associating user ampie in users.jenkins.io with email ampie.private@gmail.com to git GitProvider user with login ampie-barnard as emails match
+Adding label jenkins.io/git-github-userid=ampie-barnard to user ampie in users.jenkins.io
+Finding issues in commit messages using git format
+WARNING: No release found for entando/entando-keycloak and tag v6.3.8 so creating a new release
+Updated the release information at https://github.com/entando/entando-keycloak/releases/tag/v6.3.8
+generated: /workspace/source/templates/release.yaml
+Created Release entando-keycloak-6-3-8 resource in namespace **
+Updating PipelineActivity entando-entando-keycloak-master-21 with version 6.3.8
+Updated PipelineActivities entando-entando-keycloak-master-21 with release notes URL: https://github.com/entando/entando-keycloak/releases/tag/v6.3.8
