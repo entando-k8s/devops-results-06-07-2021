@@ -36,23 +36,23 @@ import com.agiletec.plugins.jacms.aps.system.services.content.model.SymbolicLink
 <span class="fc" id="L36">			String temp = text;</span>
 <span class="fc" id="L37">			String START_HREF = &quot;href=\&quot;&quot; + SymbolicLink.SYMBOLIC_DEST_PREFIX;</span>
 <span class="fc" id="L38">			String END_HREF = SymbolicLink.SYMBOLIC_DEST_POSTFIX + &quot;\&quot;&quot;;</span>
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">			while (temp.indexOf(START_HREF) &gt; 0) {</span>
-<span class="nc" id="L40">				int start = temp.indexOf(START_HREF);</span>
-<span class="nc" id="L41">				int end = temp.indexOf(END_HREF);</span>
-<span class="nc bnc" id="L42" title="All 2 branches missed.">				if (start &lt; end) {</span>
-<span class="nc" id="L43">					String symbLinkString = temp.substring(start+6, end+2);</span>
-<span class="nc" id="L44">					SymbolicLink symbLink = new SymbolicLink();</span>
-<span class="nc" id="L45">					boolean isValidLink = symbLink.setSymbolicDestination(symbLinkString);</span>
-<span class="nc bnc" id="L46" title="All 2 branches missed.">					if (isValidLink) {</span>
-<span class="nc" id="L47">						links.add(symbLink);</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">			while (temp.indexOf(START_HREF) &gt; 0) {</span>
+<span class="fc" id="L40">				int start = temp.indexOf(START_HREF);</span>
+<span class="fc" id="L41">				int end = temp.indexOf(END_HREF);</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">				if (start &lt; end) {</span>
+<span class="fc" id="L43">					String symbLinkString = temp.substring(start+6, end+2);</span>
+<span class="fc" id="L44">					SymbolicLink symbLink = new SymbolicLink();</span>
+<span class="fc" id="L45">					boolean isValidLink = symbLink.setSymbolicDestination(symbLinkString);</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">					if (isValidLink) {</span>
+<span class="fc" id="L47">						links.add(symbLink);</span>
 					}
 				}
-<span class="nc bnc" id="L50" title="All 2 branches missed.">				if (end &gt; 0) {</span>
-<span class="nc" id="L51">					temp = temp.substring(end+2, temp.length()-1);</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">				if (end &gt; 0) {</span>
+<span class="fc" id="L51">					temp = temp.substring(end+2, temp.length()-1);</span>
 				} else {
 <span class="nc" id="L53">					temp = temp.substring(start+6, temp.length()-1);</span>
 				}
-<span class="nc" id="L55">			}</span>
+<span class="fc" id="L55">			}</span>
 		}
 <span class="fc" id="L57">		return links;</span>
 	}
