@@ -131,43 +131,27 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
         }
 <span class="fc" id="L132">        return new File(tempFilePath);</span>
     }
-
-    public static byte[] fileToByteArray(File parentDirectory, File file) throws IOException {
-<span class="fc" id="L136">        return fileToByteArray(file, FileUtils.directoryContains(parentDirectory, file));</span>
-    }
-
-    /**
-     * Return the byte array of the given file.
-     * @param file The file to analyze
-     * @return The byte array of the file
-     * @throws IOException in case of exception
-     * @deprecated use fileToByteArray(File parentDirectory, File file)
-     */
-    @Deprecated
-    public static byte[] fileToByteArray(File file) throws IOException {
-<span class="fc" id="L148">        return fileToByteArray(file, true);</span>
-    }
     
-    private static byte[] fileToByteArray(File file, boolean checkParent) throws IOException {
-<span class="fc" id="L152">        FileInputStream fis = null;</span>
-<span class="fc" id="L153">        ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
-<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (checkParent) {</span>
-            try {
-<span class="fc" id="L156">                fis = new FileInputStream(file);</span>
-<span class="fc" id="L157">                byte[] buf = new byte[1024];</span>
-<span class="fc bfc" id="L158" title="All 2 branches covered.">                for (int readNum; (readNum = fis.read(buf)) != -1;) {</span>
-<span class="fc" id="L159">                    bos.write(buf, 0, readNum);</span>
-                }
-<span class="nc" id="L161">            } catch (IOException ex) {</span>
-<span class="nc" id="L162">                logger.error(&quot;Error creating byte array&quot;, ex);</span>
-<span class="nc" id="L163">                throw ex;</span>
-            } finally {
-<span class="pc bpc" id="L165" title="1 of 2 branches missed.">                if (null != fis) {</span>
-<span class="fc" id="L166">                    fis.close();</span>
+    public static byte[] fileToByteArray(File file, File parentDirectory) throws IOException {
+<span class="fc" id="L136">        FileInputStream fis = null;</span>
+<span class="fc" id="L137">        ByteArrayOutputStream bos = new ByteArrayOutputStream();</span>
+        try {
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">            if (FileUtils.directoryContains(parentDirectory, file)) {</span>
+<span class="fc" id="L140">                fis = new FileInputStream(file);</span>
+<span class="fc" id="L141">                byte[] buf = new byte[1024];</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">                for (int readNum; (readNum = fis.read(buf)) != -1;) {</span>
+<span class="fc" id="L143">                    bos.write(buf, 0, readNum);</span>
                 }
             }
+<span class="nc" id="L146">        } catch (IOException ex) {</span>
+<span class="nc" id="L147">            logger.error(&quot;Error creating byte array&quot;, ex);</span>
+<span class="nc" id="L148">            throw ex;</span>
+        } finally {
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">            if (null != fis) {</span>
+<span class="fc" id="L151">                fis.close();</span>
+            }
         }
-<span class="fc" id="L170">        return bos.toByteArray();</span>
+<span class="fc" id="L154">        return bos.toByteArray();</span>
     }
 
 }
