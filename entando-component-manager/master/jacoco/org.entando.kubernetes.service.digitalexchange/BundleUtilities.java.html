@@ -190,71 +190,70 @@ public class BundleUtilities {
     private static String composeIngressPathFromDockerImage(DockerImage image) {
 <span class="fc" id="L191">        return &quot;/&quot; + String.join(&quot;/&quot;,</span>
 <span class="fc" id="L192">                makeKubernetesCompatible(image.getOrganization()),</span>
-<span class="fc" id="L193">                makeKubernetesCompatible(image.getName()),</span>
-<span class="fc" id="L194">                makeKubernetesCompatible(image.getVersion()));</span>
+<span class="fc" id="L193">                makeKubernetesCompatible(image.getName()));</span>
     }
 
     public static Map&lt;String, String&gt; getLabelsFromImage(DockerImage dockerImage) {
-<span class="fc" id="L198">        Map&lt;String, String&gt; labels = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L199">        labels.put(&quot;organization&quot;, dockerImage.getOrganization());</span>
-<span class="fc" id="L200">        labels.put(&quot;name&quot;, dockerImage.getName());</span>
-<span class="fc" id="L201">        labels.put(&quot;version&quot;, dockerImage.getVersion());</span>
-<span class="fc" id="L202">        return labels;</span>
+<span class="fc" id="L197">        Map&lt;String, String&gt; labels = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L198">        labels.put(&quot;organization&quot;, dockerImage.getOrganization());</span>
+<span class="fc" id="L199">        labels.put(&quot;name&quot;, dockerImage.getName());</span>
+<span class="fc" id="L200">        labels.put(&quot;version&quot;, dockerImage.getVersion());</span>
+<span class="fc" id="L201">        return labels;</span>
     }
 
 
     public static EntandoPlugin generatePluginFromDescriptor(PluginDescriptor descriptor) {
-<span class="fc bfc" id="L207" title="All 2 branches covered.">        return descriptor.isVersion1()</span>
-<span class="fc" id="L208">                ? generatePluginFromDescriptorV1(descriptor) :</span>
-<span class="fc" id="L209">                generatePluginFromDescriptorV2(descriptor);</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        return descriptor.isVersion1()</span>
+<span class="fc" id="L207">                ? generatePluginFromDescriptorV1(descriptor) :</span>
+<span class="fc" id="L208">                generatePluginFromDescriptorV2(descriptor);</span>
     }
 
     public static EntandoPlugin generatePluginFromDescriptorV2(PluginDescriptor descriptor) {
-<span class="fc" id="L213">        return new EntandoPluginBuilder()</span>
-<span class="fc" id="L214">                .withNewMetadata()</span>
-<span class="fc" id="L215">                .withName(extractNameFromDescriptor(descriptor))</span>
-<span class="fc" id="L216">                .withLabels(extractLabelsFromDescriptor(descriptor))</span>
-<span class="fc" id="L217">                .endMetadata()</span>
-<span class="fc" id="L218">                .withNewSpec()</span>
-<span class="fc" id="L219">                .withDbms(DbmsVendor.valueOf(descriptor.getDbms().toUpperCase()))</span>
-<span class="fc" id="L220">                .withImage(descriptor.getImage())</span>
-<span class="fc" id="L221">                .withIngressPath(extractIngressPathFromDescriptor(descriptor))</span>
-<span class="fc" id="L222">                .withRoles(extractRolesFromDescriptor(descriptor))</span>
-<span class="fc" id="L223">                .withHealthCheckPath(descriptor.getHealthCheckPath())</span>
-<span class="fc" id="L224">                .withPermissions(extractPermissionsFromDescriptor(descriptor))</span>
-<span class="fc" id="L225">                .withSecurityLevel(PluginSecurityLevel.forName(descriptor.getSecurityLevel()))</span>
-<span class="fc" id="L226">                .endSpec()</span>
-<span class="fc" id="L227">                .build();</span>
+<span class="fc" id="L212">        return new EntandoPluginBuilder()</span>
+<span class="fc" id="L213">                .withNewMetadata()</span>
+<span class="fc" id="L214">                .withName(extractNameFromDescriptor(descriptor))</span>
+<span class="fc" id="L215">                .withLabels(extractLabelsFromDescriptor(descriptor))</span>
+<span class="fc" id="L216">                .endMetadata()</span>
+<span class="fc" id="L217">                .withNewSpec()</span>
+<span class="fc" id="L218">                .withDbms(DbmsVendor.valueOf(descriptor.getDbms().toUpperCase()))</span>
+<span class="fc" id="L219">                .withImage(descriptor.getImage())</span>
+<span class="fc" id="L220">                .withIngressPath(extractIngressPathFromDescriptor(descriptor))</span>
+<span class="fc" id="L221">                .withRoles(extractRolesFromDescriptor(descriptor))</span>
+<span class="fc" id="L222">                .withHealthCheckPath(descriptor.getHealthCheckPath())</span>
+<span class="fc" id="L223">                .withPermissions(extractPermissionsFromDescriptor(descriptor))</span>
+<span class="fc" id="L224">                .withSecurityLevel(PluginSecurityLevel.forName(descriptor.getSecurityLevel()))</span>
+<span class="fc" id="L225">                .endSpec()</span>
+<span class="fc" id="L226">                .build();</span>
     }
 
     public static EntandoPlugin generatePluginFromDescriptorV1(PluginDescriptor descriptor) {
-<span class="fc" id="L231">        return new EntandoPluginBuilder()</span>
-<span class="fc" id="L232">                .withNewMetadata()</span>
-<span class="fc" id="L233">                .withName(extractNameFromDescriptor(descriptor))</span>
-<span class="fc" id="L234">                .withLabels(getLabelsFromImage(descriptor.getDockerImage()))</span>
-<span class="fc" id="L235">                .endMetadata()</span>
-<span class="fc" id="L236">                .withNewSpec()</span>
-<span class="fc" id="L237">                .withDbms(DbmsVendor.valueOf(descriptor.getSpec().getDbms().toUpperCase()))</span>
-<span class="fc" id="L238">                .withImage(descriptor.getDockerImage().toString())</span>
-<span class="fc" id="L239">                .withIngressPath(composeIngressPathFromDockerImage(descriptor.getDockerImage()))</span>
-<span class="fc" id="L240">                .withRoles(extractRolesFromRoleList(descriptor.getSpec().getRoles()))</span>
-<span class="fc" id="L241">                .withHealthCheckPath(descriptor.getSpec().getHealthCheckPath())</span>
-<span class="fc" id="L242">                .withSecurityLevel(PluginSecurityLevel.forName(descriptor.getSpec().getSecurityLevel()))</span>
-<span class="fc" id="L243">                .endSpec()</span>
-<span class="fc" id="L244">                .build();</span>
+<span class="fc" id="L230">        return new EntandoPluginBuilder()</span>
+<span class="fc" id="L231">                .withNewMetadata()</span>
+<span class="fc" id="L232">                .withName(extractNameFromDescriptor(descriptor))</span>
+<span class="fc" id="L233">                .withLabels(getLabelsFromImage(descriptor.getDockerImage()))</span>
+<span class="fc" id="L234">                .endMetadata()</span>
+<span class="fc" id="L235">                .withNewSpec()</span>
+<span class="fc" id="L236">                .withDbms(DbmsVendor.valueOf(descriptor.getSpec().getDbms().toUpperCase()))</span>
+<span class="fc" id="L237">                .withImage(descriptor.getDockerImage().toString())</span>
+<span class="fc" id="L238">                .withIngressPath(composeIngressPathFromDockerImage(descriptor.getDockerImage()))</span>
+<span class="fc" id="L239">                .withRoles(extractRolesFromRoleList(descriptor.getSpec().getRoles()))</span>
+<span class="fc" id="L240">                .withHealthCheckPath(descriptor.getSpec().getHealthCheckPath())</span>
+<span class="fc" id="L241">                .withSecurityLevel(PluginSecurityLevel.forName(descriptor.getSpec().getSecurityLevel()))</span>
+<span class="fc" id="L242">                .endSpec()</span>
+<span class="fc" id="L243">                .build();</span>
     }
 
 
     public static List&lt;ExpectedRole&gt; extractRolesFromRoleList(List&lt;PluginDescriptorV1Role&gt; roleList) {
-<span class="fc" id="L249">        return roleList.stream()</span>
-<span class="fc" id="L250">                .distinct()</span>
-<span class="fc" id="L251">                .map(role -&gt; new ExpectedRole(role.getCode(), role.getName()))</span>
-<span class="fc" id="L252">                .collect(Collectors.toList());</span>
+<span class="fc" id="L248">        return roleList.stream()</span>
+<span class="fc" id="L249">                .distinct()</span>
+<span class="fc" id="L250">                .map(role -&gt; new ExpectedRole(role.getCode(), role.getName()))</span>
+<span class="fc" id="L251">                .collect(Collectors.toList());</span>
     }
 
     private static String makeKubernetesCompatible(String value) {
-<span class="fc" id="L256">        return value.toLowerCase()</span>
-<span class="fc" id="L257">                .replaceAll(&quot;[\\/\\.\\:_]&quot;, &quot;-&quot;);</span>
+<span class="fc" id="L255">        return value.toLowerCase()</span>
+<span class="fc" id="L256">                .replaceAll(&quot;[\\/\\.\\:_]&quot;, &quot;-&quot;);</span>
     }
 
     /**
@@ -266,20 +265,20 @@ public class BundleUtilities {
      */
     public static BundleType extractBundleTypeFromBundle(EntandoDeBundle entandoDeBundle) {
 
-<span class="pc bpc" id="L269" title="1 of 2 branches missed.">        if (null == entandoDeBundle) {</span>
-<span class="nc" id="L270">            throw new EntandoComponentManagerException(&quot;The received EntandoDeBundle is null&quot;);</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">        if (null == entandoDeBundle) {</span>
+<span class="nc" id="L269">            throw new EntandoComponentManagerException(&quot;The received EntandoDeBundle is null&quot;);</span>
         }
 
-<span class="pc bpc" id="L273" title="1 of 4 branches missed.">        if (null == entandoDeBundle.getMetadata() || null == entandoDeBundle.getMetadata().getLabels()) {</span>
-<span class="fc" id="L274">            return BundleType.STANDARD_BUNDLE;</span>
+<span class="pc bpc" id="L272" title="1 of 4 branches missed.">        if (null == entandoDeBundle.getMetadata() || null == entandoDeBundle.getMetadata().getLabels()) {</span>
+<span class="fc" id="L273">            return BundleType.STANDARD_BUNDLE;</span>
         }
 
-<span class="fc" id="L277">        return entandoDeBundle.getMetadata().getLabels()</span>
-<span class="fc" id="L278">                .entrySet().stream()</span>
-<span class="fc" id="L279">                .filter(entry -&gt; entry.getKey().equals(BUNDLE_TYPE_LABEL_NAME))</span>
-<span class="fc" id="L280">                .findFirst()</span>
-<span class="fc" id="L281">                .map(bundleTypeEntry -&gt; BundleType.fromType(bundleTypeEntry.getValue()))</span>
-<span class="fc" id="L282">                .orElse(BundleType.STANDARD_BUNDLE);</span>
+<span class="fc" id="L276">        return entandoDeBundle.getMetadata().getLabels()</span>
+<span class="fc" id="L277">                .entrySet().stream()</span>
+<span class="fc" id="L278">                .filter(entry -&gt; entry.getKey().equals(BUNDLE_TYPE_LABEL_NAME))</span>
+<span class="fc" id="L279">                .findFirst()</span>
+<span class="fc" id="L280">                .map(bundleTypeEntry -&gt; BundleType.fromType(bundleTypeEntry.getValue()))</span>
+<span class="fc" id="L281">                .orElse(BundleType.STANDARD_BUNDLE);</span>
     }
 
 
@@ -293,11 +292,11 @@ public class BundleUtilities {
      */
     public static String determineBundleResourceRootFolder(BundleReader bundleReader) throws IOException {
 
-<span class="fc" id="L296">        BundleType bundleType = bundleReader.readBundleDescriptor().getBundleType();</span>
+<span class="fc" id="L295">        BundleType bundleType = bundleReader.readBundleDescriptor().getBundleType();</span>
 
-<span class="fc bfc" id="L298" title="All 4 branches covered.">        return &quot;/&quot; + (null == bundleType || bundleType == BundleType.STANDARD_BUNDLE</span>
-<span class="fc" id="L299">                        ? bundleReader.getBundleCode()</span>
-<span class="fc" id="L300">                        : &quot;&quot;);</span>
+<span class="fc bfc" id="L297" title="All 4 branches covered.">        return &quot;/&quot; + (null == bundleType || bundleType == BundleType.STANDARD_BUNDLE</span>
+<span class="fc" id="L298">                        ? bundleReader.getBundleCode()</span>
+<span class="fc" id="L299">                        : &quot;&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
