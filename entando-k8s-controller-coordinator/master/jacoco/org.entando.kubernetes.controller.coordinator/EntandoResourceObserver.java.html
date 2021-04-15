@@ -202,45 +202,37 @@ public class EntandoResourceObserver&lt;R extends EntandoCustomResource, D exten
 <span class="fc bfc" id="L202" title="All 2 branches covered.">                    || newResource.getStatus().getObservedGeneration() &lt; newResource.getMetadata().getGeneration();</span>
 <span class="fc bfc" id="L203" title="All 2 branches covered.">            if (needsObservation) {</span>
 <span class="fc" id="L204">                logResource(Level.WARNING, &quot;%s %s/%s is processed after a metadata.generation increment.&quot;, newResource);</span>
-                //                LOGGER.log(Level.WARNING,
-                //                        () -&gt; {
-                //                            try {
-                //                                return new ObjectMapper().writeValueAsString(newResource);
-                //                            } catch (JsonProcessingException e) {
-                //                                return e.toString();
-                //                            }
-                //                        });
             }
-<span class="fc" id="L214">            return needsObservation;</span>
+<span class="fc" id="L206">            return needsObservation;</span>
         }
     }
 
     private boolean hasNewResourceVersion(R newResource) {
-<span class="fc" id="L219">        Deque&lt;String&gt; queue = cache.computeIfAbsent(newResource.getMetadata().getUid(), key -&gt; new ConcurrentLinkedDeque&lt;&gt;());</span>
-<span class="fc bfc" id="L220" title="All 2 branches covered.">        if (queue.contains(newResource.getMetadata().getResourceVersion())) {</span>
+<span class="fc" id="L211">        Deque&lt;String&gt; queue = cache.computeIfAbsent(newResource.getMetadata().getUid(), key -&gt; new ConcurrentLinkedDeque&lt;&gt;());</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        if (queue.contains(newResource.getMetadata().getResourceVersion())) {</span>
             //TODO observe logs to see if this actually still happens
-<span class="fc" id="L222">            logResource(Level.WARNING, &quot;Duplicate event for %s %s/%s. ResourceVersion=&quot; + newResource.getMetadata().getResourceVersion(),</span>
+<span class="fc" id="L214">            logResource(Level.WARNING, &quot;Duplicate event for %s %s/%s. ResourceVersion=&quot; + newResource.getMetadata().getResourceVersion(),</span>
                     newResource);
-<span class="fc" id="L224">            return false;</span>
+<span class="fc" id="L216">            return false;</span>
         }
-<span class="fc" id="L226">        markResourceVersionProcessed(newResource);</span>
-<span class="fc" id="L227">        logResource(Level.WARNING, &quot;%s %s/%s has a new resource version: &quot; + newResource.getMetadata().getResourceVersion(), newResource);</span>
-<span class="fc" id="L228">        return true;</span>
+<span class="fc" id="L218">        markResourceVersionProcessed(newResource);</span>
+<span class="fc" id="L219">        logResource(Level.WARNING, &quot;%s %s/%s has a new resource version: &quot; + newResource.getMetadata().getResourceVersion(), newResource);</span>
+<span class="fc" id="L220">        return true;</span>
     }
 
     private void markResourceVersionProcessed(R newResource) {
-<span class="pc" id="L232">        Deque&lt;String&gt; queue = cache.computeIfAbsent(newResource.getMetadata().getUid(), key -&gt; new ConcurrentLinkedDeque&lt;&gt;());</span>
-<span class="fc" id="L233">        queue.offer(newResource.getMetadata().getResourceVersion());</span>
-<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        while (queue.size() &gt; 10) {</span>
-<span class="nc" id="L235">            queue.poll();</span>
+<span class="pc" id="L224">        Deque&lt;String&gt; queue = cache.computeIfAbsent(newResource.getMetadata().getUid(), key -&gt; new ConcurrentLinkedDeque&lt;&gt;());</span>
+<span class="fc" id="L225">        queue.offer(newResource.getMetadata().getResourceVersion());</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">        while (queue.size() &gt; 10) {</span>
+<span class="nc" id="L227">            queue.poll();</span>
         }
-<span class="fc" id="L237">    }</span>
+<span class="fc" id="L229">    }</span>
 
     public void shutDownAndWait(int i, TimeUnit timeUnit) throws InterruptedException {
-<span class="fc" id="L240">        executor.shutdown();</span>
-<span class="pc bpc" id="L241" title="1 of 2 branches missed.">        if (!executor.awaitTermination(i, timeUnit)) {</span>
-<span class="nc" id="L242">            LOGGER.log(Level.WARNING, &quot;Could not shut EntandoResourceObserver down.&quot;);</span>
+<span class="fc" id="L232">        executor.shutdown();</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        if (!executor.awaitTermination(i, timeUnit)) {</span>
+<span class="nc" id="L234">            LOGGER.log(Level.WARNING, &quot;Could not shut EntandoResourceObserver down.&quot;);</span>
         }
-<span class="fc" id="L244">    }</span>
+<span class="fc" id="L236">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

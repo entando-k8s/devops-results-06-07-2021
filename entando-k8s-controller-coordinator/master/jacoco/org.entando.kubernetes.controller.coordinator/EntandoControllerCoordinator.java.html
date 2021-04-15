@@ -108,10 +108,10 @@ public class EntandoControllerCoordinator {
 <span class="fc" id="L108">    }</span>
 
     public void shutdownObservers(int wait, TimeUnit timeUnit) throws InterruptedException {
-<span class="fc" id="L111">        final List&lt;? extends EntandoResourceObserver&lt;? extends EntandoCustomResource, ?&gt;&gt; observers = this.observers.keySet().stream()</span>
+<span class="fc" id="L111">        final List&lt;? extends EntandoResourceObserver&lt;? extends EntandoCustomResource, ?&gt;&gt; allObservers = this.observers.keySet().stream()</span>
 <span class="fc" id="L112">                .map(this::getObserver)</span>
 <span class="fc" id="L113">                .flatMap(Collection::stream).collect(Collectors.toList());</span>
-<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        for (EntandoResourceObserver&lt;? extends EntandoCustomResource, ?&gt; observer : observers) {</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        for (EntandoResourceObserver&lt;? extends EntandoCustomResource, ?&gt; observer : allObservers) {</span>
 <span class="nc" id="L115">            observer.shutDownAndWait(wait, timeUnit);</span>
 <span class="nc" id="L116">        }</span>
 <span class="fc" id="L117">    }</span>
@@ -123,4 +123,4 @@ public class EntandoControllerCoordinator {
 <span class="fc" id="L123">        executor.startControllerFor(action, resource, null);</span>
 <span class="fc" id="L124">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
