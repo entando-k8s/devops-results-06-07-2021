@@ -19,18 +19,23 @@ package org.entando.kubernetes.controller.coordinator;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watcher;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorConfigBase;
 
-<span class="fc" id="L24">public class ConfigListener implements Watcher&lt;ConfigMap&gt; {</span>
+<span class="fc" id="L26">public class ConfigListener implements Watcher&lt;ConfigMap&gt; {</span>
+
+<span class="fc" id="L28">    private static final Logger LOGGER = Logger.getLogger(ConfigListener.class.getName());</span>
 
     @Override
     public void eventReceived(Action action, ConfigMap resource) {
-<span class="nc" id="L28">        EntandoOperatorConfigBase.setConfigMap(resource);</span>
-<span class="nc" id="L29">    }</span>
+<span class="nc" id="L32">        EntandoOperatorConfigBase.setConfigMap(resource);</span>
+<span class="nc" id="L33">    }</span>
 
     @Override
     public void onClose(KubernetesClientException cause) {
-        //No recovery from this situation
-<span class="nc" id="L34">    }</span>
+<span class="nc" id="L37">        LOGGER.log(Level.SEVERE, cause, () -&gt; &quot;ConfigListener closed. The container should restart now.&quot;);</span>
+<span class="nc" id="L38">        Liveness.dead();</span>
+<span class="nc" id="L39">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
