@@ -56,8 +56,8 @@ import org.im4java.core.IMOperation;
      * @return Il path dell'immagine.
      */
     public String getImagePath(String size) {
-<span class="fc" id="L59">        ResourceInstance instance = getInstances().get(size);</span>
-<span class="fc" id="L60">        return this.getUrlPath(instance);</span>
+<span class="nc" id="L59">        ResourceInstance instance = getInstances().get(size);</span>
+<span class="nc" id="L60">        return this.getUrlPath(instance);</span>
     }
 
     @Override
@@ -79,13 +79,13 @@ import org.im4java.core.IMOperation;
 
     @Override
     public ResourceInterface getResourcePrototype() {
-<span class="fc" id="L82">        ImageResource resource = (ImageResource) super.getResourcePrototype();</span>
-<span class="fc" id="L83">        resource.setImageDimensionReader(imageDimensionReader);</span>
-<span class="fc" id="L84">        resource.setImageResizerClasses(imageResizerClasses);</span>
-<span class="fc" id="L85">        resource.setImageMagickEnabled(imageMagickEnabled);</span>
-<span class="fc" id="L86">        resource.setImageMagickWindows(imageMagickWindows);</span>
-<span class="fc" id="L87">        resource.setImageMagickPath(imageMagickPath);</span>
-<span class="fc" id="L88">        return resource;</span>
+<span class="nc" id="L82">        ImageResource resource = (ImageResource) super.getResourcePrototype();</span>
+<span class="nc" id="L83">        resource.setImageDimensionReader(imageDimensionReader);</span>
+<span class="nc" id="L84">        resource.setImageResizerClasses(imageResizerClasses);</span>
+<span class="nc" id="L85">        resource.setImageMagickEnabled(imageMagickEnabled);</span>
+<span class="nc" id="L86">        resource.setImageMagickWindows(imageMagickWindows);</span>
+<span class="nc" id="L87">        resource.setImageMagickPath(imageMagickPath);</span>
+<span class="nc" id="L88">        return resource;</span>
     }
 
     /**
@@ -96,9 +96,9 @@ import org.im4java.core.IMOperation;
      */
     @Override
     public void addInstance(ResourceInstance instance) {
-<span class="fc" id="L99">        String key = String.valueOf(instance.getSize());</span>
-<span class="fc" id="L100">        this.getInstances().put(key, instance);</span>
-<span class="fc" id="L101">    }</span>
+<span class="nc" id="L99">        String key = String.valueOf(instance.getSize());</span>
+<span class="nc" id="L100">        this.getInstances().put(key, instance);</span>
+<span class="nc" id="L101">    }</span>
 
     @Override
     @Deprecated
@@ -108,69 +108,69 @@ import org.im4java.core.IMOperation;
 
     @Override
     public ResourceInstance getInstance(int size, String langCode) {
-<span class="fc" id="L111">        return getInstances().get(String.valueOf(size));</span>
+<span class="nc" id="L111">        return getInstances().get(String.valueOf(size));</span>
     }
 
     @Override
     public ResourceInstance getDefaultInstance() {
-<span class="fc" id="L116">        return this.getInstance(0, null);</span>
+<span class="nc" id="L116">        return this.getInstance(0, null);</span>
     }
 
     @Override
     public void saveResourceInstances(ResourceDataBean bean, List&lt;String&gt; ignoreMetadataKeys,
             boolean instancesAlreadySaved) throws EntException {
         try {
-<span class="fc" id="L123">            String masterImageFileName = getNewInstanceFileName(bean.getFileName(), 0, null, instancesAlreadySaved);</span>
-<span class="fc" id="L124">            String subPath = this.getDiskSubFolder() + masterImageFileName;</span>
-<span class="fc" id="L125">            this.getStorageManager().deleteFile(subPath, this.isProtectedResource());</span>
-<span class="fc" id="L126">            File tempMasterFile = this.saveTempFile(masterImageFileName, bean.getInputStream());</span>
+<span class="nc" id="L123">            String masterImageFileName = getNewInstanceFileName(bean.getFileName(), 0, null, instancesAlreadySaved);</span>
+<span class="nc" id="L124">            String subPath = this.getDiskSubFolder() + masterImageFileName;</span>
+<span class="nc" id="L125">            this.getStorageManager().deleteFile(subPath, this.isProtectedResource());</span>
+<span class="nc" id="L126">            File tempMasterFile = this.saveTempFile(masterImageFileName, bean.getInputStream());</span>
 
-<span class="fc bfc" id="L128" title="All 2 branches covered.">            if(bean instanceof BaseResourceDataBean) {</span>
-<span class="fc" id="L129">                ((BaseResourceDataBean)bean).setFile(tempMasterFile);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            if(bean instanceof BaseResourceDataBean) {</span>
+<span class="nc" id="L129">                ((BaseResourceDataBean)bean).setFile(tempMasterFile);</span>
             }
 
-<span class="fc" id="L132">            setMetadata(getImgMetadata(tempMasterFile, ignoreMetadataKeys));</span>
-<span class="fc" id="L133">            ResourceInstance instance = new ResourceInstance();</span>
-<span class="fc" id="L134">            instance.setSize(0);</span>
-<span class="fc" id="L135">            instance.setFileName(masterImageFileName);</span>
+<span class="nc" id="L132">            setMetadata(getImgMetadata(tempMasterFile, ignoreMetadataKeys));</span>
+<span class="nc" id="L133">            ResourceInstance instance = new ResourceInstance();</span>
+<span class="nc" id="L134">            instance.setSize(0);</span>
+<span class="nc" id="L135">            instance.setFileName(masterImageFileName);</span>
 
-<span class="fc" id="L137">            String mimeType = bean.getMimeType();</span>
-<span class="fc" id="L138">            instance.setMimeType(mimeType);</span>
-<span class="fc" id="L139">            instance.setFileLength(bean.getFileSize() + &quot; Kb&quot;);</span>
-<span class="fc" id="L140">            this.addInstance(instance);</span>
-<span class="fc" id="L141">            this.saveResizedInstances(bean, tempMasterFile.getAbsolutePath(), instancesAlreadySaved);</span>
-<span class="fc" id="L142">            this.getStorageManager().saveFile(subPath,</span>
-<span class="fc" id="L143">                    this.isProtectedResource(), new FileInputStream(tempMasterFile));</span>
-<span class="fc" id="L144">            boolean deleted = tempMasterFile.delete();</span>
-<span class="pc bpc" id="L145" title="1 of 2 branches missed.">            if (!deleted) {</span>
+<span class="nc" id="L137">            String mimeType = bean.getMimeType();</span>
+<span class="nc" id="L138">            instance.setMimeType(mimeType);</span>
+<span class="nc" id="L139">            instance.setFileLength(bean.getFileSize() + &quot; Kb&quot;);</span>
+<span class="nc" id="L140">            this.addInstance(instance);</span>
+<span class="nc" id="L141">            this.saveResizedInstances(bean, tempMasterFile.getAbsolutePath(), instancesAlreadySaved);</span>
+<span class="nc" id="L142">            this.getStorageManager().saveFile(subPath,</span>
+<span class="nc" id="L143">                    this.isProtectedResource(), new FileInputStream(tempMasterFile));</span>
+<span class="nc" id="L144">            boolean deleted = tempMasterFile.delete();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            if (!deleted) {</span>
 <span class="nc" id="L146">                logger.warn(FAILED_TO_DELETE_TEMP_FILE, tempMasterFile);</span>
             }
 <span class="nc" id="L148">        } catch (Throwable t) {</span>
 <span class="nc" id="L149">            logger.error(&quot;Error saving image resource instances&quot;, t);</span>
 <span class="nc" id="L150">            throw new EntException(&quot;Error saving image resource instances&quot;, t);</span>
-<span class="fc" id="L151">        }</span>
-<span class="fc" id="L152">    }</span>
+<span class="nc" id="L151">        }</span>
+<span class="nc" id="L152">    }</span>
 
     protected Map&lt;String, String&gt; getImgMetadata(File file, List&lt;String&gt; ignoreKeysList) {
-<span class="fc" id="L155">        logger.debug(&quot;Get image Metadata in Resource Action&quot;);</span>
-<span class="fc" id="L156">        Map&lt;String, String&gt; meta = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L155">        logger.debug(&quot;Get image Metadata in Resource Action&quot;);</span>
+<span class="nc" id="L156">        Map&lt;String, String&gt; meta = new HashMap&lt;&gt;();</span>
         try {
-<span class="fc" id="L158">            Metadata metadata = ImageMetadataReader.readMetadata(file);</span>
+<span class="nc" id="L158">            Metadata metadata = ImageMetadataReader.readMetadata(file);</span>
 
-<span class="fc bfc" id="L160" title="All 2 branches covered.">            for (Directory directory : metadata.getDirectories()) {</span>
-<span class="fc bfc" id="L161" title="All 2 branches covered.">                for (Tag tag : directory.getTags()) {</span>
-<span class="pc bpc" id="L162" title="1 of 2 branches missed.">                    if (!ignoreKeysList.contains(tag.getTagName())) {</span>
-<span class="fc" id="L163">                        logger.debug(&quot;Add Metadata with key: {}&quot;, tag.getTagName());</span>
-<span class="fc" id="L164">                        meta.put(tag.getTagName(), tag.getDescription());</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            for (Directory directory : metadata.getDirectories()) {</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">                for (Tag tag : directory.getTags()) {</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                    if (!ignoreKeysList.contains(tag.getTagName())) {</span>
+<span class="nc" id="L163">                        logger.debug(&quot;Add Metadata with key: {}&quot;, tag.getTagName());</span>
+<span class="nc" id="L164">                        meta.put(tag.getTagName(), tag.getDescription());</span>
                     } else {
 <span class="nc" id="L166">                        logger.debug(&quot;Skip Metadata key {}&quot;, tag.getTagName());</span>
                     }
-<span class="fc" id="L168">                }</span>
-<span class="fc" id="L169">            }</span>
-<span class="fc" id="L170">        } catch (ImageProcessingException|IOException ex) {</span>
-<span class="fc" id="L171">            logger.error(&quot;Error reading image metadata for file {}&quot;, file.getName(), ex);</span>
-<span class="fc" id="L172">        }</span>
-<span class="fc" id="L173">        return meta;</span>
+<span class="nc" id="L168">                }</span>
+<span class="nc" id="L169">            }</span>
+<span class="nc" id="L170">        } catch (ImageProcessingException|IOException ex) {</span>
+<span class="nc" id="L171">            logger.error(&quot;Error reading image metadata for file {}&quot;, file.getName(), ex);</span>
+<span class="nc" id="L172">        }</span>
+<span class="nc" id="L173">        return meta;</span>
     }
 
     @Override
@@ -201,21 +201,21 @@ import org.im4java.core.IMOperation;
 
     private void saveResizedInstances(ResourceDataBean bean, String masterFilePath, boolean instancesAlreadySaved) throws EntException {
         try {
-<span class="fc" id="L204">            Map&lt;Integer, ImageResourceDimension&gt; dimensions = this.getImageDimensionReader().getImageDimensions();</span>
-<span class="fc bfc" id="L205" title="All 2 branches covered.">            for (ImageResourceDimension dimension : dimensions.values()) {</span>
+<span class="nc" id="L204">            Map&lt;Integer, ImageResourceDimension&gt; dimensions = this.getImageDimensionReader().getImageDimensions();</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">            for (ImageResourceDimension dimension : dimensions.values()) {</span>
                 //Is the system use ImageMagick?
-<span class="pc bpc" id="L207" title="1 of 2 branches missed.">                if (!this.isImageMagickEnabled()) {</span>
-<span class="fc" id="L208">                    ImageIcon imageIcon = new ImageIcon(masterFilePath);</span>
-<span class="fc" id="L209">                    this.saveResizedImage(bean, imageIcon, dimension, instancesAlreadySaved);</span>
-<span class="fc" id="L210">                } else {</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">                if (!this.isImageMagickEnabled()) {</span>
+<span class="nc" id="L208">                    ImageIcon imageIcon = new ImageIcon(masterFilePath);</span>
+<span class="nc" id="L209">                    this.saveResizedImage(bean, imageIcon, dimension, instancesAlreadySaved);</span>
+<span class="nc" id="L210">                } else {</span>
 <span class="nc" id="L211">                    this.saveResizedImage(bean, dimension);</span>
                 }
-<span class="fc" id="L213">            }</span>
+<span class="nc" id="L213">            }</span>
 <span class="nc" id="L214">        } catch (Throwable t) {</span>
 <span class="nc" id="L215">            logger.error(&quot;Error saving resized image resource instances&quot;, t);</span>
 <span class="nc" id="L216">            throw new EntException(&quot;Error saving resized image resource instances&quot;, t);</span>
-<span class="fc" id="L217">        }</span>
-<span class="fc" id="L218">    }</span>
+<span class="nc" id="L217">        }</span>
+<span class="nc" id="L218">    }</span>
 
     /**
      * Resize images using im4Java
@@ -273,49 +273,49 @@ import org.im4java.core.IMOperation;
 
     private void saveResizedImage(ResourceDataBean bean,
             ImageIcon imageIcon, ImageResourceDimension dimension, boolean instancesAlreadySaved) throws EntException {
-<span class="pc bpc" id="L276" title="1 of 2 branches missed.">        if (dimension.getIdDim() == 0) {</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">        if (dimension.getIdDim() == 0) {</span>
             // skips element with id zero that shouldn't be resized
 <span class="nc" id="L278">            return;</span>
         }
 
 
-<span class="fc" id="L282">        String imageName = getNewInstanceFileName(bean.getFileName(), dimension.getIdDim(), null, instancesAlreadySaved);</span>
-<span class="fc" id="L283">        String subPath = super.getDiskSubFolder() + imageName;</span>
+<span class="nc" id="L282">        String imageName = getNewInstanceFileName(bean.getFileName(), dimension.getIdDim(), null, instancesAlreadySaved);</span>
+<span class="nc" id="L283">        String subPath = super.getDiskSubFolder() + imageName;</span>
 
         try {
-<span class="fc bfc" id="L286" title="All 2 branches covered.">            if(bean.getMimeType().contains(&quot;svg&quot;)) {</span>
-<span class="fc" id="L287">                long realLength = bean.getFile().length() / 1000;</span>
-<span class="fc" id="L288">                ResourceInstance resizedInstance = new ResourceInstance();</span>
-<span class="fc" id="L289">                resizedInstance.setSize(dimension.getIdDim());</span>
-<span class="fc" id="L290">                resizedInstance.setFileLength(String.valueOf(realLength) + &quot; Kb&quot;);</span>
-<span class="fc" id="L291">                resizedInstance.setMimeType(bean.getMimeType());</span>
-<span class="fc" id="L292">                resizedInstance.setFileName(subPath.substring(subPath.lastIndexOf(&quot;/&quot;) + 1));</span>
-<span class="fc" id="L293">                this.getStorageManager().saveFile(subPath, this.isProtectedResource(), new FileInputStream(bean.getFile()));</span>
-<span class="fc" id="L294">                this.addInstance(resizedInstance);</span>
-<span class="fc" id="L295">            }else {</span>
-<span class="fc" id="L296">                this.getStorageManager().deleteFile(subPath, this.isProtectedResource());</span>
-<span class="fc" id="L297">                IImageResizer resizer = this.getImageResizer(subPath);</span>
-<span class="fc" id="L298">                ResourceInstance resizedInstance</span>
-<span class="fc" id="L299">                        = resizer.saveResizedImage(subPath, this.isProtectedResource(), imageIcon, dimension);</span>
-<span class="fc" id="L300">                this.addInstance(resizedInstance);</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">            if(bean.getMimeType().contains(&quot;svg&quot;)) {</span>
+<span class="nc" id="L287">                long realLength = bean.getFile().length() / 1000;</span>
+<span class="nc" id="L288">                ResourceInstance resizedInstance = new ResourceInstance();</span>
+<span class="nc" id="L289">                resizedInstance.setSize(dimension.getIdDim());</span>
+<span class="nc" id="L290">                resizedInstance.setFileLength(String.valueOf(realLength) + &quot; Kb&quot;);</span>
+<span class="nc" id="L291">                resizedInstance.setMimeType(bean.getMimeType());</span>
+<span class="nc" id="L292">                resizedInstance.setFileName(subPath.substring(subPath.lastIndexOf(&quot;/&quot;) + 1));</span>
+<span class="nc" id="L293">                this.getStorageManager().saveFile(subPath, this.isProtectedResource(), new FileInputStream(bean.getFile()));</span>
+<span class="nc" id="L294">                this.addInstance(resizedInstance);</span>
+<span class="nc" id="L295">            }else {</span>
+<span class="nc" id="L296">                this.getStorageManager().deleteFile(subPath, this.isProtectedResource());</span>
+<span class="nc" id="L297">                IImageResizer resizer = this.getImageResizer(subPath);</span>
+<span class="nc" id="L298">                ResourceInstance resizedInstance</span>
+<span class="nc" id="L299">                        = resizer.saveResizedImage(subPath, this.isProtectedResource(), imageIcon, dimension);</span>
+<span class="nc" id="L300">                this.addInstance(resizedInstance);</span>
             }
 <span class="nc" id="L302">        } catch (Throwable t) {</span>
 <span class="nc" id="L303">            logger.error(&quot;Error creating resource file instance '{}'&quot;, subPath, t);</span>
 <span class="nc" id="L304">            throw new EntException(&quot;Error creating resource file instance '&quot; + subPath + &quot;'&quot;, t);</span>
-<span class="fc" id="L305">        }</span>
-<span class="fc" id="L306">    }</span>
+<span class="nc" id="L305">        }</span>
+<span class="nc" id="L306">    }</span>
 
     private IImageResizer getImageResizer(String filePath) {
-<span class="fc" id="L309">        String extension = FilenameUtils.getExtension(filePath);</span>
-<span class="fc" id="L310">        String resizerClassName = imageResizerClasses.get(extension);</span>
-<span class="pc bpc" id="L311" title="1 of 2 branches missed.">        if (resizerClassName == null) {</span>
-<span class="fc" id="L312">            resizerClassName = imageResizerClasses.get(&quot;DEFAULT_RESIZER&quot;);</span>
+<span class="nc" id="L309">        String extension = FilenameUtils.getExtension(filePath);</span>
+<span class="nc" id="L310">        String resizerClassName = imageResizerClasses.get(extension);</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">        if (resizerClassName == null) {</span>
+<span class="nc" id="L312">            resizerClassName = imageResizerClasses.get(&quot;DEFAULT_RESIZER&quot;);</span>
         }
         try {
-<span class="fc" id="L315">            Class resizerClass = Class.forName(resizerClassName);</span>
-<span class="fc" id="L316">            IImageResizer resizer = (IImageResizer) resizerClass.newInstance();</span>
-<span class="fc" id="L317">            resizer.setStorageManager(this.getStorageManager());</span>
-<span class="fc" id="L318">            return resizer;</span>
+<span class="nc" id="L315">            Class resizerClass = Class.forName(resizerClassName);</span>
+<span class="nc" id="L316">            IImageResizer resizer = (IImageResizer) resizerClass.newInstance();</span>
+<span class="nc" id="L317">            resizer.setStorageManager(this.getStorageManager());</span>
+<span class="nc" id="L318">            return resizer;</span>
 <span class="nc" id="L319">        } catch (Throwable t) {</span>
 <span class="nc" id="L320">            throw new RuntimeException(&quot;Errore in creazione resizer da classe '&quot;</span>
                     + resizerClassName + &quot;' per immagine tipo '&quot; + extension + &quot;'&quot;, t);
@@ -323,40 +323,40 @@ import org.im4java.core.IMOperation;
     }
 
     protected IImageDimensionReader getImageDimensionReader() {
-<span class="fc" id="L326">        return imageDimensionReader;</span>
+<span class="nc" id="L326">        return imageDimensionReader;</span>
     }
 
     public void setImageDimensionReader(IImageDimensionReader imageDimensionReader) {
-<span class="fc" id="L330">        this.imageDimensionReader = imageDimensionReader;</span>
-<span class="fc" id="L331">    }</span>
+<span class="nc" id="L330">        this.imageDimensionReader = imageDimensionReader;</span>
+<span class="nc" id="L331">    }</span>
 
     protected Map&lt;String, String&gt; getImageResizerClasses() {
 <span class="nc" id="L334">        return imageResizerClasses;</span>
     }
 
     public void setImageResizerClasses(Map&lt;String, String&gt; imageResizerClasses) {
-<span class="fc" id="L338">        this.imageResizerClasses = imageResizerClasses;</span>
-<span class="fc" id="L339">    }</span>
+<span class="nc" id="L338">        this.imageResizerClasses = imageResizerClasses;</span>
+<span class="nc" id="L339">    }</span>
 
     public void setImageMagickEnabled(boolean imageMagickEnabled) {
-<span class="fc" id="L342">        this.imageMagickEnabled = imageMagickEnabled;</span>
-<span class="fc" id="L343">    }</span>
+<span class="nc" id="L342">        this.imageMagickEnabled = imageMagickEnabled;</span>
+<span class="nc" id="L343">    }</span>
 
     protected boolean isImageMagickEnabled() {
-<span class="fc" id="L346">        return imageMagickEnabled;</span>
+<span class="nc" id="L346">        return imageMagickEnabled;</span>
     }
 
     public void setImageMagickWindows(boolean imageMagickWindows) {
-<span class="fc" id="L350">        this.imageMagickWindows = imageMagickWindows;</span>
-<span class="fc" id="L351">    }</span>
+<span class="nc" id="L350">        this.imageMagickWindows = imageMagickWindows;</span>
+<span class="nc" id="L351">    }</span>
 
     protected boolean isImageMagickWindows() {
 <span class="nc" id="L354">        return imageMagickWindows;</span>
     }
 
     public void setImageMagickPath(String imageMagickPath) {
-<span class="fc" id="L358">        this.imageMagickPath = imageMagickPath;</span>
-<span class="fc" id="L359">    }</span>
+<span class="nc" id="L358">        this.imageMagickPath = imageMagickPath;</span>
+<span class="nc" id="L359">    }</span>
 
     protected String getImageMagickPath() {
 <span class="nc" id="L362">        return imageMagickPath;</span>
