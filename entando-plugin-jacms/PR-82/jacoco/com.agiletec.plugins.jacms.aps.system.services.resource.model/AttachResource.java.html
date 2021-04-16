@@ -22,7 +22,7 @@ import org.entando.entando.ent.util.EntLogging.EntLogger;
  * Classe rappresentante una risorsa Attach.
  * @author W.Ambu - E.Santoboni
  */
-<span class="nc" id="L25">public class AttachResource extends AbstractMonoInstanceResource  {</span>
+<span class="fc" id="L25">public class AttachResource extends AbstractMonoInstanceResource  {</span>
 
 <span class="fc" id="L27">	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(AttachResource.class);</span>
 	
@@ -33,9 +33,9 @@ import org.entando.entando.ent.util.EntLogging.EntLogger;
      * @return Il path della risorsa attach.
      */
     public String getAttachPath() {
-<span class="nc" id="L36">    	ResourceInstance instance = this.getInstance();</span>
-<span class="nc" id="L37">    	String path = this.getUrlPath(instance);</span>
-<span class="nc" id="L38">    	return path;</span>
+<span class="fc" id="L36">    	ResourceInstance instance = this.getInstance();</span>
+<span class="fc" id="L37">    	String path = this.getUrlPath(instance);</span>
+<span class="fc" id="L38">    	return path;</span>
     }
     
     /**
@@ -53,21 +53,21 @@ import org.entando.entando.ent.util.EntLogging.EntLogger;
 	public void saveResourceInstances(ResourceDataBean bean, List&lt;String&gt; ignoreMetadataKeys,
 			boolean instancesAlreadySaved) throws EntException {
 		try {
-<span class="nc" id="L56">			String fileName = this.getNewInstanceFileName(bean.getFileName());</span>
-<span class="nc" id="L57">			String subPath = this.getDiskSubFolder() + fileName;</span>
-<span class="nc" id="L58">			this.getStorageManager().saveFile(subPath, this.isProtectedResource(), bean.getInputStream());</span>
-<span class="nc" id="L59">			ResourceInstance instance = new ResourceInstance();</span>
-<span class="nc" id="L60">			instance.setSize(0);</span>
-<span class="nc" id="L61">			instance.setFileName(fileName);</span>
-<span class="nc" id="L62">			String mimeType = bean.getMimeType();</span>
-<span class="nc" id="L63">			instance.setMimeType(mimeType);</span>
-<span class="nc" id="L64">			instance.setFileLength(bean.getFileSize() + &quot; Kb&quot;);</span>
-<span class="nc" id="L65">			this.addInstance(instance);</span>
+<span class="fc" id="L56">			String fileName = this.getNewInstanceFileName(bean.getFileName());</span>
+<span class="fc" id="L57">			String subPath = this.getDiskSubFolder() + fileName;</span>
+<span class="fc" id="L58">			this.getStorageManager().saveFile(subPath, this.isProtectedResource(), bean.getInputStream());</span>
+<span class="fc" id="L59">			ResourceInstance instance = new ResourceInstance();</span>
+<span class="fc" id="L60">			instance.setSize(0);</span>
+<span class="fc" id="L61">			instance.setFileName(fileName);</span>
+<span class="fc" id="L62">			String mimeType = bean.getMimeType();</span>
+<span class="fc" id="L63">			instance.setMimeType(mimeType);</span>
+<span class="fc" id="L64">			instance.setFileLength(bean.getFileSize() + &quot; Kb&quot;);</span>
+<span class="fc" id="L65">			this.addInstance(instance);</span>
 <span class="nc" id="L66">		} catch (Throwable t) {</span>
 <span class="nc" id="L67">			_logger.error(&quot;Error on saving attach resource instances&quot;, t);</span>
 <span class="nc" id="L68">			throw new EntException(&quot;Error on saving attach resource instances&quot;, t);</span>
-<span class="nc" id="L69">		}</span>
-<span class="nc" id="L70">	}</span>
+<span class="fc" id="L69">		}</span>
+<span class="fc" id="L70">	}</span>
 
 	@Override
 	public void reloadResourceInstances() throws EntException {

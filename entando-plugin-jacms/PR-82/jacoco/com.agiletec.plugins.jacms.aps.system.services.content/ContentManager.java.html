@@ -93,9 +93,9 @@ import org.springframework.cache.annotation.CacheEvict;
      */
     @Override
     public List&lt;SmallContentType&gt; getSmallContentTypes() {
-<span class="nc" id="L96">        List&lt;SmallContentType&gt; smallContentTypes = new ArrayList&lt;&gt;(getSmallContentTypesMap().values());</span>
-<span class="nc" id="L97">        Collections.sort(smallContentTypes);</span>
-<span class="nc" id="L98">        return smallContentTypes;</span>
+<span class="fc" id="L96">        List&lt;SmallContentType&gt; smallContentTypes = new ArrayList&lt;&gt;(getSmallContentTypesMap().values());</span>
+<span class="fc" id="L97">        Collections.sort(smallContentTypes);</span>
+<span class="fc" id="L98">        return smallContentTypes;</span>
     }
 
     /**
@@ -108,15 +108,15 @@ import org.springframework.cache.annotation.CacheEvict;
      */
     @Override
     public Map&lt;String, SmallContentType&gt; getSmallContentTypesMap() {
-<span class="nc" id="L111">        Map&lt;String, SmallContentType&gt; smallContentTypes = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L112">        List&lt;SmallEntityType&gt; entityTypes = super.getSmallEntityTypes();</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        for (SmallEntityType entityType : entityTypes) {</span>
-<span class="nc" id="L114">            SmallContentType sct = new SmallContentType();</span>
-<span class="nc" id="L115">            sct.setCode(entityType.getCode());</span>
-<span class="nc" id="L116">            sct.setDescription(entityType.getDescription());</span>
-<span class="nc" id="L117">            smallContentTypes.put(entityType.getCode(), sct);</span>
-<span class="nc" id="L118">        }</span>
-<span class="nc" id="L119">        return smallContentTypes;</span>
+<span class="fc" id="L111">        Map&lt;String, SmallContentType&gt; smallContentTypes = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L112">        List&lt;SmallEntityType&gt; entityTypes = super.getSmallEntityTypes();</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        for (SmallEntityType entityType : entityTypes) {</span>
+<span class="fc" id="L114">            SmallContentType sct = new SmallContentType();</span>
+<span class="fc" id="L115">            sct.setCode(entityType.getCode());</span>
+<span class="fc" id="L116">            sct.setDescription(entityType.getDescription());</span>
+<span class="fc" id="L117">            smallContentTypes.put(entityType.getCode(), sct);</span>
+<span class="fc" id="L118">        }</span>
+<span class="fc" id="L119">        return smallContentTypes;</span>
     }
 
     /**
@@ -129,8 +129,8 @@ import org.springframework.cache.annotation.CacheEvict;
      */
     @Override
     public String getViewPage(String contentId) {
-<span class="nc" id="L132">        Content type = this.getTypeById(contentId);</span>
-<span class="nc" id="L133">        return type.getViewPage();</span>
+<span class="fc" id="L132">        Content type = this.getTypeById(contentId);</span>
+<span class="fc" id="L133">        return type.getViewPage();</span>
     }
 
     /**
@@ -141,8 +141,8 @@ import org.springframework.cache.annotation.CacheEvict;
      */
     @Override
     public String getDefaultModel(String contentId) {
-<span class="nc" id="L144">        Content type = this.getTypeById(contentId);</span>
-<span class="nc" id="L145">        return type.getDefaultModel();</span>
+<span class="fc" id="L144">        Content type = this.getTypeById(contentId);</span>
+<span class="fc" id="L145">        return type.getDefaultModel();</span>
     }
 
     /**
@@ -154,8 +154,8 @@ import org.springframework.cache.annotation.CacheEvict;
      */
     @Override
     public String getListModel(String contentId) {
-<span class="nc" id="L157">        Content type = this.getTypeById(contentId);</span>
-<span class="nc" id="L158">        return type.getListModel();</span>
+<span class="fc" id="L157">        Content type = this.getTypeById(contentId);</span>
+<span class="fc" id="L158">        return type.getListModel();</span>
     }
 
     /**
@@ -172,8 +172,8 @@ import org.springframework.cache.annotation.CacheEvict;
     @Override
     public Content loadContent(String id, boolean onLine) throws EntException {
         try {
-<span class="nc" id="L175">            ContentRecordVO contentVo = this.loadContentVO(id);</span>
-<span class="nc" id="L176">            return this.createContent(contentVo, onLine);</span>
+<span class="fc" id="L175">            ContentRecordVO contentVo = this.loadContentVO(id);</span>
+<span class="fc" id="L176">            return this.createContent(contentVo, onLine);</span>
 <span class="nc" id="L177">        } catch (EntException e) {</span>
 <span class="nc" id="L178">            logger.error(&quot;Error while loading content : id {}&quot;, id, e);</span>
 <span class="nc" id="L179">            throw new EntException(&quot;Error while loading content : id &quot; + id, e);</span>
@@ -181,52 +181,52 @@ import org.springframework.cache.annotation.CacheEvict;
     }
 
     protected Content createContent(ContentRecordVO contentVo, boolean onLine) throws EntException {
-<span class="nc" id="L184">        Content content = null;</span>
+<span class="fc" id="L184">        Content content = null;</span>
         try {
-<span class="nc bnc" id="L186" title="All 2 branches missed.">            if (contentVo != null) {</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            if (contentVo != null) {</span>
                 String xmlData;
-<span class="nc bnc" id="L188" title="All 2 branches missed.">                if (onLine) {</span>
-<span class="nc" id="L189">                    xmlData = contentVo.getXmlOnLine();</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">                if (onLine) {</span>
+<span class="fc" id="L189">                    xmlData = contentVo.getXmlOnLine();</span>
                 } else {
-<span class="nc" id="L191">                    xmlData = contentVo.getXmlWork();</span>
+<span class="fc" id="L191">                    xmlData = contentVo.getXmlWork();</span>
                 }
-<span class="nc bnc" id="L193" title="All 2 branches missed.">                if (xmlData != null) {</span>
-<span class="nc" id="L194">                    content = (Content) this.createEntityFromXml(contentVo.getTypeCode(), xmlData);</span>
-<span class="nc" id="L195">                    content.setId(contentVo.getId());</span>
-<span class="nc" id="L196">                    content.setTypeCode(contentVo.getTypeCode());</span>
-<span class="nc" id="L197">                    content.setDescription(contentVo.getDescription());</span>
-<span class="nc" id="L198">                    content.setOnLine(contentVo.isOnLine());</span>
-<span class="nc" id="L199">                    content.setMainGroup(contentVo.getMainGroupCode());</span>
-<span class="nc" id="L200">                    content.setSync(contentVo.isSync());</span>
-<span class="nc" id="L201">                    content.setStatus(contentVo.getStatus());</span>
-<span class="nc bnc" id="L202" title="All 4 branches missed.">                    if (null != contentVo.getVersion() &amp;&amp; !onLine) {</span>
-<span class="nc" id="L203">                        content.setVersion(contentVo.getVersion());</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">                if (xmlData != null) {</span>
+<span class="fc" id="L194">                    content = (Content) this.createEntityFromXml(contentVo.getTypeCode(), xmlData);</span>
+<span class="fc" id="L195">                    content.setId(contentVo.getId());</span>
+<span class="fc" id="L196">                    content.setTypeCode(contentVo.getTypeCode());</span>
+<span class="fc" id="L197">                    content.setDescription(contentVo.getDescription());</span>
+<span class="fc" id="L198">                    content.setOnLine(contentVo.isOnLine());</span>
+<span class="fc" id="L199">                    content.setMainGroup(contentVo.getMainGroupCode());</span>
+<span class="fc" id="L200">                    content.setSync(contentVo.isSync());</span>
+<span class="fc" id="L201">                    content.setStatus(contentVo.getStatus());</span>
+<span class="pc bpc" id="L202" title="1 of 4 branches missed.">                    if (null != contentVo.getVersion() &amp;&amp; !onLine) {</span>
+<span class="fc" id="L203">                        content.setVersion(contentVo.getVersion());</span>
                     }
-<span class="nc bnc" id="L205" title="All 2 branches missed.">                    if (null == content.getFirstEditor()) {</span>
-<span class="nc" id="L206">                        content.setFirstEditor(contentVo.getFirstEditor());</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">                    if (null == content.getFirstEditor()) {</span>
+<span class="fc" id="L206">                        content.setFirstEditor(contentVo.getFirstEditor());</span>
                     }
-<span class="nc bnc" id="L208" title="All 2 branches missed.">                    if (null == content.getLastEditor()) {</span>
-<span class="nc" id="L209">                        content.setLastEditor(contentVo.getLastEditor());</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">                    if (null == content.getLastEditor()) {</span>
+<span class="fc" id="L209">                        content.setLastEditor(contentVo.getLastEditor());</span>
                     }
-<span class="nc bnc" id="L211" title="All 2 branches missed.">                    if (null == content.getRestriction()) {</span>
-<span class="nc" id="L212">                        content.setRestriction(contentVo.getRestriction());</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">                    if (null == content.getRestriction()) {</span>
+<span class="fc" id="L212">                        content.setRestriction(contentVo.getRestriction());</span>
                     }
-<span class="nc bnc" id="L214" title="All 2 branches missed.">                    if (null == content.getCreated()) {</span>
-<span class="nc" id="L215">                        content.setCreated(contentVo.getCreate());</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">                    if (null == content.getCreated()) {</span>
+<span class="fc" id="L215">                        content.setCreated(contentVo.getCreate());</span>
                     }
-<span class="nc bnc" id="L217" title="All 2 branches missed.">                    if (null == content.getLastModified()) {</span>
-<span class="nc" id="L218">                        content.setLastModified(contentVo.getModify());</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">                    if (null == content.getLastModified()) {</span>
+<span class="fc" id="L218">                        content.setLastModified(contentVo.getModify());</span>
                     }
-<span class="nc bnc" id="L220" title="All 2 branches missed.">                    if (null == content.getPublished()) {</span>
-<span class="nc" id="L221">                        content.setPublished(contentVo.getPublish());</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">                    if (null == content.getPublished()) {</span>
+<span class="fc" id="L221">                        content.setPublished(contentVo.getPublish());</span>
                     }
                 }
             }
 <span class="nc" id="L225">        } catch (EntException e) {</span>
 <span class="nc" id="L226">            logger.error(&quot;Error while creating content by vo&quot;, e);</span>
 <span class="nc" id="L227">            throw new EntException(&quot;Error while creating content by vo&quot;, e);</span>
-<span class="nc" id="L228">        }</span>
-<span class="nc" id="L229">        return content;</span>
+<span class="fc" id="L228">        }</span>
+<span class="fc" id="L229">        return content;</span>
     }
 
     /**
@@ -240,7 +240,7 @@ import org.springframework.cache.annotation.CacheEvict;
     @Override
     public ContentRecordVO loadContentVO(String id) throws EntException {
         try {
-<span class="nc" id="L243">            return (ContentRecordVO) this.getContentDAO().loadEntityRecord(id);</span>
+<span class="fc" id="L243">            return (ContentRecordVO) this.getContentDAO().loadEntityRecord(id);</span>
 <span class="nc" id="L244">        } catch (Throwable t) {</span>
 <span class="nc" id="L245">            logger.error(&quot;Error while loading content vo : id {}&quot;, id, t);</span>
 <span class="nc" id="L246">            throw new EntException(&quot;Error while loading content vo : id &quot; + id, t);</span>
@@ -255,8 +255,8 @@ import org.springframework.cache.annotation.CacheEvict;
      */
     @Override
     public void saveContent(Content content) throws EntException {
-<span class="nc" id="L258">        this.addContent(content);</span>
-<span class="nc" id="L259">    }</span>
+<span class="fc" id="L258">        this.addContent(content);</span>
+<span class="fc" id="L259">    }</span>
 
     @Override
     public void saveContentAndContinue(Content content) throws EntException {
@@ -269,42 +269,42 @@ import org.springframework.cache.annotation.CacheEvict;
      */
     @Override
     public void addContent(Content content) throws EntException {
-<span class="nc" id="L272">        this.addUpdateContent(content, true);</span>
-<span class="nc" id="L273">    }</span>
+<span class="fc" id="L272">        this.addUpdateContent(content, true);</span>
+<span class="fc" id="L273">    }</span>
 
     private void addUpdateContent(Content content, boolean updateDate) throws EntException {
         try {
-<span class="nc" id="L277">            content.setLastModified(new Date());</span>
-<span class="nc bnc" id="L278" title="All 2 branches missed.">            if (updateDate) {</span>
-<span class="nc" id="L279">                content.incrementVersion(false);</span>
+<span class="fc" id="L277">            content.setLastModified(new Date());</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">            if (updateDate) {</span>
+<span class="fc" id="L279">                content.incrementVersion(false);</span>
             }
 
-<span class="nc" id="L282">            String status = content.getStatus();</span>
-<span class="nc bnc" id="L283" title="All 4 branches missed.">            if (null == status || status.equals(Content.STATUS_PUBLIC)) {</span>
-<span class="nc" id="L284">                content.setStatus(Content.STATUS_DRAFT);</span>
+<span class="fc" id="L282">            String status = content.getStatus();</span>
+<span class="pc bpc" id="L283" title="1 of 4 branches missed.">            if (null == status || status.equals(Content.STATUS_PUBLIC)) {</span>
+<span class="fc" id="L284">                content.setStatus(Content.STATUS_DRAFT);</span>
             } else {
-<span class="nc" id="L286">                content.setStatus(status);</span>
+<span class="fc" id="L286">                content.setStatus(status);</span>
             }
 
-<span class="nc bnc" id="L289" title="All 2 branches missed.">            if (null == content.getId()) {</span>
-<span class="nc" id="L290">                IKeyGeneratorManager keyGenerator = (IKeyGeneratorManager) this</span>
-<span class="nc" id="L291">                        .getService(SystemConstants.KEY_GENERATOR_MANAGER);</span>
-<span class="nc" id="L292">                int key = keyGenerator.getUniqueKeyCurrentValue();</span>
-<span class="nc" id="L293">                String id = content.getTypeCode() + key;</span>
-<span class="nc" id="L294">                content.setId(id);</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">            if (null == content.getId()) {</span>
+<span class="fc" id="L290">                IKeyGeneratorManager keyGenerator = (IKeyGeneratorManager) this</span>
+<span class="fc" id="L291">                        .getService(SystemConstants.KEY_GENERATOR_MANAGER);</span>
+<span class="fc" id="L292">                int key = keyGenerator.getUniqueKeyCurrentValue();</span>
+<span class="fc" id="L293">                String id = content.getTypeCode() + key;</span>
+<span class="fc" id="L294">                content.setId(id);</span>
             }
 
-<span class="nc bnc" id="L297" title="All 2 branches missed.">            boolean exists = loadContentVO(content.getId()) != null;</span>
-<span class="nc bnc" id="L298" title="All 2 branches missed.">            if (exists) {</span>
-<span class="nc" id="L299">                this.getContentDAO().updateContent(content, updateDate);</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">            boolean exists = loadContentVO(content.getId()) != null;</span>
+<span class="fc bfc" id="L298" title="All 2 branches covered.">            if (exists) {</span>
+<span class="fc" id="L299">                this.getContentDAO().updateContent(content, updateDate);</span>
             } else {
-<span class="nc" id="L301">                this.getContentDAO().addEntity(content);</span>
+<span class="fc" id="L301">                this.getContentDAO().addEntity(content);</span>
             }
 <span class="nc" id="L303">        } catch (Throwable t) {</span>
 <span class="nc" id="L304">            logger.error(&quot;Error while saving content&quot;, t);</span>
 <span class="nc" id="L305">            throw new EntException(&quot;Error while saving content&quot;, t);</span>
-<span class="nc" id="L306">        }</span>
-<span class="nc" id="L307">    }</span>
+<span class="fc" id="L306">        }</span>
+<span class="fc" id="L307">    }</span>
 
     /**
      * Publish a content.
@@ -320,26 +320,26 @@ import org.springframework.cache.annotation.CacheEvict;
             groups = &quot;T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsToEvictCsv(#content.id, #content.typeCode)&quot;)
     public void insertOnLineContent(Content content) throws EntException {
         try {
-<span class="nc" id="L323">            content.setLastModified(new Date());</span>
-<span class="nc bnc" id="L324" title="All 2 branches missed.">            if (null == content.getId()) {</span>
-<span class="nc" id="L325">                content.setCreated(new Date());</span>
-<span class="nc" id="L326">                this.saveContent(content);</span>
+<span class="fc" id="L323">            content.setLastModified(new Date());</span>
+<span class="fc bfc" id="L324" title="All 2 branches covered.">            if (null == content.getId()) {</span>
+<span class="fc" id="L325">                content.setCreated(new Date());</span>
+<span class="fc" id="L326">                this.saveContent(content);</span>
             }
-<span class="nc" id="L328">            content.incrementVersion(true);</span>
-<span class="nc" id="L329">            content.setStatus(Content.STATUS_PUBLIC);</span>
-<span class="nc" id="L330">            this.getContentDAO().insertOnLineContent(content);</span>
+<span class="fc" id="L328">            content.incrementVersion(true);</span>
+<span class="fc" id="L329">            content.setStatus(Content.STATUS_PUBLIC);</span>
+<span class="fc" id="L330">            this.getContentDAO().insertOnLineContent(content);</span>
             int operationEventCode;
-<span class="nc bnc" id="L332" title="All 2 branches missed.">            if (content.isOnLine()) {</span>
-<span class="nc" id="L333">                operationEventCode = PublicContentChangedEvent.UPDATE_OPERATION_CODE;</span>
+<span class="fc bfc" id="L332" title="All 2 branches covered.">            if (content.isOnLine()) {</span>
+<span class="fc" id="L333">                operationEventCode = PublicContentChangedEvent.UPDATE_OPERATION_CODE;</span>
             } else {
-<span class="nc" id="L335">                operationEventCode = PublicContentChangedEvent.INSERT_OPERATION_CODE;</span>
+<span class="fc" id="L335">                operationEventCode = PublicContentChangedEvent.INSERT_OPERATION_CODE;</span>
             }
-<span class="nc" id="L337">            this.notifyPublicContentChanging(content, operationEventCode);</span>
+<span class="fc" id="L337">            this.notifyPublicContentChanging(content, operationEventCode);</span>
 <span class="nc" id="L338">        } catch (Throwable t) {</span>
 <span class="nc" id="L339">            logger.error(&quot;Error while inserting content on line&quot;, t);</span>
 <span class="nc" id="L340">            throw new EntException(&quot;Error while inserting content on line&quot;, t);</span>
-<span class="nc" id="L341">        }</span>
-<span class="nc" id="L342">    }</span>
+<span class="fc" id="L341">        }</span>
+<span class="fc" id="L342">    }</span>
 
     /**
      * Return the list of all the content IDs.
@@ -358,20 +358,20 @@ import org.springframework.cache.annotation.CacheEvict;
     @Override
     public void reloadEntityReferences(String entityId) {
         try {
-<span class="nc" id="L361">            ContentRecordVO contentVo = this.loadContentVO(entityId);</span>
-<span class="nc" id="L362">            Content content = this.createContent(contentVo, true);</span>
-<span class="nc bnc" id="L363" title="All 2 branches missed.">            if (content != null) {</span>
-<span class="nc" id="L364">                this.getContentDAO().reloadPublicContentReferences(content);</span>
+<span class="fc" id="L361">            ContentRecordVO contentVo = this.loadContentVO(entityId);</span>
+<span class="fc" id="L362">            Content content = this.createContent(contentVo, true);</span>
+<span class="fc bfc" id="L363" title="All 2 branches covered.">            if (content != null) {</span>
+<span class="fc" id="L364">                this.getContentDAO().reloadPublicContentReferences(content);</span>
             }
-<span class="nc" id="L366">            Content workcontent = this.createContent(contentVo, false);</span>
-<span class="nc bnc" id="L367" title="All 2 branches missed.">            if (workcontent != null) {</span>
-<span class="nc" id="L368">                this.getContentDAO().reloadWorkContentReferences(workcontent);</span>
+<span class="fc" id="L366">            Content workcontent = this.createContent(contentVo, false);</span>
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">            if (workcontent != null) {</span>
+<span class="fc" id="L368">                this.getContentDAO().reloadWorkContentReferences(workcontent);</span>
             }
-<span class="nc" id="L370">            logger.debug(&quot;Reloaded content references for content {}&quot;, entityId);</span>
+<span class="fc" id="L370">            logger.debug(&quot;Reloaded content references for content {}&quot;, entityId);</span>
 <span class="nc" id="L371">        } catch (Throwable t) {</span>
 <span class="nc" id="L372">            logger.error(&quot;Error while reloading content references for content {}&quot;, entityId, t);</span>
-<span class="nc" id="L373">        }</span>
-<span class="nc" id="L374">    }</span>
+<span class="fc" id="L373">        }</span>
+<span class="fc" id="L374">    }</span>
 
     /**
      * Unpublish a content, preventing it from being displayed in the portal.
@@ -387,18 +387,18 @@ import org.springframework.cache.annotation.CacheEvict;
             groups = &quot;T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsToEvictCsv(#content.id, #content.typeCode)&quot;)
     public void removeOnLineContent(Content content) throws EntException {
         try {
-<span class="nc" id="L390">            content.setLastModified(new Date());</span>
-<span class="nc" id="L391">            content.incrementVersion(false);</span>
-<span class="nc bnc" id="L392" title="All 4 branches missed.">            if (null != content.getStatus() &amp;&amp; content.getStatus().equals(Content.STATUS_PUBLIC)) {</span>
-<span class="nc" id="L393">                content.setStatus(Content.STATUS_DRAFT);</span>
+<span class="fc" id="L390">            content.setLastModified(new Date());</span>
+<span class="fc" id="L391">            content.incrementVersion(false);</span>
+<span class="pc bpc" id="L392" title="1 of 4 branches missed.">            if (null != content.getStatus() &amp;&amp; content.getStatus().equals(Content.STATUS_PUBLIC)) {</span>
+<span class="fc" id="L393">                content.setStatus(Content.STATUS_DRAFT);</span>
             }
-<span class="nc" id="L395">            this.getContentDAO().removeOnLineContent(content);</span>
-<span class="nc" id="L396">            this.notifyPublicContentChanging(content, PublicContentChangedEvent.REMOVE_OPERATION_CODE);</span>
+<span class="fc" id="L395">            this.getContentDAO().removeOnLineContent(content);</span>
+<span class="fc" id="L396">            this.notifyPublicContentChanging(content, PublicContentChangedEvent.REMOVE_OPERATION_CODE);</span>
 <span class="nc" id="L397">        } catch (Throwable t) {</span>
 <span class="nc" id="L398">            logger.error(&quot;Error while removing onLine content&quot;, t);</span>
 <span class="nc" id="L399">            throw new EntException(&quot;Error while removing onLine content&quot;, t);</span>
-<span class="nc" id="L400">        }</span>
-<span class="nc" id="L401">    }</span>
+<span class="fc" id="L400">        }</span>
+<span class="fc" id="L401">    }</span>
 
     /**
      * Notify the modification of a published content.
@@ -407,11 +407,11 @@ import org.springframework.cache.annotation.CacheEvict;
      * @param operationCode the operation code to notify.
      */
     private void notifyPublicContentChanging(Content content, int operationCode) {
-<span class="nc" id="L410">        PublicContentChangedEvent event = new PublicContentChangedEvent();</span>
-<span class="nc" id="L411">        event.setContent(content);</span>
-<span class="nc" id="L412">        event.setOperationCode(operationCode);</span>
-<span class="nc" id="L413">        this.notifyEvent(event);</span>
-<span class="nc" id="L414">    }</span>
+<span class="fc" id="L410">        PublicContentChangedEvent event = new PublicContentChangedEvent();</span>
+<span class="fc" id="L411">        event.setContent(content);</span>
+<span class="fc" id="L412">        event.setOperationCode(operationCode);</span>
+<span class="fc" id="L413">        this.notifyEvent(event);</span>
+<span class="fc" id="L414">    }</span>
 
     /**
      * Return the content type from the given ID code. The code is extracted
@@ -422,8 +422,8 @@ import org.springframework.cache.annotation.CacheEvict;
      * @return The content type requested
      */
     private Content getTypeById(String contentId) {
-<span class="nc" id="L425">        String typeCode = contentId.substring(0, 3);</span>
-<span class="nc" id="L426">        return (Content) super.getEntityTypes().get(typeCode);</span>
+<span class="fc" id="L425">        String typeCode = contentId.substring(0, 3);</span>
+<span class="fc" id="L426">        return (Content) super.getEntityTypes().get(typeCode);</span>
     }
 
     /**
@@ -438,8 +438,8 @@ import org.springframework.cache.annotation.CacheEvict;
     @CacheInfoEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
             groups = &quot;T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsToEvictCsv(#content.id)&quot;)
     public void deleteContent(Content content) throws EntException {
-<span class="nc" id="L441">        this.deleteContent(content.getId());</span>
-<span class="nc" id="L442">    }</span>
+<span class="fc" id="L441">        this.deleteContent(content.getId());</span>
+<span class="fc" id="L442">    }</span>
 
     @Override
     @CacheEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME,
@@ -448,24 +448,24 @@ import org.springframework.cache.annotation.CacheEvict;
             groups = &quot;T(com.agiletec.plugins.jacms.aps.system.services.cache.CmsCacheWrapperManager).getContentCacheGroupsToEvictCsv(#contentId)&quot;)
     public void deleteContent(String contentId) throws EntException {
         try {
-<span class="nc" id="L451">            this.getContentDAO().deleteEntity(contentId);</span>
+<span class="fc" id="L451">            this.getContentDAO().deleteEntity(contentId);</span>
 <span class="nc" id="L452">        } catch (Throwable t) {</span>
 <span class="nc" id="L453">            logger.error(&quot;Error while deleting content {}&quot;, contentId, t);</span>
 <span class="nc" id="L454">            throw new EntException(&quot;Error while deleting content &quot; + contentId, t);</span>
-<span class="nc" id="L455">        }</span>
-<span class="nc" id="L456">    }</span>
+<span class="fc" id="L455">        }</span>
+<span class="fc" id="L456">    }</span>
 
     @Override
     public List&lt;String&gt; loadPublicContentsId(String contentType, String[] categories, EntitySearchFilter[] filters,
             Collection&lt;String&gt; userGroupCodes) throws EntException {
-<span class="nc" id="L461">        return this.loadPublicContentsId(contentType, categories, false, filters, userGroupCodes);</span>
+<span class="fc" id="L461">        return this.loadPublicContentsId(contentType, categories, false, filters, userGroupCodes);</span>
     }
 
     @Override
     public List&lt;String&gt; loadPublicContentsId(String contentType, String[] categories, boolean orClauseCategoryFilter,
             EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes) throws EntException {
         try {
-<span class="nc" id="L468">            return this.getPublicContentSearcherDAO().loadContentsId(contentType, categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
+<span class="fc" id="L468">            return this.getPublicContentSearcherDAO().loadContentsId(contentType, categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
 <span class="nc" id="L469">        } catch (Throwable t) {</span>
 <span class="nc" id="L470">            logger.error(ERROR_WHILE_LOADING_CONTENTS, t);</span>
 <span class="nc" id="L471">            throw new EntException(ERROR_WHILE_LOADING_CONTENTS, t);</span>
@@ -475,14 +475,14 @@ import org.springframework.cache.annotation.CacheEvict;
     @Override
     public List&lt;String&gt; loadPublicContentsId(String[] categories,
             EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes) throws EntException {
-<span class="nc" id="L478">        return this.loadPublicContentsId(categories, false, filters, userGroupCodes);</span>
+<span class="fc" id="L478">        return this.loadPublicContentsId(categories, false, filters, userGroupCodes);</span>
     }
 
     @Override
     public List&lt;String&gt; loadPublicContentsId(String[] categories, boolean orClauseCategoryFilter,
             EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes) throws EntException {
         try {
-<span class="nc" id="L485">            return this.getPublicContentSearcherDAO().loadContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
+<span class="fc" id="L485">            return this.getPublicContentSearcherDAO().loadContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
 <span class="nc" id="L486">        } catch (Throwable t) {</span>
 <span class="nc" id="L487">            logger.error(ERROR_WHILE_LOADING_CONTENTS, t);</span>
 <span class="nc" id="L488">            throw new EntException(ERROR_WHILE_LOADING_CONTENTS, t);</span>
@@ -491,19 +491,19 @@ import org.springframework.cache.annotation.CacheEvict;
 
     @Override
     public List&lt;String&gt; loadWorkContentsId(EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes) throws EntException {
-<span class="nc" id="L494">        return this.loadWorkContentsId(null, false, filters, userGroupCodes);</span>
+<span class="fc" id="L494">        return this.loadWorkContentsId(null, false, filters, userGroupCodes);</span>
     }
 
     @Override
     public List&lt;String&gt; loadWorkContentsId(String[] categories, EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes) throws EntException {
-<span class="nc" id="L499">        return this.loadWorkContentsId(categories, false, filters, userGroupCodes);</span>
+<span class="fc" id="L499">        return this.loadWorkContentsId(categories, false, filters, userGroupCodes);</span>
     }
 
     @Override
     public List&lt;String&gt; loadWorkContentsId(String[] categories, boolean orClauseCategoryFilter,
             EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes) throws EntException {
         try {
-<span class="nc" id="L506">            return this.getWorkContentSearcherDAO().loadContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
+<span class="fc" id="L506">            return this.getWorkContentSearcherDAO().loadContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
 <span class="nc" id="L507">        } catch (Throwable t) {</span>
 <span class="nc" id="L508">            logger.error(&quot;Error while loading work contents&quot;, t);</span>
 <span class="nc" id="L509">            throw new EntException(&quot;Error while loading work contents&quot;, t);</span>
@@ -514,7 +514,7 @@ import org.springframework.cache.annotation.CacheEvict;
     public Integer countWorkContents(String[] categories, boolean orClauseCategoryFilter,
             EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes) throws EntException {
         try {
-<span class="nc" id="L517">            return this.getWorkContentSearcherDAO().countContents(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
+<span class="fc" id="L517">            return this.getWorkContentSearcherDAO().countContents(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
 <span class="nc" id="L518">        } catch (Throwable t) {</span>
 <span class="nc" id="L519">            logger.error(&quot;Error while counting work contents&quot;, t);</span>
 <span class="nc" id="L520">            throw new EntException(&quot;Error while counting work contents&quot;, t);</span>
@@ -523,32 +523,32 @@ import org.springframework.cache.annotation.CacheEvict;
 
     @Override
     public SearcherDaoPaginatedResult&lt;String&gt; getPaginatedWorkContentsId(String[] categories, boolean orClauseCategoryFilter, EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes) throws EntException {
-<span class="nc" id="L526">        return this.getPaginatedContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes, this.getWorkContentSearcherDAO());</span>
+<span class="fc" id="L526">        return this.getPaginatedContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes, this.getWorkContentSearcherDAO());</span>
     }
 
     @Override
     public SearcherDaoPaginatedResult&lt;String&gt; getPaginatedPublicContentsId(String[] categories, boolean orClauseCategoryFilter, EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes) throws EntException {
-<span class="nc" id="L531">        return this.getPaginatedContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes, this.getPublicContentSearcherDAO());</span>
+<span class="fc" id="L531">        return this.getPaginatedContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes, this.getPublicContentSearcherDAO());</span>
     }
     
     private SearcherDaoPaginatedResult&lt;String&gt; getPaginatedContentsId(String[] categories, boolean orClauseCategoryFilter, 
             EntitySearchFilter[] filters, Collection&lt;String&gt; userGroupCodes, IContentSearcherDAO searcherDao) throws EntException {
-<span class="nc" id="L536">        SearcherDaoPaginatedResult&lt;String&gt; pagedResult = null;</span>
+<span class="fc" id="L536">        SearcherDaoPaginatedResult&lt;String&gt; pagedResult = null;</span>
         try {
-<span class="nc" id="L538">            int count = searcherDao.countContents(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
-<span class="nc" id="L539">            List&lt;String&gt; contentsId = searcherDao.loadContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
-<span class="nc" id="L540">            pagedResult = new SearcherDaoPaginatedResult&lt;&gt;(count, contentsId);</span>
+<span class="fc" id="L538">            int count = searcherDao.countContents(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
+<span class="fc" id="L539">            List&lt;String&gt; contentsId = searcherDao.loadContentsId(categories, orClauseCategoryFilter, filters, userGroupCodes);</span>
+<span class="fc" id="L540">            pagedResult = new SearcherDaoPaginatedResult&lt;&gt;(count, contentsId);</span>
 <span class="nc" id="L541">        } catch (Throwable t) {</span>
 <span class="nc" id="L542">            logger.error(&quot;Error searching paginated contents id&quot;, t);</span>
 <span class="nc" id="L543">            throw new EntException(&quot;Error searching paginated contents id&quot;, t);</span>
-<span class="nc" id="L544">        }</span>
-<span class="nc" id="L545">        return pagedResult;</span>
+<span class="fc" id="L544">        }</span>
+<span class="fc" id="L545">        return pagedResult;</span>
     }
     
     @Override
     public List getPageUtilizers(String pageCode) throws EntException {
         try {
-<span class="nc" id="L551">            return this.getContentDAO().getPageUtilizers(pageCode);</span>
+<span class="fc" id="L551">            return this.getContentDAO().getPageUtilizers(pageCode);</span>
 <span class="nc" id="L552">        } catch (Throwable t) {</span>
 <span class="nc" id="L553">            throw new EntException(&quot;Error while loading referenced contents : page &quot; + pageCode, t);</span>
         }
@@ -557,7 +557,7 @@ import org.springframework.cache.annotation.CacheEvict;
     @Override
     public List getContentUtilizers(String contentId) throws EntException {
         try {
-<span class="nc" id="L560">            return this.getContentDAO().getContentUtilizers(contentId);</span>
+<span class="fc" id="L560">            return this.getContentDAO().getContentUtilizers(contentId);</span>
 <span class="nc" id="L561">        } catch (Throwable t) {</span>
 <span class="nc" id="L562">            throw new EntException(&quot;Error while loading referenced contents : content &quot; + contentId, t);</span>
         }
@@ -566,7 +566,7 @@ import org.springframework.cache.annotation.CacheEvict;
     @Override
     public List&lt;String&gt; getGroupUtilizers(String groupName) throws EntException {
         try {
-<span class="nc" id="L569">            return this.getContentDAO().getGroupUtilizers(groupName);</span>
+<span class="fc" id="L569">            return this.getContentDAO().getGroupUtilizers(groupName);</span>
 <span class="nc" id="L570">        } catch (Throwable t) {</span>
 <span class="nc" id="L571">            throw new EntException(&quot;Error while loading referenced contents : group &quot; + groupName, t);</span>
         }
@@ -575,7 +575,7 @@ import org.springframework.cache.annotation.CacheEvict;
     @Override
     public List getResourceUtilizers(String resourceId) throws EntException {
         try {
-<span class="nc" id="L578">            return this.getContentDAO().getResourceUtilizers(resourceId);</span>
+<span class="fc" id="L578">            return this.getContentDAO().getResourceUtilizers(resourceId);</span>
 <span class="nc" id="L579">        } catch (Throwable t) {</span>
 <span class="nc" id="L580">            throw new EntException(&quot;Error while loading referenced contents : resource &quot; + resourceId, t);</span>
         }
@@ -584,7 +584,7 @@ import org.springframework.cache.annotation.CacheEvict;
     @Override
     public List getCategoryUtilizers(String resourceId) throws EntException {
         try {
-<span class="nc" id="L587">            return this.getContentDAO().getCategoryUtilizers(resourceId);</span>
+<span class="fc" id="L587">            return this.getContentDAO().getCategoryUtilizers(resourceId);</span>
 <span class="nc" id="L588">        } catch (Throwable t) {</span>
 <span class="nc" id="L589">            throw new EntException(&quot;Error while loading referenced contents : category &quot; + resourceId, t);</span>
         }
@@ -636,7 +636,7 @@ import org.springframework.cache.annotation.CacheEvict;
      * @return The DAO managing the contents.
      */
     protected IContentDAO getContentDAO() {
-<span class="nc" id="L639">        return contentDAO;</span>
+<span class="fc" id="L639">        return contentDAO;</span>
     }
 
     /**
@@ -650,7 +650,7 @@ import org.springframework.cache.annotation.CacheEvict;
 
     @Override
     protected IEntitySearcherDAO getEntitySearcherDao() {
-<span class="nc" id="L653">        return this.getWorkContentSearcherDAO();</span>
+<span class="fc" id="L653">        return this.getWorkContentSearcherDAO();</span>
     }
 
     @Override
@@ -659,20 +659,20 @@ import org.springframework.cache.annotation.CacheEvict;
     }
 
     protected IContentSearcherDAO getWorkContentSearcherDAO() {
-<span class="nc" id="L662">        return workContentSearcherDAO;</span>
+<span class="fc" id="L662">        return workContentSearcherDAO;</span>
     }
 
     public void setWorkContentSearcherDAO(IContentSearcherDAO workContentSearcherDAO) {
-<span class="nc" id="L666">        this.workContentSearcherDAO = workContentSearcherDAO;</span>
-<span class="nc" id="L667">    }</span>
+<span class="fc" id="L666">        this.workContentSearcherDAO = workContentSearcherDAO;</span>
+<span class="fc" id="L667">    }</span>
 
     public IContentSearcherDAO getPublicContentSearcherDAO() {
-<span class="nc" id="L670">        return publicContentSearcherDAO;</span>
+<span class="fc" id="L670">        return publicContentSearcherDAO;</span>
     }
 
     public void setPublicContentSearcherDAO(IContentSearcherDAO publicContentSearcherDAO) {
-<span class="nc" id="L674">        this.publicContentSearcherDAO = publicContentSearcherDAO;</span>
-<span class="nc" id="L675">    }</span>
+<span class="fc" id="L674">        this.publicContentSearcherDAO = publicContentSearcherDAO;</span>
+<span class="fc" id="L675">    }</span>
 
     protected IContentUpdaterService getContentUpdaterService() {
 <span class="nc" id="L678">        return contentUpdaterService;</span>
@@ -684,7 +684,7 @@ import org.springframework.cache.annotation.CacheEvict;
 
     @Override
     public IApsEntity getEntity(String entityId) throws EntException {
-<span class="nc" id="L687">        return this.loadContent(entityId, false);</span>
+<span class="fc" id="L687">        return this.loadContent(entityId, false);</span>
     }
 
     /**
