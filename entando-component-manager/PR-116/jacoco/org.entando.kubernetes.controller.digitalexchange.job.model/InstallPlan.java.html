@@ -143,25 +143,27 @@ public class InstallPlan {
     }
 
     /**
-     * if there is at least an action different from CREATE the installPlan is custom.
-     * @return true if the install plan is custom, false otherwise
+     * if there is at least an action different from CREATE, the installation is custom.
+     * a bundle installation becomes custom when the bundle is not installed entirely (one or more components are
+     * skipped or overridden)
+     * @return true if the installation is custom, false otherwise
      */
     @JsonIgnore
     public boolean isCustomInstallation() {
-<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        return doComponentsHaveSkipAction(this.getWidgets())</span>
-<span class="pc bpc" id="L152" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getFragments())</span>
-<span class="pc bpc" id="L153" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getPages())</span>
-<span class="fc bfc" id="L154" title="All 2 branches covered.">                || doComponentsHaveSkipAction(this.getPageTemplates())</span>
-<span class="pc bpc" id="L155" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getContents())</span>
-<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getContentTemplates())</span>
-<span class="pc bpc" id="L157" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getContentTypes())</span>
-<span class="pc bpc" id="L158" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getAssets())</span>
-<span class="pc bpc" id="L159" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getResources())</span>
-<span class="pc bpc" id="L160" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getPlugins())</span>
-<span class="pc bpc" id="L161" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getCategories())</span>
-<span class="pc bpc" id="L162" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getGroups())</span>
-<span class="pc bpc" id="L163" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getLabels())</span>
-<span class="pc bpc" id="L164" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getLanguages());</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        return doComponentsHaveSkipAction(this.getWidgets())</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getFragments())</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getPages())</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">                || doComponentsHaveSkipAction(this.getPageTemplates())</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getContents())</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getContentTemplates())</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getContentTypes())</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getAssets())</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getResources())</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getPlugins())</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getCategories())</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getGroups())</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getLabels())</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">                || doComponentsHaveSkipAction(this.getLanguages());</span>
     }
 
     /**
@@ -171,14 +173,14 @@ public class InstallPlan {
      */
     private boolean doComponentsHaveSkipAction(Map&lt;String, ComponentInstallPlan&gt; componentInstallPlanMap) {
 
-<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (CollectionUtils.isEmpty(componentInstallPlanMap)) {</span>
-<span class="fc" id="L175">            return false;</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (CollectionUtils.isEmpty(componentInstallPlanMap)) {</span>
+<span class="fc" id="L177">            return false;</span>
         }
 
-<span class="fc" id="L178">        return componentInstallPlanMap.values().stream()</span>
-<span class="fc bfc" id="L179" title="All 2 branches covered.">                .map(componentInstallPlan -&gt; componentInstallPlan.getAction() == InstallAction.SKIP)</span>
-<span class="pc bpc" id="L180" title="1 of 4 branches missed.">                .reduce((customInstallAction1, customInstallAction2) -&gt; customInstallAction1 || customInstallAction2)</span>
-<span class="fc" id="L181">                .orElse(false);</span>
+<span class="fc" id="L180">        return componentInstallPlanMap.values().stream()</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">                .map(componentInstallPlan -&gt; componentInstallPlan.getAction() == InstallAction.SKIP)</span>
+<span class="pc bpc" id="L182" title="1 of 4 branches missed.">                .reduce((customInstallAction1, customInstallAction2) -&gt; customInstallAction1 || customInstallAction2)</span>
+<span class="fc" id="L183">                .orElse(false);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
