@@ -3,7 +3,6 @@
 import io.fabric8.kubernetes.api.model.extensions.DoneableIngress;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.api.model.extensions.IngressList;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import java.util.List;
@@ -13,36 +12,36 @@ import org.entando.kubernetes.model.app.EntandoApp;
 import org.entando.kubernetes.model.plugin.EntandoPlugin;
 import org.springframework.stereotype.Service;
 
-<span class="fc" id="L16">@Slf4j</span>
+<span class="fc" id="L15">@Slf4j</span>
 @Service
 public class IngressService {
 
-    private KubernetesClient client;
+    private KubernetesUtils kubernetesUtils;
 
-<span class="fc" id="L22">    public IngressService(KubernetesClient client) {</span>
-<span class="fc" id="L23">        this.client = client;</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L21">    public IngressService(KubernetesUtils kubernetesUtils) {</span>
+<span class="fc" id="L22">        this.kubernetesUtils = kubernetesUtils;</span>
+<span class="fc" id="L23">    }</span>
 
     public Optional&lt;Ingress&gt; findByEntandoApp(EntandoApp app) {
-<span class="fc" id="L27">        List&lt;Ingress&gt; appIngresses = getIngressOperations()</span>
-<span class="fc" id="L28">                .inNamespace(app.getMetadata().getNamespace())</span>
-<span class="fc" id="L29">                .withLabel(app.getKind(), app.getMetadata().getName())</span>
-<span class="fc" id="L30">                .list().getItems();</span>
-<span class="fc" id="L31">        return appIngresses.stream().findFirst();</span>
+<span class="fc" id="L26">        List&lt;Ingress&gt; appIngresses = getIngressOperations()</span>
+<span class="fc" id="L27">                .inNamespace(app.getMetadata().getNamespace())</span>
+<span class="fc" id="L28">                .withLabel(app.getKind(), app.getMetadata().getName())</span>
+<span class="fc" id="L29">                .list().getItems();</span>
+<span class="fc" id="L30">        return appIngresses.stream().findFirst();</span>
     }
 
     public Optional&lt;Ingress&gt; findByEntandoPlugin(EntandoPlugin plugin) {
-<span class="fc" id="L35">        List&lt;Ingress&gt; appIngresses = getIngressOperations()</span>
-<span class="fc" id="L36">                .inNamespace(plugin.getMetadata().getNamespace())</span>
-<span class="fc" id="L37">                .withLabel(plugin.getKind(), plugin.getMetadata().getName())</span>
-<span class="fc" id="L38">                .list().getItems();</span>
-<span class="fc" id="L39">        return appIngresses.stream().findFirst();</span>
+<span class="fc" id="L34">        List&lt;Ingress&gt; appIngresses = getIngressOperations()</span>
+<span class="fc" id="L35">                .inNamespace(plugin.getMetadata().getNamespace())</span>
+<span class="fc" id="L36">                .withLabel(plugin.getKind(), plugin.getMetadata().getName())</span>
+<span class="fc" id="L37">                .list().getItems();</span>
+<span class="fc" id="L38">        return appIngresses.stream().findFirst();</span>
     }
 
     //CHECKSTYLE:OFF
     private MixedOperation&lt;Ingress, IngressList, DoneableIngress, Resource&lt;Ingress, DoneableIngress&gt;&gt; getIngressOperations() {
         //CHECKSTYLE:ON
-<span class="fc" id="L45">        return client.extensions().ingresses();</span>
+<span class="fc" id="L44">        return kubernetesUtils.getCurrentKubernetesClient().extensions().ingresses();</span>
     }
 
 }

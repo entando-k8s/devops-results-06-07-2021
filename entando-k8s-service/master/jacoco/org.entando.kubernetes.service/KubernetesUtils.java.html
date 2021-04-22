@@ -1,26 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KubernetesUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Kubernetes Service</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.service</a> &gt; <span class="el_source">KubernetesUtils.java</span></div><h1>KubernetesUtils.java</h1><pre class="source lang-java linenums">package org.entando.kubernetes.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.entando.kubernetes.model.namespace.provider.NamespaceProvider;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 
-<span class="fc" id="L6">@Slf4j</span>
-@SuppressWarnings({&quot;sonar&quot;, &quot;PMD&quot;})
-public class KubernetesUtils {
+public class KubernetesUtils implements JwtDecoder {
 
-    private NamespaceProvider provider;
+    public static final String ROLES = &quot;roles&quot;;
+    private final KubernetesClientCache kubernetesClients;
+<span class="fc" id="L22">    @SuppressWarnings(&quot;java:S5164&quot;)</span>
+    //Because a single string per active thread cannot cause a memory leak.
+    //This is exactly why we do not cache the KubernetesClient instance here.
+    private final ThreadLocal&lt;String&gt; currentToken = new ThreadLocal&lt;&gt;();
 
-<span class="fc" id="L12">    private String namespace = null;</span>
+    public KubernetesUtils() {
+<span class="pc" id="L28">        this(s -&gt; new DefaultKubernetesClient());</span>
+<span class="fc" id="L29">    }</span>
 
-<span class="fc" id="L14">    public KubernetesUtils(NamespaceProvider provider) {</span>
-<span class="fc" id="L15">        this.provider = provider;</span>
-<span class="fc" id="L16">    }</span>
+<span class="fc" id="L31">    public KubernetesUtils(Function&lt;String, KubernetesClient&gt; defaultKubernetesClientSupplier) {</span>
+<span class="fc" id="L32">        this.kubernetesClients = new KubernetesClientCache(defaultKubernetesClientSupplier);</span>
+<span class="fc" id="L33">    }</span>
 
     public String getCurrentNamespace() {
-<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (namespace == null) {</span>
-<span class="fc" id="L20">            namespace = provider.getNamespace();</span>
-        }
-<span class="fc" id="L22">        return namespace;</span>
+<span class="fc" id="L36">        return getCurrentKubernetesClient().getNamespace();</span>
     }
 
+    public KubernetesClient getCurrentKubernetesClient() {
+<span class="fc" id="L40">        return this.kubernetesClients.get(currentToken.get());</span>
+    }
+
+    @Override
+    public Jwt decode(String token) throws JwtException {
+        try {
+<span class="fc" id="L46">            final JWT parsedJwt = JWTParser.parse(token);</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            if (parsedJwt.getJWTClaimsSet().getClaims().get(&quot;kubernetes.io/serviceaccount/namespace&quot;) != null) {</span>
+<span class="fc" id="L48">                this.currentToken.set(token);</span>
+                //Some possible fields to use:
+                //iss
+                //kubernetes.io/serviceaccount/service-account.name
+                //kubernetes.io/serviceaccount/service-account.uid
+            } else {
+                //TODO once component-manager has been migrated, throw an exception here. We only support K8S tokens
+<span class="fc" id="L55">                this.currentToken.set(DefaultKubernetesClientBuilder.NOT_K8S_TOKEN);</span>
+            }
+<span class="fc" id="L57">            Map&lt;String, Object&gt; headers = new LinkedHashMap&lt;&gt;(parsedJwt.getHeader().toJSONObject());</span>
+<span class="fc" id="L58">            final JWTClaimsSet jwtClaimsSet = parsedJwt.getJWTClaimsSet();</span>
+<span class="fc" id="L59">            return Jwt.withTokenValue(token)</span>
+<span class="fc" id="L60">                    .headers(h -&gt; h.putAll(headers))</span>
+<span class="fc" id="L61">                    .claims(c -&gt; {</span>
+<span class="fc" id="L62">                        c.put(ROLES,</span>
+                                //For now, everyone is an admin
+<span class="fc" id="L64">                                Collections.singletonList(new SimpleGrantedAuthority(&quot;ROLE_ADMIN&quot;)));</span>
+<span class="fc" id="L65">                        c.putAll(jwtClaimsSet.getClaims());</span>
+<span class="fc" id="L66">                    }).build();</span>
+
+<span class="nc" id="L68">        } catch (ParseException e) {</span>
+<span class="nc" id="L69">            throw new JwtException(&quot;Malformed payload&quot;, e);</span>
+        }
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
