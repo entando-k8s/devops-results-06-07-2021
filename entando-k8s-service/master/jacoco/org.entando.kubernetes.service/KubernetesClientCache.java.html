@@ -12,7 +12,7 @@ import java.util.function.Function;
 public class KubernetesClientCache extends ConcurrentHashMap&lt;String, KubernetesClient&gt; {
 
 <span class="fc" id="L14">    final transient Timer timer = new Timer();</span>
-<span class="fc" id="L15">    final transient ConcurrentHashMap&lt;String, Instant&gt; creationTimes = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L15">    final transient ConcurrentHashMap&lt;String, Instant&gt; accessTimes = new ConcurrentHashMap&lt;&gt;();</span>
     private final int maximumAgeSeconds;
     private transient Function&lt;String, KubernetesClient&gt; kubernetesClientSupplier;
 
@@ -36,7 +36,7 @@ public class KubernetesClientCache extends ConcurrentHashMap&lt;String, Kubernet
 <span class="fc" id="L36">        timer.scheduleAtFixedRate(new TimerTask() {</span>
             @Override
             public void run() {
-<span class="fc" id="L39">                removeOldEntries();</span>
+<span class="fc" id="L39">                removeStaleEntries();</span>
 <span class="fc" id="L40">            }</span>
 
         }, 0, scanInterval);
@@ -45,16 +45,17 @@ public class KubernetesClientCache extends ConcurrentHashMap&lt;String, Kubernet
     @Override
     public KubernetesClient get(Object tokenAsObject) {
 <span class="fc" id="L47">        final String token = (String) tokenAsObject;</span>
-<span class="fc" id="L48">        return super.computeIfAbsent(token, this.kubernetesClientSupplier);</span>
+<span class="fc" id="L48">        accessTimes.put(token,Instant.now());</span>
+<span class="fc" id="L49">        return super.computeIfAbsent(token, this.kubernetesClientSupplier);</span>
     }
 
-    private void removeOldEntries() {
-<span class="fc" id="L52">        Instant cutoffInstant = Instant.now().minusSeconds(maximumAgeSeconds);</span>
-<span class="pc" id="L53">        keySet().stream().filter(s -&gt; creationTimes.get(s).isBefore(cutoffInstant)).forEach(token -&gt; {</span>
+    private void removeStaleEntries() {
+<span class="fc" id="L53">        Instant cutoffInstant = Instant.now().minusSeconds(maximumAgeSeconds);</span>
+<span class="fc" id="L54">        keySet().stream().filter(s -&gt; accessTimes.get(s).isBefore(cutoffInstant)).forEach(token -&gt; {</span>
             //Synchronization risk here is minimal
-<span class="nc" id="L55">            creationTimes.remove(token);</span>
-<span class="nc" id="L56">            remove(token).close();</span>
-<span class="nc" id="L57">        });</span>
-<span class="fc" id="L58">    }</span>
+<span class="nc" id="L56">            accessTimes.remove(token);</span>
+<span class="nc" id="L57">            remove(token).close();</span>
+<span class="nc" id="L58">        });</span>
+<span class="fc" id="L59">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
