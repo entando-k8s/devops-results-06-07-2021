@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.entando.kubernetes.model.namespace.ObservedNamespaces;
+import org.entando.kubernetes.service.DefaultKubernetesClientBuilder;
 import org.entando.kubernetes.service.KubernetesUtils;
 import org.entando.kubernetes.service.OperatorDeploymentType;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,24 +14,24 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile(&quot;!test&quot;)
-<span class="fc" id="L16">public class KubernetesConfiguration {</span>
+<span class="fc" id="L17">public class KubernetesConfiguration {</span>
 
-<span class="fc" id="L18">    @Value(&quot;${entando.namespaces.to.observe:}&quot;)</span>
+<span class="fc" id="L19">    @Value(&quot;${entando.namespaces.to.observe:}&quot;)</span>
     public List&lt;String&gt; entandoNamespacesToObserve = new ArrayList&lt;&gt;();
 
     @Value(&quot;${entando.k8s.operator.deployment.type:helm}&quot;)
     public String deploymentType;
-<span class="fc" id="L23">    private final KubernetesUtils kubernetesUtils = new KubernetesUtils();</span>
+<span class="fc" id="L24">    private final KubernetesUtils kubernetesUtils = new KubernetesUtils(new DefaultKubernetesClientBuilder());</span>
 
     @Bean
     public KubernetesUtils k8sUtils() {
-<span class="fc" id="L27">        return kubernetesUtils;</span>
+<span class="fc" id="L28">        return kubernetesUtils;</span>
     }
 
     @Bean
     public ObservedNamespaces observedNamespaces() {
-<span class="nc" id="L32">        return new ObservedNamespaces(k8sUtils(), entandoNamespacesToObserve,</span>
-<span class="nc" id="L33">                OperatorDeploymentType.valueOf(deploymentType.toUpperCase(Locale.getDefault())));</span>
+<span class="nc" id="L33">        return new ObservedNamespaces(k8sUtils(), entandoNamespacesToObserve,</span>
+<span class="nc" id="L34">                OperatorDeploymentType.valueOf(deploymentType.toUpperCase(Locale.getDefault())));</span>
     }
 
 }
