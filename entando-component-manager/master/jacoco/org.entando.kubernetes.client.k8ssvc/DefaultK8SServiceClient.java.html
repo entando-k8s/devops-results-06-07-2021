@@ -66,7 +66,7 @@ import org.springframework.web.util.UriComponentsBuilder;
     private final String clientSecret;
     private final String tokenUri;
     private RestTemplate restTemplate;
-    private RestTemplate pluginRestTemplate;
+    private RestTemplate noAuthRestTemplate;
     private Traverson traverson;
 
 <span class="fc" id="L72">    public DefaultK8SServiceClient(String k8sServiceUrl, String clientId, String clientSecret, String tokenUri) {</span>
@@ -74,9 +74,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 <span class="fc" id="L74">        this.clientSecret = clientSecret;</span>
 <span class="fc" id="L75">        this.tokenUri = tokenUri;</span>
 <span class="fc" id="L76">        this.k8sServiceUrl = k8sServiceUrl;</span>
-<span class="fc" id="L77">        this.restTemplate = newRestTemplate(() -&gt; UriComponentsBuilder.fromUriString(tokenUri).toUriString());</span>
+<span class="fc" id="L77">        this.restTemplate = newRestTemplate();</span>
 <span class="fc" id="L78">        this.traverson = newTraverson();</span>
-<span class="fc" id="L79">        this.pluginRestTemplate = newRestTemplate(() -&gt; null);</span>
+<span class="fc" id="L79">        this.noAuthRestTemplate = newNoAuthRestTemplate();</span>
 <span class="fc" id="L80">    }</span>
 
     public Traverson newTraverson() {
@@ -93,8 +93,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 <span class="fc" id="L93">        this.traverson = newTraverson();</span>
 <span class="fc" id="L94">    }</span>
 
-    public void setPluginRestTemplate(RestTemplate restTemplate) {
-<span class="fc" id="L97">        this.pluginRestTemplate = restTemplate;</span>
+    public void setNoAuthRestTemplate(RestTemplate restTemplate) {
+<span class="fc" id="L97">        this.noAuthRestTemplate = restTemplate;</span>
 <span class="fc" id="L98">    }</span>
 
     @Override
@@ -322,7 +322,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 <span class="fc" id="L322">                .accept(MediaType.APPLICATION_JSON)</span>
 <span class="fc" id="L323">                .build();</span>
         try {
-<span class="fc" id="L325">            ResponseEntity&lt;Object&gt; response = this.pluginRestTemplate.exchange(request, Object.class);</span>
+<span class="fc" id="L325">            ResponseEntity&lt;Object&gt; response = this.noAuthRestTemplate.exchange(request, Object.class);</span>
 <span class="fc" id="L326">            return response.getStatusCode().is2xxSuccessful();</span>
 <span class="nc" id="L327">        } catch (RestClientResponseException e) {</span>
 <span class="nc" id="L328">            HttpStatus status = HttpStatus.valueOf(e.getRawStatusCode());</span>
@@ -361,8 +361,8 @@ import org.springframework.web.util.UriComponentsBuilder;
     }
 
 
-    private RestTemplate newRestTemplate(Supplier&lt;String&gt; tokenSupplier) {
-<span class="fc" id="L365">        OAuth2ProtectedResourceDetails resourceDetails = getResourceDetails(tokenSupplier);</span>
+    private RestTemplate newRestTemplate() {
+<span class="fc" id="L365">        OAuth2ProtectedResourceDetails resourceDetails = getResourceDetails();</span>
 <span class="pc bpc" id="L366" title="1 of 2 branches missed.">        if (resourceDetails == null) {</span>
 <span class="nc" id="L367">            return null;</span>
         }
@@ -370,89 +370,101 @@ import org.springframework.web.util.UriComponentsBuilder;
 <span class="fc" id="L370">        template.setRequestFactory(getRequestFactory());</span>
 <span class="fc" id="L371">        template.setAccessTokenProvider(new ClientCredentialsAccessTokenProvider());</span>
 
-<span class="fc" id="L373">        List&lt;HttpMessageConverter&lt;?&gt;&gt; messageConverters = Traverson</span>
-<span class="fc" id="L374">                .getDefaultMessageConverters(MediaType.APPLICATION_JSON, MediaTypes.HAL_JSON);</span>
-<span class="fc" id="L375">        if (messageConverters.stream()</span>
-<span class="pc bpc" id="L376" title="1 of 2 branches missed.">                .noneMatch(mc -&gt; mc.getSupportedMediaTypes().contains(MediaType.APPLICATION_JSON))) {</span>
-<span class="fc" id="L377">            messageConverters.add(0, getJsonConverter());</span>
-        }
-<span class="fc" id="L379">        template.setMessageConverters(messageConverters);</span>
+<span class="fc" id="L373">        return setMessageConverters(template);</span>
+    }
 
-<span class="fc" id="L381">        return template;</span>
+    private RestTemplate newNoAuthRestTemplate() {
+
+<span class="fc" id="L378">        final RestTemplate template = new RestTemplate();</span>
+<span class="fc" id="L379">        template.setRequestFactory(getRequestFactory());</span>
+
+<span class="fc" id="L381">        return setMessageConverters(template);</span>
+    }
+
+    private RestTemplate setMessageConverters(RestTemplate restTemplate) {
+<span class="fc" id="L385">        List&lt;HttpMessageConverter&lt;?&gt;&gt; messageConverters = Traverson</span>
+<span class="fc" id="L386">                .getDefaultMessageConverters(MediaType.APPLICATION_JSON, MediaTypes.HAL_JSON);</span>
+<span class="fc" id="L387">        if (messageConverters.stream()</span>
+<span class="pc bpc" id="L388" title="1 of 2 branches missed.">                .noneMatch(mc -&gt; mc.getSupportedMediaTypes().contains(MediaType.APPLICATION_JSON))) {</span>
+<span class="fc" id="L389">            messageConverters.add(0, getJsonConverter());</span>
+        }
+<span class="fc" id="L391">        restTemplate.setMessageConverters(messageConverters);</span>
+
+<span class="fc" id="L393">        return restTemplate;</span>
     }
 
     private HttpMessageConverter&lt;?&gt; getJsonConverter() {
-<span class="fc" id="L385">        final List&lt;MediaType&gt; supportedMediatypes = Arrays.asList(MediaType.APPLICATION_JSON);</span>
-<span class="fc" id="L386">        ObjectMapper mapper = new ObjectMapper();</span>
-<span class="fc" id="L387">        mapper.registerModule(new Jackson2HalModule());</span>
-<span class="fc" id="L388">        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
+<span class="fc" id="L397">        final List&lt;MediaType&gt; supportedMediatypes = Arrays.asList(MediaType.APPLICATION_JSON);</span>
+<span class="fc" id="L398">        ObjectMapper mapper = new ObjectMapper();</span>
+<span class="fc" id="L399">        mapper.registerModule(new Jackson2HalModule());</span>
+<span class="fc" id="L400">        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
 
-<span class="fc" id="L390">        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();</span>
+<span class="fc" id="L402">        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();</span>
 
-<span class="fc" id="L392">        converter.setObjectMapper(mapper);</span>
-<span class="fc" id="L393">        converter.setSupportedMediaTypes(supportedMediatypes);</span>
+<span class="fc" id="L404">        converter.setObjectMapper(mapper);</span>
+<span class="fc" id="L405">        converter.setSupportedMediaTypes(supportedMediatypes);</span>
 
-<span class="fc" id="L395">        return converter;</span>
+<span class="fc" id="L407">        return converter;</span>
     }
 
 
-    private OAuth2ProtectedResourceDetails getResourceDetails(Supplier&lt;String&gt; tokenSupplier) {
-<span class="fc" id="L400">        final ClientCredentialsResourceDetails resourceDetails = new ClientCredentialsResourceDetails();</span>
-<span class="fc" id="L401">        resourceDetails.setAuthenticationScheme(AuthenticationScheme.header);</span>
-<span class="fc" id="L402">        resourceDetails.setClientId(clientId);</span>
-<span class="fc" id="L403">        resourceDetails.setClientSecret(clientSecret);</span>
-<span class="fc" id="L404">        resourceDetails.setClientAuthenticationScheme(AuthenticationScheme.form);</span>
+    private OAuth2ProtectedResourceDetails getResourceDetails() {
+<span class="fc" id="L412">        final ClientCredentialsResourceDetails resourceDetails = new ClientCredentialsResourceDetails();</span>
+<span class="fc" id="L413">        resourceDetails.setAuthenticationScheme(AuthenticationScheme.header);</span>
+<span class="fc" id="L414">        resourceDetails.setClientId(clientId);</span>
+<span class="fc" id="L415">        resourceDetails.setClientSecret(clientSecret);</span>
+<span class="fc" id="L416">        resourceDetails.setClientAuthenticationScheme(AuthenticationScheme.form);</span>
         try {
-<span class="fc" id="L406">            resourceDetails.setAccessTokenUri(tokenSupplier.get());</span>
-<span class="nc" id="L407">        } catch (IllegalArgumentException ex) {</span>
-<span class="nc" id="L408">            LOGGER.log(Level.SEVERE, ex, () -&gt; String.format(&quot;Issues when using %s as token uri&quot;, tokenUri));</span>
-<span class="nc" id="L409">            return null;</span>
-<span class="fc" id="L410">        }</span>
-<span class="fc" id="L411">        return resourceDetails;</span>
+<span class="fc" id="L418">            resourceDetails.setAccessTokenUri(UriComponentsBuilder.fromUriString(tokenUri).toUriString());</span>
+<span class="nc" id="L419">        } catch (IllegalArgumentException ex) {</span>
+<span class="nc" id="L420">            LOGGER.log(Level.SEVERE, ex, () -&gt; String.format(&quot;Issues when using %s as token uri&quot;, tokenUri));</span>
+<span class="nc" id="L421">            return null;</span>
+<span class="fc" id="L422">        }</span>
+<span class="fc" id="L423">        return resourceDetails;</span>
     }
 
     private ClientHttpRequestFactory getRequestFactory() {
-<span class="fc" id="L415">        final HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();</span>
-<span class="fc" id="L416">        final int timeout = 10000;</span>
+<span class="fc" id="L427">        final HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();</span>
+<span class="fc" id="L428">        final int timeout = 10000;</span>
 
-<span class="fc" id="L418">        requestFactory.setConnectionRequestTimeout(timeout);</span>
-<span class="fc" id="L419">        requestFactory.setConnectTimeout(timeout);</span>
-<span class="fc" id="L420">        requestFactory.setReadTimeout(timeout);</span>
-<span class="fc" id="L421">        return requestFactory;</span>
+<span class="fc" id="L430">        requestFactory.setConnectionRequestTimeout(timeout);</span>
+<span class="fc" id="L431">        requestFactory.setConnectTimeout(timeout);</span>
+<span class="fc" id="L432">        requestFactory.setReadTimeout(timeout);</span>
+<span class="fc" id="L433">        return requestFactory;</span>
     }
 
     public void tryOrThrow(Runnable runnable, String actionDescription) {
         try {
-<span class="fc" id="L426">            runnable.run();</span>
-<span class="fc" id="L427">        } catch (RestClientResponseException ex) {</span>
-<span class="fc" id="L428">            throw new KubernetesClientException(</span>
-<span class="fc" id="L429">                    String.format(&quot;An error occurred while %s: %d - %s&quot;,</span>
+<span class="fc" id="L438">            runnable.run();</span>
+<span class="fc" id="L439">        } catch (RestClientResponseException ex) {</span>
+<span class="fc" id="L440">            throw new KubernetesClientException(</span>
+<span class="fc" id="L441">                    String.format(&quot;An error occurred while %s: %d - %s&quot;,</span>
                             actionDescription,
-<span class="fc" id="L431">                            ex.getRawStatusCode(),</span>
-<span class="fc" id="L432">                            ex.getResponseBodyAsString()),</span>
+<span class="fc" id="L443">                            ex.getRawStatusCode(),</span>
+<span class="fc" id="L444">                            ex.getResponseBodyAsString()),</span>
                     ex);
-<span class="nc" id="L434">        } catch (Exception ex) {</span>
-<span class="nc" id="L435">            throw new KubernetesClientException(&quot;A generic error occurred while &quot; + actionDescription, ex);</span>
-<span class="fc" id="L436">        }</span>
-<span class="fc" id="L437">    }</span>
+<span class="nc" id="L446">        } catch (Exception ex) {</span>
+<span class="nc" id="L447">            throw new KubernetesClientException(&quot;A generic error occurred while &quot; + actionDescription, ex);</span>
+<span class="fc" id="L448">        }</span>
+<span class="fc" id="L449">    }</span>
 
     public &lt;T&gt; T tryOrThrow(Supplier&lt;T&gt; supplier) {
-<span class="fc" id="L440">        return tryOrThrow(supplier, &quot;talking with k8s-service&quot;);</span>
+<span class="fc" id="L452">        return tryOrThrow(supplier, &quot;talking with k8s-service&quot;);</span>
     }
 
 
     public &lt;T&gt; T tryOrThrow(Supplier&lt;T&gt; supplier, String action) {
         try {
-<span class="fc" id="L446">            return supplier.get();</span>
-<span class="fc" id="L447">        } catch (RestClientResponseException ex) {</span>
-<span class="fc" id="L448">            throw new KubernetesClientException(</span>
-<span class="fc" id="L449">                    String.format(&quot;An error occurred while %s: %d - %s&quot;,</span>
+<span class="fc" id="L458">            return supplier.get();</span>
+<span class="fc" id="L459">        } catch (RestClientResponseException ex) {</span>
+<span class="fc" id="L460">            throw new KubernetesClientException(</span>
+<span class="fc" id="L461">                    String.format(&quot;An error occurred while %s: %d - %s&quot;,</span>
                             action,
-<span class="fc" id="L451">                            ex.getRawStatusCode(),</span>
-<span class="fc" id="L452">                            ex.getResponseBodyAsString()),</span>
+<span class="fc" id="L463">                            ex.getRawStatusCode(),</span>
+<span class="fc" id="L464">                            ex.getResponseBodyAsString()),</span>
                     ex);
-<span class="nc" id="L454">        } catch (Exception ex) {</span>
-<span class="nc" id="L455">            throw new KubernetesClientException(&quot;A generic error occurred while &quot; + action, ex);</span>
+<span class="nc" id="L466">        } catch (Exception ex) {</span>
+<span class="nc" id="L467">            throw new KubernetesClientException(&quot;A generic error occurred while &quot; + action, ex);</span>
         }
     }
 
