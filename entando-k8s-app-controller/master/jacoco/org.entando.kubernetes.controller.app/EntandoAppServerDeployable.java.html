@@ -27,36 +27,26 @@ import org.entando.kubernetes.controller.spi.result.DatabaseServiceResult;
 import org.entando.kubernetes.model.app.EntandoApp;
 
 public class EntandoAppServerDeployable extends AbstractEntandoAppDeployable implements DbAwareDeployable&lt;EntandoAppDeploymentResult&gt; {
-
-    /**
-     * The operating system level id of the default user in the EAP and Wildfly base images. Was determined to be 185 running the 'id'
-     * command in the entando/entando-eap72-clusted-base image or entando/entando-wildfly17-base image
-     */
-    public static final long DEFAULT_USERID_IN_JBOSS_BASE_IMAGES = 185L;
     private final List&lt;DeployableContainer&gt; containers;
 
     public EntandoAppServerDeployable(EntandoApp entandoApp,
             KeycloakConnectionConfig keycloakConnectionConfig,
             DatabaseServiceResult databaseServiceResult) {
-<span class="fc" id="L41">        super(entandoApp, keycloakConnectionConfig);</span>
-<span class="fc" id="L42">        this.containers = Collections.singletonList(</span>
+<span class="fc" id="L35">        super(entandoApp, keycloakConnectionConfig);</span>
+<span class="fc" id="L36">        this.containers = Collections.singletonList(</span>
                 new EntandoAppDeployableContainer(entandoApp, keycloakConnectionConfig, databaseServiceResult)
         );
-<span class="fc" id="L45">    }</span>
+<span class="fc" id="L39">    }</span>
 
-    @Override
-    public Optional&lt;Long&gt; getFileSystemUserAndGroupId() {
-<span class="fc" id="L49">        return Optional.of(DEFAULT_USERID_IN_JBOSS_BASE_IMAGES);</span>
-    }
 
     @Override
     public List&lt;DeployableContainer&gt; getContainers() {
-<span class="fc" id="L54">        return containers;</span>
+<span class="fc" id="L44">        return containers;</span>
     }
 
     @Override
     public String getNameQualifier() {
-<span class="fc" id="L59">        return NameUtils.DEFAULT_SERVER_QUALIFIER;</span>
+<span class="fc" id="L49">        return NameUtils.DEFAULT_SERVER_QUALIFIER;</span>
     }
 
 }

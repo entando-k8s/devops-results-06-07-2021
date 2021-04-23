@@ -18,6 +18,7 @@ package org.entando.kubernetes.controller.app;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.entando.kubernetes.controller.spi.container.DeployableContainer;
 import org.entando.kubernetes.controller.spi.container.KeycloakConnectionConfig;
 import org.entando.kubernetes.controller.spi.deployable.DbAwareDeployable;
@@ -27,6 +28,7 @@ import org.entando.kubernetes.model.app.EntandoApp;
 
 public class ComponentManagerDeployable extends AbstractEntandoAppDeployable implements DbAwareDeployable&lt;EntandoAppDeploymentResult&gt; {
 
+    public static final long COMPONENT_MANAGER_CURRENT_USER = 185L;
     private final List&lt;DeployableContainer&gt; containers;
 
     public ComponentManagerDeployable(EntandoApp entandoApp,
@@ -34,21 +36,26 @@ public class ComponentManagerDeployable extends AbstractEntandoAppDeployable imp
             InfrastructureConfig infrastructureConfig,
             DatabaseServiceResult databaseServiceResult,
             EntandoAppDeploymentResult entandoAppDeployment) {
-<span class="fc" id="L37">        super(entandoApp, keycloakConnectionConfig);</span>
-<span class="fc" id="L38">        this.containers = Collections.singletonList(</span>
+<span class="fc" id="L39">        super(entandoApp, keycloakConnectionConfig);</span>
+<span class="fc" id="L40">        this.containers = Collections.singletonList(</span>
                 new ComponentManagerDeployableContainer(entandoApp, keycloakConnectionConfig, infrastructureConfig, entandoAppDeployment,
                         databaseServiceResult)
         );
-<span class="fc" id="L42">    }</span>
+<span class="fc" id="L44">    }</span>
+
+    @Override
+    public Optional&lt;Long&gt; getFileSystemUserAndGroupId() {
+<span class="fc" id="L48">        return Optional.of(COMPONENT_MANAGER_CURRENT_USER);</span>
+    }
 
     @Override
     public List&lt;DeployableContainer&gt; getContainers() {
-<span class="fc" id="L46">        return containers;</span>
+<span class="fc" id="L53">        return containers;</span>
     }
 
     @Override
     public String getNameQualifier() {
-<span class="fc" id="L51">        return &quot;cm&quot;;</span>
+<span class="fc" id="L58">        return &quot;cm&quot;;</span>
     }
 
 }
