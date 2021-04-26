@@ -68,29 +68,37 @@ public class EntandoBundleJobEntity implements TrackableJob, HasProgress {
     private String rollbackErrorMessage;
     @Column
     private String installPlan;
+    /**
+     * this field denotes if a bundle installation has been customized by the user.
+     * a bundle installation becomes custom when the bundle is not installed entirely (one or more components are
+     * skipped or overridden)
+     */
+    @Column
+    private Boolean customInstallation;
 
     @PrePersist
     public void generateId() {
-<span class="fc" id="L74">        this.id = UUID.randomUUID();</span>
-<span class="fc" id="L75">    }</span>
+<span class="fc" id="L81">        this.id = UUID.randomUUID();</span>
+<span class="fc" id="L82">    }</span>
 
     public EntandoBundleJobEntity clone() {
-<span class="nc" id="L78">        EntandoBundleJobEntity newEntity = new EntandoBundleJobEntity();</span>
-<span class="nc" id="L79">        newEntity.setId(this.id);</span>
-<span class="nc" id="L80">        newEntity.setProgress(this.progress);</span>
-<span class="nc" id="L81">        newEntity.setStatus(this.status);</span>
-<span class="nc" id="L82">        newEntity.setComponentName(this.componentName);</span>
-<span class="nc" id="L83">        newEntity.setComponentId(this.componentId);</span>
-<span class="nc" id="L84">        newEntity.setComponentVersion(this.componentVersion);</span>
-<span class="nc" id="L85">        newEntity.setInstallErrorCode(this.installErrorCode);</span>
-<span class="nc" id="L86">        newEntity.setInstallErrorMessage(this.installErrorMessage);</span>
-<span class="nc" id="L87">        newEntity.setRollbackErrorCode(this.rollbackErrorCode);</span>
-<span class="nc" id="L88">        newEntity.setRollbackErrorMessage(this.rollbackErrorMessage);</span>
-<span class="nc" id="L89">        newEntity.setStartedAt(this.startedAt);</span>
-<span class="nc" id="L90">        newEntity.setFinishedAt(this.finishedAt);</span>
-<span class="nc" id="L91">        newEntity.setUserId(this.userId);</span>
-<span class="nc" id="L92">        newEntity.setInstallPlan(this.installPlan);</span>
-<span class="nc" id="L93">        return newEntity;</span>
+<span class="nc" id="L85">        EntandoBundleJobEntity newEntity = new EntandoBundleJobEntity();</span>
+<span class="nc" id="L86">        newEntity.setId(this.id);</span>
+<span class="nc" id="L87">        newEntity.setProgress(this.progress);</span>
+<span class="nc" id="L88">        newEntity.setStatus(this.status);</span>
+<span class="nc" id="L89">        newEntity.setComponentName(this.componentName);</span>
+<span class="nc" id="L90">        newEntity.setComponentId(this.componentId);</span>
+<span class="nc" id="L91">        newEntity.setComponentVersion(this.componentVersion);</span>
+<span class="nc" id="L92">        newEntity.setInstallErrorCode(this.installErrorCode);</span>
+<span class="nc" id="L93">        newEntity.setInstallErrorMessage(this.installErrorMessage);</span>
+<span class="nc" id="L94">        newEntity.setRollbackErrorCode(this.rollbackErrorCode);</span>
+<span class="nc" id="L95">        newEntity.setRollbackErrorMessage(this.rollbackErrorMessage);</span>
+<span class="nc" id="L96">        newEntity.setStartedAt(this.startedAt);</span>
+<span class="nc" id="L97">        newEntity.setFinishedAt(this.finishedAt);</span>
+<span class="nc" id="L98">        newEntity.setUserId(this.userId);</span>
+<span class="nc" id="L99">        newEntity.setInstallPlan(this.installPlan);</span>
+<span class="nc" id="L100">        newEntity.setCustomInstallation(this.customInstallation);</span>
+<span class="nc" id="L101">        return newEntity;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

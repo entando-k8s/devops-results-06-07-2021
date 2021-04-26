@@ -31,16 +31,17 @@ public class EntandoBundle {
     private Set&lt;String&gt; componentTypes;
     private EntandoBundleJob installedJob;
     private EntandoBundleJob lastJob;
+    private Boolean customInstallation;
 
     @Default
     private List&lt;EntandoBundleVersion&gt; versions = new ArrayList&lt;&gt;();
 
     public boolean isInstalled() {
-<span class="pc bpc" id="L39" title="1 of 4 branches missed.">        return installedJob != null &amp;&amp; installedJob.getStatus() == JobStatus.INSTALL_COMPLETED;</span>
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">        return installedJob != null &amp;&amp; installedJob.getStatus() == JobStatus.INSTALL_COMPLETED;</span>
     }
 
     public Optional&lt;EntandoBundleVersion&gt; getLatestVersion() {
-<span class="fc" id="L43">        return this.versions.stream().max(Comparator.comparing(EntandoBundleVersion::getSemVersion));</span>
+<span class="fc" id="L44">        return this.versions.stream().max(Comparator.comparing(EntandoBundleVersion::getSemVersion));</span>
     }
 
 }
