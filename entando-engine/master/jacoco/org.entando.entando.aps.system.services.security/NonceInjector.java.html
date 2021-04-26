@@ -8,7 +8,7 @@ public class NonceInjector {
     private static final String NONCE_INJECTION = &quot;nonce=\&quot;&lt;@wp.cspNonce /&gt;\&quot;&quot;;
 <span class="fc" id="L9">    private static final Pattern LIB_REGEX = Pattern.compile(</span>
             &quot;&lt;#assign[\\t\\r\\n\\s]+wp=JspTaglibs\\[[\\t\\r\\n\\s]*\&quot;\\/aps-core\&quot;[\\t\\r\\n\\s]*\\]&gt;[.\\t\\r\\n\\s]*&quot;);
-<span class="fc" id="L11">    private static final Pattern SCRIPT_REGEX = Pattern.compile(</span>
+<span class="fc" id="L11">    private static final Pattern SCRIPT_REGEX = Pattern.compile( // NOSONAR (added {0,8} to reduce risk of &quot;catastrophic backtracking&quot; situations)</span>
             &quot;(&lt;script)(?:[\\t\\r\\n\\s]+([^\&quot;=]*)=\&quot;([^\&quot;]*)\&quot;[\\t\\r\\n\\s]*){0,8}([^&gt;]*&gt;)&quot;);
 
     private NonceInjector() {
