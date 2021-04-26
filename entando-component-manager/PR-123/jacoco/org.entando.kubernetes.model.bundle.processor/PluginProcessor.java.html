@@ -154,7 +154,7 @@ public class PluginProcessor extends BaseComponentProcessor&lt;PluginDescriptor&
     private PluginDescriptor ensurePluginDescriptorVersionIsSet(PluginDescriptor descriptor) {
 <span class="fc bfc" id="L155" title="All 2 branches covered.">        if (StringUtils.isEmpty(descriptor.getDescriptorVersion())) {</span>
 <span class="fc" id="L156">            Integer intVersion = BundleUtilities.getPluginDescriptorIntegerVersion(descriptor);</span>
-<span class="fc" id="L157">            descriptor.setDescriptorVersion(&quot;v&quot; + intVersion);</span>
+<span class="fc" id="L157">            descriptor.setDescriptorVersion(BundleUtilities.composePluginDescriptorVersion(intVersion));</span>
         }
 
 <span class="fc" id="L160">        return descriptor;</span>
@@ -165,7 +165,7 @@ public class PluginProcessor extends BaseComponentProcessor&lt;PluginDescriptor&
         // validate version
 <span class="fc" id="L166">        Matcher matcher = Pattern.compile(BundleUtilities.PLUGIN_DESCRIPTOR_VERSION_REGEXP).matcher(descriptor.getDescriptorVersion());</span>
 <span class="fc bfc" id="L167" title="All 2 branches covered.">        if (!matcher.matches()) {</span>
-<span class="fc" id="L168">            throw new InvalidBundleException(VERSION_NOT_VALID);</span>
+<span class="fc" id="L168">            throw new InvalidBundleException(String.format(VERSION_NOT_VALID, descriptor.getComponentKey()));</span>
         }
 
         // validate securityLevel property
@@ -182,6 +182,7 @@ public class PluginProcessor extends BaseComponentProcessor&lt;PluginDescriptor&
         }
 <span class="fc" id="L183">    }</span>
 
+
     public static final String DEPRECATED_DESCRIPTOR = &quot;The descriptor for plugin with docker image &quot;
             + &quot;'{}' uses a deprecated format. To have full control over plugins we encourage you to migrate &quot;
             + &quot;to the new plugin descriptor format.&quot;;
@@ -193,11 +194,11 @@ public class PluginProcessor extends BaseComponentProcessor&lt;PluginDescriptor&
     public static final String DEPLOYMENT_BASE_NAME_MAX_LENGHT_TRUNCATED_V2 =
             &quot;The prefix of the pod using the docker image &quot;
                     + &quot;'{}' is longer than {}. Plugin pods names will be truncated to '{}'&quot;;
-<span class="fc" id="L196">    public static final String SECURITY_LEVEL_NOT_RECOGNIZED =</span>
+<span class="fc" id="L197">    public static final String SECURITY_LEVEL_NOT_RECOGNIZED =</span>
             &quot;The received plugin descriptor contains an unknown securityLevel. Accepted values are: &quot;
-<span class="fc" id="L198">                    + Arrays.stream(PluginSecurityLevel.values()).map(PluginSecurityLevel::toName)</span>
-<span class="fc" id="L199">                    .collect(Collectors.joining(&quot;, &quot;));</span>
+<span class="fc" id="L199">                    + Arrays.stream(PluginSecurityLevel.values()).map(PluginSecurityLevel::toName)</span>
+<span class="fc" id="L200">                    .collect(Collectors.joining(&quot;, &quot;));</span>
     public static final String VERSION_NOT_VALID =
-            &quot;The received plugin descriptor contains an invalid version. Version must respect the format 'v\\d+' (e.g. v3, v5, etc.)&quot;;
+            &quot;The plugin %s descriptor contains an invalid descriptorVersion&quot;;
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
