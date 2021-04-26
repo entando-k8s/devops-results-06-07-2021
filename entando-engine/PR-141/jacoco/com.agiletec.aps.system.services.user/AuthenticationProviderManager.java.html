@@ -123,7 +123,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 <span class="pc bpc" id="L123" title="1 of 2 branches missed.">            if (null == authentication</span>
 <span class="fc bfc" id="L124" title="All 2 branches covered.">                    || null == authentication.getPrincipal()</span>
 <span class="pc bpc" id="L125" title="1 of 2 branches missed.">                    || null == authentication.getCredentials()) {</span>
-<span class="fc" id="L126">                throw new UsernameNotFoundException(&quot;Invalid principal and/or credentials&quot;);</span>
+<span class="fc" id="L126">                throw new UsernameNotFoundException(&quot;Bad credentials&quot;);</span>
             }
 <span class="fc" id="L128">            UserDetails user = this.extractUser(authentication.getPrincipal().toString(),</span>
 <span class="fc" id="L129">                    authentication.getCredentials().toString(), false);</span>
@@ -133,7 +133,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 <span class="fc" id="L133">                                authentication.getCredentials(), user.getAuthorizations());</span>
 <span class="fc" id="L134">                return newAuth;</span>
             } else {
-<span class="fc" id="L136">                throw new UsernameNotFoundException(&quot;Invalid username/password&quot;);</span>
+<span class="fc" id="L136">                throw new UsernameNotFoundException(&quot;Bad credentials&quot;);</span>
             }
 <span class="fc" id="L138">        } catch (AuthenticationException e) {</span>
 <span class="fc" id="L139">            throw e;</span>
