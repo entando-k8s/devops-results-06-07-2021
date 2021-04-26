@@ -165,22 +165,24 @@ public class PluginProcessor extends BaseComponentProcessor&lt;PluginDescriptor&
         // validate version
 <span class="fc" id="L166">        Matcher matcher = Pattern.compile(BundleUtilities.PLUGIN_DESCRIPTOR_VERSION_REGEXP).matcher(descriptor.getDescriptorVersion());</span>
 <span class="fc bfc" id="L167" title="All 2 branches covered.">        if (!matcher.matches()) {</span>
-<span class="fc" id="L168">            throw new InvalidBundleException(String.format(VERSION_NOT_VALID, descriptor.getComponentKey()));</span>
+<span class="fc" id="L168">            String error = String.format(VERSION_NOT_VALID, descriptor.getComponentKey());</span>
+<span class="fc" id="L169">            log.error(error);</span>
+<span class="fc" id="L170">            throw new InvalidBundleException(error);</span>
         }
 
         // validate securityLevel property
-<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (!StringUtils.isEmpty(descriptor.getSecurityLevel())</span>
-<span class="pc bpc" id="L173" title="1 of 4 branches missed.">                || (descriptor.isVersion1() &amp;&amp; !StringUtils.isEmpty(descriptor.getSpec().getSecurityLevel()))) {</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (!StringUtils.isEmpty(descriptor.getSecurityLevel())</span>
+<span class="pc bpc" id="L175" title="1 of 4 branches missed.">                || (descriptor.isVersion1() &amp;&amp; !StringUtils.isEmpty(descriptor.getSpec().getSecurityLevel()))) {</span>
 
             String securityLevel =
-<span class="fc bfc" id="L176" title="All 2 branches covered.">                    descriptor.isVersion1() ? descriptor.getSpec().getSecurityLevel() : descriptor.getSecurityLevel();</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">                    descriptor.isVersion1() ? descriptor.getSpec().getSecurityLevel() : descriptor.getSecurityLevel();</span>
 
-<span class="fc" id="L178">            Arrays.stream(PluginSecurityLevel.values())</span>
-<span class="fc" id="L179">                    .filter(pluginSecurityLevel -&gt; pluginSecurityLevel.toName().equals(securityLevel))</span>
-<span class="fc" id="L180">                    .findFirst()</span>
-<span class="fc" id="L181">                    .orElseThrow(() -&gt; new InvalidBundleException(SECURITY_LEVEL_NOT_RECOGNIZED)); // NOSONAR</span>
+<span class="fc" id="L180">            Arrays.stream(PluginSecurityLevel.values())</span>
+<span class="fc" id="L181">                    .filter(pluginSecurityLevel -&gt; pluginSecurityLevel.toName().equals(securityLevel))</span>
+<span class="fc" id="L182">                    .findFirst()</span>
+<span class="fc" id="L183">                    .orElseThrow(() -&gt; new InvalidBundleException(SECURITY_LEVEL_NOT_RECOGNIZED)); // NOSONAR</span>
         }
-<span class="fc" id="L183">    }</span>
+<span class="fc" id="L185">    }</span>
 
 
     public static final String DEPRECATED_DESCRIPTOR = &quot;The descriptor for plugin with docker image &quot;
@@ -194,10 +196,10 @@ public class PluginProcessor extends BaseComponentProcessor&lt;PluginDescriptor&
     public static final String DEPLOYMENT_BASE_NAME_MAX_LENGHT_TRUNCATED_V2 =
             &quot;The prefix of the pod using the docker image &quot;
                     + &quot;'{}' is longer than {}. Plugin pods names will be truncated to '{}'&quot;;
-<span class="fc" id="L197">    public static final String SECURITY_LEVEL_NOT_RECOGNIZED =</span>
+<span class="fc" id="L199">    public static final String SECURITY_LEVEL_NOT_RECOGNIZED =</span>
             &quot;The received plugin descriptor contains an unknown securityLevel. Accepted values are: &quot;
-<span class="fc" id="L199">                    + Arrays.stream(PluginSecurityLevel.values()).map(PluginSecurityLevel::toName)</span>
-<span class="fc" id="L200">                    .collect(Collectors.joining(&quot;, &quot;));</span>
+<span class="fc" id="L201">                    + Arrays.stream(PluginSecurityLevel.values()).map(PluginSecurityLevel::toName)</span>
+<span class="fc" id="L202">                    .collect(Collectors.joining(&quot;, &quot;));</span>
     public static final String VERSION_NOT_VALID =
             &quot;The plugin %s descriptor contains an invalid descriptorVersion&quot;;
 }
