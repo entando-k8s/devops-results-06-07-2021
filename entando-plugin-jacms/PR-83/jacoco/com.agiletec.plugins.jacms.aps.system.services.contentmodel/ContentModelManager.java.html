@@ -242,7 +242,7 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 
 <span class="fc" id="L243">                ContentModelReference reference = null;</span>
 
-<span class="pc bpc" id="L245" title="1 of 4 branches missed.">                switch (widget.getType().getCode()) {</span>
+<span class="fc bfc" id="L245" title="All 4 branches covered.">                switch (widget.getType().getCode()) {</span>
                     case &quot;content_viewer&quot;:
                     case &quot;jpseo_content_viewer&quot;:
 <span class="fc" id="L248">                        reference = getSingleContentWidgetReference(modelId, widget, includeDefaultTemplateReferences);</span>
@@ -251,7 +251,7 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="fc" id="L251">                        reference = getContentListWidgetReference(modelId, widget, includeDefaultTemplateReferences);</span>
 <span class="fc" id="L252">                        break;</span>
                     case &quot;row_content_viewer_list&quot;:
-<span class="nc" id="L254">                        reference = getMultipleContentsWidgetReference(modelId, widget, includeDefaultTemplateReferences);</span>
+<span class="fc" id="L254">                        reference = getMultipleContentsWidgetReference(modelId, widget, includeDefaultTemplateReferences);</span>
                         break;
                 }
 
@@ -299,22 +299,22 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="fc" id="L299">        String contentType = widget.getConfig().getProperty(&quot;contentType&quot;);</span>
 <span class="fc bfc" id="L300" title="All 2 branches covered.">        if (includeDefaultTemplateReferences) {</span>
 <span class="fc" id="L301">            final Content entityPrototype = (Content) contentManager.getEntityPrototype(contentType);</span>
-<span class="pc bpc" id="L302" title="1 of 2 branches missed.">            if (null!=entityPrototype) {</span>
-<span class="nc bnc" id="L303" title="All 4 branches missed.">                if ((null == id) || (id.equals(&quot;default&quot;))) {</span>
-<span class="nc" id="L304">                    id = entityPrototype.getListModel();</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">            if (null!=entityPrototype) {</span>
+<span class="pc bpc" id="L303" title="3 of 4 branches missed.">                if ((null == id) || (id.equals(&quot;default&quot;))) {</span>
+<span class="fc" id="L304">                    id = entityPrototype.getListModel();</span>
                 }
             }
         }
 
-<span class="pc bpc" id="L309" title="1 of 2 branches missed.">        if (String.valueOf(modelId).equals(id)) {</span>
-<span class="nc" id="L310">            ContentModelReference reference = new ContentModelReference();</span>
+<span class="fc bfc" id="L309" title="All 2 branches covered.">        if (String.valueOf(modelId).equals(id)) {</span>
+<span class="fc" id="L310">            ContentModelReference reference = new ContentModelReference();</span>
             try {
-<span class="nc" id="L312">                List&lt;String&gt; ids = contentManager.searchId(contentType, null);</span>
-<span class="nc" id="L313">                reference.setContentsId(ids);</span>
+<span class="fc" id="L312">                List&lt;String&gt; ids = contentManager.searchId(contentType, null);</span>
+<span class="fc" id="L313">                reference.setContentsId(ids);</span>
 <span class="nc" id="L314">            } catch (EntException e) {</span>
 <span class="nc" id="L315">                throw new RuntimeException(e);</span>
-<span class="nc" id="L316">            }</span>
-<span class="nc" id="L317">            return reference;</span>
+<span class="fc" id="L316">            }</span>
+<span class="fc" id="L317">            return reference;</span>
         }
 <span class="fc" id="L319">        return null;</span>
     }
@@ -325,30 +325,30 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
      * null otherwise.
      */
     private ContentModelReference getMultipleContentsWidgetReference(Long modelId, Widget widget, boolean includeDefaultTemplateReferences) {
-<span class="nc" id="L328">        String contents = widget.getConfig().getProperty(&quot;contents&quot;);</span>
-<span class="nc" id="L329">        List&lt;Properties&gt; contentsProperties = RowContentListHelper.fromParameterToContents(contents);</span>
+<span class="fc" id="L328">        String contents = widget.getConfig().getProperty(&quot;contents&quot;);</span>
+<span class="fc" id="L329">        List&lt;Properties&gt; contentsProperties = RowContentListHelper.fromParameterToContents(contents);</span>
 
-<span class="nc" id="L331">        List&lt;String&gt; contentsId = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L332" title="All 2 branches missed.">        for (Properties properties : contentsProperties) {</span>
-<span class="nc" id="L333">            String contentId = properties.getProperty(&quot;contentId&quot;);</span>
-<span class="nc" id="L334">            String id = properties.getProperty(&quot;modelId&quot;);</span>
+<span class="fc" id="L331">        List&lt;String&gt; contentsId = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L332" title="All 2 branches covered.">        for (Properties properties : contentsProperties) {</span>
+<span class="fc" id="L333">            String contentId = properties.getProperty(&quot;contentId&quot;);</span>
+<span class="fc" id="L334">            String id = properties.getProperty(&quot;modelId&quot;);</span>
 
-<span class="nc bnc" id="L336" title="All 2 branches missed.">            if (includeDefaultTemplateReferences) {</span>
-<span class="nc bnc" id="L337" title="All 4 branches missed.">                if ((null == id) || (id.equals(&quot;default&quot;))) {</span>
-<span class="nc" id="L338">                    id = contentManager.getListModel(contentId);</span>
+<span class="fc bfc" id="L336" title="All 2 branches covered.">            if (includeDefaultTemplateReferences) {</span>
+<span class="pc bpc" id="L337" title="3 of 4 branches missed.">                if ((null == id) || (id.equals(&quot;default&quot;))) {</span>
+<span class="fc" id="L338">                    id = contentManager.getListModel(contentId);</span>
                 }
             }
-<span class="nc bnc" id="L341" title="All 2 branches missed.">            if (String.valueOf(modelId).equals(id)) {</span>
-<span class="nc" id="L342">                contentsId.add(contentId);</span>
+<span class="fc bfc" id="L341" title="All 2 branches covered.">            if (String.valueOf(modelId).equals(id)) {</span>
+<span class="fc" id="L342">                contentsId.add(contentId);</span>
             }
-<span class="nc" id="L344">        }</span>
+<span class="fc" id="L344">        }</span>
 
-<span class="nc bnc" id="L346" title="All 2 branches missed.">        if (!contentsId.isEmpty()) {</span>
-<span class="nc" id="L347">            ContentModelReference reference = new ContentModelReference();</span>
-<span class="nc" id="L348">            reference.setContentsId(contentsId);</span>
-<span class="nc" id="L349">            return reference;</span>
+<span class="fc bfc" id="L346" title="All 2 branches covered.">        if (!contentsId.isEmpty()) {</span>
+<span class="fc" id="L347">            ContentModelReference reference = new ContentModelReference();</span>
+<span class="fc" id="L348">            reference.setContentsId(contentsId);</span>
+<span class="fc" id="L349">            return reference;</span>
         }
-<span class="nc" id="L351">        return null;</span>
+<span class="fc" id="L351">        return null;</span>
     }
 
     /**

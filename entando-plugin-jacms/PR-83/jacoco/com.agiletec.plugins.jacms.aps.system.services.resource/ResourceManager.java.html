@@ -113,7 +113,7 @@ import java.util.*;
 
     @Override
     public int getStatus() {
-<span class="nc" id="L116">        return this.getCacheWrapper().getStatus();</span>
+<span class="fc" id="L116">        return this.getCacheWrapper().getStatus();</span>
     }
 
     protected void setStatus(int status) {
@@ -228,16 +228,16 @@ import java.util.*;
     @Override
     public void addResource(ResourceInterface resource) throws EntException {
         try {
-<span class="nc" id="L231">            this.generateAndSetResourceId(resource, resource.getId());</span>
-<span class="nc" id="L232">            this.getResourceDAO().addResource(resource);</span>
+<span class="fc" id="L231">            this.generateAndSetResourceId(resource, resource.getId());</span>
+<span class="fc" id="L232">            this.getResourceDAO().addResource(resource);</span>
 <span class="nc" id="L233">        } catch (Throwable t) {</span>
 <span class="nc" id="L234">            logger.error(&quot;Error adding resource&quot;, t);</span>
 <span class="nc" id="L235">            throw new EntException(&quot;Error adding resource&quot;, t);</span>
-<span class="nc" id="L236">        }</span>
-<span class="nc" id="L237">    }</span>
+<span class="fc" id="L236">        }</span>
+<span class="fc" id="L237">    }</span>
 
     protected void generateAndSetResourceId(ResourceInterface resource, String id) throws EntException {
-<span class="pc bpc" id="L240" title="3 of 4 branches missed.">        if (null == id || id.trim().length() == 0) {</span>
+<span class="pc bpc" id="L240" title="1 of 4 branches missed.">        if (null == id || id.trim().length() == 0) {</span>
 <span class="fc" id="L241">            IKeyGeneratorManager keyGenerator</span>
 <span class="fc" id="L242">                    = (IKeyGeneratorManager) this.getBeanFactory().getBean(SystemConstants.KEY_GENERATOR_MANAGER);</span>
 <span class="fc" id="L243">            int newId = keyGenerator.getUniqueKeyCurrentValue();</span>
@@ -361,22 +361,22 @@ import java.util.*;
     @Override
     public List&lt;String&gt; searchResourcesId(FieldSearchFilter[] filters, String categoryCode,
             Collection&lt;String&gt; groupCodes) throws EntException {
-<span class="nc bnc" id="L364" title="All 2 branches missed.">        List&lt;String&gt; categories = (StringUtils.isBlank(categoryCode)) ? null : Arrays.asList(categoryCode);</span>
-<span class="nc" id="L365">        return this.searchResourcesId(filters, categories, groupCodes);</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">        List&lt;String&gt; categories = (StringUtils.isBlank(categoryCode)) ? null : Arrays.asList(categoryCode);</span>
+<span class="fc" id="L365">        return this.searchResourcesId(filters, categories, groupCodes);</span>
     }
 
     @Override
     public List&lt;String&gt; searchResourcesId(FieldSearchFilter[] filters, List&lt;String&gt; categories,
             Collection&lt;String&gt; groupCodes) throws EntException {
-<span class="nc" id="L371">        this.checkFilterKeys(filters);</span>
-<span class="nc" id="L372">        List&lt;String&gt; resourcesId = null;</span>
+<span class="fc" id="L371">        this.checkFilterKeys(filters);</span>
+<span class="fc" id="L372">        List&lt;String&gt; resourcesId = null;</span>
         try {
-<span class="nc" id="L374">            resourcesId = this.getResourceDAO().searchResourcesId(filters, categories, groupCodes);</span>
+<span class="fc" id="L374">            resourcesId = this.getResourceDAO().searchResourcesId(filters, categories, groupCodes);</span>
 <span class="nc" id="L375">        } catch (Throwable t) {</span>
 <span class="nc" id="L376">            logger.error(&quot;Error searching resources id&quot;, t);</span>
 <span class="nc" id="L377">            throw new EntException(&quot;Error searching resources id&quot;, t);</span>
-<span class="nc" id="L378">        }</span>
-<span class="nc" id="L379">        return resourcesId;</span>
+<span class="fc" id="L378">        }</span>
+<span class="fc" id="L379">        return resourcesId;</span>
     }
 
     @Override

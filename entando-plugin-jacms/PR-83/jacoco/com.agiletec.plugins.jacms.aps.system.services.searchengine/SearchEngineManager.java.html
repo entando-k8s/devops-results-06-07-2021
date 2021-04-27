@@ -106,8 +106,8 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="fc" id="L106">                    this.updateIndexedEntity(content);</span>
                     break;
             }
-<span class="nc" id="L109">        } catch (Throwable t) {</span>
-<span class="nc" id="L110">            logger.error(&quot;Error on event notification&quot;, t);</span>
+<span class="fc" id="L109">        } catch (Throwable t) {</span>
+<span class="fc" id="L110">            logger.error(&quot;Error on event notification&quot;, t);</span>
 <span class="fc" id="L111">        }</span>
 <span class="fc" id="L112">    }</span>
 
@@ -188,9 +188,9 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
     public void addEntityToIndex(IApsEntity entity) throws EntException {
         try {
 <span class="fc" id="L190">            this.getIndexerDao().add(entity);</span>
-<span class="nc" id="L191">        } catch (EntException e) {</span>
-<span class="nc" id="L192">            logger.error(&quot;Error saving content to index&quot;, e);</span>
-<span class="nc" id="L193">            throw e;</span>
+<span class="fc" id="L191">        } catch (EntException e) {</span>
+<span class="fc" id="L192">            logger.error(&quot;Error saving content to index&quot;, e);</span>
+<span class="fc" id="L193">            throw e;</span>
 <span class="fc" id="L194">        }</span>
 <span class="fc" id="L195">    }</span>
 
@@ -198,9 +198,9 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
     public void deleteIndexedEntity(String entityId) throws EntException {
         try {
 <span class="fc" id="L200">            this.getIndexerDao().delete(IIndexerDAO.CONTENT_ID_FIELD_NAME, entityId);</span>
-<span class="nc" id="L201">        } catch (EntException e) {</span>
-<span class="nc" id="L202">            logger.error(&quot;Error deleting content {} from index&quot;, entityId, e);</span>
-<span class="nc" id="L203">            throw e;</span>
+<span class="fc" id="L201">        } catch (EntException e) {</span>
+<span class="fc" id="L202">            logger.error(&quot;Error deleting content {} from index&quot;, entityId, e);</span>
+<span class="fc" id="L203">            throw e;</span>
 <span class="fc" id="L204">        }</span>
 <span class="fc" id="L205">    }</span>
 
@@ -252,9 +252,9 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="fc" id="L252">        List&lt;String&gt; contentsId = null;</span>
         try {
 <span class="fc" id="L254">            contentsId = this.getSearcherDao().searchContentsId(filters, this.extractCategoryFilters(categories), allowedGroups);</span>
-<span class="nc" id="L255">        } catch (Throwable t) {</span>
-<span class="nc" id="L256">            logger.error(&quot;Error searching content id list. &quot;, t);</span>
-<span class="nc" id="L257">            throw new EntException(&quot;Error searching content id list&quot;, t);</span>
+<span class="fc" id="L255">        } catch (Throwable t) {</span>
+<span class="fc" id="L256">            logger.error(&quot;Error searching content id list. &quot;, t);</span>
+<span class="fc" id="L257">            throw new EntException(&quot;Error searching content id list&quot;, t);</span>
 <span class="fc" id="L258">        }</span>
 <span class="fc" id="L259">        return contentsId;</span>
     }
@@ -318,18 +318,18 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
         try {
 <span class="fc" id="L319">            this.deleteIndexedEntity(entity.getId());</span>
 <span class="fc" id="L320">            this.addEntityToIndex(entity);</span>
-<span class="nc" id="L321">        } catch (EntException e) {</span>
-<span class="nc" id="L322">            logger.error(&quot;Error updating content&quot;, e);</span>
-<span class="nc" id="L323">            throw e;</span>
+<span class="fc" id="L321">        } catch (EntException e) {</span>
+<span class="fc" id="L322">            logger.error(&quot;Error updating content&quot;, e);</span>
+<span class="fc" id="L323">            throw e;</span>
 <span class="fc" id="L324">        }</span>
 <span class="fc" id="L325">    }</span>
 
     private void checkUpgradeDao() {
         try {
-<span class="pc bpc" id="L329" title="1 of 2 branches missed.">            if (!this.getFactory().checkCurrentSubfolder()) {</span>
-<span class="nc" id="L330">                logger.warn(&quot;Upgrading Search Engine DAOs&quot;);</span>
-<span class="nc" id="L331">                this.getFactory().init();</span>
-<span class="nc" id="L332">                this.init();</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">            if (!this.getFactory().checkCurrentSubfolder()) {</span>
+<span class="fc" id="L330">                logger.warn(&quot;Upgrading Search Engine DAOs&quot;);</span>
+<span class="fc" id="L331">                this.getFactory().init();</span>
+<span class="fc" id="L332">                this.init();</span>
             }
 <span class="nc" id="L334">        } catch (Exception e) {</span>
 <span class="nc" id="L335">            logger.error(&quot;Error upgrading DAOs&quot;, e);</span>
