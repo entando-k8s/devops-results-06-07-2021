@@ -152,21 +152,21 @@ import org.springframework.validation.Errors;
     }
     
     @RestAccessControl(permission = Permission.ENTER_BACKEND)
-    @RequestMapping(value = &quot;/status&quot;, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = &quot;/status&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;ContentsStatusDto&gt;&gt; getContentsStatus() {
 <span class="fc" id="L157">        logger.debug(&quot;Requested contents status&quot;);</span>
 <span class="fc" id="L158">        ContentsStatusDto dto = this.getContentService().getContentsStatus();</span>
 <span class="fc" id="L159">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(dto), HttpStatus.OK);</span>
     }
     
-    @RequestMapping(value = &quot;/{code}&quot;, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = &quot;/{code}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;ContentDto&gt;&gt; getContent(@PathVariable String code,
             @RequestParam(name = &quot;status&quot;, required = false, defaultValue = IContentService.STATUS_DRAFT) String status,
             @RequestParam(name = &quot;lang&quot;, required = false) String lang) {
 <span class="fc" id="L166">        return this.getContent(code, null, status, false, lang);</span>
     }
 
-    @RequestMapping(value = &quot;/{code}/model/{modelId}&quot;, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = &quot;/{code}/model/{modelId}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;ContentDto&gt;&gt; getContent(@PathVariable String code, @PathVariable String modelId,
             @RequestParam(name = &quot;status&quot;, required = false, defaultValue = IContentService.STATUS_DRAFT) String status,
             @RequestParam(name = &quot;resolveLinks&quot;, required = false, defaultValue = &quot;false&quot;) boolean resolveLinks,
@@ -183,7 +183,7 @@ import org.springframework.validation.Errors;
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
-    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;List&lt;ContentDto&gt;&gt;&gt; addContent(@Valid @RequestBody List&lt;ContentDto&gt; bodyRequest, BindingResult bindingResult) {
 <span class="fc" id="L188">        logger.debug(&quot;Add new content -&gt; {}&quot;, bodyRequest);</span>
 <span class="pc bpc" id="L189" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
@@ -208,7 +208,7 @@ import org.springframework.validation.Errors;
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
-    @RequestMapping(value = &quot;/{code}&quot;, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = &quot;/{code}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;ContentDto&gt;&gt; updateContent(@PathVariable String code,
                                                                         @Valid @RequestBody ContentDto bodyRequest, BindingResult bindingResult) {
 <span class="fc" id="L214">        logger.debug(&quot;Update content -&gt; {}&quot;, bodyRequest);</span>
@@ -224,7 +224,7 @@ import org.springframework.validation.Errors;
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
-    @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;List&lt;ContentDto&gt;&gt;&gt; updateContents(
             @Valid @RequestBody List&lt;ContentDto&gt; bodyRequest, BindingResult bindingResult) {
 <span class="fc" id="L230">        logger.debug(&quot;Update content -&gt; {}&quot;, bodyRequest);</span>
@@ -247,7 +247,7 @@ import org.springframework.validation.Errors;
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
-    @RequestMapping(value = &quot;/{code}/status&quot;, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = &quot;/{code}/status&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;RestResponse&lt;ContentDto, Map&lt;String, String&gt;&gt;&gt; updateContentStatus(@PathVariable String code,
             @Valid @RequestBody ContentStatusRequest contentStatusRequest, BindingResult bindingResult) {
 <span class="fc" id="L253">        logger.debug(&quot;changing status for content {} with request {}&quot;, code, contentStatusRequest);</span>
@@ -262,7 +262,7 @@ import org.springframework.validation.Errors;
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
-    @RequestMapping(value = &quot;/status&quot;, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = &quot;/status&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;RestResponse&lt;List&lt;ContentDto&gt;, Map&lt;String, String&gt;&gt;&gt; updateContentsStatus(
             @Valid @RequestBody BatchContentStatusRequest batchContentStatusRequest, BindingResult bindingResult) {
 <span class="fc" id="L268">        logger.debug(&quot;changing status for contents with request {}&quot;, batchContentStatusRequest);</span>
@@ -280,7 +280,7 @@ import org.springframework.validation.Errors;
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
-    @RequestMapping(value = &quot;/{code}&quot;, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = &quot;/{code}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;?&gt;&gt; deleteContent(@PathVariable String code) {
 <span class="nc" id="L285">        logger.debug(&quot;Deleting content -&gt; {}&quot;, code);</span>
 <span class="nc" id="L286">        DataBinder binder = new DataBinder(code);</span>
@@ -296,7 +296,7 @@ import org.springframework.validation.Errors;
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
-    @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;?&gt;&gt; deleteContents(@RequestBody List&lt;String&gt; codes) {
 <span class="fc" id="L301">        logger.debug(&quot;Deleting contents -&gt; {}&quot;, codes);</span>
 
