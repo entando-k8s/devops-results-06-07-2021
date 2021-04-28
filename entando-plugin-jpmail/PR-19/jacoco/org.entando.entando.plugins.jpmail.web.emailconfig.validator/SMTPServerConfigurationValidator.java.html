@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SMTPServerConfigurationValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: Email Sender</a> &gt; <a href="index.source.html" class="el_package">org.entando.entando.plugins.jpmail.web.emailconfig.validator</a> &gt; <span class="el_source">SMTPServerConfigurationValidator.java</span></div><h1>SMTPServerConfigurationValidator.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package org.entando.entando.plugins.jpmail.web.emailconfig.validator;
+
+import com.agiletec.aps.system.services.user.UserDetails;
+import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
+import org.entando.entando.aps.system.services.userprofile.UserProfileManager;
+import org.entando.entando.aps.system.services.userprofile.model.UserProfile;
+import org.entando.entando.ent.exception.EntException;
+import org.entando.entando.ent.exception.EntRuntimeException;
+import org.entando.entando.plugins.jpmail.ent.system.services.SMTPServerConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@Component
+<span class="fc" id="L32">public class SMTPServerConfigurationValidator {</span>
+
+    public static final String ERRCODE_INVALID_PROTOCOL = &quot;1&quot;;
+    private static final String ERRCODE_INVALID_EMAIL = &quot;2&quot;;
+    private static final String ERRCODE_EMPTY_SENDER_LIST = &quot;3&quot;;
+    private static final String ERRCODE_READING_CONFIG = &quot;4&quot;;
+    private static final String ERRCODE_READING_USER_PROFILE = &quot;5&quot;;
+
+    @Autowired
+    private SMTPServerConfigurationService smtpServerConfigurationService;
+
+    @Autowired
+    private UserProfileManager userProfileManager;
+
+    @Autowired
+    private IMailManager emailSenderManager;
+
+    public void validateProtocol(final String protocol, Errors errors) {
+<span class="fc" id="L50">        List&lt;String&gt; validProtocols = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L51">        validProtocols.add(&quot;TLS&quot;);</span>
+<span class="fc" id="L52">        validProtocols.add(&quot;SSL&quot;);</span>
+<span class="fc" id="L53">        validProtocols.add(&quot;STD&quot;);</span>
+<span class="pc bpc" id="L54" title="1 of 4 branches missed.">        if ((null == protocol) || (!validProtocols.contains(protocol))) {</span>
+<span class="fc" id="L55">            errors.reject(ERRCODE_INVALID_PROTOCOL, new Object[0], &quot;error.smtpServerConfig.protocol.invalid&quot;);</span>
+        }
+<span class="fc" id="L57">    }</span>
+
+    public void validateUserEmail(UserDetails user, Errors errors) {
+<span class="fc" id="L60">        UserProfile userProfile = null;</span>
+        try {
+<span class="fc" id="L62">            userProfile = (UserProfile) userProfileManager.getProfile(user.getUsername());</span>
+
+<span class="nc" id="L64">        } catch (EntException | EntRuntimeException e) {</span>
+<span class="nc" id="L65">            errors.reject(ERRCODE_READING_USER_PROFILE, new Object[0], &quot;error.smtpServerConfig.readingProfile&quot;);</span>
+<span class="fc" id="L66">        }</span>
+
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (!smtpServerConfigurationService.hasEmailCurrentUser(userProfile)) {</span>
+<span class="fc" id="L69">            errors.reject(ERRCODE_INVALID_EMAIL, new Object[0], &quot;error.smtpServerConfig.invalidEmail&quot;);</span>
+        }
+<span class="fc" id="L71">    }</span>
+
+    public void validateSenderList(Errors errors) {
+        try {
+<span class="fc" id="L75">            Map&lt;String, String&gt; senders = emailSenderManager.getMailConfig().getSenders();</span>
+
+<span class="pc bpc" id="L77" title="1 of 4 branches missed.">            if ((senders==null) || (senders.size()==0)){</span>
+<span class="fc" id="L78">                errors.reject(ERRCODE_EMPTY_SENDER_LIST, new Object[0], &quot;error.smtpServerConfig.emptySenderList&quot;);</span>
+            }
+<span class="nc" id="L80">        } catch (EntException e) {</span>
+<span class="nc" id="L81">            errors.reject(ERRCODE_READING_CONFIG, new Object[0], &quot;error.smtpServerConfig.readingConfig&quot;);</span>
+<span class="fc" id="L82">        }</span>
+
+<span class="fc" id="L84">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
