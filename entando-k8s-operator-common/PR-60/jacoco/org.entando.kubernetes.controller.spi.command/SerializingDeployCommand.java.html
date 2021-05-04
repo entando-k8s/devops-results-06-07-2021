@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SerializingDeployCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Operator Common Library</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.spi.command</a> &gt; <span class="el_source">SerializingDeployCommand.java</span></div><h1>SerializingDeployCommand.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.spi.command;
+
+import io.fabric8.kubernetes.client.KubernetesClient;
+import org.entando.kubernetes.client.DefaultKeycloakClient;
+import org.entando.kubernetes.controller.spi.deployable.Deployable;
+import org.entando.kubernetes.controller.spi.result.ServiceDeploymentResult;
+import org.entando.kubernetes.controller.support.client.SimpleK8SClient;
+import org.entando.kubernetes.controller.support.command.InProcessCommandStream;
+
+public class SerializingDeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
+
+    private CommandStream commandStream;
+
+    private final Deployable&lt;T&gt; deployable;
+    private final SerializationHelper&lt;T&gt; helper;
+
+<span class="nc" id="L33">    public SerializingDeployCommand(KubernetesClient kubernetesClient, Deployable&lt;T&gt; deployable, SimpleK8SClient&lt;?&gt; client) {</span>
+<span class="nc" id="L34">        this.deployable = deployable;</span>
+<span class="nc" id="L35">        this.helper = new SerializationHelper&lt;&gt;(kubernetesClient);</span>
+<span class="nc" id="L36">        this.commandStream = new InProcessCommandStream(helper, client, new DefaultKeycloakClient());</span>
+<span class="nc" id="L37">    }</span>
+
+    public T execute() {
+<span class="nc" id="L40">        String result = commandStream.process(helper.serialize(deployable));</span>
+<span class="nc" id="L41">        SerializableDeploymentResult&lt;?&gt; serializedResult = helper.deserialize(result);</span>
+<span class="nc" id="L42">        return this.deployable.createResult(serializedResult.getDeployment(), serializedResult.getService(), serializedResult.getIngress(),</span>
+<span class="nc" id="L43">                serializedResult.getPod())</span>
+<span class="nc" id="L44">                .withStatus(serializedResult.getStatus());</span>
+    }
+
+    public Deployable&lt;DefaultSerializableDeploymentResult&gt; getSerializedDeployable() {
+<span class="nc" id="L48">        return serializeThenDeserialize(deployable);</span>
+    }
+
+    private &lt;S&gt; S serializeThenDeserialize(Object deployable) {
+<span class="nc" id="L52">        final String json = helper.serialize(deployable);</span>
+<span class="nc" id="L53">        return helper.deserialize(json);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

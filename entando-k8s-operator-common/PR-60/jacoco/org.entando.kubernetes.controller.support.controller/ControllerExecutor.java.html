@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ControllerExecutor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Operator Common Library</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.support.controller</a> &gt; <span class="el_source">ControllerExecutor.java</span></div><h1>ControllerExecutor.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.support.controller;
+
+import static java.util.Optional.ofNullable;
+
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.Watcher.Action;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import org.entando.kubernetes.client.DefaultSimpleK8SClient;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.controller.support.client.SimpleK8SClient;
+import org.entando.kubernetes.controller.support.common.EntandoImageResolver;
+import org.entando.kubernetes.controller.support.common.EntandoOperatorConfig;
+import org.entando.kubernetes.controller.support.common.KubeUtils;
+import org.entando.kubernetes.model.common.EntandoCustomResource;
+
+public class ControllerExecutor {
+
+    private final SimpleK8SClient&lt;?&gt; client;
+    private final EntandoImageResolver imageResolver;
+    private final String controllerNamespace;
+    private ControllerImageResolver controllerImageResolver;
+
+    public ControllerExecutor(String controllerNamespace, KubernetesClient client) {
+<span class="nc" id="L47">        this(controllerNamespace, new DefaultSimpleK8SClient(client), new DefaultControllerImageResolver());</span>
+<span class="nc" id="L48">    }</span>
+
+<span class="fc" id="L50">    public ControllerExecutor(String controllerNamespace, SimpleK8SClient&lt;?&gt; client, ControllerImageResolver controllerImageResolver) {</span>
+<span class="fc" id="L51">        this.controllerNamespace = controllerNamespace;</span>
+<span class="fc" id="L52">        this.client = client;</span>
+<span class="fc" id="L53">        this.imageResolver = new EntandoImageResolver(client.entandoResources().loadDockerImageInfoConfigMap());</span>
+<span class="fc" id="L54">        this.controllerImageResolver = controllerImageResolver;</span>
+<span class="fc" id="L55">    }</span>
+
+    public Pod startControllerFor(Action action, EntandoCustomResource resource, String imageVersionToUse) {
+<span class="fc" id="L58">        removeObsoleteControllerPods(resource);</span>
+<span class="fc" id="L59">        Pod pod = buildControllerPod(action, resource, imageVersionToUse);</span>
+<span class="fc" id="L60">        return client.pods().start(pod);</span>
+    }
+
+    public Pod runControllerFor(Action action, EntandoCustomResource resource, String imageVersionToUse) {
+<span class="fc" id="L64">        removeObsoleteControllerPods(resource);</span>
+<span class="fc" id="L65">        Pod pod = buildControllerPod(action, resource, imageVersionToUse);</span>
+<span class="fc" id="L66">        return client.pods().runToCompletion(pod);</span>
+    }
+
+    private void removeObsoleteControllerPods(EntandoCustomResource resource) {
+<span class="fc" id="L70">        this.client.pods().removeAndWait(controllerNamespace, Map.of(</span>
+<span class="fc" id="L71">                KubeUtils.ENTANDO_RESOURCE_KIND_LABEL_NAME, resource.getKind(),</span>
+<span class="fc" id="L72">                KubeUtils.ENTANDO_RESOURCE_NAMESPACE_LABEL_NAME, resource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L73">                resource.getKind(), resource.getMetadata().getName()));</span>
+<span class="fc" id="L74">    }</span>
+
+    private Pod buildControllerPod(Action action, EntandoCustomResource resource, String imageVersionToUse) {
+<span class="fc" id="L77">        return new PodBuilder().withNewMetadata()</span>
+<span class="fc" id="L78">                .withName(resource.getMetadata().getName() + &quot;-deployer-&quot; + NameUtils.randomNumeric(4).toLowerCase())</span>
+<span class="fc" id="L79">                .withNamespace(this.controllerNamespace)</span>
+<span class="fc" id="L80">                .addToLabels(KubeUtils.ENTANDO_RESOURCE_KIND_LABEL_NAME, resource.getKind())</span>
+<span class="fc" id="L81">                .addToLabels(KubeUtils.ENTANDO_RESOURCE_NAMESPACE_LABEL_NAME, resource.getMetadata().getNamespace())</span>
+<span class="fc" id="L82">                .addToLabels(resource.getKind(), resource.getMetadata().getName())</span>
+<span class="fc" id="L83">                .endMetadata()</span>
+<span class="fc" id="L84">                .withNewSpec()</span>
+<span class="fc" id="L85">                .withRestartPolicy(&quot;Never&quot;)</span>
+<span class="fc" id="L86">                .withServiceAccountName(determineServiceAccountName())</span>
+<span class="fc" id="L87">                .addNewContainer()</span>
+<span class="fc" id="L88">                .withName(&quot;deployer&quot;)</span>
+<span class="fc" id="L89">                .withImage(determineControllerImage(resource, imageVersionToUse))</span>
+<span class="fc" id="L90">                .withImagePullPolicy(&quot;IfNotPresent&quot;)</span>
+<span class="fc" id="L91">                .withEnv(buildEnvVars(action, resource))</span>
+<span class="fc" id="L92">                .endContainer()</span>
+<span class="fc" id="L93">                .endSpec()</span>
+<span class="fc" id="L94">                .build();</span>
+    }
+
+    private String determineServiceAccountName() {
+<span class="fc" id="L98">        return EntandoOperatorConfig.getOperatorServiceAccount().orElse(&quot;default&quot;);</span>
+    }
+
+    private String determineControllerImage(EntandoCustomResource resource, String imageVersionToUse) {
+<span class="fc" id="L102">        return this.imageResolver.determineImageUri(</span>
+<span class="fc" id="L103">                controllerImageResolver.getControllerImageFor(resource) + ofNullable(imageVersionToUse).map(s -&gt; &quot;:&quot; + s)</span>
+<span class="fc" id="L104">                        .orElse(&quot;&quot;));</span>
+    }
+
+    private void addTo(Map&lt;String, EnvVar&gt; result, EnvVar envVar) {
+<span class="fc" id="L108">        result.put(envVar.getName(), envVar);</span>
+<span class="fc" id="L109">    }</span>
+
+    private List&lt;EnvVar&gt; buildEnvVars(Action action, EntandoCustomResource resource) {
+<span class="fc" id="L112">        Map&lt;String, EnvVar&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L113">        System.getProperties().entrySet().stream()</span>
+<span class="fc" id="L114">                .filter(this::matchesKnownSystemProperty).forEach(objectObjectEntry -&gt; addTo(result,</span>
+<span class="fc" id="L115">                new EnvVar(objectObjectEntry.getKey().toString().toUpperCase(Locale.ROOT).replace(&quot;.&quot;, &quot;_&quot;).replace(&quot;-&quot;, &quot;_&quot;),</span>
+<span class="fc" id="L116">                        objectObjectEntry.getValue().toString(), null)));</span>
+<span class="fc" id="L117">        System.getenv().entrySet().stream()</span>
+<span class="fc" id="L118">                .filter(this::matchesKnownEnvironmentVariable)</span>
+<span class="fc" id="L119">                .forEach(objectObjectEntry -&gt; addTo(result, new EnvVar(objectObjectEntry.getKey(),</span>
+<span class="fc" id="L120">                        objectObjectEntry.getValue(), null)));</span>
+        //Make sure we overwrite previously set resource info
+<span class="fc" id="L122">        addTo(result, new EnvVar(&quot;ENTANDO_RESOURCE_ACTION&quot;, action.name(), null));</span>
+<span class="fc" id="L123">        addTo(result, new EnvVar(&quot;ENTANDO_RESOURCE_NAMESPACE&quot;, resource.getMetadata().getNamespace(), null));</span>
+<span class="fc" id="L124">        addTo(result, new EnvVar(&quot;ENTANDO_RESOURCE_NAME&quot;, resource.getMetadata().getName(), null));</span>
+<span class="fc" id="L125">        return new ArrayList&lt;&gt;(result.values());</span>
+    }
+
+    private boolean matchesKnownEnvironmentVariable(Map.Entry&lt;String, String&gt; objectObjectEntry) {
+<span class="pc bpc" id="L129" title="1 of 4 branches missed.">        return objectObjectEntry.getKey().startsWith(&quot;RELATED_IMAGE&quot;) || objectObjectEntry.getKey().startsWith(&quot;ENTANDO_&quot;);</span>
+    }
+
+    private boolean matchesKnownSystemProperty(Map.Entry&lt;Object, Object&gt; objectObjectEntry) {
+<span class="fc" id="L133">        String propertyName = objectObjectEntry.getKey().toString().toLowerCase(Locale.ROOT).replace(&quot;_&quot;, &quot;.&quot;);</span>
+<span class="pc bpc" id="L134" title="1 of 4 branches missed.">        return propertyName.startsWith(&quot;related.image&quot;) || propertyName.startsWith(&quot;entando.&quot;);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

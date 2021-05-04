@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CapabilityRequirementWatcher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Operator Common Library</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.spi.capability</a> &gt; <span class="el_source">CapabilityRequirementWatcher.java</span></div><h1>CapabilityRequirementWatcher.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.spi.capability;
+
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.WatcherException;
+import org.entando.kubernetes.model.capability.ProvidedCapability;
+import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
+
+public class CapabilityRequirementWatcher implements Watcher&lt;ProvidedCapability&gt; {
+
+    final Object mutex;
+    private ProvidedCapability capabiltyRequirement;
+<span class="fc" id="L28">    private long started = System.currentTimeMillis();</span>
+    private boolean failed;
+
+<span class="fc" id="L31">    public CapabilityRequirementWatcher(Object mutex) {</span>
+<span class="fc" id="L32">        this.mutex = mutex;</span>
+<span class="fc" id="L33">    }</span>
+
+    @Override
+    public void eventReceived(Action action, ProvidedCapability resource) {
+<span class="fc" id="L37">        this.capabiltyRequirement = resource;</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        if (hasCompleted()) {</span>
+<span class="fc" id="L39">            synchronized (mutex) {</span>
+<span class="fc" id="L40">                mutex.notifyAll();</span>
+<span class="fc" id="L41">            }</span>
+        }
+<span class="fc" id="L43">    }</span>
+
+    private boolean hasCompleted() {
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (capabiltyRequirement == null) {</span>
+<span class="fc" id="L47">            return false;</span>
+        }
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        return capabiltyRequirement.getStatus().getPhase() == EntandoDeploymentPhase.SUCCESSFUL</span>
+<span class="pc bnc" id="L50" title="All 2 branches missed.">                || capabiltyRequirement.getStatus().getPhase() == EntandoDeploymentPhase.FAILED;</span>
+    }
+
+    @Override
+    public void onClose(WatcherException cause) {
+<span class="fc" id="L55">        failed = true;</span>
+<span class="fc" id="L56">        synchronized (mutex) {</span>
+<span class="fc" id="L57">            mutex.notifyAll();</span>
+<span class="fc" id="L58">        }</span>
+<span class="fc" id="L59">    }</span>
+
+    public boolean shouldStillWait() {
+<span class="pc bpc" id="L62" title="1 of 6 branches missed.">        return !(hasTimedOut() || hasFailed() || hasCompleted());</span>
+    }
+
+    public boolean hasTimedOut() {
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        return System.currentTimeMillis() - started &gt; 10 * 60 * 1000;</span>
+    }
+
+    public boolean hasFailed() {
+<span class="fc bfc" id="L70" title="All 4 branches covered.">        return failed || (capabiltyRequirement != null</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">                &amp;&amp; capabiltyRequirement.getStatus().getPhase() == EntandoDeploymentPhase.FAILED);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
