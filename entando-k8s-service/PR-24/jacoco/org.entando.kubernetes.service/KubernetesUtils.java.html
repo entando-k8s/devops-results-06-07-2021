@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KubernetesUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Kubernetes Service</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.service</a> &gt; <span class="el_source">KubernetesUtils.java</span></div><h1>KubernetesUtils.java</h1><pre class="source lang-java linenums">package org.entando.kubernetes.service;
+
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
+
+public class KubernetesUtils implements JwtDecoder {
+
+    public static final String ROLES = &quot;roles&quot;;
+    private final KubernetesClientCache kubernetesClients;
+<span class="fc" id="L26">    @SuppressWarnings(&quot;java:S5164&quot;)</span>
+    //Because a single string per active thread cannot cause a memory leak.
+    //This is exactly why we do not cache the KubernetesClient instance here.
+    private final ThreadLocal&lt;String&gt; currentToken = new ThreadLocal&lt;&gt;();
+
+    public KubernetesUtils() {
+<span class="pc" id="L32">        this(s -&gt; new DefaultKubernetesClient());</span>
+<span class="fc" id="L33">    }</span>
+
+<span class="fc" id="L35">    public KubernetesUtils(Function&lt;String, KubernetesClient&gt; defaultKubernetesClientSupplier) {</span>
+<span class="fc" id="L36">        this.currentToken.set(DefaultKubernetesClientBuilder.NOT_K8S_TOKEN);</span>
+<span class="fc" id="L37">        this.kubernetesClients = new KubernetesClientCache(defaultKubernetesClientSupplier);</span>
+<span class="fc" id="L38">    }</span>
+
+    public String getCurrentNamespace() {
+<span class="fc" id="L41">        return getCurrentKubernetesClient().getNamespace();</span>
+    }
+
+    public KubernetesClient getCurrentKubernetesClient() {
+<span class="fc" id="L45">        return this.kubernetesClients.get(currentToken.get());</span>
+    }
+
+    @Override
+    public Jwt decode(String token) throws JwtException {
+        try {
+<span class="fc" id="L51">            final JWT parsedJwt = JWTParser.parse(token);</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">            if (parsedJwt.getJWTClaimsSet().getClaims().get(&quot;kubernetes.io/serviceaccount/namespace&quot;) != null) {</span>
+<span class="fc" id="L53">                this.currentToken.set(token);</span>
+                //Some possible fields to use:
+                //iss
+                //kubernetes.io/serviceaccount/service-account.name
+                //kubernetes.io/serviceaccount/service-account.uid
+            } else {
+<span class="nc" id="L59">                throw new JwtException(&quot;Client credentials flow token detected but not supported anymore. Please use K8S tokens&quot;);</span>
+            }
+<span class="fc" id="L61">            Map&lt;String, Object&gt; claims = new LinkedHashMap&lt;&gt;(parsedJwt.getJWTClaimsSet().getClaims());</span>
+<span class="fc" id="L62">            claims.put(ROLES,</span>
+                    //For now, everyone is an admin
+<span class="fc" id="L64">                    Collections.singletonList(new SimpleGrantedAuthority(&quot;ROLE_ADMIN&quot;)));</span>
+            // TODO the K8S token hasn't exp anymore =&gt; delete check this too?
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">            if (claims.get(JwtClaimNames.EXP) instanceof Date) {</span>
+<span class="nc" id="L67">                claims.put(JwtClaimNames.EXP, ((Date) claims.get(JwtClaimNames.EXP)).toInstant());</span>
+            }
+<span class="fc" id="L69">            Map&lt;String, Object&gt; headers = new LinkedHashMap&lt;&gt;(parsedJwt.getHeader().toJSONObject());</span>
+<span class="fc" id="L70">            return Jwt.withTokenValue(token)</span>
+<span class="fc" id="L71">                    .headers(h -&gt; h.putAll(headers))</span>
+<span class="fc" id="L72">                    .claims(c -&gt; {</span>
+<span class="fc" id="L73">                        c.putAll(claims);</span>
+<span class="fc" id="L74">                    }).build();</span>
+<span class="nc" id="L75">        } catch (ParseException e) {</span>
+<span class="nc" id="L76">            throw new JwtException(&quot;Malformed payload&quot;, e);</span>
+<span class="nc" id="L77">        } catch (Exception e) {</span>
+            //TODO in future this can be taken out.
+<span class="nc" id="L79">            Logger.getLogger(getClass().getName()).log(Level.SEVERE, &quot;Could not process JWT token.&quot;, e);</span>
+<span class="nc" id="L80">            Logger.getLogger(getClass().getName()).log(Level.SEVERE, &quot;Token:&quot; + token);</span>
+<span class="nc" id="L81">            throw new IllegalArgumentException(e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EntandoLinkService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Kubernetes Service</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.service</a> &gt; <span class="el_source">EntandoLinkService.java</span></div><h1>EntandoLinkService.java</h1><pre class="source lang-java linenums">package org.entando.kubernetes.service;
+
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.Resource;
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.entando.kubernetes.model.app.EntandoApp;
+import org.entando.kubernetes.model.link.DoneableEntandoAppPluginLink;
+import org.entando.kubernetes.model.link.EntandoAppPluginLink;
+import org.entando.kubernetes.model.link.EntandoAppPluginLinkBuilder;
+import org.entando.kubernetes.model.link.EntandoAppPluginLinkList;
+import org.entando.kubernetes.model.link.EntandoAppPluginLinkOperationFactory;
+import org.entando.kubernetes.model.namespace.ObservedNamespaces;
+import org.entando.kubernetes.model.plugin.EntandoPlugin;
+import org.springframework.stereotype.Service;
+
+<span class="fc" id="L18">@Slf4j</span>
+@Service
+public class EntandoLinkService extends EntandoKubernetesResourceCollector&lt;EntandoAppPluginLink&gt; {
+
+    public EntandoLinkService(KubernetesUtils kubernetesUtils,
+            ObservedNamespaces observedNamespaces) {
+<span class="fc" id="L24">        super(kubernetesUtils, observedNamespaces);</span>
+<span class="fc" id="L25">    }</span>
+
+    @Override
+    protected List&lt;EntandoAppPluginLink&gt; getInAnyNamespace() {
+<span class="nc" id="L29">        return getLinksOperations().inAnyNamespace().list().getItems();</span>
+    }
+
+    @Override
+    protected List&lt;EntandoAppPluginLink&gt; getInNamespaceWithoutChecking(String namespace) {
+<span class="fc" id="L34">        return getLinksOperations().inNamespace(namespace).list().getItems();</span>
+    }
+
+    public List&lt;EntandoAppPluginLink&gt; findByAppName(String appName) {
+<span class="nc" id="L38">        return getAll().stream()</span>
+<span class="nc" id="L39">                .filter(l -&gt; l.getSpec().getEntandoAppName().equals(appName))</span>
+<span class="nc" id="L40">                .collect(Collectors.toList());</span>
+    }
+
+    public List&lt;EntandoAppPluginLink&gt; findByPluginName(String pluginName) {
+<span class="nc" id="L44">        return getAll().stream()</span>
+<span class="nc" id="L45">                .filter(l -&gt; l.getSpec().getEntandoPluginName().equals(pluginName))</span>
+<span class="nc" id="L46">                .collect(Collectors.toList());</span>
+    }
+
+    public List&lt;EntandoAppPluginLink&gt; getAppLinks(EntandoApp app) {
+<span class="fc" id="L50">        observedNamespaces.failIfNotObserved(app.getMetadata().getNamespace());</span>
+<span class="fc" id="L51">        return getLinksOperations().inNamespace(app.getMetadata().getNamespace()).list().getItems();</span>
+    }
+
+    public List&lt;EntandoAppPluginLink&gt; getPluginLinks(EntandoPlugin plugin) {
+<span class="fc" id="L55">        return getAll()</span>
+<span class="fc" id="L56">                .stream()</span>
+<span class="fc" id="L57">                .filter(l -&gt; l.getSpec().getEntandoPluginName().equals(plugin.getMetadata().getName()))</span>
+<span class="fc" id="L58">                .collect(Collectors.toList());</span>
+    }
+
+    public EntandoAppPluginLink deploy(EntandoAppPluginLink newLink) {
+<span class="fc" id="L62">        observedNamespaces.failIfNotObserved(newLink.getMetadata().getNamespace());</span>
+<span class="fc" id="L63">        log.info(&quot;Link creation between EntandoApp {} on namespace {} and EntandoPlugin {} on namespace {}&quot;,</span>
+<span class="fc" id="L64">                newLink.getSpec().getEntandoAppName(), newLink.getSpec().getEntandoAppNamespace(),</span>
+<span class="fc" id="L65">                newLink.getSpec().getEntandoPluginName(), newLink.getSpec().getEntandoPluginNamespace());</span>
+<span class="fc" id="L66">        return getLinksOperations().inNamespace(newLink.getMetadata().getNamespace()).create(newLink);</span>
+    }
+
+    public void delete(EntandoAppPluginLink l) {
+<span class="fc" id="L70">        observedNamespaces.failIfNotObserved(l.getMetadata().getNamespace());</span>
+<span class="fc" id="L71">        log.info(&quot;Deleting link between EntandoApp {} on namespace {} and EntandoPlugin {} on namespace {}&quot;,</span>
+<span class="fc" id="L72">                l.getSpec().getEntandoAppName(), l.getSpec().getEntandoAppNamespace(),</span>
+<span class="fc" id="L73">                l.getSpec().getEntandoPluginName(), l.getSpec().getEntandoPluginNamespace());</span>
+<span class="fc" id="L74">        getLinksOperations().inNamespace(l.getMetadata().getNamespace()).delete(l);</span>
+<span class="fc" id="L75">    }</span>
+
+    public EntandoAppPluginLink buildBetweenAppAndPlugin(EntandoApp app, EntandoPlugin plugin) {
+<span class="fc" id="L78">        String appNamespace = app.getMetadata().getNamespace();</span>
+<span class="fc" id="L79">        String appName = app.getMetadata().getName();</span>
+<span class="fc" id="L80">        String pluginName = plugin.getMetadata().getName();</span>
+<span class="fc" id="L81">        String pluginNamespace = plugin.getMetadata().getNamespace();</span>
+<span class="fc" id="L82">        return new EntandoAppPluginLinkBuilder()</span>
+<span class="fc" id="L83">                .withNewMetadata()</span>
+<span class="fc" id="L84">                .withName(String.format(&quot;%s-%s-link&quot;, appName, pluginName))</span>
+<span class="fc" id="L85">                .withNamespace(appNamespace)</span>
+<span class="fc" id="L86">                .endMetadata()</span>
+<span class="fc" id="L87">                .withNewSpec()</span>
+<span class="fc" id="L88">                .withEntandoApp(appNamespace, appName)</span>
+<span class="fc" id="L89">                .withEntandoPlugin(pluginNamespace, pluginName)</span>
+<span class="fc" id="L90">                .endSpec()</span>
+<span class="fc" id="L91">                .build();</span>
+    }
+
+    //CHECKSTYLE:OFF
+    private MixedOperation&lt;EntandoAppPluginLink, EntandoAppPluginLinkList, DoneableEntandoAppPluginLink, Resource&lt;EntandoAppPluginLink,
+            DoneableEntandoAppPluginLink&gt;&gt; getLinksOperations() {
+        //CHECKSTYLE:ON
+<span class="fc" id="L98">        return EntandoAppPluginLinkOperationFactory.produceAllEntandoAppPluginLinks(kubernetesUtils.getCurrentKubernetesClient());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
