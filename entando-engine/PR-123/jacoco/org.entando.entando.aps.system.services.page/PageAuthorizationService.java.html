@@ -60,36 +60,50 @@ import org.springframework.beans.factory.annotation.Autowired;
     
     @Override
     public boolean isAuth(UserDetails user, PageDto pageDto) {
-<span class="fc" id="L63">        return this.isAuth(user, pageDto.getCode());</span>
+<span class="nc" id="L63">        return this.isAuth(user, pageDto, true);</span>
+    }
+
+    @Override
+    public boolean isAuth(UserDetails user, PageDto pageDto, boolean allowFreeGroup) {
+<span class="fc" id="L68">        return this.isAuth(user, pageDto.getCode(), allowFreeGroup);</span>
     }
     
     @Override
     public boolean isAuth(UserDetails user, String pageCode) {
-<span class="fc" id="L68">        IPage page = this.getPageManager().getDraftPage(pageCode);</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (page == null) {</span>
-<span class="fc" id="L70">            throw new ResourceNotFoundException(ERRCODE_PAGE_NOT_FOUND, &quot;page&quot;, pageCode);</span>
-        }
-<span class="fc" id="L72">        return this.isAuth(user, page);</span>
+<span class="fc" id="L73">        return this.isAuth(user, pageCode, true);</span>
     }
-    
+
+    @Override
+    public boolean isAuth(UserDetails user, String pageCode, boolean allowFreeGroup) {
+<span class="fc" id="L78">        IPage page = this.getPageManager().getDraftPage(pageCode);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (page == null) {</span>
+<span class="fc" id="L80">            throw new ResourceNotFoundException(ERRCODE_PAGE_NOT_FOUND, &quot;page&quot;, pageCode);</span>
+        }
+<span class="fc" id="L82">        return this.isAuth(user, page, allowFreeGroup);</span>
+    }
+
     public boolean isAuth(UserDetails user, IPage page) {
-<span class="fc" id="L76">        return this.getAuthorizationManager().isAuth(user, page);</span>
+<span class="nc" id="L86">        return isAuth(user, page, true);</span>
+    }
+
+    public boolean isAuth(UserDetails user, IPage page, boolean allowFreeGroup) {
+<span class="fc" id="L90">        return this.getAuthorizationManager().isAuth(user, page, allowFreeGroup);</span>
     }
     
     @Override
     public List&lt;PageDto&gt; filterList(UserDetails user, List&lt;PageDto&gt; toBeFiltered) {
-<span class="fc" id="L81">        List&lt;PageDto&gt; res = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L82">        Optional.ofNullable(toBeFiltered).ifPresent(elements -&gt; res.addAll(elements.stream()</span>
-<span class="fc" id="L83">                .filter(elem -&gt; this.isAuth(user, elem)).collect(Collectors.toList())));</span>
-<span class="fc" id="L84">        return res;</span>
+<span class="fc" id="L95">        List&lt;PageDto&gt; res = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L96">        Optional.ofNullable(toBeFiltered).ifPresent(elements -&gt; res.addAll(elements.stream()</span>
+<span class="fc" id="L97">                .filter(elem -&gt; this.isAuth(user, elem, false)).collect(Collectors.toList())));</span>
+<span class="fc" id="L98">        return res;</span>
     }
     
     public List&lt;String&gt; getAllowedGroupCodes(UserDetails user) {
-<span class="fc" id="L88">        List&lt;String&gt; allowedGroups = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L89">        List&lt;Group&gt; userGroups = this.getAuthorizationManager().getUserGroups(user);</span>
-<span class="fc" id="L90">        userGroups.forEach(group -&gt; allowedGroups.add(group.getName()));</span>
-<span class="fc" id="L91">        return allowedGroups;</span>
+<span class="fc" id="L102">        List&lt;String&gt; allowedGroups = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L103">        List&lt;Group&gt; userGroups = this.getAuthorizationManager().getUserGroups(user);</span>
+<span class="fc" id="L104">        userGroups.forEach(group -&gt; allowedGroups.add(group.getName()));</span>
+<span class="fc" id="L105">        return allowedGroups;</span>
     }
     
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
