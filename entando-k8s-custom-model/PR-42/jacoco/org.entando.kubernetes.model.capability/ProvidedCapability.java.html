@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProvidedCapability.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Kubernetes Custom Model</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.model.capability</a> &gt; <span class="el_source">ProvidedCapability.java</span></div><h1>ProvidedCapability.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.model.capability;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.client.CustomResource;
+import io.fabric8.kubernetes.model.annotation.Group;
+import io.fabric8.kubernetes.model.annotation.Version;
+import io.quarkus.runtime.annotations.RegisterForReflection;
+import java.util.Optional;
+import org.entando.kubernetes.model.common.EntandoCustomResource;
+import org.entando.kubernetes.model.common.EntandoCustomResourceStatus;
+import org.entando.kubernetes.model.common.ResourceReference;
+import org.entando.kubernetes.model.common.WebServerStatus;
+
+@JsonSerialize
+@JsonDeserialize
+@JsonInclude(Include.NON_NULL)
+@JsonAutoDetect(
+        fieldVisibility = Visibility.ANY,
+        isGetterVisibility = Visibility.NONE,
+        getterVisibility = Visibility.NONE,
+        setterVisibility = Visibility.NONE
+)
+@RegisterForReflection
+@JsonIgnoreProperties(
+        ignoreUnknown = true
+)
+@Group(&quot;entando.org&quot;)
+@Version(&quot;v1&quot;)
+public class ProvidedCapability extends CustomResource&lt;CapabilityRequirement, EntandoCustomResourceStatus&gt; implements
+        EntandoCustomResource {
+
+    public static final String CAPABILITY_LABEL_NAME = &quot;capability&quot;;
+    public static final String IMPLEMENTATION_LABEL_NAME = &quot;implementation&quot;;
+    public static final String CAPABILITY_PROVISION_SCOPE_LABEL_NAME = &quot;capabilityProvisionScope&quot;;
+    public static final String CRD_NAME = &quot;providedcapability.entando.org&quot;;
+
+<span class="fc" id="L60">    public ProvidedCapability() {</span>
+<span class="fc" id="L61">    }</span>
+
+<span class="fc" id="L63">    public ProvidedCapability(ObjectMeta meta, CapabilityRequirement capabilityRequirement) {</span>
+<span class="fc" id="L64">        super.setMetadata(meta);</span>
+<span class="fc" id="L65">        this.spec = capabilityRequirement;</span>
+<span class="fc" id="L66">    }</span>
+
+    @Override
+    protected EntandoCustomResourceStatus initStatus() {
+<span class="fc" id="L70">        return new EntandoCustomResourceStatus();</span>
+    }
+
+    public Optional&lt;ResourceReference&gt; getIngressReference() {
+<span class="nc" id="L74">        return getStatus().findCurrentServerStatus()</span>
+<span class="nc" id="L75">                .filter(WebServerStatus.class::isInstance)</span>
+<span class="nc" id="L76">                .flatMap(s -&gt; Optional.of(new ResourceReference(getMetadata().getNamespace(), ((WebServerStatus) s).getIngressName())));</span>
+    }
+
+    public ResourceReference getServiceReference() {
+<span class="nc" id="L80">        return getStatus().findCurrentServerStatus().map(s -&gt; new ResourceReference(getMetadata().getNamespace(), s.getServiceName()))</span>
+<span class="nc" id="L81">                .orElse(null);</span>
+    }
+
+    public ResourceReference getAdminSecretReference() {
+<span class="nc" id="L85">        return getStatus().findCurrentServerStatus().map(s -&gt; new ResourceReference(getMetadata().getNamespace(), s.getAdminSecretName()))</span>
+<span class="nc" id="L86">                .orElse(null);</span>
+    }
+
+    @Override
+    public String getDefinitionName() {
+<span class="nc" id="L91">        return CRD_NAME;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
