@@ -161,10 +161,10 @@ public class DefaultEntandoResourceClient implements EntandoResourceClient, Patc
     public Optional&lt;ExternalDatabaseDeployment&gt; findExternalDatabase(EntandoCustomResource resource, DbmsVendor vendor) {
 <span class="fc" id="L162">        List&lt;EntandoDatabaseService&gt; externalDatabaseList = getOperations(EntandoDatabaseService.class)</span>
 <span class="fc" id="L163">                .inNamespace(resource.getMetadata().getNamespace()).list().getItems();</span>
-<span class="pc bpc" id="L164" title="1 of 2 branches missed.">        return externalDatabaseList.stream().filter(entandoDatabaseService -&gt; entandoDatabaseService.getSpec().getDbms() == vendor)</span>
+<span class="pc bnc" id="L164" title="All 2 branches missed.">        return externalDatabaseList.stream().filter(entandoDatabaseService -&gt; entandoDatabaseService.getSpec().getDbms() == vendor)</span>
 <span class="fc" id="L165">                .findFirst().map(externalDatabase -&gt;</span>
-<span class="fc" id="L166">                        new ExternalDatabaseDeployment(</span>
-<span class="fc" id="L167">                                loadService(externalDatabase, ExternalDatabaseDeployment.serviceName(externalDatabase)),</span>
+<span class="nc" id="L166">                        new ExternalDatabaseDeployment(</span>
+<span class="nc" id="L167">                                loadService(externalDatabase, ExternalDatabaseDeployment.serviceName(externalDatabase)),</span>
                                 externalDatabase));
     }
 
@@ -277,7 +277,7 @@ public class DefaultEntandoResourceClient implements EntandoResourceClient, Patc
 <span class="fc" id="L277">    }</span>
 
     private Service loadService(EntandoCustomResource peerInNamespace, String name) {
-<span class="fc" id="L280">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
+<span class="nc" id="L280">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
     }
 
     private Ingress loadIngress(EntandoCustomResource peerInNamespace, String name) {
