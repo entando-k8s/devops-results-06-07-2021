@@ -168,8 +168,8 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
 <span class="fc" id="L168">        status.setInitPodStatus(completedPod.getStatus());</span>
 <span class="fc" id="L169">        k8sClient.entandoResources().updateStatus(entandoCustomResource, status);</span>
 <span class="fc" id="L170">        PodResult podResult = PodResult.of(completedPod);</span>
-<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (podResult.hasFailed()) {</span>
-<span class="fc" id="L172">            throw new EntandoControllerException(&quot;Could not init database schemas&quot;);</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if (podResult.hasFailed()) {</span>
+<span class="nc" id="L172">            throw new EntandoControllerException(&quot;Could not init database schemas&quot;);</span>
 <span class="pc bpc" id="L173" title="1 of 2 branches missed.">        } else if (EntandoOperatorConfig.garbageCollectSuccessfullyCompletedPods()) {</span>
 <span class="nc" id="L174">            k8sClient.pods().deletePod(completedPod);</span>
         }
