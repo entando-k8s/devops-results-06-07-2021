@@ -32,28 +32,28 @@ public class InProcessCommandStream implements CommandStream {
 
     public InProcessCommandStream(
             SerializationHelper&lt;?&gt; helper,
-<span class="nc" id="L35">            SimpleK8SClient&lt;?&gt; client, SimpleKeycloakClient keycloakClient) {</span>
-<span class="nc" id="L36">        this.helper = helper;</span>
-<span class="nc" id="L37">        this.client = client;</span>
-<span class="nc" id="L38">        this.keycloakClient = keycloakClient;</span>
-<span class="nc" id="L39">    }</span>
+<span class="fc" id="L35">            SimpleK8SClient&lt;?&gt; client, SimpleKeycloakClient keycloakClient) {</span>
+<span class="fc" id="L36">        this.helper = helper;</span>
+<span class="fc" id="L37">        this.client = client;</span>
+<span class="fc" id="L38">        this.keycloakClient = keycloakClient;</span>
+<span class="fc" id="L39">    }</span>
 
     @Override
     @SuppressWarnings(&quot;rawtypes&quot;)
     public String process(String deployable) {
-<span class="nc" id="L44">        DeployCommand&lt;? extends ServiceDeploymentResult&gt; command = new DeployCommand(helper.deserialize(deployable));</span>
-<span class="nc" id="L45">        final ServiceDeploymentResult result = command.execute(client, keycloakClient);</span>
-<span class="nc" id="L46">        DefaultSerializableDeploymentResult serializableDeploymentResult = null;</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (result instanceof ExposedDeploymentResult) {</span>
-<span class="nc" id="L48">            serializableDeploymentResult = new DefaultSerializableDeploymentResult(null, result.getPod(),</span>
-<span class="nc" id="L49">                    result.getService(), ((ExposedDeploymentResult) result).getIngress());</span>
+<span class="fc" id="L44">        DeployCommand&lt;? extends ServiceDeploymentResult&gt; command = new DeployCommand(helper.deserialize(deployable));</span>
+<span class="fc" id="L45">        final ServiceDeploymentResult result = command.execute(client, keycloakClient);</span>
+<span class="fc" id="L46">        DefaultSerializableDeploymentResult serializableDeploymentResult = null;</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        if (result instanceof ExposedDeploymentResult) {</span>
+<span class="fc" id="L48">            serializableDeploymentResult = new DefaultSerializableDeploymentResult(null, result.getPod(),</span>
+<span class="fc" id="L49">                    result.getService(), ((ExposedDeploymentResult) result).getIngress());</span>
 
         } else {
 <span class="nc" id="L52">            serializableDeploymentResult = new DefaultSerializableDeploymentResult(null, result.getPod(),</span>
 <span class="nc" id="L53">                    result.getService(), null);</span>
         }
 
-<span class="nc" id="L56">        return helper.serialize(serializableDeploymentResult);</span>
+<span class="fc" id="L56">        return helper.serialize(serializableDeploymentResult);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
