@@ -1,0 +1,323 @@
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-credential-initializer-8r82d[0m
+{"level":"warn","ts":1620900499.1423984,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: \"ref: refs/heads/0.8.0-**-support-backwards-incompats\" is not a valid GitHub commit ID"}
+{"level":"info","ts":1620900499.158499,"logger":"fallback-logger","caller":"creds-init/main.go:40","msg":"Credentials initialized."}
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-working-dir-initializer-df9lq[0m
+{"level":"warn","ts":1620900500.82636,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: open /var/run/ko/HEAD: no such file or directory"}
+{"level":"info","ts":1620900500.8542914,"logger":"fallback-logger","caller":"bash/main.go:64","msg":"Successfully e**cuted command \"sh -c mkdir -p /workspace/source\"; output "}
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-place-tools[0m
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-git-source-entando-k8s-environment-entando-9h97l[0m
+{"level":"warn","ts":1620900526.2981365,"logger":"fallback-logger","caller":"logging/config.go:69","msg":"Fetch GitHub commit ID from kodata failed: \"ref: refs/heads/0.8.0-**-support-backwards-incompats\" is not a valid GitHub commit ID"}
+{"level":"info","ts":1620900527.0915766,"logger":"fallback-logger","caller":"git/git.go:103","msg":"Successfully cloned https://github.com/entando-k8s/environment-**********-dev.git @ v0.0.100 in path /workspace/source"}
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-git-merge[0m
+Using SHAs from PULL_REFS=master:06421511fa1ebaf072f47186746b57d47214d4e9
+WARNING: no SHAs to merge, falling back to initial cloned commit
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-validate-git[0m
+Git configured for user: jenkins-x-bot and email jenkins-x@googlegroups.com
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-verify-preinstall[0m
+** boot has only been validated on GKE and EKS, we'd love feedback and contributions for other Kubernetes providers
+Running in Batch Mode, e**cution will continue
+Locking version stream https://github.com/jenkins-x/jenkins-x-versions.git to release v1.0.610. Jenkins X will use this release rather than b70dfc2bd34a80ddf4f033e296405420385534f1 to resolve all versions from now on.
+writing the following to the OWNERS file for the development environment repository:
+approvers:
+- ampie
+- joewhite101
+reviewers:
+- ampie
+- joewhite101
+WARNING: TLS is not enabled so your webhooks will be called using HTTP. This means your webhook secret will be sent to your cluster in the clear. See https://jenkins-x.io/docs/getting-started/setup/boot/#ingress for more information
+Verifying the kubernetes cluster before we try to boot Jenkins X in namespace: **
+Trying to lazily create any missing resources to get the current cluster ready to boot Jenkins X
+Verifying Ingress...
+
+Using namespace '**' from context named '' on server ''.
+
+Installing kubectl
+Downloading https://storage.googleapis.com/kubernetes-release/release/v1.16.5/bin/linux/amd64/kubectl to /builder/home/.**/bin/kubectl...
+Downloaded /builder/home/.**/bin/kubectl
+Installing helm
+Downloading https://get.helm.sh/helm-v2.17.0-linux-amd64.tar.gz to /builder/home/.**/bin/helm.tgz...
+Downloaded /builder/home/.**/bin/helm.tgz
+Installing helm secrets plugin
+Verifying the CLI packages using version stream URL: https://github.com/jenkins-x/jenkins-x-versions.git and git ref: v1.0.610
+WARNING: ** version specified in the version stream /builder/home/.**/jenkins-x-versions is 2.1.150. You are using 2.1.155. We highly recommend you upgrade versionstream ref
+CLI packages kubectl, git, helm seem to be setup correctly
+NAME                          VERSION
+Kubernetes cluster            v1.11.0+d4cacc0
+kubectl (installed in JX_BIN) v1.16.6-beta.0
+helm client                   2.17.0
+git                           2.21.1
+
+Verifying Storage...
+Storage configuration looks good
+
+Helm installed and configured
+Ensuring Helm chart repository https://storage.googleapis.com/chartmuseum.jenkins-x.io is configured
+Cluster looks good, you are ready to '** boot' now!
+
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-install-jx-crds[0m
+Jenkins X CRDs upgraded with success
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-create-install-values[0m
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-install-external-dns[0m
+Modified file /workspace/source/******s/external-dns/Chart.yaml to set the chart to version 16
+creating the lock configmap **-lock-**
+lock configmap **-lock-** created
+Adding missing Helm repo: charts.bitnami.com https://charts.bitnami.com/bitnami
+Successfully added Helm repository charts.bitnami.com.
+cleaning the lock configmap **-lock-**
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-install-cert-manager-crds[0m
+customresourcedefinition.apiextensions.k8s.io/challenges.acme.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/orders.acme.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/certificaterequests.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/certificates.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/clusterissuers.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/issuers.cert-manager.io configured
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-install-cert-manager[0m
+Modified file /workspace/source/******s/cm/Chart.yaml to set the chart to version 16
+creating the lock configmap **-lock-cert-manager
+lock configmap **-lock-cert-manager created
+Adding missing Helm repo: charts.jetstack.io https://charts.jetstack.io
+Successfully added Helm repository charts.jetstack.io.
+cleaning the lock configmap **-lock-cert-manager
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-install-acme-issuer-and-certificate[0m
+Modified file /workspace/source/******s/acme/Chart.yaml to set the chart to version 16
+creating the lock configmap **-lock-**
+lock configmap **-lock-** created
+Ignoring templates/cert-manager-prod-certificate.yaml
+Ignoring templates/cert-manager-prod-issuer.yaml
+Ignoring templates/cert-manager-staging-certificate.yaml
+Ignoring templates/cert-manager-staging-issuer.yaml
+No requirements file: /tmp/**-helm-apply-512593840/acme/requirements.yaml so not checking for missing versions
+cleaning the lock configmap **-lock-**
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-install-vault[0m
+Not attempting to boot Vault as using secret storage: local
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-create-helm-values[0m
+defaulting to secret storage scheme local found from requirements file at /workspace/source/**-requirements.yml
+defaulting to secret base path to the cluster name ********** found from requirements file at /workspace/source/**-requirements.yml
+generated schema file /workspace/source/env/parameters.schema.json from template /workspace/source/env/parameters.tmpl.schema.json
+Jenkins X Admin Username ***** [Automatically accepted existing value]
+Jenkins X Admin Password *** [Automatically accepted existing value]
+Pipeline bot Git username entando-** [Automatically accepted existing value]
+Pipeline bot Git email address entando.build.user@gmail.com [Automatically accepted existing value]
+Pipeline bot Git token *** [Automatically accepted existing value]
+HMAC token, used to validate incoming webhooks. Press enter to use the generated token *** [Automatically accepted existing value]
+Do you want to configure an external Docker Registry?By default Jenkins X will use the docker registry from the cloud provider. If you want to configure an external docker registry such as Docker Hub or your own existing docker registry enter YDocker Registry Url https://index.*********/v1/ [Automatically accepted existing value]
+Docker Registry username **************** [Automatically accepted existing value]
+Docker Registry password *** [Automatically accepted existing value]
+Docker Registry email entando.build.user@gmail.com [Automatically accepted existing value]
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-create-jx-auth-config[0m
+Saved the rendered configuration into templates/**-auth-configmap.yaml file
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-install-jx-auth-config[0m
+Modified file /workspace/source/******s/**-auth/Chart.yaml to set the chart to version 16
+creating the lock configmap **-lock-**
+lock configmap **-lock-** created
+Ignoring templates/**-auth-configmap.yaml
+No requirements file: /tmp/**-helm-apply-733358977/**-auth/requirements.yaml so not checking for missing versions
+cleaning the lock configmap **-lock-**
+
+Showing logs for build [32mentando-k8s-environment-entando-cnhfd-16[0m stage [32mrelease[0m and container [32mstep-install-jenkins-x[0m
+Modified file /workspace/source/env/Chart.yaml to set the chart to version 16
+creating the lock configmap **-lock-**
+lock configmap **-lock-** created
+Ignoring templates/.gitignore
+Ignoring templates/entando-npm-scheduler.yaml
+Applying the kubernetes overrides at ../kubeProviders/openshift/values.tmpl.yaml
+Adding missing Helm repo: chartmuseum.jenkins-x.io http://chartmuseum.jenkins-x.io
+Successfully added Helm repository chartmuseum.jenkins-x.io.
+cleaning the lock configmap **-lock-**
+error: upgrading helm chart '.': failed to run 'kubectl apply --recursive -f /tmp/helm-template-workdir-444366681/jenkins-x/output/namespaces/** -l jenkins.io/chart-release=jenkins-x --namespace ** --wait --validate=false' command in directory '/tmp/**-helm-apply-221800544/env', output: 'deployment.apps/jenkins-x-chartmuseum configured
+persistentvolumeclaim/jenkins-x-chartmuseum configured
+secret/jenkins-x-chartmuseum configured
+service/jenkins-x-chartmuseum configured
+clusterrole.rbac.authorization.k8s.io/controllerrole-** configured
+clusterrolebinding.rbac.authorization.k8s.io/controllerrole-** configured
+deployment.apps/jenkins-x-controllerrole configured
+release.jenkins.io/controllerrole-2.1.155 created
+role.rbac.authorization.k8s.io/controllerrole configured
+rolebinding.rbac.authorization.k8s.io/controllerrole configured
+serviceaccount/jenkins-x-controllerrole configured
+configmap/jenkins-x-docker-registry-config created
+deployment.apps/jenkins-x-docker-registry created
+persistentvolumeclaim/jenkins-x-docker-registry created
+secret/jenkins-x-docker-registry-secret created
+service/jenkins-x-docker-registry created
+clusterrole.rbac.authorization.k8s.io/gcactivities-** configured
+clusterrolebinding.rbac.authorization.k8s.io/gcactivities-** configured
+cronjob.batch/jenkins-x-gcactivities configured
+release.jenkins.io/gcactivities-2.1.155 created
+role.rbac.authorization.k8s.io/gcactivities configured
+rolebinding.rbac.authorization.k8s.io/gcactivities configured
+serviceaccount/jenkins-x-gcactivities configured
+cronjob.batch/jenkins-x-gcpods configured
+release.jenkins.io/gcpods-2.1.155 created
+role.rbac.authorization.k8s.io/gcpods configured
+rolebinding.rbac.authorization.k8s.io/gcpods configured
+serviceaccount/jenkins-x-gcpods configured
+clusterrole.rbac.authorization.k8s.io/gcpreviews-** configured
+clusterrolebinding.rbac.authorization.k8s.io/gcpreviews-** configured
+cronjob.batch/jenkins-x-gcpreviews configured
+release.jenkins.io/gcpreviews-2.1.155 created
+role.rbac.authorization.k8s.io/gcpreviews configured
+rolebinding.rbac.authorization.k8s.io/gcpreviews configured
+serviceaccount/jenkins-x-gcpreviews configured
+configmap/nexus configured
+persistentvolumeclaim/jenkins-x-nexus configured
+secret/nexus configured
+service/nexus configured
+role.rbac.authorization.k8s.io/committer configured
+Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply
+secret/jenkins-docker-cfg configured
+configmap/jenkins-x-devpod-config configured
+configmap/jenkins-x-docker-registry configured
+configmap/jenkins-x-extensions configured
+configmap/jenkins-x-pod-template-dlang configured
+secret/**-basic-auth configured
+role.rbac.authorization.k8s.io/**-view configured
+secret/jenkins-maven-settings configured
+secret/jenkins-npm-token configured
+role.rbac.authorization.k8s.io/owner configured
+Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply
+secret/jenkins-release-gpg configured
+secret/jenkins-ssh-config configured
+role.rbac.authorization.k8s.io/viewer configured
+configmap/jenkins-x-pod-template-dotnet configured
+configmap/jenkins-x-pod-template-maven-java11 configured
+configmap/jenkins-x-pod-template-python configured
+configmap/jenkins-x-pod-template-php7x configured
+configmap/jenkins-x-pod-template-maven configured
+configmap/jenkins-x-pod-template-nodejs8x configured
+configmap/jenkins-x-pod-template-terraform configured
+configmap/jenkins-x-pod-template-**-base configured
+configmap/jenkins-x-pod-template-nodejs configured
+configmap/jenkins-x-pod-template-rust configured
+configmap/jenkins-x-pod-template-maven-java14 created
+configmap/jenkins-x-pod-template-python2 configured
+configmap/jenkins-x-pod-template-maven-graalvm configured
+configmap/jenkins-x-pod-template-packer configured
+configmap/jenkins-x-pod-template-aws-cdk configured
+configmap/jenkins-x-pod-template-go configured
+configmap/jenkins-x-pod-template-machine-learning configured
+configmap/jenkins-x-pod-template-nodejs10x configured
+configmap/jenkins-x-pod-template-scala configured
+configmap/jenkins-x-pod-template-maven-nodejs configured
+configmap/jenkins-x-pod-template-python37 configured
+configmap/jenkins-x-pod-template-maven-graalvm-java11 created
+configmap/jenkins-x-pod-template-promote configured
+configmap/jenkins-x-pod-template-php5x configured
+configmap/jenkins-x-pod-template-machine-learning-gpu configured
+configmap/jenkins-x-pod-template-nodejs12x configured
+configmap/jenkins-x-pod-template-swift configured
+configmap/jenkins-x-pod-template-gradle configured
+configmap/jenkins-x-pod-template-newman configured
+configmap/jenkins-x-pod-template-ruby configured
+namespace/** configured
+ingress.extensions/jenkins-x-chartmuseum created
+ingress.extensions/deck configured
+ingress.extensions/hook configured
+ingress.extensions/nexus configured
+ingress.extensions/tide configured
+scheduler.jenkins.io/default-scheduler configured
+environment.jenkins.io/dev configured
+sourcerepository.jenkins.io/entando-k8s-environment-**********-dev configured
+scheduler.jenkins.io/env-scheduler configured
+secret/**-pipeline-git-github-github configured
+configmap/ingress-config configured
+scheduler.jenkins.io/pr-only created
+environment.jenkins.io/production configured
+sourcerepository.jenkins.io/entando-k8s-environment-**********-production configured
+scheduler.jenkins.io/release-only created
+securitycontextconstraints/scc-**-controllerbuild created
+environment.jenkins.io/staging configured
+sourcerepository.jenkins.io/entando-k8s-environment-**********-staging configured
+clusterrolebinding.rbac.authorization.k8s.io/cluster-*****-binding-** configured
+clusterrole.rbac.authorization.k8s.io/crier configured
+clusterrolebinding.rbac.authorization.k8s.io/crier-** configured
+deployment.apps/crier configured
+rolebinding.rbac.authorization.k8s.io/crier configured
+role.rbac.authorization.k8s.io/crier configured
+serviceaccount/crier configured
+deployment.apps/deck configured
+rolebinding.rbac.authorization.k8s.io/deck configured
+role.rbac.authorization.k8s.io/deck configured
+serviceaccount/deck configured
+service/deck configured
+secret/hmac-token configured
+deployment.apps/hook configured
+rolebinding.rbac.authorization.k8s.io/hook configured
+role.rbac.authorization.k8s.io/hook configured
+serviceaccount/hook configured
+service/hook configured
+deployment.apps/horologium configured
+rolebinding.rbac.authorization.k8s.io/horologium configured
+role.rbac.authorization.k8s.io/horologium configured
+serviceaccount/horologium configured
+secret/oauth-token configured
+clusterrole.rbac.authorization.k8s.io/pipeline configured
+clusterrolebinding.rbac.authorization.k8s.io/pipeline-** configured
+deployment.apps/pipeline configured
+serviceaccount/pipeline configured
+deployment.apps/pipelinerunner configured
+rolebinding.rbac.authorization.k8s.io/pipelinerunner configured
+role.rbac.authorization.k8s.io/pipelinerunner configured
+serviceaccount/pipelinerunner configured
+service/pipelinerunner configured
+customresourcedefinition.apiextensions.k8s.io/prowjobs.prow.k8s.io configured
+deployment.apps/tide configured
+rolebinding.rbac.authorization.k8s.io/tide configured
+role.rbac.authorization.k8s.io/tide configured
+serviceaccount/tide configured
+service/tide configured
+podsecuritypolicy.policy/tekton-pipelines configured
+clusterrole.rbac.authorization.k8s.io/tekton-pipelines configured
+clusterrolebinding.rbac.authorization.k8s.io/tekton-pipelines-** configured
+secret/knative-docker-user-pass configured
+secret/knative-git-user-pass configured
+serviceaccount/tekton-pipelines configured
+serviceaccount/tekton-bot configured
+customresourcedefinition.apiextensions.k8s.io/clustertasks.tekton.dev configured
+customresourcedefinition.apiextensions.k8s.io/conditions.tekton.dev configured
+customresourcedefinition.apiextensions.k8s.io/images.caching.internal.knative.dev configured
+customresourcedefinition.apiextensions.k8s.io/pipelines.tekton.dev configured
+customresourcedefinition.apiextensions.k8s.io/pipelineruns.tekton.dev configured
+customresourcedefinition.apiextensions.k8s.io/pipelineresources.tekton.dev configured
+customresourcedefinition.apiextensions.k8s.io/tasks.tekton.dev configured
+customresourcedefinition.apiextensions.k8s.io/taskruns.tekton.dev configured
+secret/webhook-certs created
+clusterrole.rbac.authorization.k8s.io/tekton-bot configured
+clusterrolebinding.rbac.authorization.k8s.io/tekton-bot-** configured
+role.rbac.authorization.k8s.io/tekton-bot configured
+rolebinding.rbac.authorization.k8s.io/tekton-bot configured
+clusterrole.rbac.authorization.k8s.io/tekton-aggregate-edit configured
+clusterrole.rbac.authorization.k8s.io/tekton-aggregate-view configured
+configmap/config-artifact-bucket configured
+configmap/config-artifact-pvc configured
+configmap/config-defaults configured
+configmap/config-entrypoint configured
+configmap/feature-flags created
+configmap/config-logging configured
+configmap/config-observability configured
+deployment.apps/tekton-pipelines-controller configured
+validatingwebhookconfiguration.admissionregistration.k8s.io/validation.webhook.pipeline.tekton.dev created
+service/tekton-pipelines-controller configured
+mutatingwebhookconfiguration.admissionregistration.k8s.io/webhook.pipeline.tekton.dev created
+validatingwebhookconfiguration.admissionregistration.k8s.io/config.webhook.pipeline.tekton.dev created
+scheduler.jenkins.io/entando-npm-scheduler configured
+The Deployment "jenkins-x-nexus" is invalid: spec.strategy.rollingUpdate: Forbidden: may not be specified when strategy `type` is 'Recreate''
+[31m
+Pipeline failed on stage 'release' : container 'step-install-jenkins-x'. The execution of the pipeline has stopped.[0m
