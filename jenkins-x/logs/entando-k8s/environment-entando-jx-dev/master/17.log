@@ -1,0 +1,115 @@
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mcredential-initializer[0m
+{"level":"info","ts":1620909943.5374036,"caller":"creds-init/main.go:44","msg":"Credentials initialized."}
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mworking-dir-initializer[0m
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mplace-tools[0m
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-git-source-entando-k8s-environment-entando-jmg2q-9zv2l[0m
+{"level":"info","ts":1620909973.0391703,"caller":"git/git.go:105","msg":"Successfully cloned https://github.com/entando-k8s/environment-entando-**-dev.git @ v0.0.101 in path /workspace/source"}
+{"level":"warn","ts":1620909973.0393298,"caller":"git/git.go:152","msg":"Unexpected error: creating symlink: symlink /tekton/home/.ssh /****/.ssh: file exists"}
+{"level":"info","ts":1620909973.16181,"caller":"git/git.go:133","msg":"Successfully initialized and updated submodules in path /workspace/source"}
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-setup-builder-home[0m
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-git-merge[0m
+Using SHAs from PULL_REFS=master:a42b873cc3992f6fb99e9d45c620be47957ce934
+WARNING: no SHAs to merge, falling back to initial cloned commit
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-validate-git[0m
+Git configured for user: jenkins-x-bot and email jenkins-x@googlegroups.com
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-verify-preinstall[0m
+** boot has only been validated on GKE and EKS, we'd love feedback and contributions for other Kubernetes providers
+Running in Batch Mode, e**cution will continue
+writing the following to the OWNERS file for the development environment repository:
+approvers:
+- ampie
+- joewhite101
+reviewers:
+- ampie
+- joewhite101
+WARNING: TLS is not enabled so your webhooks will be called using HTTP. This means your webhook secret will be sent to your cluster in the clear. See https://jenkins-x.io/docs/getting-started/setup/boot/#ingress for more information
+Verifying the kubernetes cluster before we try to boot Jenkins X in namespace: **
+Trying to lazily create any missing resources to get the current cluster ready to boot Jenkins X
+Verifying Ingress...
+
+Using namespace '**' from context named '' on server ''.
+
+Installing kubectl
+Downloading https://storage.googleapis.com/kubernetes-release/release/v1.16.5/bin/linux/amd64/kubectl to /tekton/home/.**/bin/kubectl...
+Downloaded /tekton/home/.**/bin/kubectl
+Installing helm
+Downloading https://get.helm.sh/helm-v2.17.0-linux-amd64.tar.gz to /tekton/home/.**/bin/helm.tgz...
+Downloaded /tekton/home/.**/bin/helm.tgz
+Installing helm secrets plugin
+Verifying the CLI packages using version stream URL: https://github.com/jenkins-x/jenkins-x-versions.git and git ref: v1.0.610
+WARNING: ** version specified in the version stream /tekton/home/.**/jenkins-x-versions is 2.1.150. You are using 2.1.155. We highly recommend you upgrade versionstream ref
+CLI packages kubectl, git, helm seem to be setup correctly
+NAME                          VERSION
+Kubernetes cluster            v1.11.0+d4cacc0
+kubectl (installed in JX_BIN) v1.16.6-beta.0
+helm client                   2.17.0
+git                           2.21.1
+
+Verifying Storage...
+Storage configuration looks good
+
+Helm installed and configured
+Ensuring Helm chart repository https://storage.googleapis.com/chartmuseum.jenkins-x.io is configured
+Cluster looks good, you are ready to '** boot' now!
+
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-install-jx-crds[0m
+Jenkins X CRDs upgraded with success
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-create-install-values[0m
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-install-external-dns[0m
+Modified file /workspace/source/******s/external-dns/Chart.yaml to set the chart to version 17
+creating the lock configmap **-lock-**
+lock configmap **-lock-** created
+Adding missing Helm repo: charts.bitnami.com https://charts.bitnami.com/bitnami
+Successfully added Helm repository charts.bitnami.com.
+cleaning the lock configmap **-lock-**
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-install-cert-manager-crds[0m
+customresourcedefinition.apiextensions.k8s.io/challenges.acme.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/orders.acme.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/certificaterequests.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/certificates.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/clusterissuers.cert-manager.io configured
+customresourcedefinition.apiextensions.k8s.io/issuers.cert-manager.io configured
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-install-cert-manager[0m
+Modified file /workspace/source/******s/cm/Chart.yaml to set the chart to version 17
+creating the lock configmap **-lock-cert-manager
+lock configmap **-lock-cert-manager created
+Adding missing Helm repo: charts.jetstack.io https://charts.jetstack.io
+Successfully added Helm repository charts.jetstack.io.
+cleaning the lock configmap **-lock-cert-manager
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-install-acme-issuer-and-certificate[0m
+Modified file /workspace/source/******s/acme/Chart.yaml to set the chart to version 17
+creating the lock configmap **-lock-**
+lock configmap **-lock-** created
+Ignoring templates/cert-manager-prod-certificate.yaml
+Ignoring templates/cert-manager-prod-issuer.yaml
+Ignoring templates/cert-manager-staging-certificate.yaml
+Ignoring templates/cert-manager-staging-issuer.yaml
+No requirements file: /tmp/**-helm-apply-164990247/acme/requirements.yaml so not checking for missing versions
+cleaning the lock configmap **-lock-**
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-install-vault[0m
+Not attempting to boot Vault as using secret storage: local
+
+Showing logs for build [32mentando-k8s-environment-entando-jmg2q-17[0m stage [32mrelease[0m and container [32mstep-create-helm-values[0m
+defaulting to secret storage scheme local found from requirements file at /workspace/source/**-requirements.yml
+defaulting to secret base path to the cluster name entando-** found from requirements file at /workspace/source/**-requirements.yml
+generated schema file /workspace/source/env/parameters.schema.json from template /workspace/source/env/parameters.tmpl.schema.json
+Jenkins X Admin Username ***** [Automatically accepted existing value]
+error: asking questions for schema: EOF
+[1;92m? [0m[1;99mJenkins X Admin Password [0m[36m[? for help][0m [?25l7[999;999f[6n[6n
+[31m
+Pipeline failed on stage 'release' : container 'step-create-helm-values'. The execution of the pipeline has stopped.[0m
