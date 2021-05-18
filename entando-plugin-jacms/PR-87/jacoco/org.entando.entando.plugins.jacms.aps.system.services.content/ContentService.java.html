@@ -235,679 +235,677 @@ private void fillLinkAttributes(final AttributeInterface attribute, final Entity
 <span class="fc" id="L235">            result.putAll(linkPoperties);</span>
 <span class="fc" id="L236">            result = result.entrySet()</span>
 <span class="fc" id="L237">                    .stream()</span>
-<span class="fc bfc" id="L238" title="All 2 branches covered.">                    .filter(entry -&gt; entry.getValue() != null)</span>
-<span class="fc" id="L239">                    .collect(Collectors.toMap(Map.Entry::getKey,</span>
-                            Map.Entry::getValue));
-<span class="fc" id="L241">            attributeDto.setValue(result);</span>
+<span class="fc" id="L238">                    .collect(HashMap::new, (m, v) -&gt; m.put(v.getKey(), v.getValue()), HashMap::putAll);</span>
+<span class="fc" id="L239">            attributeDto.setValue(result);</span>
         }
     }
-<span class="fc" id="L244">}</span>
+<span class="fc" id="L242">}</span>
 
 private void fillBooleanAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto) {
-<span class="pc bpc" id="L247" title="1 of 4 branches missed.">    if (attributeDto.getElements() != null &amp;&amp; (CheckBoxAttribute.class.isAssignableFrom(attribute.getClass()))) {</span>
-<span class="fc" id="L248">        attributeDto.setValue(((CheckBoxAttribute) attribute).getValue());</span>
-<span class="pc bpc" id="L249" title="1 of 2 branches missed.">    } else if (attributeDto.getElements() != null &amp;&amp; (BooleanAttribute.class</span>
-<span class="fc bfc" id="L250" title="All 2 branches covered.">            .isAssignableFrom(attribute.getClass()))) {</span>
-<span class="fc" id="L251">        attributeDto.setValue(((BooleanAttribute) attribute).getBooleanValue());</span>
+<span class="pc bpc" id="L245" title="1 of 4 branches missed.">    if (attributeDto.getElements() != null &amp;&amp; (CheckBoxAttribute.class.isAssignableFrom(attribute.getClass()))) {</span>
+<span class="fc" id="L246">        attributeDto.setValue(((CheckBoxAttribute) attribute).getValue());</span>
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">    } else if (attributeDto.getElements() != null &amp;&amp; (BooleanAttribute.class</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">            .isAssignableFrom(attribute.getClass()))) {</span>
+<span class="fc" id="L249">        attributeDto.setValue(((BooleanAttribute) attribute).getBooleanValue());</span>
     }
-<span class="fc" id="L253">}</span>
+<span class="fc" id="L251">}</span>
 
 private void fillResourceAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto) {
-<span class="pc bpc" id="L256" title="1 of 2 branches missed.">    if (attributeDto.getValues() != null &amp;&amp; AbstractResourceAttribute.class</span>
-<span class="fc bfc" id="L257" title="All 2 branches covered.">            .isAssignableFrom(attribute.getClass())) {</span>
-<span class="fc" id="L258">        convertResourceAttributeToDto((AbstractResourceAttribute) attribute, attributeDto);</span>
+<span class="pc bpc" id="L254" title="1 of 2 branches missed.">    if (attributeDto.getValues() != null &amp;&amp; AbstractResourceAttribute.class</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">            .isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L256">        convertResourceAttributeToDto((AbstractResourceAttribute) attribute, attributeDto);</span>
     }
-<span class="fc" id="L260">}</span>
+<span class="fc" id="L258">}</span>
 
 private void fillCompositeAttribute(AttributeInterface attribute, EntityAttributeDto attr) {
-<span class="pc bpc" id="L263" title="1 of 4 branches missed.">    if (attr.getCompositeElements() != null &amp;&amp; CompositeAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
-<span class="fc" id="L264">        CompositeAttribute compAttr = (CompositeAttribute) attribute;</span>
-<span class="fc" id="L265">        fillAttributes(compAttr.getAttributes(), attr.getCompositeElements());</span>
+<span class="pc bpc" id="L261" title="1 of 4 branches missed.">    if (attr.getCompositeElements() != null &amp;&amp; CompositeAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L262">        CompositeAttribute compAttr = (CompositeAttribute) attribute;</span>
+<span class="fc" id="L263">        fillAttributes(compAttr.getAttributes(), attr.getCompositeElements());</span>
     }
-<span class="fc" id="L267">}</span>
+<span class="fc" id="L265">}</span>
 
 private void fillListAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto) {
-<span class="pc bpc" id="L270" title="1 of 4 branches missed.">    if (attributeDto.getElements() != null &amp;&amp; (ListAttribute.class.isAssignableFrom(attribute.getClass()))) {</span>
-<span class="fc" id="L271">        ListAttribute listAttribute = (ListAttribute) attribute;</span>
-<span class="fc bfc" id="L272" title="All 2 branches covered.">        for (Entry&lt;String, List&lt;EntityAttributeDto&gt;&gt; entry : attributeDto.getListElements().entrySet()) {</span>
-<span class="fc" id="L273">            int index = 0;</span>
-<span class="fc bfc" id="L274" title="All 2 branches covered.">            for (AttributeInterface element : listAttribute.getAttributeList(entry.getKey())) {</span>
-<span class="fc" id="L275">                fillAttribute(element, entry.getValue().get(index));</span>
-<span class="fc" id="L276">                index++;</span>
-<span class="fc" id="L277">            }</span>
-<span class="fc" id="L278">        }</span>
+<span class="pc bpc" id="L268" title="1 of 4 branches missed.">    if (attributeDto.getElements() != null &amp;&amp; (ListAttribute.class.isAssignableFrom(attribute.getClass()))) {</span>
+<span class="fc" id="L269">        ListAttribute listAttribute = (ListAttribute) attribute;</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">        for (Entry&lt;String, List&lt;EntityAttributeDto&gt;&gt; entry : attributeDto.getListElements().entrySet()) {</span>
+<span class="fc" id="L271">            int index = 0;</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">            for (AttributeInterface element : listAttribute.getAttributeList(entry.getKey())) {</span>
+<span class="fc" id="L273">                fillAttribute(element, entry.getValue().get(index));</span>
+<span class="fc" id="L274">                index++;</span>
+<span class="fc" id="L275">            }</span>
+<span class="fc" id="L276">        }</span>
     }
-<span class="fc" id="L280">}</span>
+<span class="fc" id="L278">}</span>
 
 private void fillMonolistAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto) {
-<span class="pc bpc" id="L283" title="1 of 4 branches missed.">    if (attributeDto.getElements() != null &amp;&amp; (MonoListAttribute.class.isAssignableFrom(attribute.getClass()))) {</span>
-<span class="fc" id="L284">        MonoListAttribute monolistAttribute = (MonoListAttribute) attribute;</span>
-<span class="fc" id="L285">        fillComplexAttributes(monolistAttribute.getAttributes(), attributeDto.getElements());</span>
+<span class="pc bpc" id="L281" title="1 of 4 branches missed.">    if (attributeDto.getElements() != null &amp;&amp; (MonoListAttribute.class.isAssignableFrom(attribute.getClass()))) {</span>
+<span class="fc" id="L282">        MonoListAttribute monolistAttribute = (MonoListAttribute) attribute;</span>
+<span class="fc" id="L283">        fillComplexAttributes(monolistAttribute.getAttributes(), attributeDto.getElements());</span>
     }
-<span class="fc" id="L287">}</span>
+<span class="fc" id="L285">}</span>
 
 private void convertResourceAttributeToDto(AbstractResourceAttribute contentAttr, EntityAttributeDto attr) {
-<span class="fc" id="L290">    attr.setValues(</span>
-<span class="fc" id="L291">            attr.getValues().entrySet().stream()</span>
-<span class="pc bpc" id="L292" title="1 of 2 branches missed.">                    .filter(e -&gt; e.getValue() != null)</span>
-<span class="fc" id="L293">                    .map(e -&gt; {</span>
-<span class="fc" id="L294">                        AssetDto assetDto = resourcesService.convertResourceToDto((ResourceInterface) e.getValue());</span>
-<span class="pc bpc" id="L295" title="1 of 2 branches missed.">                        if (contentAttr.getMetadatas() != null &amp;&amp; ImageAssetDto.class</span>
-<span class="fc bfc" id="L296" title="All 2 branches covered.">                                .isAssignableFrom(assetDto.getClass())) {</span>
-<span class="fc" id="L297">                            ((ImageAssetDto) assetDto).setMetadata(contentAttr.getMetadatas().get(e.getKey()));</span>
+<span class="fc" id="L288">    attr.setValues(</span>
+<span class="fc" id="L289">            attr.getValues().entrySet().stream()</span>
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">                    .filter(e -&gt; e.getValue() != null)</span>
+<span class="fc" id="L291">                    .map(e -&gt; {</span>
+<span class="fc" id="L292">                        AssetDto assetDto = resourcesService.convertResourceToDto((ResourceInterface) e.getValue());</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">                        if (contentAttr.getMetadatas() != null &amp;&amp; ImageAssetDto.class</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">                                .isAssignableFrom(assetDto.getClass())) {</span>
+<span class="fc" id="L295">                            ((ImageAssetDto) assetDto).setMetadata(contentAttr.getMetadatas().get(e.getKey()));</span>
                         }
-<span class="fc" id="L299">                        assetDto.setName(contentAttr.getTextForLang(e.getKey()));</span>
+<span class="fc" id="L297">                        assetDto.setName(contentAttr.getTextForLang(e.getKey()));</span>
 
-<span class="fc" id="L301">                        return new AbstractMap.SimpleEntry&lt;&gt;(e.getKey(), assetDto);</span>
-<span class="fc" id="L302">                    }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));</span>
-<span class="fc" id="L303">}</span>
+<span class="fc" id="L299">                        return new AbstractMap.SimpleEntry&lt;&gt;(e.getKey(), assetDto);</span>
+<span class="fc" id="L300">                    }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));</span>
+<span class="fc" id="L301">}</span>
 
 @Override
 public String getManagerName() {
-<span class="fc" id="L307">    return ((IManager) this.getContentManager()).getName();</span>
+<span class="fc" id="L305">    return ((IManager) this.getContentManager()).getName();</span>
 }
 
 @Override
 public List&lt;ContentDto&gt; getGroupUtilizer(String groupCode) {
     try {
-<span class="fc" id="L313">        List&lt;String&gt; contentIds = ((GroupUtilizer&lt;String&gt;) this.getContentManager()).getGroupUtilizers(groupCode);</span>
-<span class="fc" id="L314">        return this.buildDtoList(contentIds);</span>
-<span class="fc" id="L315">    } catch (EntException ex) {</span>
-<span class="fc" id="L316">        logger.error(&quot;Error loading content references for group {}&quot;, groupCode, ex);</span>
-<span class="fc" id="L317">        throw new RestServerError(&quot;Error loading content references for group&quot;, ex);</span>
+<span class="fc" id="L311">        List&lt;String&gt; contentIds = ((GroupUtilizer&lt;String&gt;) this.getContentManager()).getGroupUtilizers(groupCode);</span>
+<span class="fc" id="L312">        return this.buildDtoList(contentIds);</span>
+<span class="fc" id="L313">    } catch (EntException ex) {</span>
+<span class="fc" id="L314">        logger.error(&quot;Error loading content references for group {}&quot;, groupCode, ex);</span>
+<span class="fc" id="L315">        throw new RestServerError(&quot;Error loading content references for group&quot;, ex);</span>
     }
 }
 
 @Override
 public List&lt;ContentDto&gt; getCategoryUtilizer(String categoryCode) {
     try {
-<span class="fc" id="L324">        List&lt;String&gt; contentIds = ((CategoryUtilizer) this.getContentManager()).getCategoryUtilizers(categoryCode);</span>
-<span class="fc" id="L325">        return this.buildDtoList(contentIds);</span>
-<span class="fc" id="L326">    } catch (EntException ex) {</span>
-<span class="fc" id="L327">        logger.error(&quot;Error loading content references for category {}&quot;, categoryCode, ex);</span>
-<span class="fc" id="L328">        throw new RestServerError(&quot;Error loading content references for category&quot;, ex);</span>
+<span class="fc" id="L322">        List&lt;String&gt; contentIds = ((CategoryUtilizer) this.getContentManager()).getCategoryUtilizers(categoryCode);</span>
+<span class="fc" id="L323">        return this.buildDtoList(contentIds);</span>
+<span class="fc" id="L324">    } catch (EntException ex) {</span>
+<span class="fc" id="L325">        logger.error(&quot;Error loading content references for category {}&quot;, categoryCode, ex);</span>
+<span class="fc" id="L326">        throw new RestServerError(&quot;Error loading content references for category&quot;, ex);</span>
     }
 }
 
 @Override
 public List&lt;ContentDto&gt; getPageUtilizer(String pageCode) {
     try {
-<span class="fc" id="L335">        List&lt;String&gt; contentIds = ((PageUtilizer) this.getContentManager()).getPageUtilizers(pageCode);</span>
-<span class="fc" id="L336">        return this.buildDtoList(contentIds);</span>
-<span class="fc" id="L337">    } catch (EntException ex) {</span>
-<span class="fc" id="L338">        logger.error(&quot;Error loading content references for page {}&quot;, pageCode, ex);</span>
-<span class="fc" id="L339">        throw new RestServerError(&quot;Error loading content references for page&quot;, ex);</span>
+<span class="fc" id="L333">        List&lt;String&gt; contentIds = ((PageUtilizer) this.getContentManager()).getPageUtilizers(pageCode);</span>
+<span class="fc" id="L334">        return this.buildDtoList(contentIds);</span>
+<span class="fc" id="L335">    } catch (EntException ex) {</span>
+<span class="fc" id="L336">        logger.error(&quot;Error loading content references for page {}&quot;, pageCode, ex);</span>
+<span class="fc" id="L337">        throw new RestServerError(&quot;Error loading content references for page&quot;, ex);</span>
     }
 }
 
 @Override
 public List&lt;ContentDto&gt; getContentUtilizer(String contentId) {
     try {
-<span class="fc" id="L346">        List&lt;String&gt; contentIds = ((ContentUtilizer) this.getContentManager()).getContentUtilizers(contentId);</span>
-<span class="fc" id="L347">        return this.buildDtoList(contentIds);</span>
-<span class="fc" id="L348">    } catch (EntException ex) {</span>
-<span class="fc" id="L349">        logger.error(&quot;Error loading content references for content {}&quot;, contentId, ex);</span>
-<span class="fc" id="L350">        throw new RestServerError(&quot;Error loading content references for content&quot;, ex);</span>
+<span class="fc" id="L344">        List&lt;String&gt; contentIds = ((ContentUtilizer) this.getContentManager()).getContentUtilizers(contentId);</span>
+<span class="fc" id="L345">        return this.buildDtoList(contentIds);</span>
+<span class="fc" id="L346">    } catch (EntException ex) {</span>
+<span class="fc" id="L347">        logger.error(&quot;Error loading content references for content {}&quot;, contentId, ex);</span>
+<span class="fc" id="L348">        throw new RestServerError(&quot;Error loading content references for content&quot;, ex);</span>
     }
 }
 
 private List&lt;ContentDto&gt; buildDtoList(List&lt;String&gt; contentIds) {
-<span class="fc" id="L355">    List&lt;ContentDto&gt; dtoList = new ArrayList&lt;&gt;();</span>
-<span class="pc bpc" id="L356" title="1 of 2 branches missed.">    if (null != contentIds) {</span>
-<span class="fc" id="L357">        contentIds.stream().forEach(i -&gt; {</span>
+<span class="fc" id="L353">    List&lt;ContentDto&gt; dtoList = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">    if (null != contentIds) {</span>
+<span class="fc" id="L355">        contentIds.stream().forEach(i -&gt; {</span>
             try {
-<span class="fc" id="L359">                dtoList.add(this.getDtoBuilder().convert(this.getContentManager().loadContent(i, true)));</span>
-<span class="nc" id="L360">            } catch (EntException e) {</span>
-<span class="nc" id="L361">                logger.error(&quot;error loading content {}&quot;, i, e);</span>
-<span class="fc" id="L362">            }</span>
-<span class="fc" id="L363">        });</span>
+<span class="fc" id="L357">                dtoList.add(this.getDtoBuilder().convert(this.getContentManager().loadContent(i, true)));</span>
+<span class="nc" id="L358">            } catch (EntException e) {</span>
+<span class="nc" id="L359">                logger.error(&quot;error loading content {}&quot;, i, e);</span>
+<span class="fc" id="L360">            }</span>
+<span class="fc" id="L361">        });</span>
     }
-<span class="fc" id="L365">    return dtoList;</span>
+<span class="fc" id="L363">    return dtoList;</span>
 }
 
 @Override
 protected ContentDto buildEntityDto(Content entity) {
-<span class="fc" id="L370">    return this.getDtoBuilder().convert(entity);</span>
+<span class="fc" id="L368">    return this.getDtoBuilder().convert(entity);</span>
 }
 
 @Override
 public PagedMetadata&lt;ContentDto&gt; getContents(RestContentListRequest request, UserDetails user) {
     try {
-<span class="fc" id="L376">        List&lt;String&gt; contentIds = getContentIds(request, user);</span>
-<span class="fc" id="L377">        List&lt;ContentDto&gt; result = toContentDto(request, user, contentIds);</span>
-<span class="fc" id="L378">        return toPagedMetadata(request, contentIds, result);</span>
-<span class="fc" id="L379">    } catch (ResourceNotFoundException | ValidationGenericException e) {</span>
-<span class="fc" id="L380">        throw e;</span>
-<span class="nc" id="L381">    } catch (Exception t) {</span>
-<span class="nc" id="L382">        logger.error(&quot;error in search contents&quot;, t);</span>
-<span class="nc" id="L383">        throw new RestServerError(&quot;error in search contents&quot;, t);</span>
+<span class="fc" id="L374">        List&lt;String&gt; contentIds = getContentIds(request, user);</span>
+<span class="fc" id="L375">        List&lt;ContentDto&gt; result = toContentDto(request, user, contentIds);</span>
+<span class="fc" id="L376">        return toPagedMetadata(request, contentIds, result);</span>
+<span class="fc" id="L377">    } catch (ResourceNotFoundException | ValidationGenericException e) {</span>
+<span class="fc" id="L378">        throw e;</span>
+<span class="nc" id="L379">    } catch (Exception t) {</span>
+<span class="nc" id="L380">        logger.error(&quot;error in search contents&quot;, t);</span>
+<span class="nc" id="L381">        throw new RestServerError(&quot;error in search contents&quot;, t);</span>
     }
 }
 
 private List&lt;String&gt; getContentIds(RestContentListRequest request, UserDetails user) throws EntException {
-<span class="fc" id="L388">    boolean online = isStatusOnline(request.getStatus());</span>
-<span class="fc" id="L389">    EntitySearchFilter[] filters = getEntitySearchFilters(request);</span>
-<span class="fc" id="L390">    List&lt;String&gt; allowedGroups = this.getAllowedGroups(user, online);</span>
-<span class="fc bfc" id="L391" title="All 2 branches covered.">    List&lt;String&gt; result = online</span>
-<span class="fc" id="L392">            ? this.getContentManager()</span>
-<span class="fc" id="L393">            .loadPublicContentsId(request.getCategories(), request.isOrClauseCategoryFilter(),</span>
+<span class="fc" id="L386">    boolean online = isStatusOnline(request.getStatus());</span>
+<span class="fc" id="L387">    EntitySearchFilter[] filters = getEntitySearchFilters(request);</span>
+<span class="fc" id="L388">    List&lt;String&gt; allowedGroups = this.getAllowedGroups(user, online);</span>
+<span class="fc bfc" id="L389" title="All 2 branches covered.">    List&lt;String&gt; result = online</span>
+<span class="fc" id="L390">            ? this.getContentManager()</span>
+<span class="fc" id="L391">            .loadPublicContentsId(request.getCategories(), request.isOrClauseCategoryFilter(),</span>
                     filters, allowedGroups)
-<span class="fc" id="L395">            : this.getContentManager()</span>
-<span class="fc" id="L396">                    .loadWorkContentsId(request.getCategories(), request.isOrClauseCategoryFilter(),</span>
+<span class="fc" id="L393">            : this.getContentManager()</span>
+<span class="fc" id="L394">                    .loadWorkContentsId(request.getCategories(), request.isOrClauseCategoryFilter(),</span>
                             filters, allowedGroups);
-<span class="pc bpc" id="L398" title="1 of 4 branches missed.">    if (!StringUtils.isBlank(request.getText()) &amp;&amp; online) {</span>
+<span class="pc bpc" id="L396" title="1 of 4 branches missed.">    if (!StringUtils.isBlank(request.getText()) &amp;&amp; online) {</span>
         String langCode =
-<span class="pc bpc" id="L400" title="1 of 2 branches missed.">                (StringUtils.isBlank(request.getLang())) ? this.getLangManager().getDefaultLang().getCode()</span>
-<span class="pc" id="L401">                        : request.getLang();</span>
-<span class="fc" id="L402">        List&lt;String&gt; fullTextResult = this.getSearchEngineManager()</span>
-<span class="fc" id="L403">                .searchEntityId(langCode, request.getText(), allowedGroups);</span>
-<span class="fc bfc" id="L404" title="All 2 branches covered.">        result.removeIf(i -&gt; !fullTextResult.contains(i));</span>
+<span class="pc bpc" id="L398" title="1 of 2 branches missed.">                (StringUtils.isBlank(request.getLang())) ? this.getLangManager().getDefaultLang().getCode()</span>
+<span class="pc" id="L399">                        : request.getLang();</span>
+<span class="fc" id="L400">        List&lt;String&gt; fullTextResult = this.getSearchEngineManager()</span>
+<span class="fc" id="L401">                .searchEntityId(langCode, request.getText(), allowedGroups);</span>
+<span class="fc bfc" id="L402" title="All 2 branches covered.">        result.removeIf(i -&gt; !fullTextResult.contains(i));</span>
     }
-<span class="fc" id="L406">    return result;</span>
+<span class="fc" id="L404">    return result;</span>
 }
 
 private EntitySearchFilter[] getEntitySearchFilters(RestContentListRequest request) {
-<span class="fc" id="L410">    List&lt;EntitySearchFilter&gt; filters = request.buildEntitySearchFilters();</span>
-<span class="fc" id="L411">    EntitySearchFilter[] filtersArr = new EntitySearchFilter[filters.size()];</span>
-<span class="fc" id="L412">    filtersArr = filters.toArray(filtersArr);</span>
-<span class="fc" id="L413">    return filtersArr;</span>
+<span class="fc" id="L408">    List&lt;EntitySearchFilter&gt; filters = request.buildEntitySearchFilters();</span>
+<span class="fc" id="L409">    EntitySearchFilter[] filtersArr = new EntitySearchFilter[filters.size()];</span>
+<span class="fc" id="L410">    filtersArr = filters.toArray(filtersArr);</span>
+<span class="fc" id="L411">    return filtersArr;</span>
 }
 
 private boolean isStatusOnline(String status) {
-<span class="fc" id="L417">    return IContentService.STATUS_ONLINE.equalsIgnoreCase(status);</span>
+<span class="fc" id="L415">    return IContentService.STATUS_ONLINE.equalsIgnoreCase(status);</span>
 }
 
 private boolean isModeFull(String mode) {
-<span class="fc" id="L421">    return IContentService.MODE_FULL.equalsIgnoreCase(mode);</span>
+<span class="fc" id="L419">    return IContentService.MODE_FULL.equalsIgnoreCase(mode);</span>
 }
 
 private List&lt;ContentDto&gt; toContentDto(RestContentListRequest request, UserDetails user, List&lt;String&gt; contentIds) {
-<span class="fc" id="L425">    BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(request, &quot;content&quot;);</span>
-<span class="fc" id="L426">    boolean full = isModeFull(request.getMode());</span>
-<span class="fc" id="L427">    List&lt;ContentDto&gt; masterList = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L428" title="All 2 branches covered.">    for (String contentId : request.getSublist(contentIds)) {</span>
-<span class="fc bfc" id="L429" title="All 2 branches covered.">        ContentDto dto = full ? buildFullContentDto(user, bindingResult, contentId,</span>
-<span class="fc" id="L430">                isStatusOnline(request.getStatus()),</span>
-<span class="fc" id="L431">                request.getModel(), request.getLang(), request.isResolveLink()) : buildLightContentDto(contentId);</span>
+<span class="fc" id="L423">    BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(request, &quot;content&quot;);</span>
+<span class="fc" id="L424">    boolean full = isModeFull(request.getMode());</span>
+<span class="fc" id="L425">    List&lt;ContentDto&gt; masterList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L426" title="All 2 branches covered.">    for (String contentId : request.getSublist(contentIds)) {</span>
+<span class="fc bfc" id="L427" title="All 2 branches covered.">        ContentDto dto = full ? buildFullContentDto(user, bindingResult, contentId,</span>
+<span class="fc" id="L428">                isStatusOnline(request.getStatus()),</span>
+<span class="fc" id="L429">                request.getModel(), request.getLang(), request.isResolveLink()) : buildLightContentDto(contentId);</span>
 
-<span class="fc" id="L433">        boolean compatible = isCompatibleWithLinkabilityFilter(dto, request);</span>
+<span class="fc" id="L431">        boolean compatible = isCompatibleWithLinkabilityFilter(dto, request);</span>
 
-<span class="fc bfc" id="L435" title="All 2 branches covered.">        if (compatible) {</span>
-<span class="fc" id="L436">            masterList.add(dto);</span>
+<span class="fc bfc" id="L433" title="All 2 branches covered.">        if (compatible) {</span>
+<span class="fc" id="L434">            masterList.add(dto);</span>
         }
-<span class="fc" id="L438">    }</span>
-<span class="fc" id="L439">    return masterList;</span>
+<span class="fc" id="L436">    }</span>
+<span class="fc" id="L437">    return masterList;</span>
 }
 
 private ContentDto buildFullContentDto(UserDetails user, BeanPropertyBindingResult bindingResult, String contentId,
         boolean online, String modelId, String lang, boolean resolveLink) {
-<span class="fc" id="L444">    ContentDto dto = null;</span>
+<span class="fc" id="L442">    ContentDto dto = null;</span>
     try {
-<span class="fc" id="L446">        Content content = this.getContentManager().loadContent(contentId, online);</span>
-<span class="fc bfc" id="L447" title="All 2 branches covered.">        if (null == content) {</span>
-<span class="fc" id="L448">            throw new ResourceNotFoundException(EntityValidator.ERRCODE_ENTITY_DOES_NOT_EXIST, &quot;Content&quot;, contentId);</span>
+<span class="fc" id="L444">        Content content = this.getContentManager().loadContent(contentId, online);</span>
+<span class="fc bfc" id="L445" title="All 2 branches covered.">        if (null == content) {</span>
+<span class="fc" id="L446">            throw new ResourceNotFoundException(EntityValidator.ERRCODE_ENTITY_DOES_NOT_EXIST, &quot;Content&quot;, contentId);</span>
         }
-<span class="fc" id="L450">        dto = this.buildEntityDto(content);</span>
-<span class="fc" id="L451">    } catch (ResourceNotFoundException rnf) {</span>
-<span class="fc" id="L452">        throw rnf;</span>
-<span class="nc" id="L453">    } catch (Exception e) {</span>
-<span class="nc" id="L454">        logger.error(&quot;Error extracting content&quot;, e);</span>
-<span class="nc" id="L455">        throw new RestServerError(&quot;error extracting content&quot;, e);</span>
-<span class="fc" id="L456">    }</span>
-<span class="fc" id="L457">    dto.setHtml(this.extractRenderedContent(dto, modelId, lang, resolveLink, user, bindingResult));</span>
-<span class="fc" id="L458">    dto.setReferences(this.getReferencesInfo(dto.getId()));</span>
-<span class="fc" id="L459">    return dto;</span>
+<span class="fc" id="L448">        dto = this.buildEntityDto(content);</span>
+<span class="fc" id="L449">    } catch (ResourceNotFoundException rnf) {</span>
+<span class="fc" id="L450">        throw rnf;</span>
+<span class="nc" id="L451">    } catch (Exception e) {</span>
+<span class="nc" id="L452">        logger.error(&quot;Error extracting content&quot;, e);</span>
+<span class="nc" id="L453">        throw new RestServerError(&quot;error extracting content&quot;, e);</span>
+<span class="fc" id="L454">    }</span>
+<span class="fc" id="L455">    dto.setHtml(this.extractRenderedContent(dto, modelId, lang, resolveLink, user, bindingResult));</span>
+<span class="fc" id="L456">    dto.setReferences(this.getReferencesInfo(dto.getId()));</span>
+<span class="fc" id="L457">    return dto;</span>
 }
 
 private ContentDto buildLightContentDto(String contentId) {
-<span class="fc" id="L463">    ContentDto dto = null;</span>
+<span class="fc" id="L461">    ContentDto dto = null;</span>
     try {
-<span class="fc" id="L465">        ContentRecordVO contentVo = this.getContentManager().loadContentVO(contentId);</span>
-<span class="pc bpc" id="L466" title="1 of 2 branches missed.">        if (null == contentVo) {</span>
-<span class="nc" id="L467">            throw new ResourceNotFoundException(EntityValidator.ERRCODE_ENTITY_DOES_NOT_EXIST, &quot;Content&quot;, contentId);</span>
+<span class="fc" id="L463">        ContentRecordVO contentVo = this.getContentManager().loadContentVO(contentId);</span>
+<span class="pc bpc" id="L464" title="1 of 2 branches missed.">        if (null == contentVo) {</span>
+<span class="nc" id="L465">            throw new ResourceNotFoundException(EntityValidator.ERRCODE_ENTITY_DOES_NOT_EXIST, &quot;Content&quot;, contentId);</span>
         }
-<span class="fc" id="L469">        dto = new ContentDto(toContent(contentVo));</span>
-<span class="nc" id="L470">    } catch (ResourceNotFoundException rnf) {</span>
-<span class="nc" id="L471">        throw rnf;</span>
-<span class="nc" id="L472">    } catch (Exception e) {</span>
-<span class="nc" id="L473">        logger.error(&quot;Error extracting content&quot;, e);</span>
-<span class="nc" id="L474">        throw new RestServerError(&quot;error extracting content&quot;, e);</span>
-<span class="fc" id="L475">    }</span>
-<span class="fc" id="L476">    return dto;</span>
+<span class="fc" id="L467">        dto = new ContentDto(toContent(contentVo));</span>
+<span class="nc" id="L468">    } catch (ResourceNotFoundException rnf) {</span>
+<span class="nc" id="L469">        throw rnf;</span>
+<span class="nc" id="L470">    } catch (Exception e) {</span>
+<span class="nc" id="L471">        logger.error(&quot;Error extracting content&quot;, e);</span>
+<span class="nc" id="L472">        throw new RestServerError(&quot;error extracting content&quot;, e);</span>
+<span class="fc" id="L473">    }</span>
+<span class="fc" id="L474">    return dto;</span>
 }
 
 private Content toContent(ContentRecordVO contentVo) {
 
-<span class="fc" id="L481">    Content result = new Content();</span>
-<span class="fc" id="L482">    result.setId(contentVo.getId());</span>
-<span class="fc" id="L483">    result.setTypeCode(contentVo.getTypeCode());</span>
-<span class="fc" id="L484">    result.setTypeDescription(getTypeDescription(contentVo));</span>
-<span class="fc" id="L485">    result.setDescription(contentVo.getDescription());</span>
-<span class="fc" id="L486">    result.setStatus(contentVo.getStatus());</span>
-<span class="fc" id="L487">    result.setCreated(contentVo.getCreate());</span>
-<span class="fc" id="L488">    result.setLastModified(contentVo.getModify());</span>
-<span class="fc" id="L489">    result.setPublished(contentVo.getPublish());</span>
-<span class="fc" id="L490">    result.setOnLine(contentVo.isOnLine());</span>
-<span class="fc" id="L491">    result.setSync(contentVo.isSync());</span>
-<span class="fc" id="L492">    result.setMainGroup(contentVo.getMainGroupCode());</span>
-<span class="fc" id="L493">    result.setVersion(contentVo.getVersion());</span>
-<span class="fc" id="L494">    result.setFirstEditor(contentVo.getFirstEditor());</span>
-<span class="fc" id="L495">    result.setLastEditor(contentVo.getLastEditor());</span>
-<span class="fc" id="L496">    result.setRestriction(contentVo.getRestriction());</span>
+<span class="fc" id="L479">    Content result = new Content();</span>
+<span class="fc" id="L480">    result.setId(contentVo.getId());</span>
+<span class="fc" id="L481">    result.setTypeCode(contentVo.getTypeCode());</span>
+<span class="fc" id="L482">    result.setTypeDescription(getTypeDescription(contentVo));</span>
+<span class="fc" id="L483">    result.setDescription(contentVo.getDescription());</span>
+<span class="fc" id="L484">    result.setStatus(contentVo.getStatus());</span>
+<span class="fc" id="L485">    result.setCreated(contentVo.getCreate());</span>
+<span class="fc" id="L486">    result.setLastModified(contentVo.getModify());</span>
+<span class="fc" id="L487">    result.setPublished(contentVo.getPublish());</span>
+<span class="fc" id="L488">    result.setOnLine(contentVo.isOnLine());</span>
+<span class="fc" id="L489">    result.setSync(contentVo.isSync());</span>
+<span class="fc" id="L490">    result.setMainGroup(contentVo.getMainGroupCode());</span>
+<span class="fc" id="L491">    result.setVersion(contentVo.getVersion());</span>
+<span class="fc" id="L492">    result.setFirstEditor(contentVo.getFirstEditor());</span>
+<span class="fc" id="L493">    result.setLastEditor(contentVo.getLastEditor());</span>
+<span class="fc" id="L494">    result.setRestriction(contentVo.getRestriction());</span>
 
-<span class="fc" id="L498">    return result;</span>
+<span class="fc" id="L496">    return result;</span>
 }
 
 private String getTypeDescription(ContentRecordVO contentVo) {
-<span class="fc" id="L502">    Optional&lt;ContentTypeDto&gt; contentTypeDtoOptional = contentTypeService.findOne(contentVo.getTypeCode());</span>
-<span class="pc bpc" id="L503" title="1 of 2 branches missed.">    if (contentTypeDtoOptional.isPresent()) {</span>
-<span class="fc" id="L504">        return contentTypeDtoOptional.get().getName();</span>
+<span class="fc" id="L500">    Optional&lt;ContentTypeDto&gt; contentTypeDtoOptional = contentTypeService.findOne(contentVo.getTypeCode());</span>
+<span class="pc bpc" id="L501" title="1 of 2 branches missed.">    if (contentTypeDtoOptional.isPresent()) {</span>
+<span class="fc" id="L502">        return contentTypeDtoOptional.get().getName();</span>
     }
-<span class="nc" id="L506">    return null;</span>
+<span class="nc" id="L504">    return null;</span>
 }
 
 private PagedMetadata&lt;ContentDto&gt; toPagedMetadata(RestContentListRequest request,
         List&lt;String&gt; contentIds, List&lt;ContentDto&gt; result) {
-<span class="fc" id="L511">    PagedMetadata&lt;ContentDto&gt; pagedMetadata = new PagedMetadata&lt;&gt;(request, contentIds.size());</span>
-<span class="fc" id="L512">    pagedMetadata.setBody(result);</span>
-<span class="fc" id="L513">    return pagedMetadata;</span>
+<span class="fc" id="L509">    PagedMetadata&lt;ContentDto&gt; pagedMetadata = new PagedMetadata&lt;&gt;(request, contentIds.size());</span>
+<span class="fc" id="L510">    pagedMetadata.setBody(result);</span>
+<span class="fc" id="L511">    return pagedMetadata;</span>
 }
 
 private boolean isCompatibleWithLinkabilityFilter(ContentDto dto, RestContentListRequest requestList) {
-<span class="fc bfc" id="L517" title="All 2 branches covered.">    if (requestList.getForLinkingWithOwnerGroup() == null) {</span>
-<span class="fc" id="L518">        return true;</span>
+<span class="fc bfc" id="L515" title="All 2 branches covered.">    if (requestList.getForLinkingWithOwnerGroup() == null) {</span>
+<span class="fc" id="L516">        return true;</span>
     }
 
-<span class="fc" id="L521">    return GenericResourceUtils.isResourceLinkableByContent(</span>
-<span class="fc" id="L522">            dto.getMainGroup(),</span>
-<span class="fc" id="L523">            dto.getGroups(),</span>
-<span class="fc" id="L524">            requestList.getForLinkingWithOwnerGroup(),</span>
-<span class="fc" id="L525">            Optional.ofNullable(requestList.getForLinkingWithExtraGroups())</span>
-<span class="fc" id="L526">                    .orElse(null)</span>
+<span class="fc" id="L519">    return GenericResourceUtils.isResourceLinkableByContent(</span>
+<span class="fc" id="L520">            dto.getMainGroup(),</span>
+<span class="fc" id="L521">            dto.getGroups(),</span>
+<span class="fc" id="L522">            requestList.getForLinkingWithOwnerGroup(),</span>
+<span class="fc" id="L523">            Optional.ofNullable(requestList.getForLinkingWithExtraGroups())</span>
+<span class="fc" id="L524">                    .orElse(null)</span>
     );
 }
 
 @Override
 public Integer countContentsByType(String contentType) {
     try {
-<span class="fc" id="L533">        EntitySearchFilter[] filters = new EntitySearchFilter[]{</span>
+<span class="fc" id="L531">        EntitySearchFilter[] filters = new EntitySearchFilter[]{</span>
                 new EntitySearchFilter(&quot;typeCode&quot;, false, contentType, false)
         };
 
-<span class="fc" id="L537">        List&lt;String&gt; userGroupCodes = Collections.singletonList(&quot;administrators&quot;);</span>
+<span class="fc" id="L535">        List&lt;String&gt; userGroupCodes = Collections.singletonList(&quot;administrators&quot;);</span>
 
-<span class="fc" id="L539">        return getContentManager().countWorkContents(null, false, filters, userGroupCodes);</span>
-<span class="nc" id="L540">    } catch (Exception t) {</span>
-<span class="nc" id="L541">        logger.error(&quot;error in contents count by type&quot;, t);</span>
-<span class="nc" id="L542">        throw new RestServerError(&quot;error in contents count by type&quot;, t);</span>
+<span class="fc" id="L537">        return getContentManager().countWorkContents(null, false, filters, userGroupCodes);</span>
+<span class="nc" id="L538">    } catch (Exception t) {</span>
+<span class="nc" id="L539">        logger.error(&quot;error in contents count by type&quot;, t);</span>
+<span class="nc" id="L540">        throw new RestServerError(&quot;error in contents count by type&quot;, t);</span>
     }
 }
 
 protected List&lt;String&gt; getAllowedGroups(UserDetails currentUser, boolean requiredOnlineContents) {
-<span class="fc" id="L547">    List&lt;String&gt; groupCodes = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L548" title="All 2 branches covered.">    if (null == currentUser) {</span>
-<span class="pc bpc" id="L549" title="1 of 2 branches missed.">        if (requiredOnlineContents) {</span>
-<span class="fc" id="L550">            groupCodes.add(Group.FREE_GROUP_NAME);</span>
+<span class="fc" id="L545">    List&lt;String&gt; groupCodes = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L546" title="All 2 branches covered.">    if (null == currentUser) {</span>
+<span class="pc bpc" id="L547" title="1 of 2 branches missed.">        if (requiredOnlineContents) {</span>
+<span class="fc" id="L548">            groupCodes.add(Group.FREE_GROUP_NAME);</span>
         }
-<span class="fc" id="L552">        return groupCodes;</span>
+<span class="fc" id="L550">        return groupCodes;</span>
     }
-<span class="fc bfc" id="L554" title="All 2 branches covered.">    if (requiredOnlineContents) {</span>
-<span class="fc" id="L555">        List&lt;Group&gt; groups = this.getAuthorizationManager().getUserGroups(currentUser);</span>
-<span class="fc" id="L556">        groupCodes.addAll(groups.stream().map(Group::getName).collect(Collectors.toList()));</span>
-<span class="fc" id="L557">        groupCodes.add(Group.FREE_GROUP_NAME);</span>
-<span class="fc" id="L558">    } else {</span>
-<span class="fc" id="L559">        List&lt;Group&gt; groupsByPermission = this.getAuthorizationManager()</span>
-<span class="fc" id="L560">                .getGroupsByPermission(currentUser, Permission.CONTENT_EDITOR);</span>
-<span class="fc" id="L561">        groupCodes.addAll(groupsByPermission.stream().map(Group::getName).collect(Collectors.toList()));</span>
+<span class="fc bfc" id="L552" title="All 2 branches covered.">    if (requiredOnlineContents) {</span>
+<span class="fc" id="L553">        List&lt;Group&gt; groups = this.getAuthorizationManager().getUserGroups(currentUser);</span>
+<span class="fc" id="L554">        groupCodes.addAll(groups.stream().map(Group::getName).collect(Collectors.toList()));</span>
+<span class="fc" id="L555">        groupCodes.add(Group.FREE_GROUP_NAME);</span>
+<span class="fc" id="L556">    } else {</span>
+<span class="fc" id="L557">        List&lt;Group&gt; groupsByPermission = this.getAuthorizationManager()</span>
+<span class="fc" id="L558">                .getGroupsByPermission(currentUser, Permission.CONTENT_EDITOR);</span>
+<span class="fc" id="L559">        groupCodes.addAll(groupsByPermission.stream().map(Group::getName).collect(Collectors.toList()));</span>
     }
-<span class="fc" id="L563">    return groupCodes;</span>
+<span class="fc" id="L561">    return groupCodes;</span>
 }
 
 @Override
 public ContentDto getContent(String code, String modelId, String status, String langCode, boolean resolveLink,
         UserDetails user) {
-<span class="fc" id="L569">    BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(code, &quot;content&quot;);</span>
-<span class="fc" id="L570">    boolean online = isStatusOnline(status);</span>
-<span class="fc" id="L571">    this.checkContentAuthorization(user, code, online, false, bindingResult);</span>
-<span class="fc" id="L572">    ContentDto dto = buildFullContentDto(user, bindingResult, code, online, modelId, langCode, resolveLink);</span>
-<span class="fc" id="L573">    dto.setReferences(this.getReferencesInfo(dto.getId()));</span>
-<span class="fc" id="L574">    return dto;</span>
+<span class="fc" id="L567">    BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(code, &quot;content&quot;);</span>
+<span class="fc" id="L568">    boolean online = isStatusOnline(status);</span>
+<span class="fc" id="L569">    this.checkContentAuthorization(user, code, online, false, bindingResult);</span>
+<span class="fc" id="L570">    ContentDto dto = buildFullContentDto(user, bindingResult, code, online, modelId, langCode, resolveLink);</span>
+<span class="fc" id="L571">    dto.setReferences(this.getReferencesInfo(dto.getId()));</span>
+<span class="fc" id="L572">    return dto;</span>
 }
 
 protected String extractRenderedContent(ContentDto dto, String modelId,
         String langCode, boolean resolveLink, UserDetails user, BindingResult bindingResult) {
-<span class="fc" id="L579">    String render = null;</span>
-<span class="pc bpc" id="L580" title="1 of 4 branches missed.">    if (null == modelId || modelId.trim().length() == 0) {</span>
-<span class="fc" id="L581">        return null;</span>
+<span class="fc" id="L577">    String render = null;</span>
+<span class="pc bpc" id="L578" title="1 of 4 branches missed.">    if (null == modelId || modelId.trim().length() == 0) {</span>
+<span class="fc" id="L579">        return null;</span>
     }
-<span class="fc" id="L583">    Integer modelIdInteger = this.checkModel(dto, modelId, bindingResult);</span>
-<span class="pc bpc" id="L584" title="1 of 2 branches missed.">    if (null != modelIdInteger) {</span>
-<span class="fc" id="L585">        Lang lang = this.getLangManager().getDefaultLang();</span>
-<span class="fc bfc" id="L586" title="All 2 branches covered.">        if (!StringUtils.isBlank(langCode)) {</span>
-<span class="fc" id="L587">            lang = this.getLangManager().getLang(langCode);</span>
-<span class="pc bpc" id="L588" title="1 of 2 branches missed.">            if (null == lang) {</span>
-<span class="nc" id="L589">                bindingResult.reject(ContentController.ERRCODE_INVALID_LANG_CODE,</span>
-<span class="nc" id="L590">                        new String[]{modelId, dto.getTypeCode()}, &quot;plugins.jacms.content.model.invalidLangCode&quot;);</span>
-<span class="nc" id="L591">                throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L581">    Integer modelIdInteger = this.checkModel(dto, modelId, bindingResult);</span>
+<span class="pc bpc" id="L582" title="1 of 2 branches missed.">    if (null != modelIdInteger) {</span>
+<span class="fc" id="L583">        Lang lang = this.getLangManager().getDefaultLang();</span>
+<span class="fc bfc" id="L584" title="All 2 branches covered.">        if (!StringUtils.isBlank(langCode)) {</span>
+<span class="fc" id="L585">            lang = this.getLangManager().getLang(langCode);</span>
+<span class="pc bpc" id="L586" title="1 of 2 branches missed.">            if (null == lang) {</span>
+<span class="nc" id="L587">                bindingResult.reject(ContentController.ERRCODE_INVALID_LANG_CODE,</span>
+<span class="nc" id="L588">                        new String[]{modelId, dto.getTypeCode()}, &quot;plugins.jacms.content.model.invalidLangCode&quot;);</span>
+<span class="nc" id="L589">                throw new ValidationGenericException(bindingResult);</span>
             }
         }
-<span class="fc" id="L594">        ContentRenderizationInfo renderizationInfo = this.getContentDispenser()</span>
-<span class="fc" id="L595">                .getRenderizationInfo(dto.getId(), modelIdInteger, lang.getCode(), user, true);</span>
-<span class="fc bfc" id="L596" title="All 2 branches covered.">        if (null != renderizationInfo) {</span>
-<span class="fc bfc" id="L597" title="All 2 branches covered.">            if (resolveLink) {</span>
-<span class="fc" id="L598">                this.getContentDispenser().resolveLinks(renderizationInfo, null);</span>
-<span class="fc" id="L599">                render = renderizationInfo.getRenderedContent();</span>
+<span class="fc" id="L592">        ContentRenderizationInfo renderizationInfo = this.getContentDispenser()</span>
+<span class="fc" id="L593">                .getRenderizationInfo(dto.getId(), modelIdInteger, lang.getCode(), user, true);</span>
+<span class="fc bfc" id="L594" title="All 2 branches covered.">        if (null != renderizationInfo) {</span>
+<span class="fc bfc" id="L595" title="All 2 branches covered.">            if (resolveLink) {</span>
+<span class="fc" id="L596">                this.getContentDispenser().resolveLinks(renderizationInfo, null);</span>
+<span class="fc" id="L597">                render = renderizationInfo.getRenderedContent();</span>
             } else {
-<span class="fc" id="L601">                render = renderizationInfo.getCachedRenderedContent();</span>
+<span class="fc" id="L599">                render = renderizationInfo.getCachedRenderedContent();</span>
             }
         }
     }
-<span class="fc" id="L605">    return render;</span>
+<span class="fc" id="L603">    return render;</span>
 }
 
 protected Integer checkModel(ContentDto dto, String modelId, BindingResult bindingResult) {
-<span class="fc" id="L609">    Integer modelIdInteger = null;</span>
-<span class="pc bpc" id="L610" title="1 of 2 branches missed.">    if (StringUtils.isBlank(modelId)) {</span>
-<span class="nc" id="L611">        return null;</span>
+<span class="fc" id="L607">    Integer modelIdInteger = null;</span>
+<span class="pc bpc" id="L608" title="1 of 2 branches missed.">    if (StringUtils.isBlank(modelId)) {</span>
+<span class="nc" id="L609">        return null;</span>
     }
-<span class="fc bfc" id="L613" title="All 2 branches covered.">    if (modelId.equals(ContentModel.MODEL_ID_DEFAULT)) {</span>
-<span class="pc bpc" id="L614" title="1 of 2 branches missed.">        if (null == dto.getDefaultModel()) {</span>
-<span class="nc" id="L615">            bindingResult.reject(ContentController.ERRCODE_INVALID_MODEL,</span>
+<span class="fc bfc" id="L611" title="All 2 branches covered.">    if (modelId.equals(ContentModel.MODEL_ID_DEFAULT)) {</span>
+<span class="pc bpc" id="L612" title="1 of 2 branches missed.">        if (null == dto.getDefaultModel()) {</span>
+<span class="nc" id="L613">            bindingResult.reject(ContentController.ERRCODE_INVALID_MODEL,</span>
                     &quot;plugins.jacms.content.model.nullDefaultModel&quot;);
-<span class="nc" id="L617">            throw new ValidationGenericException(bindingResult);</span>
+<span class="nc" id="L615">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L619">        modelIdInteger = Integer.parseInt(dto.getDefaultModel());</span>
-<span class="fc bfc" id="L620" title="All 2 branches covered.">    } else if (modelId.equals(ContentModel.MODEL_ID_LIST)) {</span>
-<span class="pc bpc" id="L621" title="1 of 2 branches missed.">        if (null == dto.getListModel()) {</span>
-<span class="nc" id="L622">            bindingResult</span>
-<span class="nc" id="L623">                    .reject(ContentController.ERRCODE_INVALID_MODEL, &quot;plugins.jacms.content.model.nullListModel&quot;);</span>
-<span class="nc" id="L624">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L617">        modelIdInteger = Integer.parseInt(dto.getDefaultModel());</span>
+<span class="fc bfc" id="L618" title="All 2 branches covered.">    } else if (modelId.equals(ContentModel.MODEL_ID_LIST)) {</span>
+<span class="pc bpc" id="L619" title="1 of 2 branches missed.">        if (null == dto.getListModel()) {</span>
+<span class="nc" id="L620">            bindingResult</span>
+<span class="nc" id="L621">                    .reject(ContentController.ERRCODE_INVALID_MODEL, &quot;plugins.jacms.content.model.nullListModel&quot;);</span>
+<span class="nc" id="L622">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L626">        modelIdInteger = Integer.parseInt(dto.getListModel());</span>
+<span class="fc" id="L624">        modelIdInteger = Integer.parseInt(dto.getListModel());</span>
     } else {
-<span class="fc" id="L628">        modelIdInteger = Integer.parseInt(modelId);</span>
+<span class="fc" id="L626">        modelIdInteger = Integer.parseInt(modelId);</span>
     }
-<span class="fc" id="L630">    ContentModel model = this.getContentModelManager().getContentModel(modelIdInteger);</span>
-<span class="fc bfc" id="L631" title="All 2 branches covered.">    if (model == null) {</span>
-<span class="fc" id="L632">        bindingResult.reject(ContentController.ERRCODE_INVALID_MODEL, new String[]{modelId},</span>
+<span class="fc" id="L628">    ContentModel model = this.getContentModelManager().getContentModel(modelIdInteger);</span>
+<span class="fc bfc" id="L629" title="All 2 branches covered.">    if (model == null) {</span>
+<span class="fc" id="L630">        bindingResult.reject(ContentController.ERRCODE_INVALID_MODEL, new String[]{modelId},</span>
                 &quot;plugins.jacms.content.model.nullModel&quot;);
-<span class="fc" id="L634">        throw new ValidationGenericException(bindingResult);</span>
-<span class="fc bfc" id="L635" title="All 2 branches covered.">    } else if (!dto.getTypeCode().equals(model.getContentType())) {</span>
-<span class="fc" id="L636">        bindingResult.reject(ContentController.ERRCODE_INVALID_MODEL,</span>
-<span class="fc" id="L637">                new String[]{modelId, dto.getTypeCode()}, &quot;plugins.jacms.content.model.invalid&quot;);</span>
-<span class="fc" id="L638">        throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L632">        throw new ValidationGenericException(bindingResult);</span>
+<span class="fc bfc" id="L633" title="All 2 branches covered.">    } else if (!dto.getTypeCode().equals(model.getContentType())) {</span>
+<span class="fc" id="L634">        bindingResult.reject(ContentController.ERRCODE_INVALID_MODEL,</span>
+<span class="fc" id="L635">                new String[]{modelId, dto.getTypeCode()}, &quot;plugins.jacms.content.model.invalid&quot;);</span>
+<span class="fc" id="L636">        throw new ValidationGenericException(bindingResult);</span>
     }
-<span class="fc" id="L640">    return modelIdInteger;</span>
+<span class="fc" id="L638">    return modelIdInteger;</span>
 }
 
 @Override
 public ContentDto addContent(ContentDto request, UserDetails user, BindingResult bindingResult) {
-<span class="pc bpc" id="L645" title="1 of 2 branches missed.">    if (!this.getAuthorizationManager().isAuthOnGroup(user, request.getMainGroup())) {</span>
-<span class="nc" id="L646">        bindingResult.reject(ContentController.ERRCODE_UNAUTHORIZED_CONTENT, new String[]{request.getMainGroup()},</span>
+<span class="pc bpc" id="L643" title="1 of 2 branches missed.">    if (!this.getAuthorizationManager().isAuthOnGroup(user, request.getMainGroup())) {</span>
+<span class="nc" id="L644">        bindingResult.reject(ContentController.ERRCODE_UNAUTHORIZED_CONTENT, new String[]{request.getMainGroup()},</span>
                 &quot;plugins.jacms.content.group.unauthorized&quot;);
-<span class="nc" id="L648">        throw new ResourcePermissionsException(bindingResult);</span>
+<span class="nc" id="L646">        throw new ResourcePermissionsException(bindingResult);</span>
     }
-<span class="fc" id="L650">    request.setFirstEditor(user.getUsername());</span>
-<span class="fc" id="L651">    request.setLastEditor(user.getUsername());</span>
-<span class="fc" id="L652">    request.setRestriction(ContentRestriction.getRestrictionValue(request.getMainGroup()));</span>
-<span class="fc" id="L653">    return this.addEntity(JacmsSystemConstants.CONTENT_MANAGER, request, bindingResult);</span>
+<span class="fc" id="L648">    request.setFirstEditor(user.getUsername());</span>
+<span class="fc" id="L649">    request.setLastEditor(user.getUsername());</span>
+<span class="fc" id="L650">    request.setRestriction(ContentRestriction.getRestrictionValue(request.getMainGroup()));</span>
+<span class="fc" id="L651">    return this.addEntity(JacmsSystemConstants.CONTENT_MANAGER, request, bindingResult);</span>
 }
 
 @Override
 public ContentDto updateContent(ContentDto request, UserDetails user, BindingResult bindingResult) {
-<span class="fc" id="L658">    this.checkContentExists(request.getId());</span>
-<span class="fc" id="L659">    this.checkContentAuthorization(user, request.getId(), false, true, bindingResult);</span>
-<span class="fc" id="L660">    request.setLastEditor(user.getUsername());</span>
-<span class="fc" id="L661">    request.setRestriction(ContentRestriction.getRestrictionValue(request.getMainGroup()));</span>
-<span class="fc" id="L662">    return super.updateEntity(JacmsSystemConstants.CONTENT_MANAGER, request, bindingResult);</span>
+<span class="fc" id="L656">    this.checkContentExists(request.getId());</span>
+<span class="fc" id="L657">    this.checkContentAuthorization(user, request.getId(), false, true, bindingResult);</span>
+<span class="fc" id="L658">    request.setLastEditor(user.getUsername());</span>
+<span class="fc" id="L659">    request.setRestriction(ContentRestriction.getRestrictionValue(request.getMainGroup()));</span>
+<span class="fc" id="L660">    return super.updateEntity(JacmsSystemConstants.CONTENT_MANAGER, request, bindingResult);</span>
 }
 
 @Override
 public void deleteContent(String code, UserDetails user) {
-<span class="fc" id="L667">    this.checkContentAuthorization(user, code, false, true, null);</span>
+<span class="fc" id="L665">    this.checkContentAuthorization(user, code, false, true, null);</span>
     try {
-<span class="fc" id="L669">        Content content = this.getContentManager().loadContent(code, false);</span>
-<span class="pc bpc" id="L670" title="1 of 2 branches missed.">        if (null == content) {</span>
-<span class="nc" id="L671">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, code);</span>
+<span class="fc" id="L667">        Content content = this.getContentManager().loadContent(code, false);</span>
+<span class="pc bpc" id="L668" title="1 of 2 branches missed.">        if (null == content) {</span>
+<span class="nc" id="L669">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, code);</span>
         }
-<span class="fc" id="L673">        Content publicContent = this.getContentManager().loadContent(code, true);</span>
-<span class="fc" id="L674">        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(code, &quot;content&quot;);</span>
-<span class="pc bpc" id="L675" title="1 of 2 branches missed.">        if (null != publicContent) {</span>
-<span class="nc" id="L676">            bindingResult.reject(ContentController.ERRCODE_DELETE_PUBLIC_PAGE,</span>
+<span class="fc" id="L671">        Content publicContent = this.getContentManager().loadContent(code, true);</span>
+<span class="fc" id="L672">        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(code, &quot;content&quot;);</span>
+<span class="pc bpc" id="L673" title="1 of 2 branches missed.">        if (null != publicContent) {</span>
+<span class="nc" id="L674">            bindingResult.reject(ContentController.ERRCODE_DELETE_PUBLIC_PAGE,</span>
                     new String[]{code}, &quot;plugins.jacms.content.status.published&quot;);
-<span class="nc" id="L678">            throw new ValidationGenericException(bindingResult);</span>
+<span class="nc" id="L676">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L680">        this.getContentManager().deleteContent(content);</span>
-<span class="nc" id="L681">    } catch (ValidationGenericException e) {</span>
-<span class="nc" id="L682">        throw e;</span>
-<span class="nc" id="L683">    } catch (EntException e) {</span>
-<span class="nc" id="L684">        logger.error(&quot;Error deleting content {}&quot;, code, e);</span>
-<span class="nc" id="L685">        throw new RestServerError(&quot;error deleting content&quot;, e);</span>
-<span class="fc" id="L686">    }</span>
-<span class="fc" id="L687">}</span>
+<span class="fc" id="L678">        this.getContentManager().deleteContent(content);</span>
+<span class="nc" id="L679">    } catch (ValidationGenericException e) {</span>
+<span class="nc" id="L680">        throw e;</span>
+<span class="nc" id="L681">    } catch (EntException e) {</span>
+<span class="nc" id="L682">        logger.error(&quot;Error deleting content {}&quot;, code, e);</span>
+<span class="nc" id="L683">        throw new RestServerError(&quot;error deleting content&quot;, e);</span>
+<span class="fc" id="L684">    }</span>
+<span class="fc" id="L685">}</span>
 
 @Override
 public ContentDto updateContentStatus(String code, String status, UserDetails user) {
-<span class="fc" id="L691">    return updateContentStatus(code, status, user, null);</span>
+<span class="fc" id="L689">    return updateContentStatus(code, status, user, null);</span>
 }
 
 private ContentDto updateContentStatus(String code, String status, UserDetails user,
         BeanPropertyBindingResult bindingResult) {
     try {
-<span class="fc" id="L697">        Content content = this.getContentManager().loadContent(code, false);</span>
-<span class="fc bfc" id="L698" title="All 2 branches covered.">        if (bindingResult == null) {</span>
-<span class="fc" id="L699">            bindingResult = new BeanPropertyBindingResult(code, &quot;content&quot;);</span>
+<span class="fc" id="L695">        Content content = this.getContentManager().loadContent(code, false);</span>
+<span class="fc bfc" id="L696" title="All 2 branches covered.">        if (bindingResult == null) {</span>
+<span class="fc" id="L697">            bindingResult = new BeanPropertyBindingResult(code, &quot;content&quot;);</span>
         }
-<span class="pc bpc" id="L701" title="1 of 2 branches missed.">        if (null == content) {</span>
-<span class="nc" id="L702">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, code);</span>
+<span class="pc bpc" id="L699" title="1 of 2 branches missed.">        if (null == content) {</span>
+<span class="nc" id="L700">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, code);</span>
         }
-<span class="pc bpc" id="L704" title="1 of 4 branches missed.">        if (status.equals(STATUS_DRAFT) &amp;&amp; null == this.getContentManager().loadContent(code, true)) {</span>
-<span class="nc" id="L705">            return this.getDtoBuilder().convert(content);</span>
+<span class="pc bpc" id="L702" title="1 of 4 branches missed.">        if (status.equals(STATUS_DRAFT) &amp;&amp; null == this.getContentManager().loadContent(code, true)) {</span>
+<span class="nc" id="L703">            return this.getDtoBuilder().convert(content);</span>
         }
-<span class="fc" id="L707">        Content newContent = null;</span>
-<span class="fc bfc" id="L708" title="All 2 branches covered.">        if (status.equals(STATUS_ONLINE)) {</span>
+<span class="fc" id="L705">        Content newContent = null;</span>
+<span class="fc bfc" id="L706" title="All 2 branches covered.">        if (status.equals(STATUS_ONLINE)) {</span>
             //need to check referenced objects
-<span class="fc" id="L710">            this.getContentManager().insertOnLineContent(content);</span>
-<span class="fc" id="L711">            newContent = this.getContentManager().loadContent(code, true);</span>
-<span class="pc bpc" id="L712" title="1 of 2 branches missed.">        } else if (status.equals(STATUS_DRAFT)) {</span>
-<span class="fc" id="L713">            Map&lt;String, ContentServiceUtilizer&gt; beans = applicationContext</span>
-<span class="fc" id="L714">                    .getBeansOfType(ContentServiceUtilizer.class);</span>
-<span class="pc bpc" id="L715" title="1 of 2 branches missed.">            if (null != beans) {</span>
-<span class="fc" id="L716">                Iterator&lt;ContentServiceUtilizer&gt; iter = beans.values().iterator();</span>
-<span class="fc bfc" id="L717" title="All 2 branches covered.">                while (iter.hasNext()) {</span>
-<span class="fc" id="L718">                    ContentServiceUtilizer serviceUtilizer = iter.next();</span>
-<span class="fc" id="L719">                    List utilizer = serviceUtilizer.getContentUtilizer(code);</span>
-<span class="pc bpc" id="L720" title="1 of 4 branches missed.">                    if (null != utilizer &amp;&amp; utilizer.size() &gt; 0) {</span>
-<span class="fc" id="L721">                        bindingResult</span>
-<span class="fc" id="L722">                                .reject(ContentController.ERRCODE_REFERENCED_ONLINE_CONTENT, new String[]{code},</span>
+<span class="fc" id="L708">            this.getContentManager().insertOnLineContent(content);</span>
+<span class="fc" id="L709">            newContent = this.getContentManager().loadContent(code, true);</span>
+<span class="pc bpc" id="L710" title="1 of 2 branches missed.">        } else if (status.equals(STATUS_DRAFT)) {</span>
+<span class="fc" id="L711">            Map&lt;String, ContentServiceUtilizer&gt; beans = applicationContext</span>
+<span class="fc" id="L712">                    .getBeansOfType(ContentServiceUtilizer.class);</span>
+<span class="pc bpc" id="L713" title="1 of 2 branches missed.">            if (null != beans) {</span>
+<span class="fc" id="L714">                Iterator&lt;ContentServiceUtilizer&gt; iter = beans.values().iterator();</span>
+<span class="fc bfc" id="L715" title="All 2 branches covered.">                while (iter.hasNext()) {</span>
+<span class="fc" id="L716">                    ContentServiceUtilizer serviceUtilizer = iter.next();</span>
+<span class="fc" id="L717">                    List utilizer = serviceUtilizer.getContentUtilizer(code);</span>
+<span class="pc bpc" id="L718" title="1 of 4 branches missed.">                    if (null != utilizer &amp;&amp; utilizer.size() &gt; 0) {</span>
+<span class="fc" id="L719">                        bindingResult</span>
+<span class="fc" id="L720">                                .reject(ContentController.ERRCODE_REFERENCED_ONLINE_CONTENT, new String[]{code},</span>
                                         &quot;plugins.jacms.content.status.invalid.online.ref&quot;);
-<span class="fc" id="L724">                        throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L722">                        throw new ValidationGenericException(bindingResult);</span>
                     }
-<span class="fc" id="L726">                }</span>
+<span class="fc" id="L724">                }</span>
             }
-<span class="fc" id="L728">            this.getContentManager().removeOnLineContent(content);</span>
-<span class="fc" id="L729">            newContent = this.getContentManager().loadContent(code, false);</span>
+<span class="fc" id="L726">            this.getContentManager().removeOnLineContent(content);</span>
+<span class="fc" id="L727">            newContent = this.getContentManager().loadContent(code, false);</span>
         }
-<span class="fc" id="L731">        return this.getDtoBuilder().convert(newContent);</span>
-<span class="fc" id="L732">    } catch (ValidationGenericException | ResourceNotFoundException e) {</span>
-<span class="fc" id="L733">        throw e;</span>
-<span class="nc" id="L734">    } catch (EntException e) {</span>
-<span class="nc" id="L735">        logger.error(&quot;Error updating content {} status&quot;, code, e);</span>
-<span class="nc" id="L736">        throw new RestServerError(&quot;error in update page content&quot;, e);</span>
+<span class="fc" id="L729">        return this.getDtoBuilder().convert(newContent);</span>
+<span class="fc" id="L730">    } catch (ValidationGenericException | ResourceNotFoundException e) {</span>
+<span class="fc" id="L731">        throw e;</span>
+<span class="nc" id="L732">    } catch (EntException e) {</span>
+<span class="nc" id="L733">        logger.error(&quot;Error updating content {} status&quot;, code, e);</span>
+<span class="nc" id="L734">        throw new RestServerError(&quot;error in update page content&quot;, e);</span>
     }
 }
 
 @Override
 public List&lt;ContentDto&gt; updateContentsStatus(List&lt;String&gt; codes, String status, UserDetails user) {
-<span class="fc" id="L742">    BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(codes, &quot;content&quot;);</span>
-<span class="fc" id="L743">    List&lt;ContentDto&gt; result = codes.stream()</span>
-<span class="fc" id="L744">            .map(code -&gt; {</span>
+<span class="fc" id="L740">    BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(codes, &quot;content&quot;);</span>
+<span class="fc" id="L741">    List&lt;ContentDto&gt; result = codes.stream()</span>
+<span class="fc" id="L742">            .map(code -&gt; {</span>
                 try {
-<span class="fc" id="L746">                    return updateContentStatus(code, status, user, bindingResult);</span>
-<span class="fc" id="L747">                } catch (Exception e) {</span>
-<span class="fc" id="L748">                    logger.error(&quot;Error in updating content(code: {}) status {}&quot;, code, e);</span>
-<span class="fc" id="L749">                    return null;</span>
+<span class="fc" id="L744">                    return updateContentStatus(code, status, user, bindingResult);</span>
+<span class="fc" id="L745">                } catch (Exception e) {</span>
+<span class="fc" id="L746">                    logger.error(&quot;Error in updating content(code: {}) status {}&quot;, code, e);</span>
+<span class="fc" id="L747">                    return null;</span>
                 }
             })
-<span class="fc bfc" id="L752" title="All 2 branches covered.">            .filter(content -&gt; content != null)</span>
-<span class="fc" id="L753">            .collect(Collectors.toList());</span>
-<span class="fc bfc" id="L754" title="All 2 branches covered.">    if (bindingResult.hasErrors()) {</span>
-<span class="fc" id="L755">        throw new ValidationGenericException(bindingResult);</span>
+<span class="fc bfc" id="L750" title="All 2 branches covered.">            .filter(content -&gt; content != null)</span>
+<span class="fc" id="L751">            .collect(Collectors.toList());</span>
+<span class="fc bfc" id="L752" title="All 2 branches covered.">    if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L753">        throw new ValidationGenericException(bindingResult);</span>
     }
 
-<span class="fc" id="L758">    return result;</span>
+<span class="fc" id="L756">    return result;</span>
 }
 
 @Override
 public PagedMetadata&lt;?&gt; getContentReferences(String code, String managerName, UserDetails user,
         RestListRequest requestList) {
     try {
-<span class="nc" id="L765">        Content content = this.getContentManager().loadContent(code, false);</span>
-<span class="nc bnc" id="L766" title="All 2 branches missed.">        if (null == content) {</span>
-<span class="nc" id="L767">            logger.warn(&quot;no content found with code {}&quot;, code);</span>
-<span class="nc" id="L768">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, code);</span>
+<span class="nc" id="L763">        Content content = this.getContentManager().loadContent(code, false);</span>
+<span class="nc bnc" id="L764" title="All 2 branches missed.">        if (null == content) {</span>
+<span class="nc" id="L765">            logger.warn(&quot;no content found with code {}&quot;, code);</span>
+<span class="nc" id="L766">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, code);</span>
         }
-<span class="nc" id="L770">        ContentServiceUtilizer&lt;?&gt; utilizer = this.getContentServiceUtilizer(managerName);</span>
-<span class="nc bnc" id="L771" title="All 2 branches missed.">        if (null == utilizer) {</span>
-<span class="nc" id="L772">            logger.warn(&quot;no references found for {}&quot;, managerName);</span>
-<span class="nc" id="L773">            throw new ResourceNotFoundException(ERRCODE_CONTENT_REFERENCES, &quot;reference&quot;, managerName);</span>
+<span class="nc" id="L768">        ContentServiceUtilizer&lt;?&gt; utilizer = this.getContentServiceUtilizer(managerName);</span>
+<span class="nc bnc" id="L769" title="All 2 branches missed.">        if (null == utilizer) {</span>
+<span class="nc" id="L770">            logger.warn(&quot;no references found for {}&quot;, managerName);</span>
+<span class="nc" id="L771">            throw new ResourceNotFoundException(ERRCODE_CONTENT_REFERENCES, &quot;reference&quot;, managerName);</span>
         }
-<span class="nc" id="L775">        List&lt;?&gt; dtoList = utilizer.getContentUtilizer(code);</span>
-<span class="nc" id="L776">        List&lt;?&gt; subList = requestList.getSublist(dtoList);</span>
-<span class="nc" id="L777">        SearcherDaoPaginatedResult&lt;?&gt; pagedResult = new SearcherDaoPaginatedResult(dtoList.size(), subList);</span>
-<span class="nc" id="L778">        PagedMetadata&lt;Object&gt; pagedMetadata = new PagedMetadata&lt;&gt;(requestList, pagedResult);</span>
-<span class="nc" id="L779">        pagedMetadata.setBody((List&lt;Object&gt;) subList);</span>
-<span class="nc" id="L780">        return pagedMetadata;</span>
-<span class="nc" id="L781">    } catch (EntException ex) {</span>
-<span class="nc" id="L782">        logger.error(&quot;Error extracting content references - content {} - manager {}&quot;, code, managerName, ex);</span>
-<span class="nc" id="L783">        throw new RestServerError(&quot;Error extracting content references&quot;, ex);</span>
+<span class="nc" id="L773">        List&lt;?&gt; dtoList = utilizer.getContentUtilizer(code);</span>
+<span class="nc" id="L774">        List&lt;?&gt; subList = requestList.getSublist(dtoList);</span>
+<span class="nc" id="L775">        SearcherDaoPaginatedResult&lt;?&gt; pagedResult = new SearcherDaoPaginatedResult(dtoList.size(), subList);</span>
+<span class="nc" id="L776">        PagedMetadata&lt;Object&gt; pagedMetadata = new PagedMetadata&lt;&gt;(requestList, pagedResult);</span>
+<span class="nc" id="L777">        pagedMetadata.setBody((List&lt;Object&gt;) subList);</span>
+<span class="nc" id="L778">        return pagedMetadata;</span>
+<span class="nc" id="L779">    } catch (EntException ex) {</span>
+<span class="nc" id="L780">        logger.error(&quot;Error extracting content references - content {} - manager {}&quot;, code, managerName, ex);</span>
+<span class="nc" id="L781">        throw new RestServerError(&quot;Error extracting content references&quot;, ex);</span>
     }
 }
 
 private ContentServiceUtilizer&lt;?&gt; getContentServiceUtilizer(String managerName) {
-<span class="nc" id="L788">    Map&lt;String, ContentServiceUtilizer&gt; beans = this.applicationContext</span>
-<span class="nc" id="L789">            .getBeansOfType(ContentServiceUtilizer.class);</span>
-<span class="nc" id="L790">    ContentServiceUtilizer defName = beans.values().stream()</span>
-<span class="nc" id="L791">            .filter(service -&gt; service.getManagerName().equals(managerName))</span>
-<span class="nc" id="L792">            .findFirst().orElse(null);</span>
-<span class="nc" id="L793">    return defName;</span>
+<span class="nc" id="L786">    Map&lt;String, ContentServiceUtilizer&gt; beans = this.applicationContext</span>
+<span class="nc" id="L787">            .getBeansOfType(ContentServiceUtilizer.class);</span>
+<span class="nc" id="L788">    ContentServiceUtilizer defName = beans.values().stream()</span>
+<span class="nc" id="L789">            .filter(service -&gt; service.getManagerName().equals(managerName))</span>
+<span class="nc" id="L790">            .findFirst().orElse(null);</span>
+<span class="nc" id="L791">    return defName;</span>
 }
 
 @Override
 protected Content addEntity(IEntityManager entityManager, Content entityToAdd) {
-<span class="fc" id="L798">    return this.updateEntity(entityManager, entityToAdd);</span>
+<span class="fc" id="L796">    return this.updateEntity(entityManager, entityToAdd);</span>
 }
 
 @Override
 protected Content updateEntity(IEntityManager entityManager, Content entityToUpdate) {
     try {
-<span class="fc" id="L804">        this.getContentManager().saveContent(entityToUpdate);</span>
-<span class="fc" id="L805">        return this.getContentManager().loadContent(entityToUpdate.getId(), false);</span>
-<span class="nc" id="L806">    } catch (Exception e) {</span>
-<span class="nc" id="L807">        logger.error(&quot;Error saving content&quot;, e);</span>
-<span class="nc" id="L808">        throw new RestServerError(&quot;Error saving content&quot;, e);</span>
+<span class="fc" id="L802">        this.getContentManager().saveContent(entityToUpdate);</span>
+<span class="fc" id="L803">        return this.getContentManager().loadContent(entityToUpdate.getId(), false);</span>
+<span class="nc" id="L804">    } catch (Exception e) {</span>
+<span class="nc" id="L805">        logger.error(&quot;Error saving content&quot;, e);</span>
+<span class="nc" id="L806">        throw new RestServerError(&quot;Error saving content&quot;, e);</span>
     }
 }
 
 @Override
 protected void scanEntity(Content currentEntity, BindingResult bindingResult) {
-<span class="fc" id="L814">    super.scanEntity(currentEntity, bindingResult);</span>
+<span class="fc" id="L812">    super.scanEntity(currentEntity, bindingResult);</span>
 
     //Validate Resources Main Group
-<span class="fc bfc" id="L817" title="All 2 branches covered.">    for (AttributeInterface attr : currentEntity.getAttributeList()) {</span>
-<span class="fc bfc" id="L818" title="All 2 branches covered.">        if (AbstractResourceAttribute.class.isAssignableFrom(attr.getClass())) {</span>
-<span class="fc" id="L819">            AbstractResourceAttribute resAttr = (AbstractResourceAttribute) attr;</span>
+<span class="fc bfc" id="L815" title="All 2 branches covered.">    for (AttributeInterface attr : currentEntity.getAttributeList()) {</span>
+<span class="fc bfc" id="L816" title="All 2 branches covered.">        if (AbstractResourceAttribute.class.isAssignableFrom(attr.getClass())) {</span>
+<span class="fc" id="L817">            AbstractResourceAttribute resAttr = (AbstractResourceAttribute) attr;</span>
 
-<span class="fc bfc" id="L821" title="All 2 branches covered.">            for (ResourceInterface res : resAttr.getResources().values()) {</span>
-<span class="fc bfc" id="L822" title="All 2 branches covered.">                String idOrCode = res.getId() == null ? res.getCorrelationCode() : res.getId();</span>
+<span class="fc bfc" id="L819" title="All 2 branches covered.">            for (ResourceInterface res : resAttr.getResources().values()) {</span>
+<span class="fc bfc" id="L820" title="All 2 branches covered.">                String idOrCode = res.getId() == null ? res.getCorrelationCode() : res.getId();</span>
                 AssetDto resource;
                 try {
-<span class="fc" id="L825">                    resource = resourcesService.getAsset(res.getId(), res.getCorrelationCode());</span>
-<span class="fc" id="L826">                    res.setId(resource.getId());</span>
-<span class="fc" id="L827">                } catch (ResourceNotFoundException e) {</span>
-<span class="fc" id="L828">                    logger.error(&quot;Resource not found: &quot; + idOrCode);</span>
-<span class="fc" id="L829">                    bindingResult.reject(EntityValidator.ERRCODE_ATTRIBUTE_INVALID,</span>
+<span class="fc" id="L823">                    resource = resourcesService.getAsset(res.getId(), res.getCorrelationCode());</span>
+<span class="fc" id="L824">                    res.setId(resource.getId());</span>
+<span class="fc" id="L825">                } catch (ResourceNotFoundException e) {</span>
+<span class="fc" id="L826">                    logger.error(&quot;Resource not found: &quot; + idOrCode);</span>
+<span class="fc" id="L827">                    bindingResult.reject(EntityValidator.ERRCODE_ATTRIBUTE_INVALID,</span>
                             &quot;Resource not found - &quot; + idOrCode);
-<span class="fc" id="L831">                    return;</span>
-<span class="fc" id="L832">                }</span>
+<span class="fc" id="L829">                    return;</span>
+<span class="fc" id="L830">                }</span>
 
-<span class="fc" id="L834">                String resourceMainGroup = resource.getGroup();</span>
+<span class="fc" id="L832">                String resourceMainGroup = resource.getGroup();</span>
 
-<span class="fc bfc" id="L836" title="All 2 branches covered.">                if (!resourceMainGroup.equals(Group.FREE_GROUP_NAME)</span>
-<span class="pc bpc" id="L837" title="1 of 2 branches missed.">                        &amp;&amp; !resourceMainGroup.equals(currentEntity.getMainGroup())</span>
-<span class="pc bpc" id="L838" title="1 of 2 branches missed.">                        &amp;&amp; !currentEntity.getGroups().contains(resourceMainGroup)) {</span>
-<span class="fc" id="L839">                    bindingResult.reject(EntityValidator.ERRCODE_ATTRIBUTE_INVALID,</span>
+<span class="fc bfc" id="L834" title="All 2 branches covered.">                if (!resourceMainGroup.equals(Group.FREE_GROUP_NAME)</span>
+<span class="pc bpc" id="L835" title="1 of 2 branches missed.">                        &amp;&amp; !resourceMainGroup.equals(currentEntity.getMainGroup())</span>
+<span class="pc bpc" id="L836" title="1 of 2 branches missed.">                        &amp;&amp; !currentEntity.getGroups().contains(resourceMainGroup)) {</span>
+<span class="fc" id="L837">                    bindingResult.reject(EntityValidator.ERRCODE_ATTRIBUTE_INVALID,</span>
                             &quot;Invalid resource group - &quot; + resourceMainGroup);
                 }
-<span class="fc" id="L842">            }</span>
+<span class="fc" id="L840">            }</span>
         }
-<span class="fc" id="L844">    }</span>
-<span class="fc" id="L845">}</span>
+<span class="fc" id="L842">    }</span>
+<span class="fc" id="L843">}</span>
 
 private Map&lt;String, Boolean&gt; getReferencesInfo(String contentId) {
-<span class="fc" id="L848">    Map&lt;String, Boolean&gt; references = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L849">    Map&lt;String, ContentServiceUtilizer&gt; beans = this.applicationContext</span>
-<span class="fc" id="L850">            .getBeansOfType(ContentServiceUtilizer.class);</span>
-<span class="fc" id="L851">    beans.values().stream().forEach(service -&gt; {</span>
-<span class="fc" id="L852">        List&lt;?&gt; utilizers = service.getContentUtilizer(contentId);</span>
-<span class="pc bpc" id="L853" title="1 of 4 branches missed.">        references.put(service.getManagerName(), (utilizers != null &amp;&amp; !utilizers.isEmpty()));</span>
-<span class="fc" id="L854">    });</span>
-<span class="fc" id="L855">    return references;</span>
+<span class="fc" id="L846">    Map&lt;String, Boolean&gt; references = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L847">    Map&lt;String, ContentServiceUtilizer&gt; beans = this.applicationContext</span>
+<span class="fc" id="L848">            .getBeansOfType(ContentServiceUtilizer.class);</span>
+<span class="fc" id="L849">    beans.values().stream().forEach(service -&gt; {</span>
+<span class="fc" id="L850">        List&lt;?&gt; utilizers = service.getContentUtilizer(contentId);</span>
+<span class="pc bpc" id="L851" title="1 of 4 branches missed.">        references.put(service.getManagerName(), (utilizers != null &amp;&amp; !utilizers.isEmpty()));</span>
+<span class="fc" id="L852">    });</span>
+<span class="fc" id="L853">    return references;</span>
 }
 
 protected void checkContentAuthorization(UserDetails userDetails, String contentId, boolean publicVersion,
         boolean edit, BindingResult mainBindingResult) {
     try {
         PublicContentAuthorizationInfo pcai =
-<span class="fc bfc" id="L862" title="All 2 branches covered.">                (publicVersion) ? this.getContentAuthorizationHelper().getAuthorizationInfo(contentId) : null;</span>
-<span class="fc bfc" id="L863" title="All 4 branches covered.">        if (publicVersion &amp;&amp; null == pcai) {</span>
-<span class="fc" id="L864">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, contentId);</span>
+<span class="fc bfc" id="L860" title="All 2 branches covered.">                (publicVersion) ? this.getContentAuthorizationHelper().getAuthorizationInfo(contentId) : null;</span>
+<span class="fc bfc" id="L861" title="All 4 branches covered.">        if (publicVersion &amp;&amp; null == pcai) {</span>
+<span class="fc" id="L862">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, contentId);</span>
         }
-<span class="fc" id="L866">        List&lt;String&gt; userGroupCodes = new ArrayList&lt;&gt;();</span>
-<span class="pc bpc" id="L867" title="1 of 2 branches missed.">        List&lt;Group&gt; groups = (null != userDetails) ? this.getAuthorizationManager().getUserGroups(userDetails)</span>
-<span class="pc" id="L868">                : new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L869">        userGroupCodes.addAll(groups.stream().map(Group::getName).collect(Collectors.toList()));</span>
-<span class="fc" id="L870">        userGroupCodes.add(Group.FREE_GROUP_NAME);</span>
-<span class="pc bpc" id="L871" title="3 of 8 branches missed.">        if (!(publicVersion &amp;&amp; !edit &amp;&amp; null != pcai &amp;&amp; pcai.isUserAllowed(userGroupCodes))</span>
-<span class="pc bpc" id="L872" title="1 of 2 branches missed.">                &amp;&amp; !this.getContentAuthorizationHelper().isAuthToEdit(userDetails, contentId, publicVersion)) {</span>
+<span class="fc" id="L864">        List&lt;String&gt; userGroupCodes = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L865" title="1 of 2 branches missed.">        List&lt;Group&gt; groups = (null != userDetails) ? this.getAuthorizationManager().getUserGroups(userDetails)</span>
+<span class="pc" id="L866">                : new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L867">        userGroupCodes.addAll(groups.stream().map(Group::getName).collect(Collectors.toList()));</span>
+<span class="fc" id="L868">        userGroupCodes.add(Group.FREE_GROUP_NAME);</span>
+<span class="pc bpc" id="L869" title="3 of 8 branches missed.">        if (!(publicVersion &amp;&amp; !edit &amp;&amp; null != pcai &amp;&amp; pcai.isUserAllowed(userGroupCodes))</span>
+<span class="pc bpc" id="L870" title="1 of 2 branches missed.">                &amp;&amp; !this.getContentAuthorizationHelper().isAuthToEdit(userDetails, contentId, publicVersion)) {</span>
             BindingResult bindingResult =
-<span class="nc bnc" id="L874" title="All 2 branches missed.">                    (null == mainBindingResult) ? new BeanPropertyBindingResult(contentId, &quot;content&quot;)</span>
-<span class="nc" id="L875">                            : mainBindingResult;</span>
-<span class="nc" id="L876">            bindingResult.reject(ContentController.ERRCODE_UNAUTHORIZED_CONTENT, new String[]{contentId},</span>
+<span class="nc bnc" id="L872" title="All 2 branches missed.">                    (null == mainBindingResult) ? new BeanPropertyBindingResult(contentId, &quot;content&quot;)</span>
+<span class="nc" id="L873">                            : mainBindingResult;</span>
+<span class="nc" id="L874">            bindingResult.reject(ContentController.ERRCODE_UNAUTHORIZED_CONTENT, new String[]{contentId},</span>
                     &quot;plugins.jacms.content.unauthorized.access&quot;);
-<span class="nc" id="L878">            throw new ResourcePermissionsException(bindingResult);</span>
+<span class="nc" id="L876">            throw new ResourcePermissionsException(bindingResult);</span>
         }
-<span class="fc" id="L880">    } catch (ResourceNotFoundException | ResourcePermissionsException ex) {</span>
-<span class="fc" id="L881">        throw ex;</span>
-<span class="nc" id="L882">    } catch (Exception ex) {</span>
-<span class="nc" id="L883">        logger.error(&quot;error checking auth for content {}&quot;, contentId, ex);</span>
-<span class="nc" id="L884">        throw new RestServerError(&quot;error checking auth for content&quot;, ex);</span>
-<span class="fc" id="L885">    }</span>
-<span class="fc" id="L886">}</span>
+<span class="fc" id="L878">    } catch (ResourceNotFoundException | ResourcePermissionsException ex) {</span>
+<span class="fc" id="L879">        throw ex;</span>
+<span class="nc" id="L880">    } catch (Exception ex) {</span>
+<span class="nc" id="L881">        logger.error(&quot;error checking auth for content {}&quot;, contentId, ex);</span>
+<span class="nc" id="L882">        throw new RestServerError(&quot;error checking auth for content&quot;, ex);</span>
+<span class="fc" id="L883">    }</span>
+<span class="fc" id="L884">}</span>
 
 protected void checkContentExists(String code) {
     try {
-<span class="fc bfc" id="L890" title="All 2 branches covered.">        if (null == getContentManager().loadContent(code, false)) {</span>
-<span class="fc" id="L891">            logger.error(&quot;Content not found: &quot; + code);</span>
-<span class="fc" id="L892">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, code);</span>
+<span class="fc bfc" id="L888" title="All 2 branches covered.">        if (null == getContentManager().loadContent(code, false)) {</span>
+<span class="fc" id="L889">            logger.error(&quot;Content not found: &quot; + code);</span>
+<span class="fc" id="L890">            throw new ResourceNotFoundException(ERRCODE_CONTENT_NOT_FOUND, &quot;content&quot;, code);</span>
         }
-<span class="nc" id="L894">    } catch (EntException ex) {</span>
-<span class="nc" id="L895">        throw new RestServerError(&quot;plugins.jacms.content.contentManager.error.read&quot;, null);</span>
-<span class="fc" id="L896">    }</span>
-<span class="fc" id="L897">}</span>
+<span class="nc" id="L892">    } catch (EntException ex) {</span>
+<span class="nc" id="L893">        throw new RestServerError(&quot;plugins.jacms.content.contentManager.error.read&quot;, null);</span>
+<span class="fc" id="L894">    }</span>
+<span class="fc" id="L895">}</span>
 
 public boolean exists(String code, boolean online) throws EntException {
-<span class="fc bfc" id="L900" title="All 2 branches covered.">    return (null != getContentManager().loadContent(code, online));</span>
+<span class="fc bfc" id="L898" title="All 2 branches covered.">    return (null != getContentManager().loadContent(code, online));</span>
 }
 
 public boolean exists(String code) throws EntException {
-<span class="pc bpc" id="L904" title="1 of 4 branches missed.">    return exists(code, true) || exists(code, false);</span>
+<span class="pc bpc" id="L902" title="1 of 4 branches missed.">    return exists(code, true) || exists(code, false);</span>
 }
 
 @Override
 public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-<span class="fc" id="L909">    this.applicationContext = applicationContext;</span>
-<span class="fc" id="L910">}</span>
+<span class="fc" id="L907">    this.applicationContext = applicationContext;</span>
+<span class="fc" id="L908">}</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
