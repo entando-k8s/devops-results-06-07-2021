@@ -1,0 +1,113 @@
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-v6k5s-1[0m stage [32mfrom-build-pack[0m and container [32mcredential-initializer[0m
+{"level":"info","ts":1621331589.5272768,"caller":"creds-init/main.go:44","msg":"Credentials initialized."}
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-v6k5s-1[0m stage [32mfrom-build-pack[0m and container [32mworking-dir-initializer[0m
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-v6k5s-1[0m stage [32mfrom-build-pack[0m and container [32mplace-tools[0m
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-v6k5s-1[0m stage [32mfrom-build-pack[0m and container [32mstep-git-source-entando-k8s-entando-k8s-operato-v6k5s-5g8hv[0m
+{"level":"info","ts":1621331611.1747842,"caller":"git/git.go:105","msg":"Successfully cloned https://github.com/entando-k8s/entando-k8s-operator-bundle.git @ master in path /workspace/source"}
+{"level":"warn","ts":1621331611.1750932,"caller":"git/git.go:152","msg":"Unexpected error: creating symlink: symlink /tekton/home/.ssh /****/.ssh: file exists"}
+{"level":"info","ts":1621331611.2826304,"caller":"git/git.go:133","msg":"Successfully initialized and updated submodules in path /workspace/source"}
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-v6k5s-1[0m stage [32mfrom-build-pack[0m and container [32mstep-setup-builder-home[0m
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-v6k5s-1[0m stage [32mfrom-build-pack[0m and container [32mstep-git-merge[0m
+Using SHAs from PULL_REFS=master:7d096dee918b658ddc332db1ea3720eb20c1d044,18:633923ca5a525609445e7e756191dd915f724e40
+DEBUG: LC_ALL=C JX_LOG_LEVEL=error git fetch origin --unshallow 633923ca5a525609445e7e756191dd915f724e40: 7d096dee918b658ddc332db1ea3720eb20c1d044:
+DEBUG: ran git fetch --unshallow origin 633923ca5a525609445e7e756191dd915f724e40: 7d096dee918b658ddc332db1ea3720eb20c1d044: in 
+DEBUG: LC_ALL=C JX_LOG_LEVEL=error git branch
+DEBUG: LC_ALL=C JX_LOG_LEVEL=error git checkout master
+DEBUG: ran git checkout master in 
+DEBUG: JX_LOG_LEVEL=error LC_ALL=C git reset --hard 7d096dee918b658ddc332db1ea3720eb20c1d044
+DEBUG: ran git reset --hard 7d096dee918b658ddc332db1ea3720eb20c1d044 in 
+DEBUG: LC_ALL=C JX_LOG_LEVEL=error git clean -fd .
+DEBUG: ran clean --force -d . in 
+DEBUG: LC_ALL=C JX_LOG_LEVEL=error git merge 633923ca5a525609445e7e756191dd915f724e40
+DEBUG: ran git merge 633923ca5a525609445e7e756191dd915f724e40 in 
+DEBUG: LC_ALL=C JX_LOG_LEVEL=error git log --format=%H%x1f%an%x1f%ae%x1f%cn%x1f%ce%x1f%s%n%b%x1e 7d096dee918b658ddc332db1ea3720eb20c1d044..HEAD
+Merged SHA 633923ca5a525609445e7e756191dd915f724e40 with commit message 'Merge branch 'master' into v6.3.2-final-pr' into base branch master
+Merged SHA b54fc723f0bfd01b5d525cdcd2f542577f5ec27c with commit message 'Removed clusterroles from namespace deployment' into base branch master
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-v6k5s-1[0m stage [32mfrom-build-pack[0m and container [32mstep-build-set-csv-version[0m
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-v6k5s-1[0m stage [32mfrom-build-pack[0m and container [32mstep-build-container-build[0m
+This avoids unwanted kaniko command substitution
+Generating tags...
+ - entando/entando-k8s-operator-bundle-internal -> *********/entando/entando-k8s-operator-bundle-internal:0.0.0-SNAPSHOT-PR-18-1
+Checking cache...
+ - entando/entando-k8s-operator-bundle-internal: Not found. Building
+Building [entando/entando-k8s-operator-bundle-internal]...
+Sending build context to Docker daemon  134.7kB
+Step 1/18 : FROM scratch
+ ---> 
+Step 2/18 : LABEL operators.operatorframework.io.bundle.channels.v1 beta
+ ---> Using cache
+ ---> d91c21e57c93
+Step 3/18 : LABEL operators.operatorframework.io.bundle.manifests.v1 manifests/
+ ---> Using cache
+ ---> 89619b4685fc
+Step 4/18 : LABEL operators.operatorframework.io.bundle.mediatype.v1 registry+v1
+ ---> Using cache
+ ---> 2af307a39112
+Step 5/18 : LABEL operators.operatorframework.io.bundle.metadata.v1 metadata/
+ ---> Using cache
+ ---> f62590e87b57
+Step 6/18 : LABEL operators.operatorframework.io.bundle.package.v1 entando-k8s-operator
+ ---> Using cache
+ ---> bf43ec2bb519
+Step 7/18 : LABEL operators.operatorframework.io.metrics.builder operator-sdk-v1.2.0
+ ---> Using cache
+ ---> 0e897b4acad3
+Step 8/18 : LABEL operators.operatorframework.io.bundle.channel.default.v1 beta
+ ---> Using cache
+ ---> ecaca6610351
+Step 9/18 : LABEL operators.operatorframework.io.metrics.mediatype.v1 metrics+v1
+ ---> Using cache
+ ---> 8af5a02ac519
+Step 10/18 : LABEL operators.operatorframework.io.metrics.project_layout helm.sdk.operatorframework.io/v1
+ ---> Using cache
+ ---> f0a89905d94e
+Step 11/18 : LABEL operators.operatorframework.io.test.config.v1 tests/scorecard/
+ ---> Using cache
+ ---> c78b01187a6a
+Step 12/18 : LABEL operators.operatorframework.io.test.mediatype.v1 scorecard+v1
+ ---> Using cache
+ ---> cca4fc44c49a
+Step 13/18 : LABEL com.redhat.openshift.versions "v4.6"
+ ---> Using cache
+ ---> 8d82b131e6f7
+Step 14/18 : LABEL com.redhat.delivery.operator.bundle ****
+ ---> Using cache
+ ---> 93936b8da59a
+Step 15/18 : LABEL com.redhat.delivery.backport false
+ ---> Using cache
+ ---> 1129be8b35b0
+Step 16/18 : COPY manifests/k8s-116-and-later/cluster-resources manifests/k8s-116-and-later/olm-deployment /manifests/
+ ---> 49b8aa09fb87
+Step 17/18 : COPY metadata /metadata/
+ ---> 987c13b48396
+Step 18/18 : COPY tests/scorecard /tests/scorecard/
+ ---> 5d1d08898185
+Successfully built 5d1d08898185
+The push refers to a repository [*********/entando/entando-k8s-operator-bundle-internal]
+3ab926d5ef2c: Preparing
+b52bf66267ad: Preparing
+144df3ebdd18: Preparing
+b52bf66267ad: Pushed
+144df3ebdd18: Pushed
+3ab926d5ef2c: Pushed
+0.0.0-SNAPSHOT-PR-18-1: digest: sha256:23f4ff6a52f9595c87ae3e47df5e71a26bc6e33411fd7056d72a4faf052b9c37 size: 940
+There is a new version (1.24.1) of Skaffold available. Download it at https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+
+
+Showing logs for build [32mentando-k8s-entando-k8s-operato-v6k5s-1[0m stage [32mfrom-build-pack[0m and container [32mstep-build-verify-bundle[0m
+time="2021-05-18T09:53:45Z" level=info msg="Unpacking image layers"
+time="2021-05-18T09:53:45Z" level=info msg="running /usr/bin/docker pull *********/entando/entando-k8s-operator-bundle-internal:0.0.0-SNAPSHOT-PR-18-1"
+time="2021-05-18T09:53:47Z" level=info msg="running docker create"
+time="2021-05-18T09:53:47Z" level=info msg="running docker cp"
+time="2021-05-18T09:53:47Z" level=info msg="running docker rm"
+time="2021-05-18T09:53:47Z" level=info msg="Found annotations file" bundle-dir=/tmp/bundle-123517908 container-tool=docker
+time="2021-05-18T09:53:47Z" level=info msg="Could not find optional dependencies file" bundle-dir=/tmp/bundle-123517908 container-tool=docker
+time="2021-05-18T09:53:47Z" level=info msg="All validation tests have completed successfully"
