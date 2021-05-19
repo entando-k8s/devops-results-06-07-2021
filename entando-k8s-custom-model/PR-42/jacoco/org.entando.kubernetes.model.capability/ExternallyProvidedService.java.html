@@ -35,28 +35,43 @@ import java.util.Optional;
         setterVisibility = Visibility.NONE
 )
 public class ExternallyProvidedService {
+
     private final String host;
     private final Integer port;
     private final String adminSecretName;
+    private final String path;
+    private final Boolean requiresDirectConnection;
 
     public ExternallyProvidedService(@JsonProperty(&quot;host&quot;) String host,
             @JsonProperty(&quot;port&quot;) Integer port,
-<span class="fc" id="L44">            @JsonProperty(&quot;adminSecretName&quot;)String adminSecretName) {</span>
-<span class="fc" id="L45">        this.host = host;</span>
-<span class="fc" id="L46">        this.port = port;</span>
-<span class="fc" id="L47">        this.adminSecretName = adminSecretName;</span>
-<span class="fc" id="L48">    }</span>
+            @JsonProperty(&quot;adminSecretName&quot;) String adminSecretName,
+            @JsonProperty(&quot;path&quot;) String path,
+<span class="fc" id="L49">            @JsonProperty(&quot;requiresDirectConnection&quot;) Boolean requiresDirectConnection) {</span>
+<span class="fc" id="L50">        this.host = host;</span>
+<span class="fc" id="L51">        this.port = port;</span>
+<span class="fc" id="L52">        this.adminSecretName = adminSecretName;</span>
+<span class="fc" id="L53">        this.path = path;</span>
+<span class="fc" id="L54">        this.requiresDirectConnection = requiresDirectConnection;</span>
+<span class="fc" id="L55">    }</span>
 
     public String getHost() {
-<span class="fc" id="L51">        return host;</span>
+<span class="fc" id="L58">        return host;</span>
     }
 
     public Optional&lt;Integer&gt; getPort() {
-<span class="fc" id="L55">        return Optional.ofNullable(port);</span>
+<span class="fc" id="L62">        return Optional.ofNullable(port);</span>
+    }
+
+    public Optional&lt;String&gt; getPath() {
+<span class="fc" id="L66">        return Optional.ofNullable(path);</span>
+    }
+
+    public Optional&lt;Boolean&gt; getRequiresDirectConnection() {
+<span class="nc" id="L70">        return Optional.ofNullable(requiresDirectConnection);</span>
     }
 
     public String getAdminSecretName() {
-<span class="fc" id="L59">        return adminSecretName;</span>
+<span class="fc" id="L74">        return adminSecretName;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

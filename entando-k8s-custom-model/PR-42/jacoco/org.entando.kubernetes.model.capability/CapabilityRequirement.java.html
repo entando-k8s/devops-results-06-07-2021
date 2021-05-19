@@ -48,67 +48,82 @@ public class CapabilityRequirement {
     private Map&lt;String, String&gt; capabilityParameters;
     private ResourceReference specifiedCapability;
     private ExternallyProvidedService externallyProvidedService;
+    private String preferredHostName;
+    private String preferredTlsSecretName;
 
-<span class="nc" id="L52">    public CapabilityRequirement() {</span>
-<span class="nc" id="L53">    }</span>
+<span class="nc" id="L54">    public CapabilityRequirement() {</span>
+<span class="nc" id="L55">    }</span>
 
     @JsonCreator
     public CapabilityRequirement(@JsonProperty(&quot;capability&quot;) StandardCapability capability,
             @JsonProperty(&quot;implementation&quot;) StandardCapabilityImplementation implementation,
             @JsonProperty(&quot;capabilityRequirementScope&quot;) CapabilityScope scope,
             @JsonProperty(&quot;provisioningStrategy&quot;) CapabilityProvisioningStrategy provisioningStrategy,
-            @JsonProperty(&quot;labelsToMatch&quot;) Map&lt;String, String&gt; labelsToMatch,
+            @JsonProperty(&quot;selector&quot;) Map&lt;String, String&gt; selector,
             @JsonProperty(&quot;capabilityParameters&quot;) Map&lt;String, String&gt; capabilityParameters,
             @JsonProperty(&quot;specifiedCapability&quot;) ResourceReference specifiedCapability,
-<span class="fc" id="L63">            @JsonProperty(&quot;externallyProvisionedService&quot;) ExternallyProvidedService externallyProvidedService) {</span>
-<span class="fc" id="L64">        this.capability = capability;</span>
-<span class="fc" id="L65">        this.implementation = implementation;</span>
-<span class="fc" id="L66">        this.scope = scope;</span>
-<span class="fc" id="L67">        this.provisioningStrategy = provisioningStrategy;</span>
-<span class="fc" id="L68">        this.selector = labelsToMatch;</span>
-<span class="fc" id="L69">        this.capabilityParameters = capabilityParameters;</span>
-<span class="fc" id="L70">        this.specifiedCapability = specifiedCapability;</span>
-<span class="fc" id="L71">        this.externallyProvidedService = externallyProvidedService;</span>
-<span class="fc" id="L72">    }</span>
+            @JsonProperty(&quot;externallyProvisionedService&quot;) ExternallyProvidedService externallyProvidedService,
+            @JsonProperty(&quot;preferredHostName&quot;) String preferredHostName,
+            @JsonProperty(&quot;preferredTlsSecretName&quot;) String preferredTlsSecretName
+<span class="fc" id="L68">    ) {</span>
+<span class="fc" id="L69">        this.capability = capability;</span>
+<span class="fc" id="L70">        this.implementation = implementation;</span>
+<span class="fc" id="L71">        this.scope = scope;</span>
+<span class="fc" id="L72">        this.provisioningStrategy = provisioningStrategy;</span>
+<span class="fc" id="L73">        this.selector = selector;</span>
+<span class="fc" id="L74">        this.capabilityParameters = capabilityParameters;</span>
+<span class="fc" id="L75">        this.specifiedCapability = specifiedCapability;</span>
+<span class="fc" id="L76">        this.externallyProvidedService = externallyProvidedService;</span>
+<span class="fc" id="L77">        this.preferredHostName = preferredHostName;</span>
+<span class="fc" id="L78">        this.preferredTlsSecretName = preferredTlsSecretName;</span>
+<span class="fc" id="L79">    }</span>
 
     public StandardCapability getCapability() {
-<span class="fc" id="L75">        return capability;</span>
+<span class="fc" id="L82">        return capability;</span>
     }
 
     public Optional&lt;StandardCapabilityImplementation&gt; getImplementation() {
-<span class="fc" id="L79">        return Optional.ofNullable(implementation);</span>
+<span class="fc" id="L86">        return Optional.ofNullable(implementation);</span>
+    }
+
+    public Optional&lt;String&gt; getPreferredHostName() {
+<span class="fc" id="L90">        return Optional.ofNullable(preferredHostName);</span>
+    }
+
+    public Optional&lt;String&gt; getPreferredTlsSecretName() {
+<span class="fc" id="L94">        return Optional.ofNullable(preferredTlsSecretName);</span>
     }
 
     public Optional&lt;CapabilityScope&gt; getScope() {
-<span class="fc" id="L83">        return Optional.ofNullable(scope);</span>
+<span class="fc" id="L98">        return Optional.ofNullable(scope);</span>
     }
 
     public Map&lt;String, String&gt; getSelector() {
-<span class="fc" id="L87">        return selector;</span>
+<span class="fc" id="L102">        return selector;</span>
     }
 
     public Map&lt;String, String&gt; getCapabilityParameters() {
-<span class="fc" id="L91">        return capabilityParameters;</span>
+<span class="fc" id="L106">        return capabilityParameters;</span>
     }
 
     public Optional&lt;ResourceReference&gt; getSpecifiedCapability() {
-<span class="fc" id="L95">        return Optional.ofNullable(specifiedCapability);</span>
+<span class="fc" id="L110">        return Optional.ofNullable(specifiedCapability);</span>
     }
 
     public Optional&lt;CapabilityProvisioningStrategy&gt; getProvisioningStrategy() {
-<span class="fc" id="L99">        return Optional.ofNullable(provisioningStrategy);</span>
+<span class="fc" id="L114">        return Optional.ofNullable(provisioningStrategy);</span>
     }
 
     public Optional&lt;ExternallyProvidedService&gt; getExternallyProvisionedService() {
-<span class="fc" id="L103">        return Optional.ofNullable(externallyProvidedService);</span>
+<span class="fc" id="L118">        return Optional.ofNullable(externallyProvidedService);</span>
     }
 
     public Map&lt;String, String&gt; getCapabilityLabels() {
-<span class="nc" id="L107">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L108">        result.put(ProvidedCapability.CAPABILITY_LABEL_NAME, capability.getCamelCaseName());</span>
-<span class="nc" id="L109">        result.put(ProvidedCapability.IMPLEMENTATION_LABEL_NAME, implementation.getCamelCaseName());</span>
-<span class="nc" id="L110">        result.put(ProvidedCapability.CAPABILITY_PROVISION_SCOPE_LABEL_NAME, scope.getCamelCaseName());</span>
-<span class="nc" id="L111">        return result;</span>
+<span class="nc" id="L122">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L123">        result.put(ProvidedCapability.CAPABILITY_LABEL_NAME, capability.getCamelCaseName());</span>
+<span class="nc" id="L124">        result.put(ProvidedCapability.IMPLEMENTATION_LABEL_NAME, implementation.getCamelCaseName());</span>
+<span class="nc" id="L125">        result.put(ProvidedCapability.CAPABILITY_PROVISION_SCOPE_LABEL_NAME, scope.getCamelCaseName());</span>
+<span class="nc" id="L126">        return result;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

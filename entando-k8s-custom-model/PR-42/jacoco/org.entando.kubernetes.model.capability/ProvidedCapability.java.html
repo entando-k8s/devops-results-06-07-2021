@@ -31,8 +31,8 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.Optional;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
 import org.entando.kubernetes.model.common.EntandoCustomResourceStatus;
+import org.entando.kubernetes.model.common.ExposedServerStatus;
 import org.entando.kubernetes.model.common.ResourceReference;
-import org.entando.kubernetes.model.common.WebServerStatus;
 
 @JsonSerialize
 @JsonDeserialize
@@ -72,8 +72,8 @@ public class ProvidedCapability extends CustomResource&lt;CapabilityRequirement,
 
     public Optional&lt;ResourceReference&gt; getIngressReference() {
 <span class="nc" id="L74">        return getStatus().findCurrentServerStatus()</span>
-<span class="nc" id="L75">                .filter(WebServerStatus.class::isInstance)</span>
-<span class="nc" id="L76">                .flatMap(s -&gt; Optional.of(new ResourceReference(getMetadata().getNamespace(), ((WebServerStatus) s).getIngressName())));</span>
+<span class="nc" id="L75">                .filter(ExposedServerStatus.class::isInstance)</span>
+<span class="nc" id="L76">                .flatMap(s -&gt; Optional.of(new ResourceReference(getMetadata().getNamespace(), ((ExposedServerStatus) s).getIngressName())));</span>
     }
 
     public ResourceReference getServiceReference() {
@@ -81,14 +81,9 @@ public class ProvidedCapability extends CustomResource&lt;CapabilityRequirement,
 <span class="nc" id="L81">                .orElse(null);</span>
     }
 
-    public ResourceReference getAdminSecretReference() {
-<span class="nc" id="L85">        return getStatus().findCurrentServerStatus().map(s -&gt; new ResourceReference(getMetadata().getNamespace(), s.getAdminSecretName()))</span>
-<span class="nc" id="L86">                .orElse(null);</span>
-    }
-
     @Override
     public String getDefinitionName() {
-<span class="nc" id="L91">        return CRD_NAME;</span>
+<span class="nc" id="L86">        return CRD_NAME;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
