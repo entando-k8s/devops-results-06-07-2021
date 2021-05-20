@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResourceDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: CMS</a> &gt; <a href="index.source.html" class="el_package">com.agiletec.plugins.jacms.aps.system.services.resource</a> &gt; <span class="el_source">ResourceDAO.java</span></div><h1>ResourceDAO.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package com.agiletec.plugins.jacms.aps.system.services.resource;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.entando.entando.ent.exception.EntRuntimeException;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+
+import com.agiletec.aps.system.common.AbstractSearcherDAO;
+import com.agiletec.aps.system.common.FieldSearchFilter;
+import org.entando.entando.ent.exception.EntException;
+import com.agiletec.aps.system.services.category.Category;
+import com.agiletec.aps.system.services.category.ICategoryManager;
+import com.agiletec.plugins.jacms.aps.system.services.resource.model.ResourceInterface;
+import com.agiletec.plugins.jacms.aps.system.services.resource.model.ResourceRecordVO;
+import java.util.Arrays;
+import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
+import org.entando.entando.aps.system.services.cache.ICacheInfoManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+
+/**
+ * Data Access Object per gli oggetti risorsa.
+ *
+ * @author E.Santoboni - W.Ambu
+ */
+<span class="fc" id="L50">public class ResourceDAO extends AbstractSearcherDAO implements IResourceDAO {</span>
+
+<span class="fc" id="L52">    private static final EntLogger logger = EntLogFactory.getSanitizedLogger(ResourceDAO.class);</span>
+    
+    private ICategoryManager categoryManager;
+
+<span class="fc" id="L56">    private final String LOAD_RESOURCE_VO</span>
+            = &quot;SELECT restype, descr, maingroup, resourcexml, masterfilename, creationdate, lastmodified, owner, folderpath, correlationcode FROM resources WHERE resid = ? &quot;;
+
+    private static final String LOAD_RESOURCE_VO_BY_CODE
+            = &quot;SELECT resid, restype, descr, maingroup, resourcexml, masterfilename, creationdate, lastmodified, owner, folderpath, correlationcode FROM resources WHERE correlationcode = ? &quot;;
+
+<span class="fc" id="L62">    private final String ADD_RESOURCE</span>
+            = &quot;INSERT INTO resources (resid, restype, descr, maingroup, resourcexml, masterfilename, creationdate, lastmodified, owner, folderpath, correlationcode) &quot;
+            + &quot;VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ?, ?, ?)&quot;;
+
+<span class="fc" id="L66">    private final String UPDATE_RESOURCE</span>
+            = &quot;UPDATE resources SET restype = ? , descr = ? , maingroup = ? , resourcexml = ? , masterfilename = ? , lastmodified = ?, folderpath = ? WHERE resid = ? &quot;;
+
+<span class="fc" id="L69">    private final String DELETE_CONTENTS_REFERENCE</span>
+            = &quot;DELETE FROM contentrelations WHERE refresource = ? &quot;;
+
+<span class="fc" id="L72">    private final String DELETE_RESOURCE</span>
+            = &quot;DELETE FROM resources WHERE resid = ? &quot;;
+
+<span class="fc" id="L75">    private final String ADD_RESOURCE_REL_RECORD</span>
+            = &quot;INSERT INTO resourcerelations (resid, refcategory) VALUES ( ? , ? )&quot;;
+
+<span class="fc" id="L78">    private final String DELETE_RESOURCE_REL_RECORD</span>
+            = &quot;DELETE FROM resourcerelations WHERE resid = ? &quot;;
+
+    protected ICategoryManager getCategoryManager() {
+<span class="fc" id="L82">        return categoryManager;</span>
+    }
+
+    public void setCategoryManager(ICategoryManager categoryManager) {
+<span class="fc" id="L86">        this.categoryManager = categoryManager;</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Carica una risorsa nel db.
+     *
+     * @param resource La risorsa da caricare nel db.
+     */
+    @Override
+    public void addResource(ResourceInterface resource) {
+<span class="fc" id="L96">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L98">            conn = this.getConnection();</span>
+<span class="fc" id="L99">            conn.setAutoCommit(false);</span>
+<span class="fc" id="L100">            this.executeAddResource(resource, conn);</span>
+<span class="fc" id="L101">            conn.commit();</span>
+<span class="nc" id="L102">        } catch (Throwable t) {</span>
+<span class="nc" id="L103">            this.executeRollback(conn);</span>
+<span class="nc" id="L104">            logger.error(&quot;Error adding resource&quot;, t);</span>
+<span class="nc" id="L105">            throw new EntRuntimeException(&quot;Error adding resource&quot;, t);</span>
+        } finally {
+<span class="fc" id="L107">            closeConnection(conn);</span>
+        }
+<span class="fc" id="L109">    }</span>
+
+    protected void executeAddResource(ResourceInterface resource, Connection conn) throws EntException {
+<span class="fc" id="L112">        this.addResourceRecord(resource, conn);</span>
+<span class="fc" id="L113">        this.addCategoryRelationsRecord(resource, conn);</span>
+<span class="fc" id="L114">    }</span>
+
+    protected void addResourceRecord(ResourceInterface resource, Connection conn) throws EntException {
+<span class="fc" id="L117">        PreparedStatement stat = null;</span>
+        try {
+<span class="fc" id="L119">            stat = conn.prepareStatement(ADD_RESOURCE);</span>
+<span class="fc" id="L120">            stat.setString(1, resource.getId());</span>
+<span class="fc" id="L121">            stat.setString(2, resource.getType());</span>
+<span class="fc" id="L122">            stat.setString(3, resource.getDescription().trim());</span>
+<span class="fc" id="L123">            stat.setString(4, resource.getMainGroup());</span>
+<span class="fc" id="L124">            stat.setString(5, resource.getXML());</span>
+<span class="fc" id="L125">            stat.setString(6, resource.getMasterFileName().trim());</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">            Date creationDate = (null != resource.getCreationDate())</span>
+<span class="pc" id="L127">                    ? resource.getCreationDate() : new Date();</span>
+<span class="fc" id="L128">            stat.setTimestamp(7, new java.sql.Timestamp(creationDate.getTime()));</span>
+<span class="fc" id="L129">            stat.setTimestamp(8, new java.sql.Timestamp(creationDate.getTime()));</span>
+<span class="fc" id="L130">            stat.setString(9, resource.getOwner());</span>
+<span class="fc" id="L131">            stat.setString(10, resource.getFolderPath());</span>
+<span class="fc" id="L132">            stat.setString(11, resource.getCorrelationCode());</span>
+<span class="fc" id="L133">            stat.executeUpdate();</span>
+<span class="nc" id="L134">        } catch (Throwable t) {</span>
+<span class="nc" id="L135">            logger.error(&quot;Error adding resource record&quot;, t);</span>
+<span class="nc" id="L136">            throw new EntRuntimeException(&quot;Error adding resource record&quot;, t);</span>
+        } finally {
+<span class="fc" id="L138">            closeDaoResources(null, stat);</span>
+        }
+<span class="fc" id="L140">    }</span>
+
+    /**
+     * Aggiorna una risorsa nel database.
+     *
+     * @param resource La risorsa da aggiornare nel db.
+     */
+    @Override
+    @CacheEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME, key = &quot;'jacms_resource_'.concat(#resource.id)&quot;, condition = &quot;null != #resource&quot;)
+    public void updateResource(ResourceInterface resource) {
+<span class="fc" id="L150">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L152">            conn = this.getConnection();</span>
+<span class="fc" id="L153">            conn.setAutoCommit(false);</span>
+<span class="fc" id="L154">            this.executeUpdateResource(resource, conn);</span>
+<span class="fc" id="L155">            conn.commit();</span>
+<span class="nc" id="L156">        } catch (Throwable t) {</span>
+<span class="nc" id="L157">            this.executeRollback(conn);</span>
+<span class="nc" id="L158">            logger.error(&quot;Error updating resource&quot;, t);</span>
+<span class="nc" id="L159">            throw new EntRuntimeException(&quot;Error updating resource&quot;, t);</span>
+        } finally {
+<span class="fc" id="L161">            closeConnection(conn);</span>
+        }
+<span class="fc" id="L163">    }</span>
+
+    protected void executeUpdateResource(ResourceInterface resource, Connection conn) throws EntException {
+<span class="fc" id="L166">        this.deleteRecordsById(resource.getId(), DELETE_RESOURCE_REL_RECORD, conn);</span>
+<span class="fc" id="L167">        this.updateResourceRecord(resource, conn);</span>
+<span class="fc" id="L168">        this.addCategoryRelationsRecord(resource, conn);</span>
+<span class="fc" id="L169">    }</span>
+
+    protected void updateResourceRecord(ResourceInterface resource, Connection conn) throws EntException {
+<span class="fc" id="L172">        PreparedStatement stat = null;</span>
+        try {
+<span class="fc" id="L174">            stat = conn.prepareStatement(UPDATE_RESOURCE);</span>
+<span class="fc" id="L175">            stat.setString(1, resource.getType());</span>
+<span class="fc" id="L176">            stat.setString(2, resource.getDescription().trim());</span>
+<span class="fc" id="L177">            stat.setString(3, resource.getMainGroup());</span>
+<span class="fc" id="L178">            stat.setString(4, resource.getXML());</span>
+<span class="fc" id="L179">            stat.setString(5, resource.getMasterFileName().trim());</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">            if (null != resource.getLastModified()) {</span>
+<span class="fc" id="L181">                stat.setTimestamp(6, new java.sql.Timestamp(resource.getLastModified().getTime()));</span>
+            } else {
+<span class="fc" id="L183">                stat.setTimestamp(6, new java.sql.Timestamp(new java.util.Date().getTime()));</span>
+            }
+<span class="fc" id="L185">            stat.setString(7, resource.getFolderPath());</span>
+<span class="fc" id="L186">            stat.setString(8, resource.getId());</span>
+<span class="fc" id="L187">            stat.executeUpdate();</span>
+<span class="nc" id="L188">        } catch (Throwable t) {</span>
+<span class="nc" id="L189">            logger.error(&quot;Error updating resource record&quot;, t);</span>
+<span class="nc" id="L190">            throw new EntRuntimeException(&quot;Error updating resource record&quot;, t);</span>
+        } finally {
+<span class="fc" id="L192">            closeDaoResources(null, stat);</span>
+        }
+<span class="fc" id="L194">    }</span>
+
+    /**
+     * Cancella una risorsa dal db.
+     *
+     * @param id L'identificativo della risorsa da cancellare.
+     */
+    @Override
+    @CacheEvict(value = ICacheInfoManager.DEFAULT_CACHE_NAME, key = &quot;'jacms_resource_'.concat(#id)&quot;, condition = &quot;null != #id&quot;)
+    public void deleteResource(String id) {
+<span class="fc" id="L204">        Connection conn = null;</span>
+        try {
+<span class="fc" id="L206">            conn = this.getConnection();</span>
+<span class="fc" id="L207">            conn.setAutoCommit(false);</span>
+<span class="fc" id="L208">            this.executeDeleteResource(id, conn);</span>
+<span class="fc" id="L209">            conn.commit();</span>
+<span class="nc" id="L210">        } catch (Throwable t) {</span>
+<span class="nc" id="L211">            this.executeRollback(conn);</span>
+<span class="nc" id="L212">            logger.error(&quot;Error deleting resource {}&quot;, id, t);</span>
+<span class="nc" id="L213">            throw new EntRuntimeException(&quot;Error deleting resource &quot; + id, t);</span>
+        } finally {
+<span class="fc" id="L215">            this.closeConnection(conn);</span>
+        }
+<span class="fc" id="L217">    }</span>
+
+    protected void executeDeleteResource(String resourceId, Connection conn) throws EntException {
+<span class="fc" id="L220">        PreparedStatement stat = null;</span>
+        try {
+<span class="fc" id="L222">            this.deleteRecordsById(resourceId, DELETE_RESOURCE_REL_RECORD, conn);</span>
+<span class="fc" id="L223">            this.deleteRecordsById(resourceId, DELETE_CONTENTS_REFERENCE, conn);</span>
+<span class="fc" id="L224">            stat = conn.prepareStatement(DELETE_RESOURCE);</span>
+<span class="fc" id="L225">            stat.setString(1, resourceId);</span>
+<span class="fc" id="L226">            stat.executeUpdate();</span>
+<span class="nc" id="L227">        } catch (Throwable t) {</span>
+<span class="nc" id="L228">            logger.error(&quot;Error deleting resource {}&quot;, resourceId, t);</span>
+<span class="nc" id="L229">            throw new EntRuntimeException(&quot;Error deleting resource &quot; + resourceId, t);</span>
+        } finally {
+<span class="fc" id="L231">            closeDaoResources(null, stat);</span>
+        }
+<span class="fc" id="L233">    }</span>
+
+    /**
+     * Carica una lista di identificativi di risorse in base al tipo, ad una
+     * parola chiave e dalla categoria della risorsa.
+     *
+     * @param type Tipo di risorsa da cercare.
+     * @param text Testo immesso per il raffronto con la descrizione della
+     * risorsa. null o stringa vuota nel caso non si voglia ricercare le risorse
+     * per parola chiave.
+     * @param categoryCode Il codice della categoria delle risorse. null o
+     * stringa vuota nel caso non si voglia ricercare le risorse per categoria.
+     * @param groupCodes I codici dei gruppi utenti consentiti tramite il quale
+     * filtrare le risorse. Nel caso che la collezione di codici sia nulla o
+     * vuota, non verrà eseguito la selezione per gruppi.
+     * @return La lista di identificativi di risorse.
+     */
+    @Override
+    public List&lt;String&gt; searchResourcesId(String type, String text, String categoryCode, Collection&lt;String&gt; groupCodes) {
+<span class="nc" id="L252">        return this.searchResourcesId(type, text, null, categoryCode, groupCodes);</span>
+    }
+    
+    @Override
+    public List&lt;String&gt; searchResourcesId(String type, String text, String filename, String categoryCode, Collection&lt;String&gt; groupCodes) {
+<span class="fc" id="L257">        FieldSearchFilter[] filters = this.createFilters(type, text, filename, groupCodes);</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        List&lt;String&gt; categories = (StringUtils.isBlank(categoryCode)) ? null : Arrays.asList(categoryCode);</span>
+<span class="fc" id="L259">        return this.searchResourcesId(filters, categories);</span>
+    }
+
+    private FieldSearchFilter[] createFilters(String type, String text, String filename, Collection&lt;String&gt; groupCodes) {
+<span class="fc" id="L263">        FieldSearchFilter[] filters = new FieldSearchFilter[0];</span>
+<span class="pc bpc" id="L264" title="1 of 4 branches missed.">        if (null != type &amp;&amp; type.trim().length() &gt; 0) {</span>
+<span class="fc" id="L265">            FieldSearchFilter&lt;String&gt; filterToAdd = new FieldSearchFilter(IResourceManager.RESOURCE_TYPE_FILTER_KEY, type, false);</span>
+<span class="fc" id="L266">            filters = super.addFilter(filters, filterToAdd);</span>
+        }
+<span class="fc bfc" id="L268" title="All 4 branches covered.">        if (null != text &amp;&amp; text.trim().length() &gt; 0) {</span>
+<span class="fc" id="L269">            FieldSearchFilter&lt;String&gt; filterToAdd = new FieldSearchFilter(IResourceManager.RESOURCE_DESCR_FILTER_KEY, text, true);</span>
+<span class="fc" id="L270">            filters = super.addFilter(filters, filterToAdd);</span>
+        }
+<span class="pc bpc" id="L272" title="1 of 4 branches missed.">        if (null != filename &amp;&amp; filename.trim().length() &gt; 0) {</span>
+<span class="fc" id="L273">            FieldSearchFilter&lt;String&gt; filterToAdd = new FieldSearchFilter(IResourceManager.RESOURCE_FILENAME_FILTER_KEY, filename, true);</span>
+<span class="fc" id="L274">            filters = super.addFilter(filters, filterToAdd);</span>
+        }
+<span class="fc" id="L276">        filters = this.addGroupFilter(filters, groupCodes);</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">        if (filters.length == 0) {</span>
+<span class="fc" id="L278">            return null;</span>
+        }
+<span class="fc" id="L280">        return filters;</span>
+    }
+
+    private FieldSearchFilter[] addGroupFilter(FieldSearchFilter[] filters, Collection&lt;String&gt; groupCodes) {
+<span class="pc bpc" id="L284" title="1 of 4 branches missed.">        if (groupCodes != null &amp;&amp; groupCodes.size() &gt; 0) {</span>
+<span class="fc" id="L285">            List&lt;String&gt; allowedValues = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L286">            allowedValues.addAll(groupCodes);</span>
+<span class="fc" id="L287">            FieldSearchFilter&lt;String&gt; filterToAdd = new FieldSearchFilter(IResourceManager.RESOURCE_MAIN_GROUP_FILTER_KEY, allowedValues, false);</span>
+<span class="fc" id="L288">            filters = super.addFilter(filters, filterToAdd);</span>
+        }
+<span class="fc" id="L290">        return filters;</span>
+    }
+
+    @Override
+    @Deprecated
+    public List&lt;String&gt; searchResourcesId(FieldSearchFilter[] filters, String categoryCode, Collection&lt;String&gt; groupCodes) {
+<span class="nc" id="L296">        filters = this.addGroupFilter(filters, groupCodes);</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">        List&lt;String&gt; categories = (StringUtils.isBlank(categoryCode)) ? null : Arrays.asList(categoryCode);</span>
+<span class="nc" id="L298">        return this.searchResourcesId(filters, categories);</span>
+    }
+    
+    @Override
+    public List&lt;String&gt; searchResourcesId(FieldSearchFilter[] filters, List&lt;String&gt; categories, Collection&lt;String&gt; groupCodes) {
+<span class="fc" id="L303">        filters = this.addGroupFilter(filters, groupCodes);</span>
+<span class="fc" id="L304">        return this.searchResourcesId(filters, categories);</span>
+    }
+
+    @Override
+    public Integer countResources(FieldSearchFilter[] filters, List&lt;String&gt; categories, Collection&lt;String&gt; groupCodes) {
+<span class="fc" id="L309">        Connection conn = null;</span>
+<span class="fc" id="L310">        int count = 0;</span>
+<span class="fc" id="L311">        PreparedStatement stat = null;</span>
+<span class="fc" id="L312">        ResultSet result = null;</span>
+        try {
+<span class="fc" id="L314">            conn = this.getConnection();</span>
+<span class="fc" id="L315">            filters = this.addGroupFilter(filters, groupCodes);</span>
+<span class="fc" id="L316">            stat = this.buildStatement(filters, categories, true, conn);</span>
+<span class="fc" id="L317">            result = stat.executeQuery();</span>
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">            if (result.next()) {</span>
+<span class="fc" id="L319">                count = result.getInt(1);</span>
+            }
+<span class="nc" id="L321">        } catch (Throwable t) {</span>
+<span class="nc" id="L322">            logger.error(&quot;Error while loading the count of IDs&quot;, t);</span>
+<span class="nc" id="L323">            throw new EntRuntimeException(&quot;Error while loading the count of IDs&quot;, t);</span>
+        } finally {
+<span class="fc" id="L325">            closeDaoResources(result, stat, conn);</span>
+        }
+<span class="fc" id="L327">        return count;</span>
+    }
+    
+    @Override
+    public List&lt;String&gt; searchResourcesId(FieldSearchFilter[] filters, List&lt;String&gt; categories) {
+<span class="fc" id="L332">        Connection conn = null;</span>
+<span class="fc" id="L333">        List&lt;String&gt; resources = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L334">        PreparedStatement stat = null;</span>
+<span class="fc" id="L335">        ResultSet res = null;</span>
+        try {
+<span class="fc" id="L337">            conn = this.getConnection();</span>
+<span class="fc" id="L338">            stat = this.buildStatement(filters, categories, false, conn);</span>
+<span class="fc" id="L339">            res = stat.executeQuery();</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">            while (res.next()) {</span>
+<span class="fc" id="L341">                String id = res.getString(this.getMasterTableIdFieldName());</span>
+<span class="pc bpc" id="L342" title="1 of 2 branches missed.">                if (!resources.contains(id)) {</span>
+<span class="fc" id="L343">                    resources.add(id);</span>
+                }
+<span class="fc" id="L345">            }</span>
+<span class="nc" id="L346">        } catch (Throwable t) {</span>
+<span class="nc" id="L347">            logger.error(&quot;Error loading resources id&quot;, t);</span>
+<span class="nc" id="L348">            throw new EntRuntimeException(&quot;Error loading resources id&quot;, t);</span>
+        } finally {
+<span class="fc" id="L350">            closeDaoResources(res, stat, conn);</span>
+        }
+<span class="fc" id="L352">        return resources;</span>
+    }
+
+    private PreparedStatement buildStatement(FieldSearchFilter[] filters, List&lt;String&gt; categories, boolean isCount, Connection conn) {
+<span class="fc" id="L356">        String query = this.createQueryString(filters, categories, isCount);</span>
+<span class="fc" id="L357">        PreparedStatement stat = null;</span>
+        try {
+<span class="fc" id="L359">            stat = conn.prepareStatement(query);</span>
+<span class="fc" id="L360">            int index = 0;</span>
+<span class="fc bfc" id="L361" title="All 4 branches covered.">            if (null != categories &amp;&amp; categories.size() &gt; 0) {</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">                for (String category : categories) {</span>
+<span class="fc" id="L363">                    stat.setString(++index, category);</span>
+<span class="fc" id="L364">                }</span>
+            }
+<span class="fc" id="L366">            index = this.addMetadataFieldFilterStatementBlock(filters, index, stat);</span>
+<span class="nc" id="L367">        } catch (Throwable t) {</span>
+<span class="nc" id="L368">            logger.error(&quot;Error while creating the statement&quot;, t);</span>
+<span class="nc" id="L369">            throw new EntRuntimeException(&quot;Error while creating the statement&quot;, t);</span>
+<span class="fc" id="L370">        }</span>
+<span class="fc" id="L371">        return stat;</span>
+    }
+
+    private String createQueryString(FieldSearchFilter[] filters, List&lt;String&gt; categories, boolean isCount) {
+<span class="fc" id="L375">        StringBuffer query = this.createBaseQueryBlock(filters, false, isCount, categories);</span>
+<span class="fc" id="L376">        this.appendMetadataFieldFilterQueryBlocks(filters, query, false);</span>
+<span class="fc bfc" id="L377" title="All 2 branches covered.">        if (!isCount) {</span>
+<span class="fc" id="L378">            super.appendOrderQueryBlocks(filters, query, false);</span>
+<span class="fc" id="L379">            this.appendLimitQueryBlock(filters, query);</span>
+        }
+<span class="fc" id="L381">        return query.toString();</span>
+    }
+
+    private StringBuffer createBaseQueryBlock(FieldSearchFilter[] filters, boolean selectAll, boolean isCount, List&lt;String&gt; categories) {
+<span class="fc" id="L385">        StringBuffer query = super.createBaseQueryBlock(filters, isCount, selectAll);</span>
+<span class="fc bfc" id="L386" title="All 2 branches covered.">        if (categories != null) {</span>
+<span class="fc bfc" id="L387" title="All 2 branches covered.">            for (int i = 0; i &lt; categories.size(); i++) {</span>
+<span class="fc" id="L388">                query.append(String.format(</span>
+                        &quot;INNER JOIN resourcerelations res%d ON resources.resid = res%d.resid AND res%d.refcategory= ? &quot;,
+<span class="fc" id="L390">                        i, i, i));</span>
+            }
+        }
+<span class="fc" id="L393">        return query;</span>
+    }
+
+    /**
+     * Carica un record di risorse in funzione dell'id Risorsa. Questo record è
+     * necessario per l'estrazione della risorse in oggetto tipo
+     * AbstractResource da parte del ResourceManager.
+     *
+     * @param id L'identificativo della risorsa.
+     * @return Il record della risorsa.
+     */
+    @Override
+    @Cacheable(value = ICacheInfoManager.DEFAULT_CACHE_NAME, key = &quot;'jacms_resource_'.concat(#id)&quot;,
+            condition = &quot;null != #id&quot;, unless = &quot;null == #result&quot;)
+    public ResourceRecordVO loadResourceVo(String id) {
+<span class="fc" id="L408">        Connection conn = null;</span>
+<span class="fc" id="L409">        ResourceRecordVO resourceVo = null;</span>
+<span class="fc" id="L410">        PreparedStatement stat = null;</span>
+<span class="fc" id="L411">        ResultSet res = null;</span>
+        try {
+<span class="fc" id="L413">            conn = this.getConnection();</span>
+<span class="fc" id="L414">            stat = conn.prepareStatement(LOAD_RESOURCE_VO);</span>
+<span class="fc" id="L415">            stat.setString(1, id);</span>
+<span class="fc" id="L416">            res = stat.executeQuery();</span>
+<span class="fc bfc" id="L417" title="All 2 branches covered.">            if (res.next()) {</span>
+<span class="fc" id="L418">                resourceVo = new ResourceRecordVO();</span>
+<span class="fc" id="L419">                resourceVo.setId(id);</span>
+<span class="fc" id="L420">                resourceVo.setResourceType(res.getString(1));</span>
+<span class="fc" id="L421">                resourceVo.setDescr(res.getString(2));</span>
+<span class="fc" id="L422">                resourceVo.setMainGroup(res.getString(3));</span>
+<span class="fc" id="L423">                resourceVo.setXml(res.getString(4));</span>
+<span class="fc" id="L424">                resourceVo.setMasterFileName(res.getString(5));</span>
+<span class="fc" id="L425">                resourceVo.setCreationDate(res.getTimestamp(6));</span>
+<span class="fc" id="L426">                resourceVo.setLastModified(res.getTimestamp(7));</span>
+<span class="fc" id="L427">                resourceVo.setOwner(res.getString(8));</span>
+<span class="fc" id="L428">                resourceVo.setFolderPath(res.getString(9));</span>
+<span class="fc" id="L429">                resourceVo.setCorrelationCode(res.getString(10));</span>
+            }
+<span class="nc" id="L431">        } catch (Exception t) {</span>
+<span class="nc" id="L432">            logger.error(&quot;Error loading resource {}&quot;, id, t);</span>
+<span class="nc" id="L433">            throw new EntRuntimeException(&quot;Error loading resource&quot; + id, t);</span>
+        } finally {
+<span class="fc" id="L435">            closeDaoResources(res, stat, conn);</span>
+        }
+<span class="fc" id="L437">        return resourceVo;</span>
+    }
+
+    @Override
+    @Cacheable(value = ICacheInfoManager.DEFAULT_CACHE_NAME, key = &quot;'jacms_resource_code_'.concat(#code)&quot;,
+            condition = &quot;null != #code&quot;, unless = &quot;null == #result&quot;)
+    public ResourceRecordVO loadResourceVoByCorrelationCode(String code) {
+<span class="fc" id="L444">        Connection conn = null;</span>
+<span class="fc" id="L445">        ResourceRecordVO resourceVo = null;</span>
+<span class="fc" id="L446">        PreparedStatement stat = null;</span>
+<span class="fc" id="L447">        ResultSet res = null;</span>
+        try {
+<span class="fc" id="L449">            conn = this.getConnection();</span>
+<span class="fc" id="L450">            stat = conn.prepareStatement(LOAD_RESOURCE_VO_BY_CODE);</span>
+<span class="fc" id="L451">            stat.setString(1, code);</span>
+<span class="fc" id="L452">            res = stat.executeQuery();</span>
+<span class="fc bfc" id="L453" title="All 2 branches covered.">            if (res.next()) {</span>
+<span class="fc" id="L454">                resourceVo = new ResourceRecordVO();</span>
+<span class="fc" id="L455">                resourceVo.setId(res.getString(1));</span>
+<span class="fc" id="L456">                resourceVo.setResourceType(res.getString(2));</span>
+<span class="fc" id="L457">                resourceVo.setDescr(res.getString(3));</span>
+<span class="fc" id="L458">                resourceVo.setMainGroup(res.getString(4));</span>
+<span class="fc" id="L459">                resourceVo.setXml(res.getString(5));</span>
+<span class="fc" id="L460">                resourceVo.setMasterFileName(res.getString(6));</span>
+<span class="fc" id="L461">                resourceVo.setCreationDate(res.getTimestamp(7));</span>
+<span class="fc" id="L462">                resourceVo.setLastModified(res.getTimestamp(8));</span>
+<span class="fc" id="L463">                resourceVo.setOwner(res.getString(9));</span>
+<span class="fc" id="L464">                resourceVo.setFolderPath(res.getString(10));</span>
+<span class="fc" id="L465">                resourceVo.setCorrelationCode(res.getString(11));</span>
+            }
+<span class="nc" id="L467">        } catch (Exception t) {</span>
+<span class="nc" id="L468">            logger.error(&quot;Error loading resource {}&quot;, code, t);</span>
+<span class="nc" id="L469">            throw new EntRuntimeException(&quot;Error loading resource&quot; + code, t);</span>
+        } finally {
+<span class="fc" id="L471">            closeDaoResources(res, stat, conn);</span>
+        }
+<span class="fc" id="L473">        return resourceVo;</span>
+    }
+
+    /**
+     * Metodo di servizio. Aggiunge un record nella tabella resourcerelations
+     * per ogni categoria della risorsa.
+     *
+     * @param resource La risorsa del quale referenziare le categorie.
+     * @param conn La connessione con il db.
+     * @throws EntException
+     */
+    protected void addCategoryRelationsRecord(ResourceInterface resource, Connection conn) throws EntException {
+<span class="fc bfc" id="L485" title="All 2 branches covered.">        if (resource.getCategories().size() &gt; 0) {</span>
+<span class="fc" id="L486">            PreparedStatement stat = null;</span>
+            try {
+<span class="fc" id="L488">                Set&lt;String&gt; codes = this.getCategoryCodes(resource);</span>
+<span class="fc" id="L489">                stat = conn.prepareStatement(ADD_RESOURCE_REL_RECORD);</span>
+<span class="fc" id="L490">                Iterator&lt;String&gt; codeIter = codes.iterator();</span>
+<span class="fc bfc" id="L491" title="All 2 branches covered.">                while (codeIter.hasNext()) {</span>
+<span class="fc" id="L492">                    String code = (String) codeIter.next();</span>
+<span class="fc" id="L493">                    stat.setString(1, resource.getId());</span>
+<span class="fc" id="L494">                    stat.setString(2, code);</span>
+<span class="fc" id="L495">                    stat.addBatch();</span>
+<span class="fc" id="L496">                    stat.clearParameters();</span>
+<span class="fc" id="L497">                }</span>
+<span class="fc" id="L498">                stat.executeBatch();</span>
+<span class="nc" id="L499">            } catch (Exception t) {</span>
+<span class="nc" id="L500">                logger.error(&quot;Error adding resourcerelations record for {}&quot;, resource.getId(), t);</span>
+<span class="nc" id="L501">                throw new EntRuntimeException(&quot;Error adding resourcerelations record for &quot; + resource.getId(), t);</span>
+            } finally {
+<span class="fc" id="L503">                closeDaoResources(null, stat);</span>
+            }
+        }
+<span class="fc" id="L506">    }</span>
+
+    /**
+     * Restituisce la lista di codici di categorie associate ad una risorsa. La
+     * risorsa viene sempre referenziata con la categoria &quot;root&quot; della tipologia
+     * relativa (che corrisponde al codice della tipologia).
+     *
+     * @param resource La risorsa da inserire o da modificare.
+     * @return Il set di codici di categorie.
+     */
+    private Set&lt;String&gt; getCategoryCodes(ResourceInterface resource) {
+<span class="fc" id="L517">        Set&lt;String&gt; codes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L518">        Iterator&lt;Category&gt; categoryIter = resource.getCategories().iterator();</span>
+<span class="fc bfc" id="L519" title="All 2 branches covered.">        while (categoryIter.hasNext()) {</span>
+<span class="fc" id="L520">            Category category = (Category) categoryIter.next();</span>
+<span class="fc" id="L521">            this.addCategoryCode(resource, category, codes);</span>
+<span class="fc" id="L522">        }</span>
+<span class="fc" id="L523">        return codes;</span>
+    }
+
+    private void addCategoryCode(ResourceInterface resource, Category category, Set&lt;String&gt; codes) {
+<span class="fc bfc" id="L527" title="All 2 branches covered.">        if (category.getCode().equals(category.getParentCode())) {</span>
+<span class="fc" id="L528">            return;</span>
+        }
+<span class="fc" id="L530">        codes.add(category.getCode());</span>
+<span class="fc" id="L531">        Category parentCategory = this.getCategoryManager().getCategory(category.getParentCode());</span>
+<span class="pc bpc" id="L532" title="1 of 2 branches missed.">        if (null != parentCategory) {</span>
+<span class="fc" id="L533">            this.addCategoryCode(resource, parentCategory, codes);</span>
+        }
+<span class="fc" id="L535">    }</span>
+    
+    protected void deleteRecordsById(String resourceId, String query, Connection conn) {
+<span class="fc" id="L538">        super.executeQueryWithoutResultset(conn, query, resourceId);</span>
+<span class="fc" id="L539">    }</span>
+    
+    /* ESTENSIONE SPOSTAMENTO NODI */
+    @Override
+    public void updateResourceRelations(ResourceInterface resource) {
+<span class="nc" id="L544">        Connection conn = null;</span>
+        try {
+<span class="nc" id="L546">            conn = this.getConnection();</span>
+<span class="nc" id="L547">            conn.setAutoCommit(false);</span>
+<span class="nc" id="L548">            this.deleteRecordsById(resource.getId(), DELETE_RESOURCE_REL_RECORD, conn);</span>
+<span class="nc" id="L549">            this.addCategoryRelationsRecord(resource, conn);</span>
+<span class="nc" id="L550">            conn.commit();</span>
+<span class="nc" id="L551">        } catch (Exception t) {</span>
+<span class="nc" id="L552">            this.executeRollback(conn);</span>
+<span class="nc" id="L553">            this.processDaoException(t, &quot;Error updating resource category relations&quot;, &quot;updateResourceRelations&quot;);</span>
+        } finally {
+<span class="nc" id="L555">            closeConnection(conn);</span>
+        }
+<span class="nc" id="L557">    }</span>
+
+    @Override
+    protected String getMasterTableName() {
+<span class="fc" id="L561">        return &quot;resources&quot;;</span>
+    }
+
+    @Override
+    protected String getMasterTableIdFieldName() {
+<span class="fc" id="L566">        return &quot;resid&quot;;</span>
+    }
+
+    @Override
+    protected String getTableFieldName(String metadataFieldKey) {
+<span class="fc" id="L571">        return metadataFieldKey;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
