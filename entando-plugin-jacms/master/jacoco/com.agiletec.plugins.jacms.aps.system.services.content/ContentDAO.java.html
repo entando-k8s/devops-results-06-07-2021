@@ -764,67 +764,67 @@ import org.apache.commons.lang3.StringUtils;
 
 	@Override
 	public ContentsStatus loadContentStatus() {
-<span class="nc" id="L767">		Connection conn = null;</span>
-<span class="nc" id="L768">		PreparedStatement stat = null;</span>
-<span class="nc" id="L769">		ResultSet res = null;</span>
-<span class="nc" id="L770">		ContentsStatus status = null;</span>
+<span class="fc" id="L767">		Connection conn = null;</span>
+<span class="fc" id="L768">		PreparedStatement stat = null;</span>
+<span class="fc" id="L769">		ResultSet res = null;</span>
+<span class="fc" id="L770">		ContentsStatus status = null;</span>
 		try {
-<span class="nc" id="L772">			conn = this.getConnection();</span>
-<span class="nc" id="L773">			int online = this.loadContentStatus(conn, COUNT_ONLINE_CONTENTS);</span>
-<span class="nc" id="L774">			int offline = this.loadContentStatus(conn, COUNT_OFFLINE_CONTENTS);</span>
-<span class="nc" id="L775">			int withDiffs = this.loadContentStatus(conn, COUNT_ONLINE_CONTENTS_WITH_DIFFS);</span>
-<span class="nc" id="L776">			Date lastModified = this.loadContentStatusLastModified(conn, LOAD_LAST_MODIFIED_DATE);</span>
-<span class="nc" id="L777">			status = new ContentsStatus();</span>
-<span class="nc" id="L778">			status.setDraft(offline);</span>
-<span class="nc" id="L779">			status.setOnline(online);</span>
-<span class="nc" id="L780">			status.setOnlineWithChanges(withDiffs);</span>
-<span class="nc" id="L781">			status.setLastUpdate(lastModified);</span>
+<span class="fc" id="L772">			conn = this.getConnection();</span>
+<span class="fc" id="L773">			int online = this.loadContentStatus(conn, COUNT_ONLINE_CONTENTS);</span>
+<span class="fc" id="L774">			int offline = this.loadContentStatus(conn, COUNT_OFFLINE_CONTENTS);</span>
+<span class="fc" id="L775">			int withDiffs = this.loadContentStatus(conn, COUNT_ONLINE_CONTENTS_WITH_DIFFS);</span>
+<span class="fc" id="L776">			Date lastModified = this.loadContentStatusLastModified(conn, LOAD_LAST_MODIFIED_DATE);</span>
+<span class="fc" id="L777">			status = new ContentsStatus();</span>
+<span class="fc" id="L778">			status.setDraft(offline);</span>
+<span class="fc" id="L779">			status.setOnline(online);</span>
+<span class="fc" id="L780">			status.setOnlineWithChanges(withDiffs);</span>
+<span class="fc" id="L781">			status.setLastUpdate(lastModified);</span>
 <span class="nc" id="L782">		} catch (Throwable t) {</span>
 <span class="nc" id="L783">			_logger.error(&quot;Error loading contents status&quot;, t);</span>
 <span class="nc" id="L784">			throw new RuntimeException(&quot;Error loading contents status&quot;, t);</span>
 		} finally {
-<span class="nc" id="L786">			closeDaoResources(res, stat, conn);</span>
+<span class="fc" id="L786">			closeDaoResources(res, stat, conn);</span>
 		}
-<span class="nc" id="L788">		return status;</span>
+<span class="fc" id="L788">		return status;</span>
 	}
 
 	private int loadContentStatus(Connection conn, String query) {
-<span class="nc" id="L792">		PreparedStatement stat = null;</span>
-<span class="nc" id="L793">		ResultSet res = null;</span>
-<span class="nc" id="L794">		int count = 0;</span>
+<span class="fc" id="L792">		PreparedStatement stat = null;</span>
+<span class="fc" id="L793">		ResultSet res = null;</span>
+<span class="fc" id="L794">		int count = 0;</span>
 		try {
-<span class="nc" id="L796">			stat = conn.prepareStatement(query);</span>
-<span class="nc" id="L797">			res = stat.executeQuery();</span>
-<span class="nc bnc" id="L798" title="All 2 branches missed.">			if (res.next()) {</span>
-<span class="nc" id="L799">				count = res.getInt(1);</span>
+<span class="fc" id="L796">			stat = conn.prepareStatement(query);</span>
+<span class="fc" id="L797">			res = stat.executeQuery();</span>
+<span class="pc bpc" id="L798" title="1 of 2 branches missed.">			if (res.next()) {</span>
+<span class="fc" id="L799">				count = res.getInt(1);</span>
 			}
 <span class="nc" id="L801">		} catch (Throwable t) {</span>
 <span class="nc" id="L802">            _logger.error(&quot;Error loading contents status &quot;, t);</span>
 <span class="nc" id="L803">			throw new RuntimeException(&quot;Error loading contents status&quot;, t);</span>
 		} finally {
-<span class="nc" id="L805">			closeDaoResources(res, stat);</span>
+<span class="fc" id="L805">			closeDaoResources(res, stat);</span>
 		}
-<span class="nc" id="L807">		return count;</span>
+<span class="fc" id="L807">		return count;</span>
 	}
 
 	private Date loadContentStatusLastModified(Connection conn, String query) {
-<span class="nc" id="L811">		PreparedStatement stat = null;</span>
-<span class="nc" id="L812">		ResultSet res = null;</span>
-<span class="nc" id="L813">		Date lastModified = null;</span>
+<span class="fc" id="L811">		PreparedStatement stat = null;</span>
+<span class="fc" id="L812">		ResultSet res = null;</span>
+<span class="fc" id="L813">		Date lastModified = null;</span>
 		try {
-<span class="nc" id="L815">			stat = conn.prepareStatement(query);</span>
-<span class="nc" id="L816">			res = stat.executeQuery();</span>
-<span class="nc bnc" id="L817" title="All 2 branches missed.">			if (res.next()) {</span>
-<span class="nc" id="L818">				String lastMod = res.getString(1);</span>
-<span class="nc" id="L819">				lastModified = DateConverter.parseDate(lastMod, SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT);</span>
+<span class="fc" id="L815">			stat = conn.prepareStatement(query);</span>
+<span class="fc" id="L816">			res = stat.executeQuery();</span>
+<span class="pc bpc" id="L817" title="1 of 2 branches missed.">			if (res.next()) {</span>
+<span class="fc" id="L818">				String lastMod = res.getString(1);</span>
+<span class="fc" id="L819">				lastModified = DateConverter.parseDate(lastMod, SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT);</span>
 			}
 <span class="nc" id="L821">		} catch (Throwable t) {</span>
 <span class="nc" id="L822">			_logger.error(&quot;Error loading contents status last modified date&quot;, t);</span>
 <span class="nc" id="L823">			throw new RuntimeException(&quot;Error loading contents status last modified date&quot;, t);</span>
 		} finally {
-<span class="nc" id="L825">			closeDaoResources(res, stat);</span>
+<span class="fc" id="L825">			closeDaoResources(res, stat);</span>
 		}
-<span class="nc" id="L827">		return lastModified;</span>
+<span class="fc" id="L827">		return lastModified;</span>
 	}
 
 	@Override
