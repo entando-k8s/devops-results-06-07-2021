@@ -18,12 +18,9 @@ package org.entando.kubernetes.controller.support.client.impl;
 
 import static java.lang.String.format;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.ConfigMap;
-import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -56,109 +53,109 @@ public class DefaultEntandoResourceClient extends DefaultKubernetesClientForCont
         EntandoResourceClient, PatchableClient {
 
     public DefaultEntandoResourceClient(KubernetesClient client) {
-<span class="nc" id="L59">        super(client);</span>
-<span class="nc" id="L60">    }</span>
+<span class="nc" id="L56">        super(client);</span>
+<span class="nc" id="L57">    }</span>
 
     @Override
     public KeycloakConnectionConfig findKeycloak(EntandoCustomResource resource, KeycloakPreference keycloakPreference) {
-<span class="nc" id="L64">        Optional&lt;ResourceReference&gt; keycloakToUse = determineKeycloakToUse(resource, keycloakPreference);</span>
-<span class="nc" id="L65">        String secretName = keycloakToUse.map(KeycloakName::forTheAdminSecret)</span>
-<span class="nc" id="L66">                .orElse(KeycloakName.DEFAULT_KEYCLOAK_ADMIN_SECRET);</span>
-<span class="nc" id="L67">        String configMapName = keycloakToUse.map(KeycloakName::forTheConnectionConfigMap)</span>
-<span class="nc" id="L68">                .orElse(KeycloakName.DEFAULT_KEYCLOAK_CONNECTION_CONFIG);</span>
-<span class="nc" id="L69">        String configMapNamespace = keycloakToUse</span>
-<span class="nc" id="L70">                .map(resourceReference -&gt; resourceReference.getNamespace().orElseThrow(IllegalStateException::new))</span>
-<span class="nc" id="L71">                .orElse(client.getNamespace());</span>
+<span class="nc" id="L61">        Optional&lt;ResourceReference&gt; keycloakToUse = determineKeycloakToUse(resource, keycloakPreference);</span>
+<span class="nc" id="L62">        String secretName = keycloakToUse.map(KeycloakName::forTheAdminSecret)</span>
+<span class="nc" id="L63">                .orElse(KeycloakName.DEFAULT_KEYCLOAK_ADMIN_SECRET);</span>
+<span class="nc" id="L64">        String configMapName = keycloakToUse.map(KeycloakName::forTheConnectionConfigMap)</span>
+<span class="nc" id="L65">                .orElse(KeycloakName.DEFAULT_KEYCLOAK_CONNECTION_CONFIG);</span>
+<span class="nc" id="L66">        String configMapNamespace = keycloakToUse</span>
+<span class="nc" id="L67">                .map(resourceReference -&gt; resourceReference.getNamespace().orElseThrow(IllegalStateException::new))</span>
+<span class="nc" id="L68">                .orElse(client.getNamespace());</span>
         //This secret is duplicated in the deployment namespace, but the controller can only read the one in its own namespace
-<span class="nc" id="L73">        Secret secret = this.client.secrets().withName(secretName).fromServer().get();</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (secret == null) {</span>
-<span class="nc" id="L75">            throw new IllegalStateException(</span>
-<span class="nc" id="L76">                    format(&quot;Could not find the Keycloak secret %s in namespace %s&quot;, secretName, client.getNamespace()));</span>
+<span class="nc" id="L70">        Secret secret = this.client.secrets().withName(secretName).fromServer().get();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (secret == null) {</span>
+<span class="nc" id="L72">            throw new IllegalStateException(</span>
+<span class="nc" id="L73">                    format(&quot;Could not find the Keycloak secret %s in namespace %s&quot;, secretName, client.getNamespace()));</span>
         }
         //The configmap comes from the deployment namespace, unless it is a pre-configured keycloak
-<span class="nc" id="L79">        ConfigMap configMap = this.client.configMaps().inNamespace(configMapNamespace).withName(configMapName).fromServer().get();</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (configMap == null) {</span>
-<span class="nc" id="L81">            throw new IllegalStateException(</span>
-<span class="nc" id="L82">                    format(&quot;Could not find the Keycloak ConfigMap %s in namespace %s&quot;, configMapName, configMapNamespace));</span>
+<span class="nc" id="L76">        ConfigMap configMap = this.client.configMaps().inNamespace(configMapNamespace).withName(configMapName).fromServer().get();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (configMap == null) {</span>
+<span class="nc" id="L78">            throw new IllegalStateException(</span>
+<span class="nc" id="L79">                    format(&quot;Could not find the Keycloak ConfigMap %s in namespace %s&quot;, configMapName, configMapNamespace));</span>
         }
-<span class="nc" id="L84">        return new ConfigMapBasedKeycloakConnectionConfig(secret, configMap);</span>
+<span class="nc" id="L81">        return new ConfigMapBasedKeycloakConnectionConfig(secret, configMap);</span>
 
     }
 
     @Override
     public Optional&lt;EntandoKeycloakServer&gt; findKeycloakInNamespace(EntandoCustomResource peerInNamespace) {
-<span class="nc" id="L90">        List&lt;EntandoKeycloakServer&gt; items = getOperations(EntandoKeycloakServer.class)</span>
-<span class="nc" id="L91">                .inNamespace(peerInNamespace.getMetadata().getNamespace()).list().getItems();</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (items.size() == 1) {</span>
-<span class="nc" id="L93">            return Optional.of(items.get(0));</span>
+<span class="nc" id="L87">        List&lt;EntandoKeycloakServer&gt; items = getOperations(EntandoKeycloakServer.class)</span>
+<span class="nc" id="L88">                .inNamespace(peerInNamespace.getMetadata().getNamespace()).list().getItems();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (items.size() == 1) {</span>
+<span class="nc" id="L90">            return Optional.of(items.get(0));</span>
         }
-<span class="nc" id="L95">        return Optional.empty();</span>
+<span class="nc" id="L92">        return Optional.empty();</span>
     }
 
     @Override
     public DoneableConfigMap loadDefaultCapabilitiesConfigMap() {
-<span class="nc" id="L100">        Resource&lt;ConfigMap&gt; resource = client.configMaps()</span>
-<span class="nc" id="L101">                .inNamespace(client.getNamespace())</span>
-<span class="nc" id="L102">                .withName(KubeUtils.ENTANDO_OPERATOR_DEFAULT_CAPABILITIES_CONFIGMAP_NAME);</span>
-<span class="nc" id="L103">        final ConfigMap configMap = resource.get();</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (configMap == null) {</span>
-<span class="nc" id="L105">            return new DoneableConfigMap(client.configMaps()::create)</span>
-<span class="nc" id="L106">                    .withNewMetadata()</span>
-<span class="nc" id="L107">                    .withName(KubeUtils.ENTANDO_OPERATOR_DEFAULT_CAPABILITIES_CONFIGMAP_NAME)</span>
-<span class="nc" id="L108">                    .withNamespace(client.getNamespace())</span>
-<span class="nc" id="L109">                    .endMetadata()</span>
-<span class="nc" id="L110">                    .addToData(new HashMap&lt;&gt;());</span>
+<span class="nc" id="L97">        Resource&lt;ConfigMap&gt; resource = client.configMaps()</span>
+<span class="nc" id="L98">                .inNamespace(client.getNamespace())</span>
+<span class="nc" id="L99">                .withName(KubeUtils.ENTANDO_OPERATOR_DEFAULT_CAPABILITIES_CONFIGMAP_NAME);</span>
+<span class="nc" id="L100">        final ConfigMap configMap = resource.get();</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (configMap == null) {</span>
+<span class="nc" id="L102">            return new DoneableConfigMap(client.configMaps()::create)</span>
+<span class="nc" id="L103">                    .withNewMetadata()</span>
+<span class="nc" id="L104">                    .withName(KubeUtils.ENTANDO_OPERATOR_DEFAULT_CAPABILITIES_CONFIGMAP_NAME)</span>
+<span class="nc" id="L105">                    .withNamespace(client.getNamespace())</span>
+<span class="nc" id="L106">                    .endMetadata()</span>
+<span class="nc" id="L107">                    .addToData(new HashMap&lt;&gt;());</span>
 
         } else {
-<span class="nc" id="L113">            return new DoneableConfigMap(configMap, client.configMaps().inNamespace(client.getNamespace())</span>
-<span class="nc" id="L114">                    .withName(KubeUtils.ENTANDO_OPERATOR_DEFAULT_CAPABILITIES_CONFIGMAP_NAME)::patch)</span>
-<span class="nc" id="L115">                    .editMetadata()</span>
-<span class="nc" id="L116">                    .addToAnnotations(KubeUtils.UPDATED_ANNOTATION_NAME, new Timestamp(System.currentTimeMillis()).toString())</span>
-<span class="nc" id="L117">                    .endMetadata();</span>
+<span class="nc" id="L110">            return new DoneableConfigMap(configMap, client.configMaps().inNamespace(client.getNamespace())</span>
+<span class="nc" id="L111">                    .withName(KubeUtils.ENTANDO_OPERATOR_DEFAULT_CAPABILITIES_CONFIGMAP_NAME)::patch)</span>
+<span class="nc" id="L112">                    .editMetadata()</span>
+<span class="nc" id="L113">                    .addToAnnotations(KubeUtils.UPDATED_ANNOTATION_NAME, new Timestamp(System.currentTimeMillis()).toString())</span>
+<span class="nc" id="L114">                    .endMetadata();</span>
         }
     }
 
     @Override
     public ConfigMap loadDockerImageInfoConfigMap() {
-<span class="nc" id="L123">        return client.configMaps().inNamespace(EntandoOperatorConfig.getEntandoDockerImageInfoNamespace().orElse(client.getNamespace()))</span>
-<span class="nc" id="L124">                .withName(EntandoOperatorConfig.getEntandoDockerImageInfoConfigMap()).fromServer().get();</span>
+<span class="nc" id="L120">        return client.configMaps().inNamespace(EntandoOperatorConfig.getEntandoDockerImageInfoNamespace().orElse(client.getNamespace()))</span>
+<span class="nc" id="L121">                .withName(EntandoOperatorConfig.getEntandoDockerImageInfoConfigMap()).fromServer().get();</span>
     }
 
     @Override
     public ExposedService loadExposedService(EntandoCustomResource resource) {
-<span class="nc" id="L129">        return new ExposedService(</span>
-<span class="nc" id="L130">                loadService(resource, NameUtils.standardServiceName(resource)),</span>
-<span class="nc" id="L131">                loadIngress(resource, NameUtils.standardIngressName(resource)));</span>
+<span class="nc" id="L126">        return new ExposedService(</span>
+<span class="nc" id="L127">                loadService(resource, NameUtils.standardServiceName(resource)),</span>
+<span class="nc" id="L128">                loadIngress(resource, NameUtils.standardIngressName(resource)));</span>
     }
 
     @Override
     public Optional&lt;DatabaseConnectionInfo&gt; findExternalDatabase(EntandoCustomResource resource, DbmsVendor vendor) {
-<span class="nc" id="L136">        List&lt;EntandoDatabaseService&gt; externalDatabaseList = getOperations(EntandoDatabaseService.class)</span>
-<span class="nc" id="L137">                .inNamespace(resource.getMetadata().getNamespace()).list().getItems();</span>
-<span class="nc" id="L138">        return externalDatabaseList.stream()</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">                .filter(entandoDatabaseService -&gt; entandoDatabaseService.getSpec().getDbms().orElse(DbmsVendor.POSTGRESQL) == vendor)</span>
-<span class="nc" id="L140">                .findFirst().map(externalDatabase -&gt; {</span>
-<span class="nc" id="L141">                    Map&lt;String, String&gt; capabilityParameters = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L142">                    externalDatabase.getSpec().getTablespace()</span>
-<span class="nc" id="L143">                            .ifPresent(s -&gt; capabilityParameters.put(ProvidedDatabaseCapability.TABLESPACE_PARAMETER, s));</span>
-<span class="nc" id="L144">                    externalDatabase.getSpec().getJdbcParameters().forEach(</span>
-<span class="nc" id="L145">                            (key, value) -&gt; capabilityParameters.put(ProvidedDatabaseCapability.JDBC_PARAMETER_PREFIX + key, value));</span>
-<span class="nc" id="L146">                    return new ProvidedDatabaseCapability(loadService(externalDatabase, NameUtils.standardServiceName(externalDatabase)),</span>
-<span class="nc" id="L147">                            externalDatabase.getStatus().findCurrentServerStatus().orElseThrow(IllegalStateException::new),</span>
+<span class="nc" id="L133">        List&lt;EntandoDatabaseService&gt; externalDatabaseList = getOperations(EntandoDatabaseService.class)</span>
+<span class="nc" id="L134">                .inNamespace(resource.getMetadata().getNamespace()).list().getItems();</span>
+<span class="nc" id="L135">        return externalDatabaseList.stream()</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                .filter(entandoDatabaseService -&gt; entandoDatabaseService.getSpec().getDbms().orElse(DbmsVendor.POSTGRESQL) == vendor)</span>
+<span class="nc" id="L137">                .findFirst().map(externalDatabase -&gt; {</span>
+<span class="nc" id="L138">                    Map&lt;String, String&gt; capabilityParameters = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L139">                    externalDatabase.getSpec().getTablespace()</span>
+<span class="nc" id="L140">                            .ifPresent(s -&gt; capabilityParameters.put(ProvidedDatabaseCapability.TABLESPACE_PARAMETER, s));</span>
+<span class="nc" id="L141">                    externalDatabase.getSpec().getJdbcParameters().forEach(</span>
+<span class="nc" id="L142">                            (key, value) -&gt; capabilityParameters.put(ProvidedDatabaseCapability.JDBC_PARAMETER_PREFIX + key, value));</span>
+<span class="nc" id="L143">                    return new ProvidedDatabaseCapability(loadService(externalDatabase, NameUtils.standardServiceName(externalDatabase)),</span>
+<span class="nc" id="L144">                            externalDatabase.getStatus().findCurrentServerStatus().orElseThrow(IllegalStateException::new),</span>
                             capabilityParameters);
                 });
     }
 
     private Service loadService(EntandoCustomResource peerInNamespace, String name) {
-<span class="nc" id="L153">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
+<span class="nc" id="L150">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
     }
 
     private Ingress loadIngress(EntandoCustomResource peerInNamespace, String name) {
-<span class="nc" id="L157">        return client.extensions().ingresses().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
+<span class="nc" id="L154">        return client.extensions().ingresses().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
     }
 
     protected Deployment loadDeployment(EntandoCustomResource peerInNamespace, String name) {
-<span class="nc" id="L161">        return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
+<span class="nc" id="L158">        return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

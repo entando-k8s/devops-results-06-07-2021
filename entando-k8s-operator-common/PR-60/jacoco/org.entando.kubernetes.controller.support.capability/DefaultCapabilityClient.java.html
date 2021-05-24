@@ -67,9 +67,9 @@ public class DefaultCapabilityClient implements CapabilityClient, WaitingClient 
 <span class="nc" id="L67">            return interruptionSafe(() -&gt; client.customResources(ProvidedCapability.class)</span>
 <span class="nc" id="L68">                    .inNamespace(capability.getMetadata().getNamespace())</span>
 <span class="nc" id="L69">                    .withName(capability.getMetadata().getName())</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">                    .waitUntilCondition(providedCapability -&gt; providedCapability.getStatus() != null &amp;&amp;</span>
-<span class="nc bnc" id="L71" title="All 2 branches missed.">                                    (providedCapability.getStatus().getPhase() == EntandoDeploymentPhase.FAILED</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">                                            || providedCapability.getStatus().getPhase() == EntandoDeploymentPhase.SUCCESSFUL), 10,</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                    .waitUntilCondition(providedCapability -&gt; providedCapability.getStatus() != null</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                                    &amp;&amp; (providedCapability.getStatus().getPhase() == EntandoDeploymentPhase.FAILED</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                                    || providedCapability.getStatus().getPhase() == EntandoDeploymentPhase.SUCCESSFUL), 10,</span>
                             TimeUnit.MINUTES));
 <span class="nc" id="L74">        } catch (IllegalArgumentException e) {</span>
 <span class="nc bnc" id="L75" title="All 2 branches missed.">            if (e.getMessage().contains(&quot;matching condition not found&quot;)) {</span>
