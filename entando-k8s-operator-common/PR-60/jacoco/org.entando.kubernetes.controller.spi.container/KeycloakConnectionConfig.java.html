@@ -18,64 +18,37 @@ package org.entando.kubernetes.controller.spi.container;
 
 import static java.util.Optional.ofNullable;
 
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
-import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.spi.common.SecretUtils;
 
-public class KeycloakConnectionConfig {
+public interface KeycloakConnectionConfig {
 
-    private final Secret adminSecret;
-    private final ConfigMap configMap;
+    String determineBaseUrl();
 
-<span class="fc" id="L35">    public KeycloakConnectionConfig(Secret adminSecret, ConfigMap configMap) {</span>
-<span class="fc" id="L36">        this.adminSecret = adminSecret;</span>
-<span class="fc" id="L37">        this.configMap = configMap;</span>
-<span class="fc" id="L38">    }</span>
-
-    public String determineBaseUrl() {
-<span class="pc bpc" id="L41" title="1 of 2 branches missed.">        if (EntandoOperatorSpiConfig.forceExternalAccessToKeycloak()) {</span>
-<span class="nc" id="L42">            return getExternalBaseUrl();</span>
-        } else {
-<span class="fc" id="L44">            return getInternalBaseUrl().orElse(getExternalBaseUrl());</span>
-        }
+    default String getUsername() {
+<span class="nc" id="L32">        return decodeSecretValue(SecretUtils.USERNAME_KEY);</span>
     }
 
-    //TODO only needed by operator-common - to org.entando.kubernetes.controller.support
-    public String getUsername() {
-<span class="fc" id="L50">        return decodeSecretValue(SecretUtils.USERNAME_KEY);</span>
+    default String getPassword() {
+<span class="nc" id="L36">        return decodeSecretValue(SecretUtils.PASSSWORD_KEY);</span>
     }
 
-    //TODO only needed by operator-common - move to org.entando.kubernetes.controller.support
-    public String getPassword() {
-<span class="fc" id="L55">        return decodeSecretValue(SecretUtils.PASSSWORD_KEY);</span>
-    }
-
-    public String decodeSecretValue(String key) {
-<span class="fc" id="L59">        Optional&lt;String&gt; value = ofNullable(adminSecret.getData())</span>
-<span class="fc" id="L60">                .map(data -&gt;</span>
-<span class="fc" id="L61">                        ofNullable(data.get(key)).map(s -&gt; new String(Base64.getDecoder().decode(s), StandardCharsets.UTF_8))</span>
+    default String decodeSecretValue(String key) {
+<span class="nc" id="L40">        Optional&lt;String&gt; value = ofNullable(getAdminSecret().getData())</span>
+<span class="nc" id="L41">                .map(data -&gt;</span>
+<span class="nc" id="L42">                        ofNullable(data.get(key)).map(s -&gt; new String(Base64.getDecoder().decode(s), StandardCharsets.UTF_8))</span>
                 )
-<span class="fc" id="L63">                .orElse(ofNullable(adminSecret.getStringData()).map(data -&gt; data.get(key)));</span>
-<span class="fc" id="L64">        return value.orElse(null);</span>
+<span class="nc" id="L44">                .orElse(ofNullable(getAdminSecret().getStringData()).map(data -&gt; data.get(key)));</span>
+<span class="nc" id="L45">        return value.orElse(null);</span>
     }
 
-    public Secret getAdminSecret() {
-<span class="nc" id="L68">        return adminSecret;</span>
-    }
+    Secret getAdminSecret();
 
-    //TODO put these in this in the ProvidedCapability ConfigMap
-    public String getExternalBaseUrl() {
-<span class="fc" id="L73">        return configMap.getData().get(NameUtils.URL_KEY);</span>
-    }
+    String getExternalBaseUrl();
 
-    //TODO derive thi from the ProvidedCapability service
-    public Optional&lt;String&gt; getInternalBaseUrl() {
-<span class="fc" id="L78">        return Optional.ofNullable(configMap.getData().get(NameUtils.INTERNAL_URL_KEY));</span>
-    }
+    Optional&lt;String&gt; getInternalBaseUrl();
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -19,36 +19,23 @@ package org.entando.kubernetes.controller.support.client;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import java.util.Optional;
+import org.entando.kubernetes.controller.spi.client.KubernetesClientForControllers;
 import org.entando.kubernetes.controller.spi.common.KeycloakPreference;
 import org.entando.kubernetes.controller.spi.container.KeycloakConnectionConfig;
 import org.entando.kubernetes.controller.spi.container.KeycloakName;
-import org.entando.kubernetes.controller.spi.database.ExternalDatabaseDeployment;
+import org.entando.kubernetes.controller.spi.result.DatabaseConnectionInfo;
 import org.entando.kubernetes.controller.spi.result.ExposedService;
-import org.entando.kubernetes.model.common.AbstractServerStatus;
 import org.entando.kubernetes.model.common.DbmsVendor;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
-import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
 import org.entando.kubernetes.model.common.KeycloakToUse;
 import org.entando.kubernetes.model.common.ResourceReference;
 import org.entando.kubernetes.model.keycloakserver.EntandoKeycloakServer;
 
-public interface EntandoResourceClient {
-
-    String getNamespace();
-
-    void updateStatus(EntandoCustomResource customResource, AbstractServerStatus status);
+public interface EntandoResourceClient extends KubernetesClientForControllers {
 
     &lt;T extends EntandoCustomResource&gt; T reload(T customResource);
 
-    &lt;T extends EntandoCustomResource&gt; T load(Class&lt;T&gt; clzz, String resourceNamespace, String resourceName);
-
-    &lt;T extends EntandoCustomResource&gt; T createOrPatchEntandoResource(T r);
-
-    void updatePhase(EntandoCustomResource customResource, EntandoDeploymentPhase phase);
-
-    void deploymentFailed(EntandoCustomResource entandoCustomResource, Exception reason);
-
-    Optional&lt;ExternalDatabaseDeployment&gt; findExternalDatabase(EntandoCustomResource peerInNamespace, DbmsVendor vendor);
+    Optional&lt;DatabaseConnectionInfo&gt; findExternalDatabase(EntandoCustomResource peerInNamespace, DbmsVendor vendor);
 
     KeycloakConnectionConfig findKeycloak(EntandoCustomResource resource, KeycloakPreference keycloakPreference);
 
@@ -64,38 +51,38 @@ public interface EntandoResourceClient {
 
     default Optional&lt;ResourceReference&gt; determineKeycloakToUse(EntandoCustomResource resource,
             KeycloakPreference keycloakPreference) {
-<span class="fc" id="L67">        ResourceReference resourceReference = null;</span>
-<span class="fc" id="L68">        Optional&lt;KeycloakToUse&gt; keycloakToUse = keycloakPreference.getPreferredKeycloakToUse();</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (keycloakToUse.isPresent()) {</span>
-<span class="fc" id="L70">            resourceReference = new ResourceReference(</span>
-<span class="fc" id="L71">                    keycloakToUse.get().getNamespace().orElse(null),</span>
-<span class="fc" id="L72">                    keycloakToUse.get().getName());</span>
+<span class="nc" id="L54">        ResourceReference resourceReference = null;</span>
+<span class="nc" id="L55">        Optional&lt;KeycloakToUse&gt; keycloakToUse = keycloakPreference.getPreferredKeycloakToUse();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (keycloakToUse.isPresent()) {</span>
+<span class="nc" id="L57">            resourceReference = new ResourceReference(</span>
+<span class="nc" id="L58">                    keycloakToUse.get().getNamespace().orElse(null),</span>
+<span class="nc" id="L59">                    keycloakToUse.get().getName());</span>
         } else {
-<span class="fc" id="L74">            Optional&lt;EntandoKeycloakServer&gt; keycloak = findKeycloakInNamespace(resource);</span>
-<span class="fc bfc" id="L75" title="All 2 branches covered.">            if (keycloak.isPresent()) {</span>
-<span class="fc" id="L76">                resourceReference = new ResourceReference(</span>
-<span class="fc" id="L77">                        keycloak.get().getMetadata().getNamespace(),</span>
-<span class="fc" id="L78">                        keycloak.get().getMetadata().getName());</span>
+<span class="nc" id="L61">            Optional&lt;EntandoKeycloakServer&gt; keycloak = findKeycloakInNamespace(resource);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (keycloak.isPresent()) {</span>
+<span class="nc" id="L63">                resourceReference = new ResourceReference(</span>
+<span class="nc" id="L64">                        keycloak.get().getMetadata().getNamespace(),</span>
+<span class="nc" id="L65">                        keycloak.get().getMetadata().getName());</span>
             } else {
-<span class="fc" id="L80">                DoneableConfigMap configMapResource = loadDefaultCapabilitiesConfigMap();</span>
-<span class="fc" id="L81">                resourceReference = new ResourceReference(</span>
-<span class="fc" id="L82">                        configMapResource.getData().get(KeycloakName.DEFAULT_KEYCLOAK_NAMESPACE_KEY),</span>
-<span class="fc" id="L83">                        configMapResource.getData().get(KeycloakName.DEFAULT_KEYCLOAK_NAME_KEY));</span>
+<span class="nc" id="L67">                DoneableConfigMap configMapResource = loadDefaultCapabilitiesConfigMap();</span>
+<span class="nc" id="L68">                resourceReference = new ResourceReference(</span>
+<span class="nc" id="L69">                        configMapResource.getData().get(KeycloakName.DEFAULT_KEYCLOAK_NAMESPACE_KEY),</span>
+<span class="nc" id="L70">                        configMapResource.getData().get(KeycloakName.DEFAULT_KEYCLOAK_NAME_KEY));</span>
 
             }
         }
-<span class="fc" id="L87">        return refineResourceReference(resourceReference, resource.getMetadata());</span>
+<span class="nc" id="L74">        return refineResourceReference(resourceReference, resource.getMetadata());</span>
     }
 
     default Optional&lt;ResourceReference&gt; refineResourceReference(ResourceReference resourceReference, ObjectMeta metadata) {
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (resourceReference.getName() == null) {</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (resourceReference.getName() == null) {</span>
             //no valid resource reference in any config anywhere. Return empty
-<span class="fc" id="L93">            return Optional.empty();</span>
+<span class="nc" id="L80">            return Optional.empty();</span>
         } else {
             //Default an empty namespace to the resource's own namespace
-<span class="fc" id="L96">            return Optional.of(new ResourceReference(</span>
-<span class="fc" id="L97">                    resourceReference.getNamespace().orElse(metadata.getNamespace()),</span>
-<span class="fc" id="L98">                    resourceReference.getName()));</span>
+<span class="nc" id="L83">            return Optional.of(new ResourceReference(</span>
+<span class="nc" id="L84">                    resourceReference.getNamespace().orElse(metadata.getNamespace()),</span>
+<span class="nc" id="L85">                    resourceReference.getName()));</span>
         }
     }
 

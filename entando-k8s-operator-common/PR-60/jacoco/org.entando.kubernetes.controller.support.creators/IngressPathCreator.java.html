@@ -16,6 +16,8 @@
 
 package org.entando.kubernetes.controller.support.creators;
 
+import static java.util.stream.Collectors.toList;
+
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPath;
 import io.fabric8.kubernetes.api.model.extensions.HTTPIngressPathBuilder;
@@ -23,8 +25,9 @@ import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.entando.kubernetes.controller.spi.container.DeployableContainer;
+import org.entando.kubernetes.controller.spi.container.IngressingContainer;
 import org.entando.kubernetes.controller.spi.container.IngressingPathOnPort;
-import org.entando.kubernetes.controller.spi.deployable.Ingressing;
 import org.entando.kubernetes.controller.spi.deployable.IngressingDeployable;
 import org.entando.kubernetes.controller.support.client.IngressClient;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
@@ -33,40 +36,46 @@ public class IngressPathCreator {
 
     private final EntandoCustomResource entandoCustomResource;
 
-<span class="fc" id="L36">    public IngressPathCreator(EntandoCustomResource entandoCustomResource) {</span>
-<span class="fc" id="L37">        this.entandoCustomResource = entandoCustomResource;</span>
-<span class="fc" id="L38">    }</span>
+<span class="nc" id="L39">    public IngressPathCreator(EntandoCustomResource entandoCustomResource) {</span>
+<span class="nc" id="L40">        this.entandoCustomResource = entandoCustomResource;</span>
+<span class="nc" id="L41">    }</span>
 
     public List&lt;HTTPIngressPath&gt; buildPaths(IngressingDeployable&lt;?&gt; ingressingDeployable, Service service) {
-<span class="fc" id="L41">        return ingressingDeployable.getIngressingContainers().stream().map(o -&gt; newHttpPath(o, service)).collect(Collectors</span>
-<span class="fc" id="L42">                .toList());</span>
+<span class="nc" id="L44">        return ingressingDeployable.getContainers().stream()</span>
+<span class="nc" id="L45">                .filter(IngressingContainer.class::isInstance)</span>
+<span class="nc" id="L46">                .map(IngressingContainer.class::cast)</span>
+<span class="nc" id="L47">                .collect(toList()).stream().map(o -&gt; newHttpPath(o, service)).collect(Collectors</span>
+<span class="nc" id="L48">                        .toList());</span>
     }
 
-    public Ingress addMissingHttpPaths(IngressClient ingressClient, Ingressing&lt;?&gt; ingressingDeployable, Ingress ingress, Service service) {
-<span class="fc" id="L46">        List&lt;IngressingPathOnPort&gt; ingressingContainers = ingressingDeployable.getIngressingContainers().stream()</span>
-<span class="fc" id="L47">                .filter(path -&gt; this.httpPathIsAbsent(ingress, path))</span>
-<span class="fc" id="L48">                .collect(Collectors.toList());</span>
-<span class="fc bfc" id="L49" title="All 2 branches covered.">        for (IngressingPathOnPort ingressingContainer : ingressingContainers) {</span>
-<span class="fc" id="L50">            ingressClient.addHttpPath(ingress, newHttpPath(ingressingContainer, service), Collections</span>
-<span class="fc" id="L51">                    .singletonMap(entandoCustomResource.getMetadata().getName() + &quot;-path&quot;, ingressingContainer.getWebContextPath()));</span>
+    public Ingress addMissingHttpPaths(IngressClient ingressClient, List&lt;IngressingPathOnPort&gt; ingressingDeployable, Ingress ingress,
+            Service service) {
+<span class="nc" id="L53">        List&lt;IngressingPathOnPort&gt; ingressingContainers = ingressingDeployable.stream()</span>
+<span class="nc" id="L54">                .filter(path -&gt; this.httpPathIsAbsent(ingress, path))</span>
+<span class="nc" id="L55">                .collect(Collectors.toList());</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (IngressingPathOnPort ingressingContainer : ingressingContainers) {</span>
+<span class="nc" id="L57">            String qualifier = ((DeployableContainer) ingressingContainer).getNameQualifier();</span>
+<span class="nc" id="L58">            ingressClient.addHttpPath(ingress, newHttpPath(ingressingContainer, service), Collections</span>
+<span class="nc" id="L59">                    .singletonMap(&quot;entando.org/&quot; + entandoCustomResource.getMetadata().getName() + &quot;/&quot; + qualifier + &quot;-path&quot;,</span>
+<span class="nc" id="L60">                            ingressingContainer.getWebContextPath()));</span>
 
-<span class="fc" id="L53">        }</span>
-<span class="fc" id="L54">        return ingressClient.loadIngress(ingress.getMetadata().getNamespace(), ingress.getMetadata().getName());</span>
+<span class="nc" id="L62">        }</span>
+<span class="nc" id="L63">        return ingressClient.loadIngress(ingress.getMetadata().getNamespace(), ingress.getMetadata().getName());</span>
     }
 
     private HTTPIngressPath newHttpPath(IngressingPathOnPort ingressingPathOnPort, Service service) {
-<span class="fc" id="L58">        return new HTTPIngressPathBuilder()</span>
-<span class="fc" id="L59">                .withPath(ingressingPathOnPort.getWebContextPath())</span>
-<span class="fc" id="L60">                .withNewBackend()</span>
-<span class="fc" id="L61">                .withServiceName(service.getMetadata().getName())</span>
-<span class="fc" id="L62">                .withNewServicePort(ingressingPathOnPort.getPortForIngressPath())</span>
-<span class="fc" id="L63">                .endBackend()</span>
-<span class="fc" id="L64">                .build();</span>
+<span class="nc" id="L67">        return new HTTPIngressPathBuilder()</span>
+<span class="nc" id="L68">                .withPath(ingressingPathOnPort.getWebContextPath())</span>
+<span class="nc" id="L69">                .withNewBackend()</span>
+<span class="nc" id="L70">                .withServiceName(service.getMetadata().getName())</span>
+<span class="nc" id="L71">                .withNewServicePort(ingressingPathOnPort.getPortForIngressPath())</span>
+<span class="nc" id="L72">                .endBackend()</span>
+<span class="nc" id="L73">                .build();</span>
     }
 
     private boolean httpPathIsAbsent(Ingress ingress, IngressingPathOnPort ingressingContainer) {
-<span class="fc" id="L68">        return ingress.getSpec().getRules().get(0).getHttp().getPaths().stream()</span>
-<span class="fc" id="L69">                .noneMatch(httpIngressPath -&gt; httpIngressPath.getPath().equals(ingressingContainer.getWebContextPath()));</span>
+<span class="nc" id="L77">        return ingress.getSpec().getRules().get(0).getHttp().getPaths().stream()</span>
+<span class="nc" id="L78">                .noneMatch(httpIngressPath -&gt; httpIngressPath.getPath().equals(ingressingContainer.getWebContextPath()));</span>
     }
 
 }

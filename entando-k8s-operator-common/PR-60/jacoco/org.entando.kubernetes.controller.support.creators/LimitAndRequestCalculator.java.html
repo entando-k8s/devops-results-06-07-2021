@@ -52,11 +52,11 @@ public class LimitAndRequestCalculator {
 <span class="fc" id="L52">        String uom = limit.substring(i);</span>
         //Only integer values accepted
 <span class="fc" id="L54">        double request = number * getRequestToLimitRatio();</span>
-<span class="fc bfc" id="L55" title="All 2 branches covered.">        boolean uomIsCore = uom.length() == 0;</span>
-<span class="fc bfc" id="L56" title="All 4 branches covered.">        if (request &lt; 1.0D || uomIsCore) {</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        boolean uomIsCore = uom.length() == 0;</span>
+<span class="pc bpc" id="L56" title="2 of 4 branches missed.">        if (request &lt; 1.0D || uomIsCore) {</span>
             //we don't like cores here. convert to millicore
-<span class="fc" id="L58">            request = request * 1000;</span>
-<span class="fc" id="L59">            uom = ADJACENT_UNITS_OF_MEASUREMENT.get(uom);</span>
+<span class="nc" id="L58">            request = request * 1000;</span>
+<span class="nc" id="L59">            uom = ADJACENT_UNITS_OF_MEASUREMENT.get(uom);</span>
         }
 <span class="fc" id="L61">        return Math.round(request) + uom;</span>
     }

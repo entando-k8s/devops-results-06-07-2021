@@ -16,10 +16,10 @@
 
 package org.entando.kubernetes.controller.support.spibase;
 
+import io.fabric8.kubernetes.client.CustomResource;
 import java.util.Optional;
 import org.entando.kubernetes.controller.spi.deployable.PublicIngressingDeployable;
 import org.entando.kubernetes.controller.spi.result.ExposedDeploymentResult;
-import org.entando.kubernetes.model.common.EntandoBaseCustomResource;
 import org.entando.kubernetes.model.common.EntandoCustomResourceStatus;
 import org.entando.kubernetes.model.common.KeycloakAwareSpec;
 import org.entando.kubernetes.model.common.KeycloakToUse;
@@ -30,10 +30,13 @@ public interface PublicIngressingDeployableBase&lt;T extends ExposedDeploymentRe
     @Override
     @SuppressWarnings(&quot;unchecked&quot;)
     default Optional&lt;KeycloakToUse&gt; getPreferredKeycloakToUse() {
-<span class="fc" id="L33">        EntandoBaseCustomResource&lt;KeycloakAwareSpec, EntandoCustomResourceStatus&gt; ka = (EntandoBaseCustomResource&lt;KeycloakAwareSpec,</span>
-<span class="fc" id="L34">                EntandoCustomResourceStatus&gt;) getCustomResource();</span>
-<span class="fc" id="L35">        return ka.getSpec().getKeycloakToUse();</span>
+<span class="nc" id="L33">        return ((CustomResource&lt;KeycloakAwareSpec,</span>
+<span class="nc" id="L34">                EntandoCustomResourceStatus&gt;) getCustomResource()).getSpec().getKeycloakToUse();</span>
     }
 
+    @Override
+    default boolean isIngressRequired() {
+<span class="nc" id="L39">        return false;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

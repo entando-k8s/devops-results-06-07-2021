@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SupportProducer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Operator Common Library</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.support.client.impl</a> &gt; <span class="el_source">SupportProducer.java</span></div><h1>SupportProducer.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.support.client.impl;
+
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import javax.enterprise.inject.Produces;
+import org.entando.kubernetes.controller.spi.client.KubernetesClientForControllers;
+import org.entando.kubernetes.controller.spi.command.CommandStream;
+import org.entando.kubernetes.controller.support.capability.CapabilityClient;
+import org.entando.kubernetes.controller.support.client.EntandoResourceClient;
+import org.entando.kubernetes.controller.support.client.SimpleK8SClient;
+import org.entando.kubernetes.controller.support.client.SimpleKeycloakClient;
+import org.entando.kubernetes.controller.support.command.InProcessCommandStream;
+
+<span class="nc" id="L31">public class SupportProducer {</span>
+
+    private KubernetesClient kubernetesClient;
+    private SimpleK8SClient&lt;EntandoResourceClient&gt; simpleK8SClient;
+
+    @Produces
+    public KubernetesClient getKubernetesClient() {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (kubernetesClient == null) {</span>
+<span class="nc" id="L39">            ConfigBuilder configBuilder = new ConfigBuilder().withTrustCerts(true).withRequestTimeout(30000).withConnectionTimeout(30000);</span>
+<span class="nc" id="L40">            kubernetesClient = new DefaultKubernetesClient(configBuilder.build());</span>
+        }
+<span class="nc" id="L42">        return kubernetesClient;</span>
+    }
+
+    @Produces
+    public KubernetesClientForControllers entandoResourceClient() {
+<span class="nc" id="L47">        return getSimpleKubernetesClient().entandoResources();</span>
+    }
+
+    @Produces
+    public CapabilityClient capabilityClient() {
+<span class="nc" id="L52">        return getSimpleKubernetesClient().capabilities();</span>
+    }
+
+    @Produces
+    public CommandStream serializingDeployCommand() {
+<span class="nc" id="L57">        return new InProcessCommandStream(getSimpleKubernetesClient(), new DefaultKeycloakClient());</span>
+    }
+
+    @Produces
+    public SimpleKeycloakClient keycloakClient() {
+<span class="nc" id="L62">        return new DefaultKeycloakClient();</span>
+    }
+
+    private SimpleK8SClient&lt;EntandoResourceClient&gt; getSimpleKubernetesClient() {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (simpleK8SClient == null) {</span>
+<span class="nc" id="L67">            simpleK8SClient = new DefaultSimpleK8SClient(getKubernetesClient());</span>
+        }
+<span class="nc" id="L69">        return simpleK8SClient;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

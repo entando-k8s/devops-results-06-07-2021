@@ -26,52 +26,54 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class EntandoOperatorConfigBase {
 
-<span class="fc" id="L29">    private static AtomicReference&lt;ConfigMap&gt; configMap = new AtomicReference&lt;&gt;();</span>
+    public static final String SEPERATOR_PATTERN = &quot;[\\s,:]+&quot;;
 
-<span class="nc" id="L31">    protected EntandoOperatorConfigBase() {</span>
-<span class="nc" id="L32">    }</span>
+<span class="fc" id="L31">    private static AtomicReference&lt;ConfigMap&gt; configMap = new AtomicReference&lt;&gt;();</span>
+
+<span class="nc" id="L33">    protected EntandoOperatorConfigBase() {</span>
+<span class="nc" id="L34">    }</span>
 
     public static void setConfigMap(ConfigMap configMap) {
-<span class="fc" id="L35">        EntandoOperatorConfigBase.configMap.set(configMap);</span>
-<span class="fc" id="L36">    }</span>
+<span class="nc" id="L37">        EntandoOperatorConfigBase.configMap.set(configMap);</span>
+<span class="nc" id="L38">    }</span>
 
     protected static String getProperty(ConfigProperty name, String defaultValue) {
-<span class="nc" id="L39">        return lookupProperty(name).orElse(defaultValue);</span>
+<span class="nc" id="L41">        return lookupProperty(name).orElse(defaultValue);</span>
     }
 
     public static Optional&lt;String&gt; lookupProperty(ConfigProperty property) {
-<span class="fc" id="L43">        return Optional.ofNullable(lookupProperty(property.getJvmSystemProperty()).orElse(lookupProperty(property.name()).orElse(null)));</span>
+<span class="fc" id="L45">        return Optional.ofNullable(lookupProperty(property.getJvmSystemProperty()).orElse(lookupProperty(property.name()).orElse(null)));</span>
     }
 
     @SuppressWarnings({&quot;rawtypes&quot;, &quot;unchecked&quot;})
     public static Optional&lt;String&gt; lookupProperty(String name) {
-<span class="fc" id="L48">        Optional&lt;String&gt; fromConfigMap = Optional.ofNullable(EntandoOperatorConfigBase.configMap.get())</span>
-<span class="pc" id="L49">                .flatMap(map -&gt; findFirstMatch(name, map.getData()));</span>
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (fromConfigMap.isEmpty()) {</span>
-<span class="fc" id="L51">            Optional&lt;String&gt; fromEnv = findFirstMatch(name, System.getenv());</span>
-<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (fromEnv.isEmpty()) {</span>
-<span class="fc" id="L53">                return findFirstMatch(name, new HashMap(System.getProperties()));</span>
+<span class="fc" id="L50">        Optional&lt;String&gt; fromConfigMap = Optional.ofNullable(EntandoOperatorConfigBase.configMap.get())</span>
+<span class="pc" id="L51">                .flatMap(map -&gt; findFirstMatch(name, map.getData()));</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (fromConfigMap.isEmpty()) {</span>
+<span class="fc" id="L53">            Optional&lt;String&gt; fromEnv = findFirstMatch(name, System.getenv());</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">            if (fromEnv.isEmpty()) {</span>
+<span class="fc" id="L55">                return findFirstMatch(name, new HashMap(System.getProperties()));</span>
             } else {
-<span class="fc" id="L55">                return fromEnv;</span>
+<span class="fc" id="L57">                return fromEnv;</span>
             }
         }
-<span class="nc" id="L58">        return fromConfigMap;</span>
+<span class="nc" id="L60">        return fromConfigMap;</span>
     }
 
     private static Optional&lt;String&gt; findFirstMatch(String name, Map&lt;String, String&gt; map) {
-<span class="fc" id="L62">        return map.entrySet().stream()</span>
-<span class="fc" id="L63">                .filter(entry -&gt; isMatch(name, entry))</span>
-<span class="fc" id="L64">                .map(Entry::getValue)</span>
-<span class="fc" id="L65">                .findFirst();</span>
+<span class="fc" id="L64">        return map.entrySet().stream()</span>
+<span class="fc" id="L65">                .filter(entry -&gt; isMatch(name, entry))</span>
+<span class="fc" id="L66">                .map(Entry::getValue)</span>
+<span class="fc" id="L67">                .findFirst();</span>
     }
 
     private static boolean isMatch(String n, Entry&lt;?, ?&gt; entry) {
-<span class="pc bpc" id="L69" title="1 of 4 branches missed.">        if (entry.getValue() == null || ((String) entry.getValue()).trim().isEmpty()) {</span>
-<span class="fc" id="L70">            return false;</span>
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        if (entry.getValue() == null || ((String) entry.getValue()).trim().isEmpty()) {</span>
+<span class="fc" id="L72">            return false;</span>
         }
-<span class="fc" id="L72">        String name = n.toLowerCase(Locale.getDefault());</span>
-<span class="fc" id="L73">        String key = ((String) entry.getKey()).toLowerCase(Locale.getDefault());</span>
-<span class="fc" id="L74">        return NameUtils.snakeCaseOf(name).equals(NameUtils.snakeCaseOf(key));</span>
+<span class="fc" id="L74">        String name = n.toLowerCase(Locale.getDefault());</span>
+<span class="fc" id="L75">        String key = ((String) entry.getKey()).toLowerCase(Locale.getDefault());</span>
+<span class="fc" id="L76">        return NameUtils.snakeCaseOf(name).equals(NameUtils.snakeCaseOf(key));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

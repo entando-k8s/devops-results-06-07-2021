@@ -19,6 +19,7 @@ package org.entando.kubernetes.controller.spi.common;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.OwnerReference;
 import io.fabric8.kubernetes.api.model.OwnerReferenceBuilder;
+import org.entando.kubernetes.model.common.EntandoCustomResource;
 
 public class ResourceUtils {
 
@@ -27,13 +28,19 @@ public class ResourceUtils {
     }
 
     public static OwnerReference buildOwnerReference(HasMetadata entandoCustomResource) {
-<span class="fc" id="L30">        return new OwnerReferenceBuilder()</span>
-<span class="fc" id="L31">                .withApiVersion(entandoCustomResource.getApiVersion())</span>
-<span class="fc" id="L32">                .withBlockOwnerDeletion(true)</span>
-<span class="fc" id="L33">                .withController(true)</span>
-<span class="fc" id="L34">                .withKind(entandoCustomResource.getKind())</span>
-<span class="fc" id="L35">                .withName(entandoCustomResource.getMetadata().getName())</span>
-<span class="fc" id="L36">                .withUid(entandoCustomResource.getMetadata().getUid()).build();</span>
+<span class="fc" id="L31">        return new OwnerReferenceBuilder()</span>
+<span class="fc" id="L32">                .withApiVersion(entandoCustomResource.getApiVersion())</span>
+<span class="fc" id="L33">                .withBlockOwnerDeletion(true)</span>
+<span class="fc" id="L34">                .withController(true)</span>
+<span class="fc" id="L35">                .withKind(entandoCustomResource.getKind())</span>
+<span class="fc" id="L36">                .withName(entandoCustomResource.getMetadata().getName())</span>
+<span class="fc" id="L37">                .withUid(entandoCustomResource.getMetadata().getUid()).build();</span>
+    }
+
+    public static boolean customResourceOwns(EntandoCustomResource owner, HasMetadata owned) {
+<span class="nc" id="L41">        return owned.getMetadata().getOwnerReferences().stream()</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">                .anyMatch(ownerReference -&gt; owner.getMetadata().getName().equals(ownerReference.getName())</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">                        &amp;&amp; owner.getKind().equals(ownerReference.getKind()));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

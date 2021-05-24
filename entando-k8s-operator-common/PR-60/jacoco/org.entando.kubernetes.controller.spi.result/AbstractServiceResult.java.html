@@ -21,7 +21,7 @@ import io.fabric8.kubernetes.api.model.Service;
 public abstract class AbstractServiceResult implements ServiceResult {
 
     protected final Service service;
-    private final String adminSecretName;
+    protected String adminSecretName;
 
     protected AbstractServiceResult(Service service) {
 <span class="fc" id="L27">        this(service, null);</span>
@@ -39,17 +39,23 @@ public abstract class AbstractServiceResult implements ServiceResult {
 
     @Override
     public String getInternalServiceHostname() {
-<span class="fc" id="L42">        return service.getMetadata().getName() + &quot;.&quot; + service.getMetadata().getNamespace() + &quot;.svc.cluster.local&quot;;</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (service == null) {</span>
+<span class="fc" id="L43">            return null;</span>
+        }
+<span class="nc" id="L45">        return service.getMetadata().getName() + &quot;.&quot; + service.getMetadata().getNamespace() + &quot;.svc.cluster.local&quot;;</span>
     }
 
     @Override
     public String getPort() {
-<span class="fc" id="L47">        return service.getSpec().getPorts().get(0).getPort().toString();</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (service == null) {</span>
+<span class="fc" id="L51">            return null;</span>
+        }
+<span class="nc" id="L53">        return service.getSpec().getPorts().get(0).getPort().toString();</span>
     }
 
     @Override
     public Service getService() {
-<span class="fc" id="L52">        return service;</span>
+<span class="fc" id="L58">        return service;</span>
     }
 
 }
