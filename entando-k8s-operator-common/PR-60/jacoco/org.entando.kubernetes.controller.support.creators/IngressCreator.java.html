@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.spi.common.ResourceUtils;
 import org.entando.kubernetes.controller.spi.common.SecretUtils;
 import org.entando.kubernetes.controller.spi.container.IngressingContainer;
@@ -48,131 +47,131 @@ public class IngressCreator extends AbstractK8SResourceCreator {
     private Ingress ingress;
 
     public IngressCreator(EntandoCustomResource entandoCustomResource) {
-<span class="nc" id="L51">        super(entandoCustomResource);</span>
-<span class="nc" id="L52">        this.ingressPathCreator = new IngressPathCreator(entandoCustomResource);</span>
-<span class="nc" id="L53">    }</span>
+<span class="nc" id="L50">        super(entandoCustomResource);</span>
+<span class="nc" id="L51">        this.ingressPathCreator = new IngressPathCreator(entandoCustomResource);</span>
+<span class="nc" id="L52">    }</span>
 
     public static String getIngressServerUrl(Ingress ingress) {
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        return (ingress.getSpec().getTls().isEmpty() ? &quot;http&quot; : &quot;https&quot;) + &quot;://&quot; + ingress.getSpec().getRules().get(0)</span>
-<span class="nc" id="L57">                .getHost();</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        return (ingress.getSpec().getTls().isEmpty() ? &quot;http&quot; : &quot;https&quot;) + &quot;://&quot; + ingress.getSpec().getRules().get(0)</span>
+<span class="nc" id="L56">                .getHost();</span>
     }
 
     public static String determineRoutingSuffix(String masterNodeHost) {
-<span class="nc" id="L61">        return EntandoOperatorConfig.getDefaultRoutingSuffix()</span>
-<span class="nc" id="L62">                .orElse(determineViableRoutingSuffix(masterNodeHost));</span>
+<span class="nc" id="L60">        return EntandoOperatorConfig.getDefaultRoutingSuffix()</span>
+<span class="nc" id="L61">                .orElse(determineViableRoutingSuffix(masterNodeHost));</span>
     }
 
     private static String determineViableRoutingSuffix(String masterNodeHost) {
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (isTopLevelDomain(masterNodeHost)) {</span>
-<span class="nc" id="L67">            return masterNodeHost;</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (isTopLevelDomain(masterNodeHost)) {</span>
+<span class="nc" id="L66">            return masterNodeHost;</span>
         }
-<span class="nc" id="L69">        return masterNodeHost + &quot;.nip.io&quot;;</span>
+<span class="nc" id="L68">        return masterNodeHost + &quot;.nip.io&quot;;</span>
     }
 
     private static boolean isTopLevelDomain(String host) {
         try {
             //loaded from https://data.iana.org/TLD/tlds-alpha-by-domain.txt
-<span class="nc" id="L75">            try (InputStream stream = Thread.currentThread().getContextClassLoader()</span>
-<span class="nc" id="L76">                    .getResourceAsStream(&quot;top-level-domains.txt&quot;);</span>
-<span class="nc" id="L77">                    BufferedReader r = new BufferedReader(new InputStreamReader(stream))) {</span>
+<span class="nc" id="L74">            try (InputStream stream = Thread.currentThread().getContextClassLoader()</span>
+<span class="nc" id="L75">                    .getResourceAsStream(&quot;top-level-domains.txt&quot;);</span>
+<span class="nc" id="L76">                    BufferedReader r = new BufferedReader(new InputStreamReader(stream))) {</span>
 
-<span class="nc" id="L79">                String line = r.readLine();</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">                while (line != null) {</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">                    if (host.toLowerCase(Locale.getDefault()).endsWith(&quot;.&quot; + line.toLowerCase(Locale.getDefault()))) {</span>
-<span class="nc" id="L82">                        return true;</span>
+<span class="nc" id="L78">                String line = r.readLine();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                while (line != null) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                    if (host.toLowerCase(Locale.getDefault()).endsWith(&quot;.&quot; + line.toLowerCase(Locale.getDefault()))) {</span>
+<span class="nc" id="L81">                        return true;</span>
                     }
-<span class="nc" id="L84">                    line = r.readLine();</span>
+<span class="nc" id="L83">                    line = r.readLine();</span>
                 }
-<span class="nc bnc" id="L86" title="All 2 branches missed.">            }</span>
-<span class="nc" id="L87">        } catch (IOException e) {</span>
-<span class="nc" id="L88">            throw new IllegalStateException(e);</span>
-<span class="nc" id="L89">        }</span>
-<span class="nc" id="L90">        return false;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            }</span>
+<span class="nc" id="L86">        } catch (IOException e) {</span>
+<span class="nc" id="L87">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L88">        }</span>
+<span class="nc" id="L89">        return false;</span>
     }
 
     public boolean requiresDelegatingService(Service service, IngressingDeployable&lt;?&gt; ingressingDeployable) {
-<span class="nc bnc" id="L94" title="All 2 branches missed.">        return !service.getMetadata().getNamespace().equals(ingressingDeployable.getIngressNamespace());</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        return !service.getMetadata().getNamespace().equals(ingressingDeployable.getIngressNamespace());</span>
     }
 
     public void createIngress(IngressClient ingressClient, IngressingDeployable&lt;?&gt; ingressingDeployable,
             Service service) {
-<span class="nc" id="L99">        this.ingress = ingressClient.loadIngress(ingressingDeployable.getIngressNamespace(), ingressingDeployable.getIngressName());</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (this.ingress == null) {</span>
-<span class="nc" id="L101">            Ingress newIngress = newIngress(ingressClient, ingressPathCreator.buildPaths(ingressingDeployable, service),</span>
+<span class="nc" id="L98">        this.ingress = ingressClient.loadIngress(ingressingDeployable.getIngressNamespace(), ingressingDeployable.getIngressName());</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (this.ingress == null) {</span>
+<span class="nc" id="L100">            Ingress newIngress = newIngress(ingressClient, ingressPathCreator.buildPaths(ingressingDeployable, service),</span>
                     ingressingDeployable);
-<span class="nc" id="L103">            this.ingress = ingressClient.createIngress(entandoCustomResource, newIngress);</span>
-<span class="nc" id="L104">        } else {</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">            if (ResourceUtils.customResourceOwns(entandoCustomResource, ingress)) {</span>
-<span class="nc" id="L106">                this.ingress = ingressClient.editIngress(entandoCustomResource, ingressingDeployable.getIngressName())</span>
-<span class="nc" id="L107">                        .editSpec().editFirstRule().withHost(determineIngressHost(ingressClient, ingressingDeployable)).endRule()</span>
-<span class="nc" id="L108">                        .withTls(maybeBuildTls(ingressClient, ingressingDeployable)).endSpec().done();</span>
+<span class="nc" id="L102">            this.ingress = ingressClient.createIngress(entandoCustomResource, newIngress);</span>
+<span class="nc" id="L103">        } else {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (ResourceUtils.customResourceOwns(entandoCustomResource, ingress)) {</span>
+<span class="nc" id="L105">                this.ingress = ingressClient.editIngress(entandoCustomResource, ingressingDeployable.getIngressName())</span>
+<span class="nc" id="L106">                        .editSpec().editFirstRule().withHost(determineIngressHost(ingressClient, ingressingDeployable)).endRule()</span>
+<span class="nc" id="L107">                        .withTls(maybeBuildTls(ingressClient, ingressingDeployable)).endSpec().done();</span>
             }
-<span class="nc" id="L110">            List&lt;IngressingPathOnPort&gt; ingressingContainers = ingressingDeployable.getContainers().stream()</span>
-<span class="nc" id="L111">                    .filter(IngressingContainer.class::isInstance).map(IngressingContainer.class::cast).collect(Collectors.toList());</span>
+<span class="nc" id="L109">            List&lt;IngressingPathOnPort&gt; ingressingContainers = ingressingDeployable.getContainers().stream()</span>
+<span class="nc" id="L110">                    .filter(IngressingContainer.class::isInstance).map(IngressingContainer.class::cast).collect(Collectors.toList());</span>
 
-<span class="nc" id="L113">            ingressPathCreator.addMissingHttpPaths(ingressClient, ingressingContainers, ingress, service);</span>
+<span class="nc" id="L112">            ingressPathCreator.addMissingHttpPaths(ingressClient, ingressingContainers, ingress, service);</span>
         }
-<span class="nc" id="L115">    }</span>
+<span class="nc" id="L114">    }</span>
 
     public Ingress getIngress() {
-<span class="nc" id="L118">        return ingress;</span>
+<span class="nc" id="L117">        return ingress;</span>
     }
 
     private Ingress newIngress(IngressClient ingressClient, List&lt;HTTPIngressPath&gt; paths,
             IngressingDeployable&lt;?&gt; deployable) {
-<span class="nc" id="L123">        return new IngressBuilder()</span>
-<span class="nc" id="L124">                .withNewMetadata()</span>
-<span class="nc" id="L125">                .withAnnotations(forNginxIngress(deployable))</span>
-<span class="nc" id="L126">                .withName(entandoCustomResource.getMetadata().getName() + &quot;-&quot; + NameUtils.DEFAULT_INGRESS_SUFFIX)</span>
-<span class="nc" id="L127">                .withNamespace(entandoCustomResource.getMetadata().getNamespace())</span>
-<span class="nc" id="L128">                .addToLabels(entandoCustomResource.getKind(), entandoCustomResource.getMetadata().getName())</span>
-<span class="nc" id="L129">                .withOwnerReferences(ResourceUtils.buildOwnerReference(entandoCustomResource))</span>
-<span class="nc" id="L130">                .endMetadata()</span>
-<span class="nc" id="L131">                .withNewSpec()</span>
-<span class="nc" id="L132">                .withIngressClassName(EntandoOperatorConfig.getIngressClass().orElse(null))</span>
-<span class="nc" id="L133">                .withTls(maybeBuildTls(ingressClient, deployable))</span>
-<span class="nc" id="L134">                .addNewRule()</span>
-<span class="nc" id="L135">                .withHost(determineIngressHost(ingressClient, deployable))</span>
-<span class="nc" id="L136">                .withNewHttp()</span>
-<span class="nc" id="L137">                .withPaths(paths)</span>
-<span class="nc" id="L138">                .endHttp()</span>
-<span class="nc" id="L139">                .endRule().endSpec().build();</span>
+<span class="nc" id="L122">        return new IngressBuilder()</span>
+<span class="nc" id="L123">                .withNewMetadata()</span>
+<span class="nc" id="L124">                .withAnnotations(forNginxIngress(deployable))</span>
+<span class="nc" id="L125">                .withName(deployable.getIngressName())</span>
+<span class="nc" id="L126">                .withNamespace(entandoCustomResource.getMetadata().getNamespace())</span>
+<span class="nc" id="L127">                .addToLabels(entandoCustomResource.getKind(), entandoCustomResource.getMetadata().getName())</span>
+<span class="nc" id="L128">                .withOwnerReferences(ResourceUtils.buildOwnerReference(entandoCustomResource))</span>
+<span class="nc" id="L129">                .endMetadata()</span>
+<span class="nc" id="L130">                .withNewSpec()</span>
+<span class="nc" id="L131">                .withIngressClassName(EntandoOperatorConfig.getIngressClass().orElse(null))</span>
+<span class="nc" id="L132">                .withTls(maybeBuildTls(ingressClient, deployable))</span>
+<span class="nc" id="L133">                .addNewRule()</span>
+<span class="nc" id="L134">                .withHost(determineIngressHost(ingressClient, deployable))</span>
+<span class="nc" id="L135">                .withNewHttp()</span>
+<span class="nc" id="L136">                .withPaths(paths)</span>
+<span class="nc" id="L137">                .endHttp()</span>
+<span class="nc" id="L138">                .endRule().endSpec().build();</span>
     }
 
     private Map&lt;String, String&gt; forNginxIngress(IngressingDeployable&lt;?&gt; deployable) {
-<span class="nc" id="L143">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L144">        EntandoOperatorConfig.getIngressClass().ifPresent(s -&gt; result.put(&quot;kubernetes.io/ingress.class&quot;, s));</span>
-<span class="nc bnc" id="L145" title="All 4 branches missed.">        if (EntandoOperatorConfig.getTlsSecretName().isPresent() || EntandoOperatorConfig.useAutoCertGeneration()) {</span>
+<span class="nc" id="L142">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L143">        EntandoOperatorConfig.getIngressClass().ifPresent(s -&gt; result.put(&quot;kubernetes.io/ingress.class&quot;, s));</span>
+<span class="nc bnc" id="L144" title="All 4 branches missed.">        if (EntandoOperatorConfig.getTlsSecretName().isPresent() || EntandoOperatorConfig.useAutoCertGeneration()) {</span>
 
             //for cases where we have https available but the Keycloak redirect was specified as http
-<span class="nc" id="L148">            result.put(&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;, &quot;true&quot;);</span>
+<span class="nc" id="L147">            result.put(&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;, &quot;true&quot;);</span>
         }
-<span class="nc" id="L150">        deployable.getFileUploadLimit().ifPresent(s -&gt; result.put(&quot;nginx.ingress.kubernetes.io/proxy-body-size&quot;, s));</span>
-<span class="nc" id="L151">        return result;</span>
+<span class="nc" id="L149">        deployable.getFileUploadLimit().ifPresent(s -&gt; result.put(&quot;nginx.ingress.kubernetes.io/proxy-body-size&quot;, s));</span>
+<span class="nc" id="L150">        return result;</span>
     }
 
     private List&lt;IngressTLS&gt; maybeBuildTls(IngressClient ingressClient, IngressingDeployable&lt;?&gt; deployable) {
-<span class="nc" id="L155">        List&lt;IngressTLS&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L154">        List&lt;IngressTLS&gt; result = new ArrayList&lt;&gt;();</span>
 
-<span class="nc" id="L157">        deployable.getTlsSecretName().ifPresent(s -&gt;</span>
-<span class="nc" id="L158">                result.add(new IngressTLSBuilder().withSecretName(s).withHosts(determineIngressHost(ingressClient, deployable)).build()));</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (result.isEmpty()) {</span>
-<span class="nc" id="L160">            EntandoOperatorConfig.getTlsSecretName().ifPresent(s -&gt;</span>
-<span class="nc" id="L161">                    result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>
-<span class="nc" id="L162">                            .withSecretName(s).build()));</span>
+<span class="nc" id="L156">        deployable.getTlsSecretName().ifPresent(s -&gt;</span>
+<span class="nc" id="L157">                result.add(new IngressTLSBuilder().withSecretName(s).withHosts(determineIngressHost(ingressClient, deployable)).build()));</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (result.isEmpty()) {</span>
+<span class="nc" id="L159">            EntandoOperatorConfig.getTlsSecretName().ifPresent(s -&gt;</span>
+<span class="nc" id="L160">                    result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>
+<span class="nc" id="L161">                            .withSecretName(s).build()));</span>
         }
-<span class="nc bnc" id="L164" title="All 4 branches missed.">        if (result.isEmpty() &amp;&amp; EntandoOperatorConfig.useAutoCertGeneration()) {</span>
-<span class="nc" id="L165">            result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>
-<span class="nc" id="L166">                    .withSecretName(SecretUtils.EMPTY_TLS_SECRET_NAME).build());</span>
+<span class="nc bnc" id="L163" title="All 4 branches missed.">        if (result.isEmpty() &amp;&amp; EntandoOperatorConfig.useAutoCertGeneration()) {</span>
+<span class="nc" id="L164">            result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>
+<span class="nc" id="L165">                    .withSecretName(SecretUtils.EMPTY_TLS_SECRET_NAME).build());</span>
         }
-<span class="nc" id="L168">        return result;</span>
+<span class="nc" id="L167">        return result;</span>
     }
 
     private String determineIngressHost(IngressClient ingressClient, IngressingDeployable&lt;?&gt; deployable) {
-<span class="nc" id="L172">        return deployable.getIngressHostName()</span>
-<span class="nc" id="L173">                .orElse(entandoCustomResource.getMetadata().getName() + &quot;-&quot; + entandoCustomResource.getMetadata().getNamespace() + &quot;.&quot;</span>
-<span class="nc" id="L174">                        + determineRoutingSuffix(</span>
-<span class="nc" id="L175">                        ingressClient.getMasterUrlHost()));</span>
+<span class="nc" id="L171">        return deployable.getIngressHostName()</span>
+<span class="nc" id="L172">                .orElse(entandoCustomResource.getMetadata().getName() + &quot;-&quot; + entandoCustomResource.getMetadata().getNamespace() + &quot;.&quot;</span>
+<span class="nc" id="L173">                        + determineRoutingSuffix(</span>
+<span class="nc" id="L174">                        ingressClient.getMasterUrlHost()));</span>
     }
 
 }

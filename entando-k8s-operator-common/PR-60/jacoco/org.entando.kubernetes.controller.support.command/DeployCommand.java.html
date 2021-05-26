@@ -116,8 +116,8 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
 <span class="pc bpc" id="L116" title="3 of 4 branches missed.">            if (deployable instanceof DbAwareDeployable &amp;&amp; ((DbAwareDeployable&lt;?&gt;) deployable).isExpectingDatabaseSchemas()) {</span>
 <span class="nc" id="L117">                prepareDbSchemas(k8sClient, entandoImageResolver, (DbAwareDeployable&lt;?&gt;) deployable);</span>
             }
-<span class="pc bpc" id="L119" title="1 of 2 branches missed.">            if (persistentVolumeClaimCreator.needsPersistentVolumeClaaims(deployable)) {</span>
-<span class="nc" id="L120">                createPersistentVolumeClaims(k8sClient);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">            if (persistentVolumeClaimCreator.needsPersistentVolumeClaims(deployable)) {</span>
+<span class="fc" id="L120">                createPersistentVolumeClaims(k8sClient);</span>
             }
 <span class="fc" id="L122">            secretCreator.createSecrets(k8sClient.secrets(), deployable);</span>
 <span class="fc" id="L123">            serviceAccountCreator.prepareServiceAccountAccess(k8sClient.serviceAccounts(), deployable);</span>
@@ -186,13 +186,13 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
         //NB!!! it seems there is some confusion in K8S when a patch is done without any changes.
         //K8Sseems to increment either the resourceVersion or generation or both and then
         //subsequent updates fail
-<span class="nc" id="L189">        persistentVolumeClaimCreator.createPersistentVolumeClaimsFor(k8sClient.persistentVolumeClaims(), deployable);</span>
-<span class="nc" id="L190">        persistentVolumeClaimCreator.reloadPersistentVolumeClaims(k8sClient.persistentVolumeClaims()).forEach(</span>
-<span class="nc" id="L191">                persistentVolumeClaim -&gt; status.putPersistentVolumeClaimPhase(persistentVolumeClaim.getMetadata().getName(),</span>
-<span class="nc" id="L192">                        ofNullable(persistentVolumeClaim.getStatus()).map(PersistentVolumeClaimStatus::getPhase).orElse(&quot;Pending&quot;))</span>
+<span class="fc" id="L189">        persistentVolumeClaimCreator.createPersistentVolumeClaimsFor(k8sClient.persistentVolumeClaims(), deployable);</span>
+<span class="fc" id="L190">        persistentVolumeClaimCreator.reloadPersistentVolumeClaims(k8sClient.persistentVolumeClaims()).forEach(</span>
+<span class="fc" id="L191">                persistentVolumeClaim -&gt; status.putPersistentVolumeClaimPhase(persistentVolumeClaim.getMetadata().getName(),</span>
+<span class="fc" id="L192">                        ofNullable(persistentVolumeClaim.getStatus()).map(PersistentVolumeClaimStatus::getPhase).orElse(&quot;Pending&quot;))</span>
         );
-<span class="nc" id="L194">        k8sClient.entandoResources().updateStatus(entandoCustomResource, status);</span>
-<span class="nc" id="L195">    }</span>
+<span class="fc" id="L194">        k8sClient.entandoResources().updateStatus(entandoCustomResource, status);</span>
+<span class="fc" id="L195">    }</span>
 
     private void prepareDbSchemas(
             SimpleK8SClient&lt;?&gt; k8sClient,

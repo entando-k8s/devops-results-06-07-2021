@@ -32,8 +32,9 @@ public class NameUtils {
     public static final String DEFAULT_INGRESS_SUFFIX = &quot;ingress&quot;;
     public static final String MAIN_QUALIFIER = &quot;main&quot;;
     public static final String DEFAULT_DEPLOYMENT_SUFFIX = &quot;deployment&quot;;
-<span class="fc" id="L35">    private static final SecureRandom SECURE_RANDOM = new SecureRandom();</span>
-<span class="fc" id="L36">    private static final Pattern pattern = Pattern.compile(&quot;(?=[A-Z][a-z])&quot;);</span>
+    public static final String DEFAULT_PVC_SUFFIX = &quot;pvc&quot;;
+<span class="fc" id="L36">    private static final SecureRandom SECURE_RANDOM = new SecureRandom();</span>
+<span class="fc" id="L37">    private static final Pattern pattern = Pattern.compile(&quot;(?=[A-Z][a-z])&quot;);</span>
 
     private NameUtils() {
     }
@@ -42,72 +43,76 @@ public class NameUtils {
      * Useful for labelvalues and container names.
      */
     public static String shortenTo63Chars(String s) {
-<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (s.length() &gt; 63) {</span>
-<span class="nc" id="L46">            s = s.substring(0, 63 - 4) + randomNumeric(4);</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (s.length() &gt; 63) {</span>
+<span class="nc" id="L47">            s = s.substring(0, 63 - 4) + randomNumeric(4);</span>
         }
-<span class="nc" id="L48">        return s;</span>
+<span class="nc" id="L49">        return s;</span>
     }
 
     public static String randomNumeric(int size) {
         String suffix;
         do {
             //+1 to avoid Long.MIN_VALUE that stays negative after Math.abs
-<span class="nc" id="L55">            suffix = String.valueOf(Math.abs(SECURE_RANDOM.nextLong() + 1));</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">        } while (suffix.length() &lt; size);</span>
-<span class="nc" id="L57">        return suffix.substring(suffix.length() - size);</span>
+<span class="nc" id="L56">            suffix = String.valueOf(Math.abs(SECURE_RANDOM.nextLong() + 1));</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        } while (suffix.length() &lt; size);</span>
+<span class="nc" id="L58">        return suffix.substring(suffix.length() - size);</span>
     }
 
     public static String camelCaseToDashDelimited(String in) {
-<span class="nc" id="L61">        final String replacement = &quot;-&quot;;</span>
-<span class="nc" id="L62">        return camelCaseToDelimited(in, replacement).toLowerCase(Locale.ROOT);</span>
+<span class="nc" id="L62">        final String replacement = &quot;-&quot;;</span>
+<span class="nc" id="L63">        return camelCaseToDelimited(in, replacement).toLowerCase(Locale.ROOT);</span>
     }
 
     private static String camelCaseToDelimited(String in, String delimiter) {
-<span class="fc" id="L66">        return pattern.matcher(Introspector.decapitalize(in)).replaceAll(delimiter);</span>
+<span class="fc" id="L67">        return pattern.matcher(Introspector.decapitalize(in)).replaceAll(delimiter);</span>
     }
 
     public static String snakeCaseOf(String in) {
-<span class="fc" id="L70">        return in.replace(&quot;-&quot;, &quot;_&quot;).replace(&quot;.&quot;, &quot;_&quot;);</span>
+<span class="fc" id="L71">        return in.replace(&quot;-&quot;, &quot;_&quot;).replace(&quot;.&quot;, &quot;_&quot;);</span>
     }
 
     public static String controllerNameOf(EntandoCustomResource customResource) {
-<span class="nc" id="L74">        return &quot;entando-k8s-&quot; + camelCaseToDashDelimited(customResource.getKind().substring(&quot;Entando&quot;.length())) + &quot;-controller&quot;;</span>
+<span class="nc" id="L75">        return &quot;entando-k8s-&quot; + camelCaseToDashDelimited(customResource.getKind().substring(&quot;Entando&quot;.length())) + &quot;-controller&quot;;</span>
     }
 
     public static String upperSnakeCaseOf(String camelCase) {
-<span class="fc" id="L78">        return camelCaseToDelimited(camelCase, &quot;_&quot;).toUpperCase(Locale.ROOT);</span>
+<span class="fc" id="L79">        return camelCaseToDelimited(camelCase, &quot;_&quot;).toUpperCase(Locale.ROOT);</span>
     }
 
     public static String databaseCompliantName(EntandoCustomResource resource, String nameQualifier, DbmsVendorConfig dbmsVendorConfig) {
-<span class="nc" id="L82">        StringBuilder idealDatabaseName = new StringBuilder(NameUtils.snakeCaseOf(resource.getMetadata().getName()));</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (nameQualifier != null) {</span>
-<span class="nc" id="L84">            idealDatabaseName.append(&quot;_&quot;).append(NameUtils.snakeCaseOf(nameQualifier));</span>
+<span class="nc" id="L83">        StringBuilder idealDatabaseName = new StringBuilder(NameUtils.snakeCaseOf(resource.getMetadata().getName()));</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (nameQualifier != null) {</span>
+<span class="nc" id="L85">            idealDatabaseName.append(&quot;_&quot;).append(NameUtils.snakeCaseOf(nameQualifier));</span>
         }
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (idealDatabaseName.length() &gt; dbmsVendorConfig.getMaxNameLength()) {</span>
-<span class="nc" id="L87">            return idealDatabaseName.substring(0, dbmsVendorConfig.getMaxNameLength() - 3) + randomNumeric(3);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (idealDatabaseName.length() &gt; dbmsVendorConfig.getMaxNameLength()) {</span>
+<span class="nc" id="L88">            return idealDatabaseName.substring(0, dbmsVendorConfig.getMaxNameLength() - 3) + randomNumeric(3);</span>
         }
-<span class="nc" id="L89">        return idealDatabaseName.toString();</span>
+<span class="nc" id="L90">        return idealDatabaseName.toString();</span>
 
     }
 
     public static String standardIngressName(EntandoCustomResource resource) {
-<span class="nc" id="L94">        return resource.getMetadata().getName() + &quot;-&quot; + DEFAULT_INGRESS_SUFFIX;</span>
+<span class="nc" id="L95">        return resource.getMetadata().getName() + &quot;-&quot; + DEFAULT_INGRESS_SUFFIX;</span>
     }
 
     public static String standardServiceName(EntandoCustomResource resource) {
-<span class="nc" id="L98">        return resource.getMetadata().getName() + &quot;-&quot; + DEFAULT_SERVICE_SUFFIX;</span>
+<span class="nc" id="L99">        return resource.getMetadata().getName() + &quot;-&quot; + DEFAULT_SERVICE_SUFFIX;</span>
     }
 
     public static String standardDeployment(EntandoCustomResource resource) {
-<span class="fc" id="L102">        return resource.getMetadata().getName() + &quot;-&quot; + DEFAULT_DEPLOYMENT_SUFFIX;</span>
+<span class="fc" id="L103">        return resource.getMetadata().getName() + &quot;-&quot; + DEFAULT_DEPLOYMENT_SUFFIX;</span>
+    }
+
+    public static String standardPersistentVolumeClaim(EntandoCustomResource resource, String containerQualifier) {
+<span class="fc" id="L107">        return resource.getMetadata().getName() + &quot;-&quot; + containerQualifier + &quot;-&quot; + DEFAULT_PVC_SUFFIX;</span>
     }
 
     public static String lowerDashDelimitedOf(String name) {
-<span class="nc" id="L106">        return name.replace(&quot;_&quot;, &quot;-&quot;).toLowerCase(Locale.ROOT);</span>
+<span class="nc" id="L111">        return name.replace(&quot;_&quot;, &quot;-&quot;).toLowerCase(Locale.ROOT);</span>
     }
 
     public static String standardAdminSecretName(EntandoCustomResource keycloakServer) {
-<span class="nc" id="L110">        return keycloakServer.getMetadata().getName() + &quot;-admin-secret&quot;;</span>
+<span class="nc" id="L115">        return keycloakServer.getMetadata().getName() + &quot;-admin-secret&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -17,14 +17,14 @@
 package org.entando.kubernetes.controller.spi.deployable;
 
 import java.util.stream.Collectors;
-import org.entando.kubernetes.controller.spi.container.DbAware;
+import org.entando.kubernetes.controller.spi.container.DbAwareContainer;
 import org.entando.kubernetes.controller.spi.result.ServiceDeploymentResult;
 
 public interface DbAwareDeployable&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; extends Deployable&lt;T&gt; {
 
     default boolean isExpectingDatabaseSchemas() {
-<span class="nc" id="L26">        return getContainers().stream().filter(DbAware.class::isInstance)</span>
-<span class="nc" id="L27">                .map(DbAware.class::cast).collect(Collectors.toList()).stream()</span>
+<span class="nc" id="L26">        return getContainers().stream().filter(DbAwareContainer.class::isInstance)</span>
+<span class="nc" id="L27">                .map(DbAwareContainer.class::cast).collect(Collectors.toList()).stream()</span>
 <span class="nc bnc" id="L28" title="All 2 branches missed.">                .anyMatch(dbAware -&gt; !dbAware.getSchemaConnectionInfo().isEmpty());</span>
     }
 

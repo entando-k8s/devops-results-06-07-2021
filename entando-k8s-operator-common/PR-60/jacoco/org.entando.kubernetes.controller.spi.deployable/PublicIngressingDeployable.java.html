@@ -18,14 +18,14 @@ package org.entando.kubernetes.controller.spi.deployable;
 
 import java.util.Optional;
 import org.entando.kubernetes.controller.spi.common.KeycloakPreference;
-import org.entando.kubernetes.controller.spi.container.KeycloakConnectionConfig;
 import org.entando.kubernetes.controller.spi.container.KeycloakName;
+import org.entando.kubernetes.controller.spi.container.SsoConnectionInfo;
 import org.entando.kubernetes.controller.spi.result.ExposedDeploymentResult;
 import org.entando.kubernetes.model.common.KeycloakToUse;
 
 public interface PublicIngressingDeployable&lt;T extends ExposedDeploymentResult&lt;T&gt;&gt; extends IngressingDeployable&lt;T&gt;, KeycloakPreference {
 
-    KeycloakConnectionConfig getKeycloakConnectionConfig();
+    SsoConnectionInfo getSsoConnectionInfo();
 
     Optional&lt;KeycloakToUse&gt; getPreferredKeycloakToUse();
 
@@ -41,7 +41,7 @@ public interface PublicIngressingDeployable&lt;T extends ExposedDeploymentResult
 
     @Override
     default boolean isIngressRequired() {
-<span class="nc" id="L44">        return false;</span>
+<span class="nc" id="L44">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

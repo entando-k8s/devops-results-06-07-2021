@@ -36,7 +36,7 @@ import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import org.entando.kubernetes.controller.spi.common.SecretUtils;
-import org.entando.kubernetes.controller.spi.container.KeycloakClientConfig;
+import org.entando.kubernetes.controller.spi.container.SsoClientConfig;
 import org.entando.kubernetes.controller.support.client.SimpleKeycloakClient;
 import org.entando.kubernetes.controller.support.common.EntandoOperatorConfig;
 import org.entando.kubernetes.model.plugin.ExpectedRole;
@@ -222,13 +222,13 @@ public class DefaultKeycloakClient implements SimpleKeycloakClient {
 <span class="nc" id="L222">    }</span>
 
     @Override
-    public String prepareClientAndReturnSecret(KeycloakClientConfig config) {
+    public String prepareClientAndReturnSecret(SsoClientConfig config) {
 <span class="nc" id="L226">        String id = findOrCreateClient(config);</span>
 <span class="nc" id="L227">        updateClientWithId(config, id);</span>
 <span class="nc" id="L228">        return keycloak.realm(config.getRealm()).clients().get(id).getSecret().getValue();</span>
     }
 
-    private String findOrCreateClient(KeycloakClientConfig config) {
+    private String findOrCreateClient(SsoClientConfig config) {
 <span class="nc" id="L232">        ensureRealm(config.getRealm());</span>
 <span class="nc" id="L233">        RealmResource realmResource = keycloak.realm(config.getRealm());</span>
 <span class="nc" id="L234">        Optional&lt;ClientRepresentation&gt; clientRepresentation = findClient(config);</span>
@@ -254,14 +254,14 @@ public class DefaultKeycloakClient implements SimpleKeycloakClient {
         }
     }
 
-    private Optional&lt;ClientRepresentation&gt; findClient(KeycloakClientConfig config) {
+    private Optional&lt;ClientRepresentation&gt; findClient(SsoClientConfig config) {
 <span class="nc" id="L258">        return keycloak.realm(config.getRealm()).clients()</span>
 <span class="nc" id="L259">                .findByClientId(config.getClientId())</span>
 <span class="nc" id="L260">                .stream().findFirst();</span>
     }
 
     @Override
-    public void updateClient(KeycloakClientConfig config) {
+    public void updateClient(SsoClientConfig config) {
 <span class="nc" id="L265">        findClient(config).ifPresent(client -&gt; updateClientWithId(config, client.getId()));</span>
 <span class="nc" id="L266">    }</span>
 
@@ -271,7 +271,7 @@ public class DefaultKeycloakClient implements SimpleKeycloakClient {
 
     //Because having a negative in an if statement reduces readability
     @SuppressWarnings(&quot;squid:S1155&quot;)
-    private void updateClientWithId(KeycloakClientConfig config, String id) {
+    private void updateClientWithId(SsoClientConfig config, String id) {
 <span class="nc" id="L275">        RealmResource realmResource = keycloak.realm(config.getRealm());</span>
 <span class="nc" id="L276">        ClientResource clientResource = realmResource.clients().get(id);</span>
 <span class="nc" id="L277">        List&lt;ExpectedRole&gt; desiredRoles = config.getRoles().stream().filter(distinctByKey(ExpectedRole::getCode))</span>

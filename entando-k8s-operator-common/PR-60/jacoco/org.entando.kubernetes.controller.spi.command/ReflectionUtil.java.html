@@ -25,17 +25,18 @@ import org.entando.kubernetes.controller.spi.capability.CapabilityProvisioningRe
 import org.entando.kubernetes.controller.spi.container.ConfigurableResourceContainer;
 import org.entando.kubernetes.controller.spi.container.DatabasePopulator;
 import org.entando.kubernetes.controller.spi.container.DatabaseSchemaConnectionInfo;
-import org.entando.kubernetes.controller.spi.container.DbAware;
+import org.entando.kubernetes.controller.spi.container.DbAwareContainer;
 import org.entando.kubernetes.controller.spi.container.DeployableContainer;
 import org.entando.kubernetes.controller.spi.container.HasHealthCommand;
 import org.entando.kubernetes.controller.spi.container.HasWebContext;
 import org.entando.kubernetes.controller.spi.container.IngressingContainer;
 import org.entando.kubernetes.controller.spi.container.IngressingPathOnPort;
-import org.entando.kubernetes.controller.spi.container.KeycloakAwareContainer;
 import org.entando.kubernetes.controller.spi.container.ParameterizableContainer;
-import org.entando.kubernetes.controller.spi.container.PersistentVolumeAware;
+import org.entando.kubernetes.controller.spi.container.PersistentVolumeAwareContainer;
 import org.entando.kubernetes.controller.spi.container.ServiceBackingContainer;
-import org.entando.kubernetes.controller.spi.container.TrustStoreAware;
+import org.entando.kubernetes.controller.spi.container.SsoAwareContainer;
+import org.entando.kubernetes.controller.spi.container.SsoConnectionInfo;
+import org.entando.kubernetes.controller.spi.container.TrustStoreAwareContainer;
 import org.entando.kubernetes.controller.spi.deployable.DbAwareDeployable;
 import org.entando.kubernetes.controller.spi.deployable.Deployable;
 import org.entando.kubernetes.controller.spi.deployable.ExternalService;
@@ -48,60 +49,64 @@ import org.entando.kubernetes.controller.spi.result.ServiceResult;
 
 public class ReflectionUtil {
 
-<span class="fc" id="L51">    public static final List&lt;Class&lt;?&gt;&gt; KNOWN_INTERFACES = List</span>
-<span class="fc" id="L52">            .of(CapabilityForResource.class, CapabilityProvisioningResult.class, ConfigurableResourceContainer.class,</span>
+<span class="fc" id="L52">    public static final List&lt;Class&lt;?&gt;&gt; KNOWN_INTERFACES = List</span>
+<span class="fc" id="L53">            .of(CapabilityForResource.class, CapabilityProvisioningResult.class, ConfigurableResourceContainer.class,</span>
                     DatabasePopulator.class,
                     DatabaseSchemaConnectionInfo.class,
-                    DatabaseConnectionInfo.class, DbAware.class, DbAwareDeployable.class, Deployable.class, DeployableContainer.class,
+                    DatabaseConnectionInfo.class, DbAwareContainer.class, DbAwareDeployable.class, Deployable.class,
+                    DeployableContainer.class,
                     ExternalService.class, HasHealthCommand.class, HasWebContext.class, IngressingContainer.class,
-                    IngressingDeployable.class, IngressingPathOnPort.class, KeycloakAwareContainer.class, ParameterizableContainer.class,
-                    PersistentVolumeAware.class, PublicIngressingDeployable.class, Secretive.class, SerializableDeploymentResult.class,
-                    ServiceBackingContainer.class, ServiceDeploymentResult.class, ServiceResult.class, TrustStoreAware.class);
+                    IngressingDeployable.class, IngressingPathOnPort.class, ParameterizableContainer.class,
+                    PersistentVolumeAwareContainer.class, PublicIngressingDeployable.class, Secretive.class,
+                    SerializableDeploymentResult.class,
+                    ServiceBackingContainer.class, ServiceDeploymentResult.class, ServiceResult.class,
+                    SsoAwareContainer.class, SsoConnectionInfo.class,
+                    TrustStoreAwareContainer.class);
 
     private ReflectionUtil() {
 
     }
 
     public static String propertyName(Method m) {
-<span class="fc" id="L66">        String name = m.getName();</span>
-<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (name.startsWith(&quot;get&quot;)) {</span>
-<span class="fc" id="L68">            return Introspector.decapitalize(name.substring(3));</span>
-<span class="pc bpc" id="L69" title="2 of 4 branches missed.">        } else if (name.startsWith(&quot;is&quot;) &amp;&amp; m.getReturnType() == Boolean.TYPE) {</span>
-<span class="fc" id="L70">            return Introspector.decapitalize(name.substring(2));</span>
+<span class="fc" id="L71">        String name = m.getName();</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (name.startsWith(&quot;get&quot;)) {</span>
+<span class="fc" id="L73">            return Introspector.decapitalize(name.substring(3));</span>
+<span class="pc bpc" id="L74" title="2 of 4 branches missed.">        } else if (name.startsWith(&quot;is&quot;) &amp;&amp; m.getReturnType() == Boolean.TYPE) {</span>
+<span class="fc" id="L75">            return Introspector.decapitalize(name.substring(2));</span>
         }
-<span class="nc" id="L72">        return null;</span>
+<span class="nc" id="L77">        return null;</span>
     }
 
     public static &lt;A extends Annotation&gt; A getAnnotation(Class&lt;?&gt; c, String methodName, Class&lt;A&gt; annotationType) {
         final Method method;
         try {
-<span class="fc" id="L78">            method = c.getMethod(methodName);</span>
-<span class="fc" id="L79">        } catch (NoSuchMethodException e) {</span>
-<span class="fc" id="L80">            return null;</span>
-<span class="fc" id="L81">        }</span>
-<span class="fc" id="L82">        A annotation = method.getAnnotation(annotationType);</span>
-<span class="fc bfc" id="L83" title="All 6 branches covered.">        if (annotation == null &amp;&amp; c.getSuperclass() != Object.class &amp;&amp; !c.isInterface()) {</span>
-<span class="fc" id="L84">            annotation = getAnnotation(c.getSuperclass(), methodName, annotationType);</span>
+<span class="fc" id="L83">            method = c.getMethod(methodName);</span>
+<span class="fc" id="L84">        } catch (NoSuchMethodException e) {</span>
+<span class="fc" id="L85">            return null;</span>
+<span class="fc" id="L86">        }</span>
+<span class="fc" id="L87">        A annotation = method.getAnnotation(annotationType);</span>
+<span class="fc bfc" id="L88" title="All 6 branches covered.">        if (annotation == null &amp;&amp; c.getSuperclass() != Object.class &amp;&amp; !c.isInterface()) {</span>
+<span class="fc" id="L89">            annotation = getAnnotation(c.getSuperclass(), methodName, annotationType);</span>
         }
-<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (annotation == null) {</span>
-<span class="fc" id="L87">            annotation = getAnnotationFromInterfaces(c.getInterfaces(), methodName, annotationType);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (annotation == null) {</span>
+<span class="fc" id="L92">            annotation = getAnnotationFromInterfaces(c.getInterfaces(), methodName, annotationType);</span>
         }
-<span class="fc" id="L89">        return annotation;</span>
+<span class="fc" id="L94">        return annotation;</span>
     }
 
     public static &lt;A extends Annotation&gt; A getAnnotationFromInterfaces(Class&lt;?&gt;[] interfaces, String methodName,
             Class&lt;A&gt; annotationType) {
-<span class="fc bfc" id="L94" title="All 2 branches covered.">        for (Class&lt;?&gt; intf : interfaces) {</span>
-<span class="fc" id="L95">            A annotation = getAnnotation(intf, methodName, annotationType);</span>
-<span class="fc bfc" id="L96" title="All 2 branches covered.">            if (annotation != null) {</span>
-<span class="fc" id="L97">                return annotation;</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        for (Class&lt;?&gt; intf : interfaces) {</span>
+<span class="fc" id="L100">            A annotation = getAnnotation(intf, methodName, annotationType);</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            if (annotation != null) {</span>
+<span class="fc" id="L102">                return annotation;</span>
             }
         }
-<span class="fc" id="L100">        return null;</span>
+<span class="fc" id="L105">        return null;</span>
     }
 
     public static boolean implementsKnownInterface(Object value) {
-<span class="fc" id="L104">        return KNOWN_INTERFACES.stream().anyMatch(c -&gt; c.isInstance(value));</span>
+<span class="fc" id="L109">        return KNOWN_INTERFACES.stream().anyMatch(c -&gt; c.isInstance(value));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -22,10 +22,10 @@ import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import java.util.Optional;
 import org.entando.kubernetes.controller.spi.common.ResourceUtils;
-import org.entando.kubernetes.controller.spi.container.KeycloakAwareContainer;
-import org.entando.kubernetes.controller.spi.container.KeycloakClientConfig;
-import org.entando.kubernetes.controller.spi.container.KeycloakConnectionConfig;
 import org.entando.kubernetes.controller.spi.container.KeycloakName;
+import org.entando.kubernetes.controller.spi.container.SsoAwareContainer;
+import org.entando.kubernetes.controller.spi.container.SsoClientConfig;
+import org.entando.kubernetes.controller.spi.container.SsoConnectionInfo;
 import org.entando.kubernetes.controller.spi.deployable.Deployable;
 import org.entando.kubernetes.controller.spi.deployable.PublicIngressingDeployable;
 import org.entando.kubernetes.controller.support.client.SecretClient;
@@ -42,7 +42,7 @@ public class KeycloakClientCreator {
 
     public boolean requiresKeycloakClients(Deployable&lt;?&gt; deployable) {
 <span class="pc bpc" id="L44" title="1 of 2 branches missed.">        return deployable instanceof PublicIngressingDeployable</span>
-<span class="pc bpc" id="L45" title="1 of 2 branches missed.">                || deployable.getContainers().stream().anyMatch(KeycloakAwareContainer.class::isInstance);</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">                || deployable.getContainers().stream().anyMatch(SsoAwareContainer.class::isInstance);</span>
     }
 
     public void createKeycloakClients(SecretClient secrets, SimpleKeycloakClient keycloak, Deployable&lt;?&gt; deployable,
@@ -57,53 +57,52 @@ public class KeycloakClientCreator {
 
         }
 <span class="nc" id="L59">        deployable.getContainers().stream()</span>
-<span class="nc" id="L60">                .filter(KeycloakAwareContainer.class::isInstance)</span>
-<span class="nc" id="L61">                .map(KeycloakAwareContainer.class::cast)</span>
+<span class="nc" id="L60">                .filter(SsoAwareContainer.class::isInstance)</span>
+<span class="nc" id="L61">                .map(SsoAwareContainer.class::cast)</span>
 <span class="nc" id="L62">                .forEach(keycloakAware -&gt; createClient(secrets, keycloak, keycloakAware, ingress));</span>
 <span class="nc" id="L63">    }</span>
 
     private void login(SimpleKeycloakClient client, Deployable&lt;?&gt; deployable) {
-        KeycloakConnectionConfig keycloakConnectionConfig;
+        SsoConnectionInfo ssoConnectionInfo;
 <span class="nc bnc" id="L67" title="All 2 branches missed.">        if (deployable instanceof PublicIngressingDeployable) {</span>
-<span class="nc" id="L68">            keycloakConnectionConfig = ((PublicIngressingDeployable&lt;?&gt;) deployable).getKeycloakConnectionConfig();</span>
+<span class="nc" id="L68">            ssoConnectionInfo = ((PublicIngressingDeployable&lt;?&gt;) deployable).getSsoConnectionInfo();</span>
         } else {
-<span class="nc" id="L70">            keycloakConnectionConfig = deployable.getContainers().stream()</span>
-<span class="nc" id="L71">                    .filter(KeycloakAwareContainer.class::isInstance)</span>
-<span class="nc" id="L72">                    .map(KeycloakAwareContainer.class::cast)</span>
-<span class="nc" id="L73">                    .map(KeycloakAwareContainer::getKeycloakConnectionConfig)</span>
+<span class="nc" id="L70">            ssoConnectionInfo = deployable.getContainers().stream()</span>
+<span class="nc" id="L71">                    .filter(SsoAwareContainer.class::isInstance)</span>
+<span class="nc" id="L72">                    .map(SsoAwareContainer.class::cast)</span>
+<span class="nc" id="L73">                    .map(SsoAwareContainer::getSsoConnectionConfig)</span>
 <span class="nc" id="L74">                    .findAny()</span>
 <span class="nc" id="L75">                    .orElseThrow(IllegalArgumentException::new);</span>
         }
-<span class="nc" id="L77">        client.login(keycloakConnectionConfig.determineBaseUrl(), keycloakConnectionConfig.getUsername(),</span>
-<span class="nc" id="L78">                keycloakConnectionConfig.getPassword());</span>
+<span class="nc" id="L77">        client.login(ssoConnectionInfo.determineBaseUrl(), ssoConnectionInfo.getUsername(),</span>
+<span class="nc" id="L78">                ssoConnectionInfo.getPassword());</span>
 <span class="nc" id="L79">    }</span>
 
-    private void createClient(SecretClient secrets, SimpleKeycloakClient client, KeycloakAwareContainer container,
+    private void createClient(SecretClient secrets, SimpleKeycloakClient client, SsoAwareContainer container,
             Optional&lt;Ingress&gt; ingress) {
-<span class="nc" id="L83">        KeycloakClientConfig keycloakConfig = container.getKeycloakClientConfig();</span>
-<span class="nc" id="L84">        KeycloakClientConfig keycloakClientConfig = container.getKeycloakClientConfig();</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (ingress.isPresent()) {</span>
-<span class="nc" id="L86">            keycloakClientConfig = keycloakClientConfig</span>
-<span class="nc" id="L87">                    .withRedirectUri(getIngressServerUrl(ingress.get()) + container.getWebContextPath() + &quot;/*&quot;);</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">            if (ingress.get().getSpec().getTls().size() == 1) {</span>
+<span class="nc" id="L83">        SsoClientConfig ssoClientConfig = container.getSsoClientConfig();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (ingress.isPresent()) {</span>
+<span class="nc" id="L85">            ssoClientConfig = ssoClientConfig</span>
+<span class="nc" id="L86">                    .withRedirectUri(getIngressServerUrl(ingress.get()) + container.getWebContextPath() + &quot;/*&quot;);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (ingress.get().getSpec().getTls().size() == 1) {</span>
                 //Also support redirecting to http for http services that don't have knowledge that they are exposed as https
-<span class="nc" id="L90">                keycloakClientConfig = keycloakClientConfig.withRedirectUri(</span>
-<span class="nc" id="L91">                        &quot;http://&quot; + ingress.get().getSpec().getRules().get(0).getHost() + container.getWebContextPath() + &quot;/*&quot;);</span>
+<span class="nc" id="L89">                ssoClientConfig = ssoClientConfig.withRedirectUri(</span>
+<span class="nc" id="L90">                        &quot;http://&quot; + ingress.get().getSpec().getRules().get(0).getHost() + container.getWebContextPath() + &quot;/*&quot;);</span>
             }
-<span class="nc" id="L93">            keycloakClientConfig = keycloakClientConfig</span>
-<span class="nc" id="L94">                    .withWebOrigin(getIngressServerUrl(ingress.get()));</span>
+<span class="nc" id="L92">            ssoClientConfig = ssoClientConfig</span>
+<span class="nc" id="L93">                    .withWebOrigin(getIngressServerUrl(ingress.get()));</span>
         }
-<span class="nc" id="L96">        String keycloakClientSecret = client.prepareClientAndReturnSecret(keycloakClientConfig);</span>
-<span class="nc" id="L97">        String secretName = KeycloakName.forTheClientSecret(keycloakConfig);</span>
-<span class="nc" id="L98">        secrets.createSecretIfAbsent(entandoCustomResource, new SecretBuilder()</span>
-<span class="nc" id="L99">                .withNewMetadata()</span>
-<span class="nc" id="L100">                .withOwnerReferences(ResourceUtils.buildOwnerReference(entandoCustomResource))</span>
-<span class="nc" id="L101">                .withName(secretName)</span>
-<span class="nc" id="L102">                .endMetadata()</span>
-<span class="nc" id="L103">                .addToStringData(KeycloakName.CLIENT_ID_KEY, keycloakConfig.getClientId())</span>
-<span class="nc" id="L104">                .addToStringData(KeycloakName.CLIENT_SECRET_KEY, keycloakClientSecret)</span>
-<span class="nc" id="L105">                .build());</span>
-<span class="nc" id="L106">    }</span>
+<span class="nc" id="L95">        String keycloakClientSecret = client.prepareClientAndReturnSecret(ssoClientConfig);</span>
+<span class="nc" id="L96">        String secretName = KeycloakName.forTheClientSecret(ssoClientConfig);</span>
+<span class="nc" id="L97">        secrets.createSecretIfAbsent(entandoCustomResource, new SecretBuilder()</span>
+<span class="nc" id="L98">                .withNewMetadata()</span>
+<span class="nc" id="L99">                .withOwnerReferences(ResourceUtils.buildOwnerReference(entandoCustomResource))</span>
+<span class="nc" id="L100">                .withName(secretName)</span>
+<span class="nc" id="L101">                .endMetadata()</span>
+<span class="nc" id="L102">                .addToStringData(KeycloakName.CLIENT_ID_KEY, ssoClientConfig.getClientId())</span>
+<span class="nc" id="L103">                .addToStringData(KeycloakName.CLIENT_SECRET_KEY, keycloakClientSecret)</span>
+<span class="nc" id="L104">                .build());</span>
+<span class="nc" id="L105">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
