@@ -115,74 +115,68 @@ import org.springframework.validation.Errors;
     public void validateGroups(String pageCode, PagePositionRequest pageRequest, Errors errors) {
 <span class="fc" id="L116">        IPage parent = getDraftPage(pageRequest.getParentCode());</span>
 <span class="fc" id="L117">        IPage page = getDraftPage(pageCode);</span>
-<span class="fc" id="L118">        logger.debug(&quot;Parent {} getGroup() {}&quot;, parent.getGroup());</span>
-<span class="fc" id="L119">        logger.debug(&quot;Page {} getGroup {}&quot;, page.getGroup());</span>
-<span class="fc" id="L120">        validateGroups(pageCode, page.getGroup(), parent.getGroup(), errors);</span>
-<span class="fc" id="L121">    }</span>
+<span class="fc" id="L118">        validateGroups(pageCode, page.getGroup(), parent.getGroup(), errors);</span>
+<span class="fc" id="L119">    }</span>
 
     public IPage getDraftPage(String code) {
-<span class="fc" id="L124">        return this.getPageManager().getDraftPage(code);</span>
+<span class="fc" id="L122">        return this.getPageManager().getDraftPage(code);</span>
     }
 
     public void validateGroups(String pageCode, String pageGroup, String parentGroup, Errors errors) {
-<span class="fc" id="L128">        logger.debug(&quot;ValidateGroups for page {}&quot;, pageCode);</span>
-
-<span class="fc bfc" id="L130" title="All 4 branches covered.">        if (!parentGroup.equals(Group.FREE_GROUP_NAME) &amp;&amp; !pageGroup.equals(parentGroup)) {</span>
-<span class="fc bfc" id="L131" title="All 2 branches covered.">            if (pageGroup.equals(Group.FREE_GROUP_NAME)) {</span>
-<span class="fc" id="L132">                logger.debug(&quot;Validation error for page with pageCode {} ERRCODE_GROUP_MISMATCH 1 - {}&quot;, pageCode, ERRCODE_GROUP_MISMATCH);</span>
-<span class="fc" id="L133">                errors.reject(ERRCODE_GROUP_MISMATCH, new String[]{}, &quot;page.move.freeUnderReserved.notAllowed&quot;);</span>
+<span class="fc bfc" id="L126" title="All 4 branches covered.">        if (!parentGroup.equals(Group.FREE_GROUP_NAME) &amp;&amp; !pageGroup.equals(parentGroup)) {</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">            if (pageGroup.equals(Group.FREE_GROUP_NAME)) {</span>
+<span class="fc" id="L128">                errors.reject(ERRCODE_GROUP_MISMATCH, new String[]{}, &quot;page.move.freeUnderReserved.notAllowed&quot;);</span>
             } else {
-<span class="fc" id="L135">                logger.debug(&quot;Validation error for page with pageCode {} ERRCODE_GROUP_MISMATCH 2 - {}&quot;, pageCode, ERRCODE_GROUP_MISMATCH);</span>
-<span class="fc" id="L136">                errors.reject(ERRCODE_GROUP_MISMATCH, new String[]{}, &quot;page.move.group.mismatch&quot;);</span>
+<span class="fc" id="L130">                errors.reject(ERRCODE_GROUP_MISMATCH, new String[]{}, &quot;page.move.group.mismatch&quot;);</span>
             }
         }
-<span class="fc" id="L139">    }</span>
+<span class="fc" id="L133">    }</span>
 
     public void validatePagesStatus(String pageCode, PagePositionRequest pageRequest, Errors errors) {
-<span class="fc" id="L142">        logger.debug(&quot;ValidatePagesStatus for page {}&quot;, pageCode);</span>
-<span class="fc" id="L143">        IPage parent = this.getPageManager().getDraftPage(pageRequest.getParentCode()),</span>
-<span class="fc" id="L144">                page = this.getPageManager().getDraftPage(pageCode);</span>
-<span class="fc" id="L145">        logger.debug(&quot;Page {} isOnline {}&quot;, pageCode, page.isOnline());</span>
-<span class="fc" id="L146">        logger.debug(&quot;Parent {} isOnline {}&quot;, parent.getCode(), parent.isOnline());</span>
-<span class="pc bpc" id="L147" title="1 of 4 branches missed.">        if (page.isOnline() &amp;&amp; !parent.isOnline()) {</span>
-<span class="fc" id="L148">            logger.debug(&quot; Validation error for page with pageCode {} ERRCODE_STATUS_PAGE_MISMATCH {}&quot;, pageCode, ERRCODE_STATUS_PAGE_MISMATCH);</span>
-<span class="fc" id="L149">            errors.reject(ERRCODE_STATUS_PAGE_MISMATCH, new String[]{pageCode}, &quot;page.move.status.mismatch&quot;);</span>
+<span class="fc" id="L136">        logger.debug(&quot;ValidatePagesStatus for page {}&quot;, pageCode);</span>
+<span class="fc" id="L137">        IPage parent = this.getPageManager().getDraftPage(pageRequest.getParentCode()),</span>
+<span class="fc" id="L138">                page = this.getPageManager().getDraftPage(pageCode);</span>
+<span class="fc" id="L139">        logger.debug(&quot;Page {} isOnline {}&quot;, pageCode, page.isOnline());</span>
+<span class="fc" id="L140">        logger.debug(&quot;Parent {} isOnline {}&quot;, parent.getCode(), parent.isOnline());</span>
+<span class="pc bpc" id="L141" title="1 of 4 branches missed.">        if (page.isOnline() &amp;&amp; !parent.isOnline()) {</span>
+<span class="fc" id="L142">            logger.debug(&quot; Validation error for page with pageCode {} ERRCODE_STATUS_PAGE_MISMATCH {}&quot;, pageCode, ERRCODE_STATUS_PAGE_MISMATCH);</span>
+<span class="fc" id="L143">            errors.reject(ERRCODE_STATUS_PAGE_MISMATCH, new String[]{pageCode}, &quot;page.move.status.mismatch&quot;);</span>
         }
-<span class="fc" id="L151">    }</span>
+<span class="fc" id="L145">    }</span>
 
     public void validateJsonPatchRequest(JsonNode jsonPatch, Errors errors) {
         try {
-<span class="fc" id="L155">            jsonPatchValidator.validatePatch(jsonPatch);</span>
-<span class="nc" id="L156">        } catch (PatchException e) {</span>
-<span class="nc" id="L157">            errors.reject(ERRCODE_INVALID_PATCH, &quot;jsonPatch.invalid&quot;);</span>
-<span class="fc" id="L158">        }</span>
+<span class="fc" id="L149">            jsonPatchValidator.validatePatch(jsonPatch);</span>
+<span class="nc" id="L150">        } catch (PatchException e) {</span>
+<span class="nc" id="L151">            errors.reject(ERRCODE_INVALID_PATCH, &quot;jsonPatch.invalid&quot;);</span>
+<span class="fc" id="L152">        }</span>
 
-<span class="fc bfc" id="L160" title="All 2 branches covered.">        for (JsonNode node : jsonPatch) {</span>
-<span class="fc" id="L161">            String operationPath = node.get(&quot;path&quot;).asText();</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        for (JsonNode node : jsonPatch) {</span>
+<span class="fc" id="L155">            String operationPath = node.get(&quot;path&quot;).asText();</span>
 
-<span class="pc bpc" id="L163" title="1 of 2 branches missed.">            if (operationPath.equals(&quot;/code&quot;)) {</span>
-<span class="nc" id="L164">                errors.reject(ERRCODE_INVALID_PATCH, new String[]{&quot;code&quot;}, &quot;jsonPatch.field.protected&quot;);</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">            if (operationPath.equals(&quot;/code&quot;)) {</span>
+<span class="nc" id="L158">                errors.reject(ERRCODE_INVALID_PATCH, new String[]{&quot;code&quot;}, &quot;jsonPatch.field.protected&quot;);</span>
             }
-<span class="fc" id="L166">        }</span>
+<span class="fc" id="L160">        }</span>
 
-<span class="fc" id="L168">    }</span>
+<span class="fc" id="L162">    }</span>
 
     public void validateMovePage(String pageCode, BindingResult bindingResult,
             PagePositionRequest pagePositionRequest) {
-<span class="fc" id="L172">        this.validateChangePositionRequest(pageCode, pagePositionRequest, bindingResult);</span>
+<span class="fc" id="L166">        this.validateChangePositionRequest(pageCode, pagePositionRequest, bindingResult);</span>
 
-<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
-<span class="fc" id="L175">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L169">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L177">        this.validateGroups(pageCode, pagePositionRequest, bindingResult);</span>
-<span class="fc bfc" id="L178" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
-<span class="fc" id="L179">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L171">        this.validateGroups(pageCode, pagePositionRequest, bindingResult);</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L173">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L181">        this.validatePagesStatus(pageCode, pagePositionRequest, bindingResult);</span>
-<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
-<span class="fc" id="L183">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L175">        this.validatePagesStatus(pageCode, pagePositionRequest, bindingResult);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L177">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L185">    }</span>
+<span class="fc" id="L179">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
