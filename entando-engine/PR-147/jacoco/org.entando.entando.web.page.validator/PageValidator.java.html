@@ -19,11 +19,11 @@ import com.agiletec.aps.system.services.page.IPageManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.entando.entando.aps.system.services.jsonpatch.validator.JsonPatchValidator;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 import org.entando.entando.web.common.exceptions.ValidationGenericException;
 import org.entando.entando.web.common.validator.AbstractPaginationValidator;
 import org.entando.entando.web.page.model.PagePositionRequest;
 import org.entando.entando.web.page.model.PageRequest;
-import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.json.patch.PatchException;
 import org.springframework.stereotype.Component;
@@ -115,14 +115,14 @@ import org.springframework.validation.Errors;
     public void validateGroups(String pageCode, PagePositionRequest pageRequest, Errors errors) {
 <span class="fc" id="L116">        IPage parent = getDraftPage(pageRequest.getParentCode());</span>
 <span class="fc" id="L117">        IPage page = getDraftPage(pageCode);</span>
-<span class="fc" id="L118">        validateGroups(pageCode, page.getGroup(), parent.getGroup(), errors);</span>
+<span class="fc" id="L118">        validateGroups(page.getGroup(), parent.getGroup(), errors);</span>
 <span class="fc" id="L119">    }</span>
 
     public IPage getDraftPage(String code) {
 <span class="fc" id="L122">        return this.getPageManager().getDraftPage(code);</span>
     }
 
-    public void validateGroups(String pageCode, String pageGroup, String parentGroup, Errors errors) {
+    public void validateGroups(String pageGroup, String parentGroup, Errors errors) {
 <span class="fc bfc" id="L126" title="All 4 branches covered.">        if (!parentGroup.equals(Group.FREE_GROUP_NAME) &amp;&amp; !pageGroup.equals(parentGroup)) {</span>
 <span class="fc bfc" id="L127" title="All 2 branches covered.">            if (pageGroup.equals(Group.FREE_GROUP_NAME)) {</span>
 <span class="fc" id="L128">                errors.reject(ERRCODE_GROUP_MISMATCH, new String[]{}, &quot;page.move.freeUnderReserved.notAllowed&quot;);</span>
