@@ -241,7 +241,7 @@ import com.agiletec.aps.util.DateConverter;
 <span class="fc bfc" id="L241" title="All 2 branches covered.">		for (int i = 0; i &lt; utilizers.length; i++) {</span>
 <span class="fc" id="L242">			String beanName = utilizers[i];</span>
 <span class="pc bpc" id="L243" title="2 of 6 branches missed.">			if (null != moveNodeStatus &amp;&amp; moveNodeStatus.containsKey(beanName) &amp;&amp; moveNodeStatus.get(beanName) == STATUS_RELOADING_REFERENCES_IN_PROGRESS) {</span>
-<span class="nc" id="L244">				return STATUS_RELOADING_REFERENCES_IN_PROGRESS;</span>
+<span class="fc" id="L244">				return STATUS_RELOADING_REFERENCES_IN_PROGRESS;</span>
 			}
 		}
 <span class="fc" id="L247">		return STATUS_READY;</span>
@@ -253,14 +253,14 @@ import com.agiletec.aps.util.DateConverter;
 <span class="nc" id="L253">			return STATUS_READY;</span>
 		}
 <span class="fc" id="L255">		Map&lt;String, Integer&gt; moveNodeStatus = this.getCacheWrapper().getMoveNodeStatus();</span>
-<span class="fc bfc" id="L256" title="All 2 branches covered.">		if (null == moveNodeStatus) {</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">		if (null == moveNodeStatus) {</span>
 <span class="fc" id="L257">			return STATUS_READY;</span>
 		}
-<span class="fc" id="L259">		Integer status = moveNodeStatus.get(currentBeanName);</span>
-<span class="pc bpc" id="L260" title="2 of 4 branches missed.">		if (null != status &amp;&amp; status == STATUS_RELOADING_REFERENCES_IN_PROGRESS) {</span>
+<span class="nc" id="L259">		Integer status = moveNodeStatus.get(currentBeanName);</span>
+<span class="nc bnc" id="L260" title="All 4 branches missed.">		if (null != status &amp;&amp; status == STATUS_RELOADING_REFERENCES_IN_PROGRESS) {</span>
 <span class="nc" id="L261">			return STATUS_RELOADING_REFERENCES_IN_PROGRESS;</span>
 		}
-<span class="fc" id="L263">		return STATUS_READY;</span>
+<span class="nc" id="L263">		return STATUS_READY;</span>
 	}
 
 	@Override
@@ -291,13 +291,13 @@ import com.agiletec.aps.util.DateConverter;
 	 * @param categoryCode
 	 */
 	public void startReloadCategoryReferences(String categoryCode) {
-<span class="pc bpc" id="L294" title="1 of 2 branches missed.">		if (this.getMoveTreeStatus() == STATUS_READY) {</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">		if (this.getMoveTreeStatus() == STATUS_READY) {</span>
 <span class="fc" id="L295">			String[] utilizers = this.loadCategoryUtilizers();</span>
 <span class="fc bfc" id="L296" title="All 2 branches covered.">			for (int i = 0; i &lt; utilizers.length; i++) {</span>
 <span class="fc" id="L297">				this.createAndRunReloadCategoryReferencesThread(utilizers[i], categoryCode);</span>
 			}
 <span class="fc" id="L299">		} else {</span>
-<span class="nc" id="L300">			_logger.warn(&quot;Attention: Reload Thread not stated. Expexted status {} but now it's {}&quot;, STATUS_READY, STATUS_RELOADING_REFERENCES_IN_PROGRESS);</span>
+<span class="fc" id="L300">			_logger.warn(&quot;Attention: Reload Thread not stated. Expexted status {} but now it's {}&quot;, STATUS_READY, STATUS_RELOADING_REFERENCES_IN_PROGRESS);</span>
 		}
 <span class="fc" id="L302">	}</span>
 
