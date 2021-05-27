@@ -118,8 +118,8 @@ public class DeserializationHelper implements InvocationHandler {
             }
 <span class="fc bfc" id="L119" title="All 2 branches covered.">        } else if (ReflectionUtil.KNOWN_INTERFACES.contains(type)) {</span>
 <span class="fc" id="L120">            return fromMap(kubernetesClient, (Map&lt;String, Object&gt;) rawObjectOrMap, objectMapper);</span>
-<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        } else if (type.isEnum()) {</span>
-<span class="nc" id="L122">            return Enum.valueOf((Class&lt;? extends Enum&gt;) type, rawObjectOrMap.toString().toUpperCase(Locale.ROOT));</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        } else if (type.isEnum()) {</span>
+<span class="fc" id="L122">            return Enum.valueOf((Class&lt;? extends Enum&gt;) type, rawObjectOrMap.toString().toUpperCase(Locale.ROOT));</span>
         } else {
             //Could be a simple type. Look for String constructor
             try {
@@ -148,9 +148,9 @@ public class DeserializationHelper implements InvocationHandler {
 <span class="fc" id="L148">            final ResourceReference resourceReference = objectMapper.readValue(new StringReader(objectMapper.writeValueAsString(result)),</span>
                     ResourceReference.class);
 <span class="fc bfc" id="L150" title="All 2 branches covered.">            if (resourceReference.isCustomResource()) {</span>
-<span class="pc bpc" id="L151" title="1 of 2 branches missed.">                if (resourceReference.getKind().equals(ProvidedCapability.class.getSimpleName())) {</span>
-<span class="nc" id="L152">                    return kubernetesClient.load(ProvidedCapability.class, resourceReference.getMetadata().getNamespace(),</span>
-<span class="nc" id="L153">                            resourceReference.getMetadata().getName());</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">                if (resourceReference.getKind().equals(ProvidedCapability.class.getSimpleName())) {</span>
+<span class="fc" id="L152">                    return kubernetesClient.load(ProvidedCapability.class, resourceReference.getMetadata().getNamespace(),</span>
+<span class="fc" id="L153">                            resourceReference.getMetadata().getName());</span>
                 } else {
 <span class="fc" id="L155">                    return kubernetesClient.loadCustomResource(resourceReference.getApiVersion(),</span>
 <span class="fc" id="L156">                            resourceReference.getKind(), resourceReference.getMetadata().getNamespace(),</span>

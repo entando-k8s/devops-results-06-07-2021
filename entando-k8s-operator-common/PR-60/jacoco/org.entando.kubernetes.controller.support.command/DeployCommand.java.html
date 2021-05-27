@@ -80,8 +80,8 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
 <span class="fc" id="L80">        databasePreparationJobCreator = new DatabasePreparationPodCreator(entandoCustomResource);</span>
 <span class="fc" id="L81">        keycloakClientCreator = new KeycloakClientCreator(entandoCustomResource);</span>
 <span class="fc" id="L82">        serviceAccountCreator = new ServiceAccountCreator(entandoCustomResource);</span>
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (deployable instanceof IngressingDeployable) {</span>
-<span class="nc" id="L84">            status = new ExposedServerStatus();</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (deployable instanceof IngressingDeployable) {</span>
+<span class="fc" id="L84">            status = new ExposedServerStatus();</span>
         } else {
 <span class="fc" id="L86">            status = new InternalServerStatus();</span>
         }
@@ -93,8 +93,8 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
         try {
 <span class="fc" id="L94">            return scheduledExecutorService.submit(() -&gt; {</span>
 <span class="fc" id="L95">                final Optional&lt;ExternalService&gt; externalService = deployable.getExternalService();</span>
-<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                if (externalService.isPresent()) {</span>
-<span class="nc" id="L97">                    return prepareConnectivityToExternalService(k8sClient, externalService.get());</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">                if (externalService.isPresent()) {</span>
+<span class="fc" id="L97">                    return prepareConnectivityToExternalService(k8sClient, externalService.get());</span>
                 } else {
 <span class="fc" id="L99">                    return deployServiceInternally(k8sClient, potentiallyNullKeycloakClient);</span>
                 }
@@ -113,24 +113,24 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
 <span class="fc" id="L113">            EntandoImageResolver entandoImageResolver = new EntandoImageResolver(</span>
 <span class="fc" id="L114">                    k8sClient.entandoResources().loadDockerImageInfoConfigMap(),</span>
 <span class="fc" id="L115">                    deployable.getCustomResource());</span>
-<span class="pc bpc" id="L116" title="3 of 4 branches missed.">            if (deployable instanceof DbAwareDeployable &amp;&amp; ((DbAwareDeployable&lt;?&gt;) deployable).isExpectingDatabaseSchemas()) {</span>
-<span class="nc" id="L117">                prepareDbSchemas(k8sClient, entandoImageResolver, (DbAwareDeployable&lt;?&gt;) deployable);</span>
+<span class="pc bpc" id="L116" title="1 of 4 branches missed.">            if (deployable instanceof DbAwareDeployable &amp;&amp; ((DbAwareDeployable&lt;?&gt;) deployable).isExpectingDatabaseSchemas()) {</span>
+<span class="fc" id="L117">                prepareDbSchemas(k8sClient, entandoImageResolver, (DbAwareDeployable&lt;?&gt;) deployable);</span>
             }
 <span class="fc bfc" id="L119" title="All 2 branches covered.">            if (persistentVolumeClaimCreator.needsPersistentVolumeClaims(deployable)) {</span>
 <span class="fc" id="L120">                createPersistentVolumeClaims(k8sClient);</span>
             }
 <span class="fc" id="L122">            secretCreator.createSecrets(k8sClient.secrets(), deployable);</span>
 <span class="fc" id="L123">            serviceAccountCreator.prepareServiceAccountAccess(k8sClient.serviceAccounts(), deployable);</span>
-<span class="pc bpc" id="L124" title="1 of 2 branches missed.">            if (shouldCreateService(deployable)) {</span>
-<span class="nc" id="L125">                createService(k8sClient);</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            if (shouldCreateService(deployable)) {</span>
+<span class="fc" id="L125">                createService(k8sClient);</span>
             }
 <span class="fc" id="L127">            this.ingress = maybeCreateIngress(k8sClient);</span>
-<span class="pc bpc" id="L128" title="1 of 2 branches missed.">            if (keycloakClientCreator.requiresKeycloakClients(deployable)) {</span>
-<span class="nc" id="L129">                keycloakClientCreator.createKeycloakClients(</span>
-<span class="nc" id="L130">                        k8sClient.secrets(),</span>
-<span class="nc" id="L131">                        keycloakClient.orElseThrow(IllegalStateException::new),</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            if (keycloakClientCreator.requiresKeycloakClients(deployable)) {</span>
+<span class="fc" id="L129">                keycloakClientCreator.createKeycloakClients(</span>
+<span class="fc" id="L130">                        k8sClient.secrets(),</span>
+<span class="fc" id="L131">                        keycloakClient.orElseThrow(IllegalStateException::new),</span>
                         deployable,
-<span class="nc" id="L133">                        ofNullable(ingress));</span>
+<span class="fc" id="L133">                        ofNullable(ingress));</span>
             }
 <span class="fc" id="L135">            createDeployment(k8sClient, entandoImageResolver);</span>
 <span class="fc" id="L136">            waitForPod(k8sClient);</span>
@@ -141,10 +141,10 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
     }
 
     private T prepareConnectivityToExternalService(SimpleK8SClient&lt;?&gt; k8sClient, ExternalService externalService) {
-<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (externalService.getCreateDelegateService()) {</span>
-<span class="nc" id="L145">            CreateExternalServiceCommand command = new CreateExternalServiceCommand(externalService, entandoCustomResource);</span>
-<span class="nc" id="L146">            final Service execute = command.execute(k8sClient);</span>
-<span class="nc" id="L147">            return deployable.createResult(null, execute, null, null).withStatus(command.getStatus());</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (externalService.getCreateDelegateService()) {</span>
+<span class="fc" id="L145">            CreateExternalServiceCommand command = new CreateExternalServiceCommand(externalService, entandoCustomResource);</span>
+<span class="fc" id="L146">            final Service execute = command.execute(k8sClient);</span>
+<span class="fc" id="L147">            return deployable.createResult(null, execute, null, null).withStatus(command.getStatus());</span>
         } else {
 <span class="nc" id="L149">            return deployable.createResult(null, null, null, null).withStatus(getStatus());</span>
         }
@@ -177,10 +177,10 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
 <span class="fc" id="L177">    }</span>
 
     private void createService(SimpleK8SClient&lt;?&gt; k8sClient) {
-<span class="nc" id="L180">        serviceCreator.createService(k8sClient.services(), deployable);</span>
-<span class="nc" id="L181">        status.setServiceName(serviceCreator.getService().getMetadata().getName());</span>
-<span class="nc" id="L182">        k8sClient.entandoResources().updateStatus(entandoCustomResource, status);</span>
-<span class="nc" id="L183">    }</span>
+<span class="fc" id="L180">        serviceCreator.createService(k8sClient.services(), deployable);</span>
+<span class="fc" id="L181">        status.setServiceName(serviceCreator.getService().getMetadata().getName());</span>
+<span class="fc" id="L182">        k8sClient.entandoResources().updateStatus(entandoCustomResource, status);</span>
+<span class="fc" id="L183">    }</span>
 
     private void createPersistentVolumeClaims(SimpleK8SClient&lt;?&gt; k8sClient) {
         //NB!!! it seems there is some confusion in K8S when a patch is done without any changes.
@@ -199,16 +199,16 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
             EntandoImageResolver entandoImageResolver,
             DbAwareDeployable&lt;?&gt; dbAwareDeployable
     ) {
-<span class="nc" id="L202">        Pod completedPod = databasePreparationJobCreator.runToCompletion(k8sClient, dbAwareDeployable, entandoImageResolver);</span>
-<span class="nc" id="L203">        status.putPodPhase(completedPod.getMetadata().getName(), completedPod.getStatus().getPhase());</span>
-<span class="nc" id="L204">        k8sClient.entandoResources().updateStatus(entandoCustomResource, status);</span>
-<span class="nc" id="L205">        PodResult podResult = PodResult.of(completedPod);</span>
-<span class="nc bnc" id="L206" title="All 2 branches missed.">        if (podResult.hasFailed()) {</span>
+<span class="fc" id="L202">        Pod completedPod = databasePreparationJobCreator.runToCompletion(k8sClient, dbAwareDeployable, entandoImageResolver);</span>
+<span class="fc" id="L203">        status.putPodPhase(completedPod.getMetadata().getName(), completedPod.getStatus().getPhase());</span>
+<span class="fc" id="L204">        k8sClient.entandoResources().updateStatus(entandoCustomResource, status);</span>
+<span class="fc" id="L205">        PodResult podResult = PodResult.of(completedPod);</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        if (podResult.hasFailed()) {</span>
 <span class="nc" id="L207">            throw new EntandoControllerException(&quot;Could not init database schemas&quot;);</span>
-<span class="nc bnc" id="L208" title="All 2 branches missed.">        } else if (EntandoOperatorConfig.garbageCollectSuccessfullyCompletedPods()) {</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">        } else if (EntandoOperatorConfig.garbageCollectSuccessfullyCompletedPods()) {</span>
 <span class="nc" id="L209">            k8sClient.pods().deletePod(completedPod);</span>
         }
-<span class="nc" id="L211">    }</span>
+<span class="fc" id="L211">    }</span>
 
     public Service getService() {
 <span class="fc" id="L214">        return serviceCreator.getService();</span>

@@ -34,28 +34,28 @@ public interface SpringBootDeployableContainer extends DbAwareContainer, SsoAwar
 
     @Override
     default int getCpuLimitMillicores() {
-<span class="nc" id="L37">        return 1000;</span>
+<span class="fc" id="L37">        return 1000;</span>
     }
 
     @Override
     default int getMemoryLimitMebibytes() {
-<span class="nc" id="L42">        return 1024;</span>
+<span class="fc" id="L42">        return 1024;</span>
     }
 
     @Override
     default List&lt;EnvVar&gt; getDatabaseConnectionVariables() {
-<span class="nc" id="L47">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L48">        getDatabaseSchema().ifPresent(databaseSchema -&gt; {</span>
-<span class="nc" id="L49">            vars.add(new EnvVar(SpringProperty.SPRING_DATASOURCE_USERNAME.name(), null, databaseSchema.getUsernameRef()));</span>
-<span class="nc" id="L50">            vars.add(new EnvVar(SpringProperty.SPRING_DATASOURCE_PASSWORD.name(), null, databaseSchema.getPasswordRef()));</span>
-<span class="nc" id="L51">            vars.add(new EnvVar(SpringProperty.SPRING_DATASOURCE_URL.name(), databaseSchema.getJdbcUrl(), null));</span>
-<span class="nc" id="L52">            vars.add(new EnvVar(SpringProperty.SPRING_JPA_DATABASE_PLATFORM.name(),</span>
-<span class="nc" id="L53">                    databaseSchema.getDatabaseServiceResult().getVendor().getHibernateDialect(), null));</span>
+<span class="fc" id="L47">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L48">        getDatabaseSchema().ifPresent(databaseSchema -&gt; {</span>
+<span class="fc" id="L49">            vars.add(new EnvVar(SpringProperty.SPRING_DATASOURCE_USERNAME.name(), null, databaseSchema.getUsernameRef()));</span>
+<span class="fc" id="L50">            vars.add(new EnvVar(SpringProperty.SPRING_DATASOURCE_PASSWORD.name(), null, databaseSchema.getPasswordRef()));</span>
+<span class="fc" id="L51">            vars.add(new EnvVar(SpringProperty.SPRING_DATASOURCE_URL.name(), databaseSchema.getJdbcUrl(), null));</span>
+<span class="fc" id="L52">            vars.add(new EnvVar(SpringProperty.SPRING_JPA_DATABASE_PLATFORM.name(),</span>
+<span class="fc" id="L53">                    databaseSchema.getDatabaseServiceResult().getVendor().getHibernateDialect(), null));</span>
             /*
             TODO: Set SPRING_JPA_PROPERTIES_HIBERNATE_ID_NEW_GENERATOR_MAPPINGS to 'false' if we ever run into issues with ID Generation
             */
-<span class="nc" id="L57">        });</span>
-<span class="nc bnc" id="L58" title="All 4 branches missed.">        if (getDatabaseSchema().isEmpty() &amp;&amp; getDbms().orElse(DbmsVendor.NONE) == DbmsVendor.EMBEDDED) {</span>
+<span class="fc" id="L57">        });</span>
+<span class="pc bpc" id="L58" title="3 of 4 branches missed.">        if (getDatabaseSchema().isEmpty() &amp;&amp; getDbms().orElse(DbmsVendor.NONE) == DbmsVendor.EMBEDDED) {</span>
 <span class="nc" id="L59">            DbmsVendorConfig defaultEmbeddedVendor = DbmsVendorConfig.H2;</span>
 
 <span class="nc" id="L61">            vars.add(new EnvVar(SpringProperty.SPRING_JPA_DATABASE_PLATFORM.name(), defaultEmbeddedVendor.getHibernateDialect(), null));</span>
@@ -70,35 +70,35 @@ public interface SpringBootDeployableContainer extends DbAwareContainer, SsoAwar
 <span class="nc" id="L70">                    .usingDatabase(NameUtils.snakeCaseOf(getNameQualifier()) + &quot;.db&quot;)</span>
 <span class="nc" id="L71">                    .buildConnectionString(), null));</span>
         }
-<span class="nc" id="L73">        return vars;</span>
+<span class="fc" id="L73">        return vars;</span>
     }
 
     Optional&lt;DbmsVendor&gt; getDbms();
 
     @Override
     default List&lt;EnvVar&gt; getSsoVariables() {
-<span class="nc" id="L80">        List&lt;EnvVar&gt; vars = SsoAwareContainer.super.getSsoVariables();</span>
-<span class="nc" id="L81">        ofNullable(getSsoConnectionConfig()).ifPresent(ssoConnectionInfo -&gt;</span>
-<span class="nc" id="L82">                vars.add(new EnvVar(SpringProperty.SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI.name(),</span>
-<span class="nc" id="L83">                        ssoConnectionInfo.getExternalBaseUrl() + &quot;/realms/&quot; + getRealmToUse(),</span>
+<span class="fc" id="L80">        List&lt;EnvVar&gt; vars = SsoAwareContainer.super.getSsoVariables();</span>
+<span class="fc" id="L81">        ofNullable(getSsoConnectionConfig()).ifPresent(ssoConnectionInfo -&gt;</span>
+<span class="fc" id="L82">                vars.add(new EnvVar(SpringProperty.SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI.name(),</span>
+<span class="fc" id="L83">                        ssoConnectionInfo.getExternalBaseUrl() + &quot;/realms/&quot; + getRealmToUse(),</span>
                         null)));
 
-<span class="nc" id="L86">        String keycloakSecretName = KeycloakName.forTheClientSecret(getSsoClientConfig());</span>
-<span class="nc" id="L87">        vars.add(new EnvVar(SpringProperty.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET.name(), null,</span>
-<span class="nc" id="L88">                SecretUtils.secretKeyRef(keycloakSecretName, KeycloakName.CLIENT_SECRET_KEY)));</span>
-<span class="nc" id="L89">        vars.add(new EnvVar(SpringProperty.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID.name(), null,</span>
-<span class="nc" id="L90">                SecretUtils.secretKeyRef(keycloakSecretName, KeycloakName.CLIENT_ID_KEY)));</span>
-<span class="nc" id="L91">        return vars;</span>
+<span class="fc" id="L86">        String keycloakSecretName = KeycloakName.forTheClientSecret(getSsoClientConfig());</span>
+<span class="fc" id="L87">        vars.add(new EnvVar(SpringProperty.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET.name(), null,</span>
+<span class="fc" id="L88">                SecretUtils.secretKeyRef(keycloakSecretName, KeycloakName.CLIENT_SECRET_KEY)));</span>
+<span class="fc" id="L89">        vars.add(new EnvVar(SpringProperty.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID.name(), null,</span>
+<span class="fc" id="L90">                SecretUtils.secretKeyRef(keycloakSecretName, KeycloakName.CLIENT_ID_KEY)));</span>
+<span class="fc" id="L91">        return vars;</span>
     }
 
-<span class="nc" id="L94">    enum SpringProperty {</span>
-<span class="nc" id="L95">        SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI,</span>
-<span class="nc" id="L96">        SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET,</span>
-<span class="nc" id="L97">        SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID,</span>
-<span class="nc" id="L98">        SPRING_DATASOURCE_USERNAME,</span>
-<span class="nc" id="L99">        SPRING_DATASOURCE_PASSWORD,</span>
-<span class="nc" id="L100">        SPRING_DATASOURCE_URL,</span>
-<span class="nc" id="L101">        SPRING_JPA_DATABASE_PLATFORM;</span>
+<span class="fc" id="L94">    enum SpringProperty {</span>
+<span class="fc" id="L95">        SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI,</span>
+<span class="fc" id="L96">        SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET,</span>
+<span class="fc" id="L97">        SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID,</span>
+<span class="fc" id="L98">        SPRING_DATASOURCE_USERNAME,</span>
+<span class="fc" id="L99">        SPRING_DATASOURCE_PASSWORD,</span>
+<span class="fc" id="L100">        SPRING_DATASOURCE_URL,</span>
+<span class="fc" id="L101">        SPRING_JPA_DATABASE_PLATFORM;</span>
     }
 
 }

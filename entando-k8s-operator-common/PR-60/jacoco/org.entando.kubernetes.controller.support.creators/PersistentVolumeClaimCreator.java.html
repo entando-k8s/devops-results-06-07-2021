@@ -67,7 +67,7 @@ public class PersistentVolumeClaimCreator extends AbstractK8SResourceCreator {
     private PersistentVolumeClaim newPersistentVolumeClaim(Deployable&lt;?&gt; deployable, PersistentVolumeAwareContainer container) {
 <span class="fc" id="L68">        StorageCalculator resourceCalculator = buildStorageCalculator(container);</span>
 <span class="fc" id="L69">        return new PersistentVolumeClaimBuilder()</span>
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">                .withMetadata(fromCustomResource(!EntandoOperatorConfig.disablePvcGarbageCollection(),</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">                .withMetadata(fromCustomResource(!EntandoOperatorConfig.disablePvcGarbageCollection(),</span>
 <span class="fc" id="L71">                        NameUtils.standardPersistentVolumeClaim(entandoCustomResource, container.getNameQualifier()),</span>
 <span class="fc" id="L72">                        deployable.getQualifier().orElse(null)))</span>
 <span class="fc" id="L73">                .withNewSpec().withAccessModes(container.getAccessMode().orElse(&quot;ReadWriteOnce&quot;))</span>

@@ -29,20 +29,20 @@ public interface SsoConnectionInfo {
     String determineBaseUrl();
 
     default String getUsername() {
-<span class="nc" id="L32">        return decodeSecretValue(SecretUtils.USERNAME_KEY);</span>
+<span class="fc" id="L32">        return decodeSecretValue(SecretUtils.USERNAME_KEY);</span>
     }
 
     default String getPassword() {
-<span class="nc" id="L36">        return decodeSecretValue(SecretUtils.PASSSWORD_KEY);</span>
+<span class="fc" id="L36">        return decodeSecretValue(SecretUtils.PASSSWORD_KEY);</span>
     }
 
     default String decodeSecretValue(String key) {
-<span class="nc" id="L40">        Optional&lt;String&gt; value = ofNullable(getAdminSecret().getData())</span>
-<span class="nc" id="L41">                .map(data -&gt;</span>
+<span class="fc" id="L40">        Optional&lt;String&gt; value = ofNullable(getAdminSecret().getData())</span>
+<span class="fc" id="L41">                .map(data -&gt;</span>
 <span class="nc" id="L42">                        ofNullable(data.get(key)).map(s -&gt; new String(Base64.getDecoder().decode(s), StandardCharsets.UTF_8))</span>
                 )
-<span class="nc" id="L44">                .orElse(ofNullable(getAdminSecret().getStringData()).map(data -&gt; data.get(key)));</span>
-<span class="nc" id="L45">        return value.orElse(null);</span>
+<span class="fc" id="L44">                .orElse(ofNullable(getAdminSecret().getStringData()).map(data -&gt; data.get(key)));</span>
+<span class="fc" id="L45">        return value.orElse(null);</span>
     }
 
     Secret getAdminSecret();

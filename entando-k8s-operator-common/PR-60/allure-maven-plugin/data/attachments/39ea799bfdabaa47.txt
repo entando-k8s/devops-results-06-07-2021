@@ -1,0 +1,31 @@
+---
+internalServiceHostname: "specified-dbms-service.entando-k8s-operator-common-cmpr60.svc.cluster.local"
+mixins:
+- "DatabaseConnectionInfo"
+- "ServiceResult"
+databaseName: "specified_dbms"
+port: "3307"
+vendor: "MYSQL"
+adminSecretName: "my-existing-dbms-admin-secret"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    labels:
+      EntandoResourceKind: "TestResource"
+      TestResource: "specified-dbms"
+    name: "specified-dbms-service"
+    namespace: "entando-k8s-operator-common-cmpr60"
+    ownerReferences:
+    - apiVersion: "test.org/v1"
+      kind: "TestResource"
+      blockOwnerDeletion: true
+      controller: true
+      name: "specified-dbms"
+      uid: "c50a6a88-bb45-445e-ab10-ffd519107b21"
+  spec:
+    externalName: "pg.apps.serv.run"
+    ports:
+    - port: 3307
+      targetPort: 3307
+    type: "ExternalName"

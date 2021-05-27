@@ -18,15 +18,17 @@ package org.entando.kubernetes.controller.spi.client;
 
 import static java.lang.String.format;
 
+import io.fabric8.kubernetes.api.model.Event;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.client.dsl.ExecWatch;
-import io.fabric8.kubernetes.client.dsl.Execable;
 import io.fabric8.kubernetes.client.dsl.PodResource;
 import java.io.ByteArrayInputStream;
 import java.util.Collection;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorConfigBase;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfigProperty;
 import org.entando.kubernetes.model.common.AbstractServerStatus;
@@ -37,7 +39,6 @@ public interface KubernetesClientForControllers {
 
     String ENTANDO_CRD_NAMES_CONFIG_MAP = &quot;entando-crd-names&quot;;
     String ENTANDO_OPERATOR_CONFIG_CONFIGMAP_NAME = &quot;entando-operator-config&quot;;
-<span class="fc" id="L40">    AtomicBoolean ENQUEUE_POD_WATCH_HOLDERS = new AtomicBoolean(false);</span>
 
     void prepareConfig();
 
@@ -54,20 +55,20 @@ public interface KubernetesClientForControllers {
     &lt;T extends EntandoCustomResource&gt; T deploymentFailed(T entandoCustomResource, Exception reason);
 
     default EntandoCustomResource resolveCustomResourceToProcess(Collection&lt;Class&lt;? extends EntandoCustomResource&gt;&gt; supportedTypes) {
-<span class="fc" id="L57">        String resourceName = resolveProperty(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAME);</span>
-<span class="fc" id="L58">        String resourceNamespace = resolveProperty(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAMESPACE);</span>
-<span class="fc" id="L59">        String kind = resolveProperty(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_KIND);</span>
-<span class="fc" id="L60">        return load(supportedTypes.stream().filter(c -&gt; c.getSimpleName().equals(kind)).findAny().orElseThrow(() -&gt;</span>
-<span class="nc" id="L61">                        new IllegalArgumentException(format(&quot;The resourceKind %s was not found in the list of supported types&quot;, kind))),</span>
+<span class="fc" id="L58">        String resourceName = resolveProperty(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAME);</span>
+<span class="fc" id="L59">        String resourceNamespace = resolveProperty(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAMESPACE);</span>
+<span class="fc" id="L60">        String kind = resolveProperty(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_KIND);</span>
+<span class="fc" id="L61">        return load(supportedTypes.stream().filter(c -&gt; c.getSimpleName().equals(kind)).findAny().orElseThrow(() -&gt;</span>
+<span class="nc" id="L62">                        new IllegalArgumentException(format(&quot;The resourceKind %s was not found in the list of supported types&quot;, kind))),</span>
                 resourceNamespace, resourceName);
 
     }
 
     private String resolveProperty(EntandoOperatorSpiConfigProperty name) {
-<span class="fc" id="L67">        return EntandoOperatorConfigBase.lookupProperty(name)</span>
-<span class="pc" id="L68">                .orElseThrow(() -&gt; new IllegalStateException(</span>
-<span class="nc" id="L69">                        format(&quot;No %s specified. Please set either the Environment Variable %s or the System Property %s&quot;, name</span>
-<span class="nc" id="L70">                                .getCamelCaseName(), name.name(), name.getJvmSystemProperty())));</span>
+<span class="fc" id="L68">        return EntandoOperatorConfigBase.lookupProperty(name)</span>
+<span class="pc" id="L69">                .orElseThrow(() -&gt; new IllegalStateException(</span>
+<span class="nc" id="L70">                        format(&quot;No %s specified. Please set either the Environment Variable %s or the System Property %s&quot;, name</span>
+<span class="nc" id="L71">                                .getCamelCaseName(), name.name(), name.getJvmSystemProperty())));</span>
     }
 
     SerializedEntandoResource loadCustomResource(String apiVersion, String kind, String namespace, String name);
@@ -75,49 +76,36 @@ public interface KubernetesClientForControllers {
     HasMetadata loadStandardResource(String kind, String namespace, String name);
 
     @SuppressWarnings({&quot;java:S106&quot;})
-    default EntandoExecListener executeAndWait(PodResource&lt;Pod&gt; podResource, String containerName, int timeoutSeconds,
-            String... script) {
-<span class="nc" id="L80">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        for (String s : script) {</span>
-<span class="nc" id="L82">            sb.append(s);</span>
-<span class="nc" id="L83">            sb.append('\n');</span>
+    default ExecutionResult executeAndWait(PodResource&lt;Pod&gt; podResource, String containerName, int timeoutSeconds,
+            String... script) throws TimeoutException {
+<span class="nc" id="L81">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (String s : script) {</span>
+<span class="nc" id="L83">            sb.append(s);</span>
+<span class="nc" id="L84">            sb.append(&quot; || exit $?\n&quot;);</span>
         }
-<span class="nc" id="L85">        sb.append(&quot;exit 0\n&quot;);</span>
-<span class="nc" id="L86">        ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes());</span>
+<span class="nc" id="L86">        sb.append(&quot;exit $?\n&quot;);</span>
+<span class="nc" id="L87">        ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes());</span>
         try {
-<span class="nc" id="L88">            Object mutex = new Object();</span>
-<span class="nc" id="L89">            synchronized (mutex) {</span>
-<span class="nc" id="L90">                EntandoExecListener listener = new EntandoExecListener(mutex, timeoutSeconds);</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">                if (ENQUEUE_POD_WATCH_HOLDERS.get()) {</span>
-<span class="nc" id="L92">                    getExecListenerHolder().add(listener);//because it should never be full during tests. fail early.</span>
-                }
-<span class="nc" id="L94">                final Execable&lt;String, ExecWatch&gt; execable = podResource.inContainer(containerName)</span>
-<span class="nc" id="L95">                        .readingInput(in)</span>
-<span class="nc" id="L96">                        .writingOutput(listener.getOutWriter())</span>
-<span class="nc" id="L97">                        .redirectingError()</span>
-<span class="nc" id="L98">                        .withTTY()</span>
-<span class="nc" id="L99">                        .usingListener(listener);</span>
-<span class="nc" id="L100">                listener.setExecable(execable);</span>
-<span class="nc" id="L101">                execable.exec();</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">                while (listener.shouldStillWait()) {</span>
-<span class="nc" id="L103">                    mutex.wait(1000);</span>
-                }
-<span class="nc bnc" id="L105" title="All 2 branches missed.">                if (listener.hasFailed()) {</span>
-<span class="nc" id="L106">                    throw new IllegalStateException(format(&quot;Command did not meet the wait condition within 20 seconds: %s&quot;, sb.toString()));</span>
-                }
-<span class="nc" id="L108">                return listener;</span>
-            }
-<span class="nc" id="L110">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L111">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L112">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L89">            final CompletableFuture&lt;ExecutionResult&gt; future = new CompletableFuture&lt;&gt;();</span>
+<span class="nc" id="L90">            ExecutionResult listener = new ExecutionResult(future);</span>
+<span class="nc" id="L91">            podResource.inContainer(containerName)</span>
+<span class="nc" id="L92">                    .readingInput(in)</span>
+<span class="nc" id="L93">                    .writingOutput(listener.getOutput())</span>
+<span class="nc" id="L94">                    .writingError(listener.getOutput())</span>
+<span class="nc" id="L95">                    .writingErrorChannel(listener.getErrorChannel())</span>
+<span class="nc" id="L96">                    .withTTY()</span>
+<span class="nc" id="L97">                    .usingListener(listener).exec();</span>
+<span class="nc" id="L98">            return future.get(timeoutSeconds, TimeUnit.SECONDS);</span>
+<span class="nc" id="L99">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L100">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L101">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L102">        } catch (ExecutionException e) {</span>
+<span class="nc" id="L103">            throw new IllegalStateException(e);</span>
         }
     }
 
-    EntandoExecListener executeOnPod(Pod pod, String containerName, int timeoutSeconds, String... commands);
+    List&lt;Event&gt; listEventsFor(EntandoCustomResource resource);
 
-    /**
-     * A getter for the an AtomicReference to the most recently constructed ExecListener for testing purposes.
-     */
-    BlockingQueue&lt;EntandoExecListener&gt; getExecListenerHolder();
+    ExecutionResult executeOnPod(Pod pod, String containerName, int timeoutSeconds, String... commands) throws TimeoutException;
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

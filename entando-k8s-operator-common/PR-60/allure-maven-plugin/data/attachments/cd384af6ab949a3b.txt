@@ -1,0 +1,40 @@
+---
+internalServiceHostname: "my-app-service.entando-k8s-operator-common-cmpr60.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-app-ingress"
+    namespace: "entando-k8s-operator-common-cmpr60"
+  isCustomResource: false
+mixins:
+- "ServiceDeploymentResult"
+- "SerializableDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-app-deployment"
+    namespace: "entando-k8s-operator-common-cmpr60"
+  isCustomResource: false
+port: "8081"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-app-service"
+    namespace: "entando-k8s-operator-common-cmpr60"
+  isCustomResource: false
+externalBaseUrl: "https://myhost.com/my-app"
+internalBaseUrl: "http://my-app-service.entando-k8s-operator-common-cmpr60.svc.cluster.local:8081/my-app"
+externalHostUrl: "https://myhost.com"
+status:
+  qualifier: "main"
+  type: "ExposedServerStatus"
+  started: "2021-05-27T17:21:30+0000"
+  serviceName: "my-app-service"
+  deploymentName: "my-app-deployment"
+  podPhases:
+    my-app-deployment: "Running"
+  ingressName: "my-app-ingress"

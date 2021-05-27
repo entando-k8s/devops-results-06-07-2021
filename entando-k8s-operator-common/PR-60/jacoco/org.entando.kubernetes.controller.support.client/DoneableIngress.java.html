@@ -23,16 +23,16 @@ import java.util.function.UnaryOperator;
 public class DoneableIngress extends IngressFluentImpl&lt;DoneableIngress&gt; {
 
     private final UnaryOperator&lt;Ingress&gt; action;
-<span class="nc" id="L26">    private final Object hashCode = new Object();</span>
+<span class="fc" id="L26">    private final Object hashCode = new Object();</span>
 
     public DoneableIngress(Ingress ingress, UnaryOperator&lt;Ingress&gt; action) {
-<span class="nc" id="L29">        super(ingress);</span>
-<span class="nc" id="L30">        this.action = action;</span>
-<span class="nc" id="L31">    }</span>
+<span class="fc" id="L29">        super(ingress);</span>
+<span class="fc" id="L30">        this.action = action;</span>
+<span class="fc" id="L31">    }</span>
 
     public Ingress done() {
-<span class="nc" id="L34">        Ingress built = new Ingress(getApiVersion(), getKind(), buildMetadata(), buildSpec(), buildStatus());</span>
-<span class="nc" id="L35">        return action.apply(built);</span>
+<span class="fc" id="L34">        Ingress built = new Ingress(getApiVersion(), getKind(), buildMetadata(), buildSpec(), buildStatus());</span>
+<span class="fc" id="L35">        return action.apply(built);</span>
     }
 
     @Override

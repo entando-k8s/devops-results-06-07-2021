@@ -27,57 +27,57 @@ public class DefaultDatabaseSchemaConnectionInfo implements DatabaseSchemaConnec
     private final String schemaName;
     private final Secret schemaSecret;
 
-<span class="nc" id="L30">    public DefaultDatabaseSchemaConnectionInfo(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, Secret schemaSecret) {</span>
-<span class="nc" id="L31">        this.databaseConnectionInfo = databaseConnectionInfo;</span>
-<span class="nc" id="L32">        this.schemaName = schemaName;</span>
-<span class="nc" id="L33">        this.schemaSecret = schemaSecret;</span>
-<span class="nc" id="L34">    }</span>
+<span class="fc" id="L30">    public DefaultDatabaseSchemaConnectionInfo(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, Secret schemaSecret) {</span>
+<span class="fc" id="L31">        this.databaseConnectionInfo = databaseConnectionInfo;</span>
+<span class="fc" id="L32">        this.schemaName = schemaName;</span>
+<span class="fc" id="L33">        this.schemaSecret = schemaSecret;</span>
+<span class="fc" id="L34">    }</span>
 
     @Override
     public String getSchemaSecretName() {
-<span class="nc" id="L38">        return schemaSecret.getMetadata().getName();</span>
+<span class="fc" id="L38">        return schemaSecret.getMetadata().getName();</span>
     }
 
     @Override
     public String getJdbcUrl() {
-<span class="nc" id="L43">        return getDatabaseServiceResult().getVendor().getConnectionStringBuilder()</span>
-<span class="nc" id="L44">                .toHost(databaseConnectionInfo.getInternalServiceHostname())</span>
-<span class="nc" id="L45">                .onPort(databaseConnectionInfo.getPort())</span>
-<span class="nc" id="L46">                .usingDatabase(</span>
-<span class="nc" id="L47">                        getDatabaseServiceResult().getDatabaseName()).usingSchema(schemaName)</span>
-<span class="nc" id="L48">                .usingParameters(this.databaseConnectionInfo.getJdbcParameters())</span>
-<span class="nc" id="L49">                .buildJdbcConnectionString();</span>
+<span class="fc" id="L43">        return getDatabaseServiceResult().getVendor().getConnectionStringBuilder()</span>
+<span class="fc" id="L44">                .toHost(databaseConnectionInfo.getInternalServiceHostname())</span>
+<span class="fc" id="L45">                .onPort(databaseConnectionInfo.getPort())</span>
+<span class="fc" id="L46">                .usingDatabase(</span>
+<span class="fc" id="L47">                        getDatabaseServiceResult().getDatabaseName()).usingSchema(schemaName)</span>
+<span class="fc" id="L48">                .usingParameters(this.databaseConnectionInfo.getJdbcParameters())</span>
+<span class="fc" id="L49">                .buildJdbcConnectionString();</span>
     }
 
     public String getDatabase() {
-<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (getDatabaseServiceResult().getVendor().schemaIsDatabase()) {</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        if (getDatabaseServiceResult().getVendor().schemaIsDatabase()) {</span>
 <span class="nc" id="L54">            return getSchemaName();</span>
         } else {
-<span class="nc" id="L56">            return this.databaseConnectionInfo.getDatabaseName();</span>
+<span class="fc" id="L56">            return this.databaseConnectionInfo.getDatabaseName();</span>
         }
     }
 
     public DatabaseConnectionInfo getDatabaseServiceResult() {
-<span class="nc" id="L61">        return databaseConnectionInfo;</span>
+<span class="fc" id="L61">        return databaseConnectionInfo;</span>
     }
 
     @Override
     public String getSchemaName() {
-<span class="nc" id="L66">        return schemaName;</span>
+<span class="fc" id="L66">        return schemaName;</span>
     }
 
     @Override
     public EnvVarSource getPasswordRef() {
-<span class="nc" id="L71">        return SecretUtils.secretKeyRef(getSchemaSecretName(), SecretUtils.PASSSWORD_KEY);</span>
+<span class="fc" id="L71">        return SecretUtils.secretKeyRef(getSchemaSecretName(), SecretUtils.PASSSWORD_KEY);</span>
     }
 
     @Override
     public EnvVarSource getUsernameRef() {
-<span class="nc" id="L76">        return SecretUtils.secretKeyRef(getSchemaSecretName(), SecretUtils.USERNAME_KEY);</span>
+<span class="fc" id="L76">        return SecretUtils.secretKeyRef(getSchemaSecretName(), SecretUtils.USERNAME_KEY);</span>
     }
 
     public Secret getSchemaSecret() {
-<span class="nc" id="L80">        return this.schemaSecret;</span>
+<span class="fc" id="L80">        return this.schemaSecret;</span>
     }
 
 }

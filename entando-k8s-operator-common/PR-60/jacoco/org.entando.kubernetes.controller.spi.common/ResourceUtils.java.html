@@ -16,31 +16,48 @@
 
 package org.entando.kubernetes.controller.spi.common;
 
+import static java.util.Optional.ofNullable;
+
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.OwnerReference;
 import io.fabric8.kubernetes.api.model.OwnerReferenceBuilder;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
 
 public class ResourceUtils {
+
+    public static final String ENTANDO_RESOURCE_KIND_LABEL_NAME = &quot;EntandoResourceKind&quot;;
+    public static final String ENTANDO_RESOURCE_NAMESPACE_LABEL_NAME = &quot;EntandoResourceNamespace&quot;;
 
     private ResourceUtils() {
 
     }
 
     public static OwnerReference buildOwnerReference(HasMetadata entandoCustomResource) {
-<span class="fc" id="L31">        return new OwnerReferenceBuilder()</span>
-<span class="fc" id="L32">                .withApiVersion(entandoCustomResource.getApiVersion())</span>
-<span class="fc" id="L33">                .withBlockOwnerDeletion(true)</span>
-<span class="fc" id="L34">                .withController(true)</span>
-<span class="fc" id="L35">                .withKind(entandoCustomResource.getKind())</span>
-<span class="fc" id="L36">                .withName(entandoCustomResource.getMetadata().getName())</span>
-<span class="fc" id="L37">                .withUid(entandoCustomResource.getMetadata().getUid()).build();</span>
+<span class="fc" id="L39">        return new OwnerReferenceBuilder()</span>
+<span class="fc" id="L40">                .withApiVersion(entandoCustomResource.getApiVersion())</span>
+<span class="fc" id="L41">                .withBlockOwnerDeletion(true)</span>
+<span class="fc" id="L42">                .withController(true)</span>
+<span class="fc" id="L43">                .withKind(entandoCustomResource.getKind())</span>
+<span class="fc" id="L44">                .withName(entandoCustomResource.getMetadata().getName())</span>
+<span class="fc" id="L45">                .withUid(entandoCustomResource.getMetadata().getUid()).build();</span>
     }
 
     public static boolean customResourceOwns(EntandoCustomResource owner, HasMetadata owned) {
-<span class="nc" id="L41">        return owned.getMetadata().getOwnerReferences().stream()</span>
-<span class="nc bnc" id="L42" title="All 2 branches missed.">                .anyMatch(ownerReference -&gt; owner.getMetadata().getName().equals(ownerReference.getName())</span>
-<span class="nc bnc" id="L43" title="All 2 branches missed.">                        &amp;&amp; owner.getKind().equals(ownerReference.getKind()));</span>
+<span class="fc" id="L49">        return owned.getMetadata().getOwnerReferences().stream()</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">                .anyMatch(ownerReference -&gt; owner.getMetadata().getName().equals(ownerReference.getName())</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">                        &amp;&amp; owner.getKind().equals(ownerReference.getKind()));</span>
+    }
+
+    public static Map&lt;String, String&gt; labelsFromResource(EntandoCustomResource entandoCustomResource) {
+<span class="fc" id="L55">        Map&lt;String, String&gt; labels = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L56">        labels.put(entandoCustomResource.getKind(), entandoCustomResource.getMetadata().getName());</span>
+<span class="fc" id="L57">        labels.put(ENTANDO_RESOURCE_KIND_LABEL_NAME, entandoCustomResource.getKind());</span>
+<span class="fc" id="L58">        labels.put(ENTANDO_RESOURCE_NAMESPACE_LABEL_NAME, entandoCustomResource.getMetadata().getNamespace());</span>
+<span class="fc" id="L59">        labels.putAll(ofNullable(entandoCustomResource.getMetadata().getLabels()).orElse(Collections.emptyMap()));</span>
+<span class="fc" id="L60">        return labels;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

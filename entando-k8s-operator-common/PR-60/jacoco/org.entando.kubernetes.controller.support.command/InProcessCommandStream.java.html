@@ -27,7 +27,6 @@ import org.entando.kubernetes.controller.spi.deployable.Deployable;
 import org.entando.kubernetes.controller.spi.deployable.IngressingDeployable;
 import org.entando.kubernetes.controller.spi.result.ExposedDeploymentResult;
 import org.entando.kubernetes.controller.spi.result.ServiceDeploymentResult;
-import org.entando.kubernetes.controller.support.capability.ProvideCapabilityCommand;
 import org.entando.kubernetes.controller.support.client.SimpleK8SClient;
 import org.entando.kubernetes.controller.support.client.SimpleKeycloakClient;
 
@@ -40,48 +39,48 @@ public class InProcessCommandStream implements CommandStream {
      * This class is mainly for some intial testing. It will eventually be replaced by a CommandStream that runs the CLI. NB!!!! Keep thie
      * SimpleK8SClient there for testing purposes to ensure the test uses the same podWatcherQueue.
      */
-<span class="fc" id="L43">    public InProcessCommandStream(SimpleK8SClient&lt;?&gt; simpleK8SClient, SimpleKeycloakClient keycloakClient) {</span>
-<span class="fc" id="L44">        this.simpleK8SClient = simpleK8SClient;</span>
-<span class="fc" id="L45">        this.keycloakClient = keycloakClient;</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L42">    public InProcessCommandStream(SimpleK8SClient&lt;?&gt; simpleK8SClient, SimpleKeycloakClient keycloakClient) {</span>
+<span class="fc" id="L43">        this.simpleK8SClient = simpleK8SClient;</span>
+<span class="fc" id="L44">        this.keycloakClient = keycloakClient;</span>
+<span class="fc" id="L45">    }</span>
 
     @Override
     public String process(SupportedCommand supportedCommand, String data, int timeoutSeconds) throws TimeoutException {
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (supportedCommand == SupportedCommand.PROCESS_DEPLOYABLE) {</span>
-<span class="fc" id="L51">            return processDeployment(data, timeoutSeconds);</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (supportedCommand == SupportedCommand.PROCESS_DEPLOYABLE) {</span>
+<span class="fc" id="L50">            return processDeployment(data, timeoutSeconds);</span>
         } else {
-<span class="nc" id="L53">            return provideCapability(data, timeoutSeconds);</span>
+<span class="fc" id="L52">            return provideCapability(data, timeoutSeconds);</span>
         }
     }
 
     private String provideCapability(String capability, int timeoutSeconds) throws TimeoutException {
-<span class="nc" id="L58">        ProvideCapabilityCommand capabilityProvider = new ProvideCapabilityCommand(simpleK8SClient.capabilities());</span>
-<span class="nc" id="L59">        final CapabilityForResource r = DeserializationHelper.deserialize(simpleK8SClient.entandoResources(), capability);</span>
-<span class="nc" id="L60">        return SerializationHelper</span>
-<span class="nc" id="L61">                .serialize(capabilityProvider.execute(r.getResourceInNeed(), r.getCapabilityRequirement(), timeoutSeconds));</span>
+<span class="fc" id="L57">        ProvideCapabilityCommand capabilityProvider = new ProvideCapabilityCommand(simpleK8SClient.capabilities());</span>
+<span class="fc" id="L58">        final CapabilityForResource r = DeserializationHelper.deserialize(simpleK8SClient.entandoResources(), capability);</span>
+<span class="fc" id="L59">        return SerializationHelper</span>
+<span class="fc" id="L60">                .serialize(capabilityProvider.execute(r.getResourceInNeed(), r.getCapabilityRequirement(), timeoutSeconds));</span>
     }
 
     @SuppressWarnings({&quot;unchecked&quot;, &quot;rawtypes&quot;})
     private String processDeployment(String deployable, int timeoutSeconds) throws TimeoutException {
-<span class="fc" id="L66">        final Deployable deserializedDeployable = DeserializationHelper.deserialize(simpleK8SClient.entandoResources(), deployable);</span>
-<span class="fc" id="L67">        DeployCommand&lt;? extends ServiceDeploymentResult&gt; command = null;</span>
-<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (deserializedDeployable instanceof IngressingDeployable) {</span>
-<span class="nc" id="L69">            command = new IngressingDeployCommand&lt;&gt;((IngressingDeployable&lt;?&gt;) deserializedDeployable);</span>
+<span class="fc" id="L65">        final Deployable deserializedDeployable = DeserializationHelper.deserialize(simpleK8SClient.entandoResources(), deployable);</span>
+<span class="fc" id="L66">        DeployCommand&lt;? extends ServiceDeploymentResult&gt; command = null;</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (deserializedDeployable instanceof IngressingDeployable) {</span>
+<span class="fc" id="L68">            command = new IngressingDeployCommand&lt;&gt;((IngressingDeployable&lt;?&gt;) deserializedDeployable);</span>
         } else {
-<span class="fc" id="L71">            command = new DeployCommand(deserializedDeployable);</span>
+<span class="fc" id="L70">            command = new DeployCommand(deserializedDeployable);</span>
         }
-<span class="fc" id="L73">        final ServiceDeploymentResult result = command.execute(simpleK8SClient, keycloakClient, timeoutSeconds);</span>
-<span class="fc" id="L74">        DefaultSerializableDeploymentResult serializableDeploymentResult = null;</span>
-<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (result instanceof ExposedDeploymentResult) {</span>
-<span class="fc" id="L76">            serializableDeploymentResult = new DefaultSerializableDeploymentResult(null, result.getPod(),</span>
-<span class="fc" id="L77">                    result.getService(), ((ExposedDeploymentResult) result).getIngress()).withStatus(result.getStatus());</span>
+<span class="fc" id="L72">        final ServiceDeploymentResult result = command.execute(simpleK8SClient, keycloakClient, timeoutSeconds);</span>
+<span class="fc" id="L73">        DefaultSerializableDeploymentResult serializableDeploymentResult = null;</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (result instanceof ExposedDeploymentResult) {</span>
+<span class="fc" id="L75">            serializableDeploymentResult = new DefaultSerializableDeploymentResult(null, result.getPod(),</span>
+<span class="fc" id="L76">                    result.getService(), ((ExposedDeploymentResult) result).getIngress()).withStatus(result.getStatus());</span>
 
         } else {
-<span class="nc" id="L80">            serializableDeploymentResult = new DefaultSerializableDeploymentResult(null, result.getPod(),</span>
-<span class="nc" id="L81">                    result.getService(), null).withStatus(result.getStatus());</span>
+<span class="nc" id="L79">            serializableDeploymentResult = new DefaultSerializableDeploymentResult(null, result.getPod(),</span>
+<span class="nc" id="L80">                    result.getService(), null).withStatus(result.getStatus());</span>
         }
 
-<span class="fc" id="L84">        return SerializationHelper.serialize(serializableDeploymentResult);</span>
+<span class="fc" id="L83">        return SerializationHelper.serialize(serializableDeploymentResult);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

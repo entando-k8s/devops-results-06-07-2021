@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProvideCapabilityCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Operator Common Library</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.support.command</a> &gt; <span class="el_source">ProvideCapabilityCommand.java</span></div><h1>ProvideCapabilityCommand.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.support.command;
+
+import static java.lang.String.format;
+
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeoutException;
+import org.entando.kubernetes.controller.spi.capability.SerializedCapabilityProvisioningResult;
+import org.entando.kubernetes.controller.spi.common.EntandoControllerException;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.controller.support.client.CapabilityClient;
+import org.entando.kubernetes.model.capability.CapabilityRequirement;
+import org.entando.kubernetes.model.capability.CapabilityScope;
+import org.entando.kubernetes.model.capability.ProvidedCapability;
+import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
+import org.entando.kubernetes.model.common.ResourceReference;
+
+//TODO Think of how to use with CommandStream
+public class ProvideCapabilityCommand {
+
+    private final CapabilityClient client;
+
+<span class="fc" id="L42">    public ProvideCapabilityCommand(CapabilityClient client) {</span>
+<span class="fc" id="L43">        this.client = client;</span>
+<span class="fc" id="L44">    }</span>
+
+    public SerializedCapabilityProvisioningResult execute(HasMetadata forResource, CapabilityRequirement capabilityRequirement,
+            int timeoutSeconds) throws TimeoutException {
+        try {
+<span class="fc" id="L49">            final CapabilityScope requirementScope = capabilityRequirement.getScope().orElse(CapabilityScope.NAMESPACE);</span>
+<span class="fc" id="L50">            Optional&lt;ProvidedCapability&gt; match = findCapability(forResource, capabilityRequirement, requirementScope);</span>
+<span class="fc" id="L51">            match.ifPresent(c -&gt; validateCapabilityCriteria(capabilityRequirement, requirementScope, c));</span>
+<span class="fc" id="L52">            return loadProvisioningResult(</span>
+<span class="fc" id="L53">                    match.orElseGet(</span>
+<span class="fc" id="L54">                            () -&gt; makeNewCapabilityAvailable(forResource, capabilityRequirement, requirementScope, timeoutSeconds)));</span>
+<span class="nc" id="L55">        } catch (TimeoutHolderException e) {</span>
+<span class="nc" id="L56">            throw e.getCause();</span>
+        }
+    }
+
+    private SerializedCapabilityProvisioningResult loadProvisioningResult(ProvidedCapability providedCapability) {
+<span class="fc" id="L61">        return client.buildCapabilityProvisioningResult(providedCapability);</span>
+    }
+
+    private void validateCapabilityCriteria(CapabilityRequirement capabilityRequirement, CapabilityScope requirementScope,
+            ProvidedCapability c) {
+<span class="fc" id="L66">        if (!requirementScope.getCamelCaseName()</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">                .equals(c.getMetadata().getLabels().get(ProvidedCapability.CAPABILITY_PROVISION_SCOPE_LABEL_NAME))) {</span>
+<span class="fc" id="L68">            throw new IllegalArgumentException(</span>
+<span class="fc" id="L69">                    format(&quot;The capability %s was found, but its provision scope is %s instead of the requested %s scope&quot;,</span>
+<span class="fc" id="L70">                            capabilityRequirement.getCapability().getCamelCaseName(),</span>
+<span class="fc" id="L71">                            c.getMetadata().getLabels().get(ProvidedCapability.CAPABILITY_PROVISION_SCOPE_LABEL_NAME),</span>
+<span class="fc" id="L72">                            requirementScope.getCamelCaseName()</span>
+                    ));
+        }
+<span class="fc" id="L75">        if (!capabilityRequirement.getImplementation().map(i -&gt; i.getCamelCaseName()</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">                .equals(c.getMetadata().getLabels().get(ProvidedCapability.IMPLEMENTATION_LABEL_NAME))).orElse(true)) {</span>
+<span class="fc" id="L77">            throw new IllegalArgumentException(</span>
+<span class="fc" id="L78">                    format(&quot;The capability %s was found, but its implementation is %s instead of the requested %s scope&quot;,</span>
+<span class="fc" id="L79">                            capabilityRequirement.getCapability().getCamelCaseName(),</span>
+<span class="fc" id="L80">                            c.getMetadata().getLabels().get(ProvidedCapability.IMPLEMENTATION_LABEL_NAME),</span>
+<span class="fc" id="L81">                            requirementScope.getCamelCaseName()</span>
+                    ));
+        }
+<span class="fc" id="L84">    }</span>
+
+    private Optional&lt;ProvidedCapability&gt; findCapability(HasMetadata forResource, CapabilityRequirement capabilityRequirement,
+            CapabilityScope requirementScope) {
+<span class="fc bfc" id="L88" title="All 5 branches covered.">        switch (requirementScope) {</span>
+            case DEDICATED:
+<span class="fc" id="L90">                return client.providedCapabilityByName(forResource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L91">                        forResource.getMetadata().getName() + &quot;-&quot; + capabilityRequirement.getCapability().getSuffix());</span>
+            case SPECIFIED:
+<span class="fc" id="L93">                final ResourceReference resourceReference = capabilityRequirement.getSpecifiedCapability()</span>
+<span class="fc" id="L94">                        .orElseThrow(() -&gt; new IllegalArgumentException(</span>
+                                &quot;A requirement for a specified capability needs a valid name and optional namespace to resolve &quot;
+                                        + &quot;the required capability.&quot;));
+<span class="fc" id="L97">                return client.providedCapabilityByName(resourceReference.getNamespace().orElse(forResource.getMetadata().getNamespace()),</span>
+<span class="fc" id="L98">                        resourceReference.getName());</span>
+            case LABELED:
+<span class="pc bpc" id="L100" title="1 of 4 branches missed.">                if (capabilityRequirement.getSelector() == null || capabilityRequirement.getSelector().isEmpty()) {</span>
+<span class="fc" id="L101">                    throw new IllegalArgumentException(&quot;A requirement for a labeled capability needs at least one label to resolve &quot;</span>
+                            + &quot;the required capability.&quot;);
+                }
+
+<span class="fc" id="L105">                return client.providedCapabilityByLabels(capabilityRequirement.getSelector());</span>
+            case NAMESPACE:
+<span class="fc" id="L107">                return client</span>
+<span class="fc" id="L108">                        .providedCapabilityByLabels(forResource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L109">                                determineCapabilityLabels(capabilityRequirement));</span>
+            case CLUSTER:
+            default:
+<span class="fc" id="L112">                return client.providedCapabilityByLabels(determineCapabilityLabels(capabilityRequirement));</span>
+        }
+    }
+
+    private Map&lt;String, String&gt; determineCapabilityLabels(CapabilityRequirement capabilityRequirement) {
+<span class="fc" id="L117">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L118">        result.put(ProvidedCapability.CAPABILITY_LABEL_NAME, capabilityRequirement.getCapability().getCamelCaseName());</span>
+        //In the absence of implementation and scope, it is the Controller's responsibility to make the decions and populate the
+        // ProvidedCapability's labels
+<span class="fc" id="L121">        capabilityRequirement.getImplementation().ifPresent(impl -&gt; result.put(ProvidedCapability.IMPLEMENTATION_LABEL_NAME,</span>
+<span class="fc" id="L122">                impl.getCamelCaseName()));</span>
+<span class="fc" id="L123">        capabilityRequirement.getScope().ifPresent(scope -&gt; result.put(ProvidedCapability.CAPABILITY_PROVISION_SCOPE_LABEL_NAME,</span>
+<span class="fc" id="L124">                scope.getCamelCaseName()));</span>
+<span class="fc" id="L125">        return result;</span>
+    }
+
+    private ProvidedCapability makeNewCapabilityAvailable(HasMetadata forResource, CapabilityRequirement requiredCapability,
+            CapabilityScope requirementScope, int timeoutSeconds) throws TimeoutHolderException {
+        try {
+<span class="fc" id="L131">            final ProvidedCapability capabilityRequirement = buildCapabilityRequirementFor(forResource, requiredCapability);</span>
+<span class="fc" id="L132">            final ProvidedCapability providedCapability = client.createAndWaitForCapability(capabilityRequirement, timeoutSeconds);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            if (providedCapability.getStatus().getPhase() == EntandoDeploymentPhase.FAILED) {</span>
+<span class="fc" id="L134">                throw new EntandoControllerException(&quot;Could not provide capability&quot;);</span>
+            }
+<span class="fc" id="L136">            return findCapability(forResource, requiredCapability, requirementScope).orElseThrow(IllegalStateException::new);</span>
+<span class="nc" id="L137">        } catch (TimeoutException e) {</span>
+<span class="nc" id="L138">            throw new TimeoutHolderException(e);</span>
+        }
+    }
+
+    private ProvidedCapability buildCapabilityRequirementFor(HasMetadata forResource, CapabilityRequirement capabilityRequirement) {
+<span class="fc" id="L143">        ObjectMetaBuilder metaBuilder = new ObjectMetaBuilder();</span>
+<span class="fc bfc" id="L144" title="All 5 branches covered.">        switch (capabilityRequirement.getScope().orElse(CapabilityScope.NAMESPACE)) {</span>
+            case DEDICATED:
+<span class="fc" id="L146">                metaBuilder = metaBuilder.withNamespace(forResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L147">                        .withName(forResource.getMetadata().getName() + &quot;-&quot; + capabilityRequirement.getCapability().getSuffix());</span>
+<span class="fc" id="L148">                break;</span>
+            case SPECIFIED:
+<span class="fc" id="L150">                final ResourceReference resourceReference = capabilityRequirement.getSpecifiedCapability()</span>
+<span class="fc" id="L151">                        .orElseThrow(IllegalStateException::new);</span>
+<span class="fc" id="L152">                metaBuilder = metaBuilder.withNamespace(resourceReference.getNamespace().orElse(forResource.getMetadata().getNamespace()))</span>
+<span class="fc" id="L153">                        .withName(resourceReference.getName());</span>
+<span class="fc" id="L154">                break;</span>
+            case LABELED:
+<span class="fc" id="L156">                metaBuilder = metaBuilder.withNamespace(forResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L157">                        .withName(</span>
+<span class="fc" id="L158">                                capabilityRequirement.getImplementation().map(i -&gt; i.getHypenatedName() + &quot;-&quot;).orElse(&quot;&quot;)</span>
+                                        + capabilityRequirement
+<span class="fc" id="L160">                                        .getCapability().getHypenatedName() + &quot;-&quot; + NameUtils</span>
+<span class="fc" id="L161">                                        .randomNumeric(4))</span>
+<span class="fc" id="L162">                        .addToLabels(capabilityRequirement.getSelector());</span>
+<span class="fc" id="L163">                break;</span>
+            case NAMESPACE:
+<span class="fc" id="L165">                metaBuilder = metaBuilder.withNamespace(forResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L166">                        .withName(calculateDefaultName(capabilityRequirement) + &quot;-in-namespace&quot;);</span>
+<span class="fc" id="L167">                break;</span>
+            case CLUSTER:
+            default:
+<span class="fc" id="L170">                metaBuilder = metaBuilder.withNamespace(client.getNamespace())</span>
+<span class="fc" id="L171">                        .withName(calculateDefaultName(capabilityRequirement) + &quot;-in-cluster&quot;);</span>
+        }
+<span class="fc" id="L173">        metaBuilder.addToLabels(determineCapabilityLabels(capabilityRequirement));</span>
+<span class="fc" id="L174">        return new ProvidedCapability(metaBuilder.build(), capabilityRequirement);</span>
+    }
+
+    private String calculateDefaultName(CapabilityRequirement capabilityRequirement) {
+<span class="fc" id="L178">        return &quot;default&quot; + capabilityRequirement.getImplementation()</span>
+<span class="fc" id="L179">                .map(i -&gt; &quot;-&quot; + i.getHypenatedName()).orElse(&quot;&quot;) + &quot;-&quot; + capabilityRequirement.getCapability()</span>
+<span class="fc" id="L180">                .getHypenatedName();</span>
+    }
+
+    private static class TimeoutHolderException extends RuntimeException {
+
+        public TimeoutHolderException(TimeoutException timeoutException) {
+<span class="nc" id="L186">            super(timeoutException);</span>
+<span class="nc" id="L187">        }</span>
+
+        @Override
+        public synchronized TimeoutException getCause() {
+<span class="nc" id="L191">            return (TimeoutException) super.getCause();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

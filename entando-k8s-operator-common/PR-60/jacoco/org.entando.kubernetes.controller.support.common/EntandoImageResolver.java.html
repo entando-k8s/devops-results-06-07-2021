@@ -32,8 +32,8 @@ public class EntandoImageResolver {
     private final EntandoCustomResource resourceOfInterest;
 
     public EntandoImageResolver(ConfigMap imageVersionsConfigMap) {
-<span class="nc" id="L35">        this(imageVersionsConfigMap, null);</span>
-<span class="nc" id="L36">    }</span>
+<span class="fc" id="L35">        this(imageVersionsConfigMap, null);</span>
+<span class="fc" id="L36">    }</span>
 
 <span class="fc" id="L38">    public EntandoImageResolver(ConfigMap imageVersionsConfigMap, EntandoCustomResource resourceOfInterest) {</span>
 <span class="fc" id="L39">        this.imageVersionsConfigMap = imageVersionsConfigMap;</span>
@@ -41,7 +41,7 @@ public class EntandoImageResolver {
 <span class="fc" id="L41">    }</span>
 
     public String determineImageUri(String imageUri) {
-<span class="nc" id="L44">        return determineImageUri(new DockerImageInfo(imageUri));</span>
+<span class="fc" id="L44">        return determineImageUri(new DockerImageInfo(imageUri));</span>
     }
 
     public String determineImageUri(DockerImageInfo dockerImageInfo) {
@@ -49,12 +49,12 @@ public class EntandoImageResolver {
 <span class="fc" id="L49">        Optional&lt;String&gt; injectedImageUri = EntandoOperatorConfigBase.lookupProperty(relateImage(dockerImageInfo.getRepository()))</span>
 <span class="fc" id="L50">                .or(() -&gt; EntandoOperatorConfigBase.lookupProperty(relateImage(dockerImageInfo.getOrganizationAwareRepository())));</span>
         //Then we look at the annotations in the resource (for testing purposes)
-<span class="pc bpc" id="L52" title="2 of 4 branches missed.">        if (resourceOfInterest != null &amp;&amp; resourceOfInterest.getMetadata().getAnnotations() != null) {</span>
-<span class="nc" id="L53">            injectedImageUri = injectedImageUri.or(() -&gt; resourceOfInterest.getMetadata().getAnnotations().entrySet().stream()</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">                    .filter(entry -&gt; entry.getKey().equals(IMAGE_ANNOTATION_PREFIX + dockerImageInfo.getRepository())</span>
-<span class="nc bnc" id="L55" title="All 2 branches missed.">                            || entry.getKey().equals(IMAGE_ANNOTATION_PREFIX + dockerImageInfo.getOrganizationAwareRepository()))</span>
-<span class="nc" id="L56">                    .map(Entry::getValue)</span>
-<span class="nc" id="L57">                    .findFirst());</span>
+<span class="fc bfc" id="L52" title="All 4 branches covered.">        if (resourceOfInterest != null &amp;&amp; resourceOfInterest.getMetadata().getAnnotations() != null) {</span>
+<span class="fc" id="L53">            injectedImageUri = injectedImageUri.or(() -&gt; resourceOfInterest.getMetadata().getAnnotations().entrySet().stream()</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">                    .filter(entry -&gt; entry.getKey().equals(IMAGE_ANNOTATION_PREFIX + dockerImageInfo.getRepository())</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                            || entry.getKey().equals(IMAGE_ANNOTATION_PREFIX + dockerImageInfo.getOrganizationAwareRepository()))</span>
+<span class="fc" id="L56">                    .map(Entry::getValue)</span>
+<span class="fc" id="L57">                    .findFirst());</span>
 
         }
 <span class="fc" id="L60">        return injectedImageUri.orElse(format(&quot;%s/%s/%s:%s&quot;,</span>

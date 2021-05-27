@@ -34,14 +34,14 @@ public class ProvidedSsoCapability implements SsoConnectionInfo {
     private final ExposedService exposedService;
 
     public ProvidedSsoCapability(CapabilityProvisioningResult capabilityResult) {
-<span class="nc" id="L37">        super();</span>
-<span class="nc" id="L38">        this.capabilityResult = capabilityResult;</span>
-<span class="nc" id="L39">        this.exposedService = new ExposedService(capabilityResult.getService(), capabilityResult.getIngress().orElse(null));</span>
-<span class="nc" id="L40">    }</span>
+<span class="fc" id="L37">        super();</span>
+<span class="fc" id="L38">        this.capabilityResult = capabilityResult;</span>
+<span class="fc" id="L39">        this.exposedService = new ExposedService(capabilityResult.getService(), capabilityResult.getIngress().orElse(null));</span>
+<span class="fc" id="L40">    }</span>
 
     @Override
     public Secret getAdminSecret() {
-<span class="nc" id="L44">        return capabilityResult.getAdminSecret().orElseThrow(IllegalStateException::new);</span>
+<span class="fc" id="L44">        return capabilityResult.getAdminSecret().orElseThrow(IllegalStateException::new);</span>
     }
 
     @Override
@@ -61,20 +61,20 @@ public class ProvidedSsoCapability implements SsoConnectionInfo {
 
     @Override
     public String getExternalBaseUrl() {
-<span class="nc" id="L64">        return ((ExposedServerStatus) capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus()</span>
-<span class="nc" id="L65">                .orElseThrow(IllegalStateException::new)).getExternalBaseUrl();</span>
+<span class="fc" id="L64">        return ((ExposedServerStatus) capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus()</span>
+<span class="fc" id="L65">                .orElseThrow(IllegalStateException::new)).getExternalBaseUrl();</span>
     }
 
     @Override
     public String getDefaultRealm() {
-<span class="nc" id="L70">        return ofNullable(</span>
-<span class="nc" id="L71">                capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus().orElseThrow(IllegalStateException::new)</span>
-<span class="nc" id="L72">                        .getDerivedDeploymentParameters().get(DEFAULT_REALM_PARAMETER)).orElse(KeycloakName.ENTANDO_DEFAULT_KEYCLOAK_REALM);</span>
+<span class="fc" id="L70">        return ofNullable(</span>
+<span class="fc" id="L71">                capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus().orElseThrow(IllegalStateException::new)</span>
+<span class="fc" id="L72">                        .getDerivedDeploymentParameters().get(DEFAULT_REALM_PARAMETER)).orElse(KeycloakName.ENTANDO_DEFAULT_KEYCLOAK_REALM);</span>
     }
 
     @Override
     public Optional&lt;String&gt; getInternalBaseUrl() {
-<span class="nc" id="L77">        return ofNullable(exposedService.getInternalBaseUrl());</span>
+<span class="fc" id="L77">        return ofNullable(exposedService.getInternalBaseUrl());</span>
     }
 
 }

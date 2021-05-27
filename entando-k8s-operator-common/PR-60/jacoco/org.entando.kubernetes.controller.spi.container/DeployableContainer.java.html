@@ -33,7 +33,7 @@ public interface DeployableContainer {
     List&lt;EnvVar&gt; getEnvironmentVariables();
 
     default DockerImageInfo getDockerImageInfo() {
-<span class="nc" id="L36">        return new DockerImageInfo(determineImageToUse());</span>
+<span class="fc" id="L36">        return new DockerImageInfo(determineImageToUse());</span>
     }
 
     default String determineImageToUse() {
@@ -41,11 +41,11 @@ public interface DeployableContainer {
     }
 
     default Optional&lt;Integer&gt; getMaximumStartupTimeSeconds() {
-<span class="nc" id="L44">        return Optional.empty();</span>
+<span class="fc" id="L44">        return Optional.empty();</span>
     }
 
     default List&lt;PortSpec&gt; getAdditionalPorts() {
-<span class="nc" id="L48">        return Collections.emptyList();</span>
+<span class="fc" id="L48">        return Collections.emptyList();</span>
     }
 
     default int getMemoryLimitMebibytes() {
@@ -61,12 +61,12 @@ public interface DeployableContainer {
     }
 
     default List&lt;SecretToMount&gt; getSecretsToMount() {
-<span class="nc" id="L64">        return getNamesOfSecretsToMount().stream().map(s -&gt; new SecretToMount(s, ENTANDO_SECRET_MOUNTS_ROOT + &quot;/&quot; + s))</span>
-<span class="nc" id="L65">                .collect(Collectors.toList());</span>
+<span class="fc" id="L64">        return getNamesOfSecretsToMount().stream().map(s -&gt; new SecretToMount(s, ENTANDO_SECRET_MOUNTS_ROOT + &quot;/&quot; + s))</span>
+<span class="fc" id="L65">                .collect(Collectors.toList());</span>
     }
 
     default List&lt;KubernetesPermission&gt; getKubernetesPermissions() {
-<span class="nc" id="L69">        return Collections.emptyList();</span>
+<span class="fc" id="L69">        return Collections.emptyList();</span>
     }
 
 }

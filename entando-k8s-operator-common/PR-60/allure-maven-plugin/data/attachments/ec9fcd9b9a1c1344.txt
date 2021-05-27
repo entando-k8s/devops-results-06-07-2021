@@ -1,0 +1,30 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  labels:
+    TestResource: "my-app"
+  name: "my-app-ingress"
+  namespace: "entando-k8s-operator-common-cmpr60"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "c1410b02-8f2f-4db2-a652-70bbedd52b09"
+spec:
+  rules:
+  - host: "myhost.com"
+    http:
+      paths:
+      - backend:
+          serviceName: "my-app-service"
+          servicePort: 8081
+        path: "/my-app"
+  tls:
+  - hosts:
+    - "myhost.com"
+    secretName: "test-tls-secret"

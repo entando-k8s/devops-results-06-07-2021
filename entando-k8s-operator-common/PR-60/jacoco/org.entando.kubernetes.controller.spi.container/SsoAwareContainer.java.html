@@ -31,26 +31,26 @@ public interface SsoAwareContainer extends DeployableContainer, HasWebContext, K
     SsoClientConfig getSsoClientConfig();
 
     default String getRealmToUse() {
-<span class="nc" id="L34">        return KeycloakName.ofTheRealm(this);</span>
+<span class="fc" id="L34">        return KeycloakName.ofTheRealm(this);</span>
     }
 
     default String getPublicClientIdToUse() {
-<span class="nc" id="L38">        return KeycloakName.ofThePublicClient(this);</span>
+<span class="fc" id="L38">        return KeycloakName.ofThePublicClient(this);</span>
     }
 
     default List&lt;EnvVar&gt; getSsoVariables() {
-<span class="nc" id="L42">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L43">        vars.add(new EnvVar(&quot;KEYCLOAK_ENABLED&quot;, &quot;true&quot;, null));</span>
-<span class="nc" id="L44">        vars.add(new EnvVar(&quot;KEYCLOAK_REALM&quot;, getRealmToUse(), null));</span>
-<span class="nc" id="L45">        vars.add(new EnvVar(&quot;KEYCLOAK_PUBLIC_CLIENT_ID&quot;, getPublicClientIdToUse(), null));</span>
-<span class="nc" id="L46">        ofNullable(getSsoConnectionConfig()).ifPresent(ssoConnectionInfo -&gt;</span>
-<span class="nc" id="L47">                vars.add(new EnvVar(&quot;KEYCLOAK_AUTH_URL&quot;, ssoConnectionInfo.getExternalBaseUrl(), null)));</span>
-<span class="nc" id="L48">        String keycloakSecretName = KeycloakName.forTheClientSecret(getSsoClientConfig());</span>
-<span class="nc" id="L49">        vars.add(new EnvVar(&quot;KEYCLOAK_CLIENT_SECRET&quot;, null,</span>
-<span class="nc" id="L50">                SecretUtils.secretKeyRef(keycloakSecretName, KeycloakName.CLIENT_SECRET_KEY)));</span>
-<span class="nc" id="L51">        vars.add(new EnvVar(&quot;KEYCLOAK_CLIENT_ID&quot;, null,</span>
-<span class="nc" id="L52">                SecretUtils.secretKeyRef(keycloakSecretName, KeycloakName.CLIENT_ID_KEY)));</span>
-<span class="nc" id="L53">        return vars;</span>
+<span class="fc" id="L42">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L43">        vars.add(new EnvVar(&quot;KEYCLOAK_ENABLED&quot;, &quot;true&quot;, null));</span>
+<span class="fc" id="L44">        vars.add(new EnvVar(&quot;KEYCLOAK_REALM&quot;, getRealmToUse(), null));</span>
+<span class="fc" id="L45">        vars.add(new EnvVar(&quot;KEYCLOAK_PUBLIC_CLIENT_ID&quot;, getPublicClientIdToUse(), null));</span>
+<span class="fc" id="L46">        ofNullable(getSsoConnectionConfig()).ifPresent(ssoConnectionInfo -&gt;</span>
+<span class="fc" id="L47">                vars.add(new EnvVar(&quot;KEYCLOAK_AUTH_URL&quot;, ssoConnectionInfo.getExternalBaseUrl(), null)));</span>
+<span class="fc" id="L48">        String keycloakSecretName = KeycloakName.forTheClientSecret(getSsoClientConfig());</span>
+<span class="fc" id="L49">        vars.add(new EnvVar(&quot;KEYCLOAK_CLIENT_SECRET&quot;, null,</span>
+<span class="fc" id="L50">                SecretUtils.secretKeyRef(keycloakSecretName, KeycloakName.CLIENT_SECRET_KEY)));</span>
+<span class="fc" id="L51">        vars.add(new EnvVar(&quot;KEYCLOAK_CLIENT_ID&quot;, null,</span>
+<span class="fc" id="L52">                SecretUtils.secretKeyRef(keycloakSecretName, KeycloakName.CLIENT_ID_KEY)));</span>
+<span class="fc" id="L53">        return vars;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -20,7 +20,6 @@ import com.google.common.base.Strings;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.entando.kubernetes.controller.spi.common.ResourceUtils;
 import org.entando.kubernetes.controller.support.common.KubeUtils;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
@@ -29,56 +28,49 @@ public class AbstractK8SResourceCreator {
 
     protected final EntandoCustomResource entandoCustomResource;
 
-<span class="fc" id="L32">    public AbstractK8SResourceCreator(EntandoCustomResource entandoCustomResource) {</span>
-<span class="fc" id="L33">        this.entandoCustomResource = entandoCustomResource;</span>
-<span class="fc" id="L34">    }</span>
+<span class="fc" id="L31">    public AbstractK8SResourceCreator(EntandoCustomResource entandoCustomResource) {</span>
+<span class="fc" id="L32">        this.entandoCustomResource = entandoCustomResource;</span>
+<span class="fc" id="L33">    }</span>
 
     protected String resolveName(String nameQualifier, String suffix) {
-<span class="fc" id="L37">        StringBuilder sb = new StringBuilder(entandoCustomResource.getMetadata().getName());</span>
-<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (!Strings.isNullOrEmpty(nameQualifier)) {</span>
-<span class="fc" id="L39">            sb.append(&quot;-&quot;).append(nameQualifier);</span>
+<span class="fc" id="L36">        StringBuilder sb = new StringBuilder(entandoCustomResource.getMetadata().getName());</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (!Strings.isNullOrEmpty(nameQualifier)) {</span>
+<span class="fc" id="L38">            sb.append(&quot;-&quot;).append(nameQualifier);</span>
         }
-<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (!Strings.isNullOrEmpty(suffix)) {</span>
-<span class="fc" id="L42">            sb.append(&quot;-&quot;).append(suffix);</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (!Strings.isNullOrEmpty(suffix)) {</span>
+<span class="fc" id="L41">            sb.append(&quot;-&quot;).append(suffix);</span>
         }
-<span class="fc" id="L44">        return sb.toString();</span>
+<span class="fc" id="L43">        return sb.toString();</span>
     }
 
     protected ObjectMeta fromCustomResource(boolean ownedByCustomResource, String name, String nameQualifier) {
-<span class="fc" id="L48">        ObjectMetaBuilder metaBuilder = new ObjectMetaBuilder()</span>
-<span class="fc" id="L49">                .withName(name)</span>
-<span class="fc" id="L50">                .withNamespace(this.entandoCustomResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L51">                .withLabels(labelsFromResource(nameQualifier));</span>
-<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (ownedByCustomResource) {</span>
-<span class="fc" id="L53">            metaBuilder = metaBuilder.withOwnerReferences(ResourceUtils.buildOwnerReference(this.entandoCustomResource));</span>
+<span class="fc" id="L47">        ObjectMetaBuilder metaBuilder = new ObjectMetaBuilder()</span>
+<span class="fc" id="L48">                .withName(name)</span>
+<span class="fc" id="L49">                .withNamespace(this.entandoCustomResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L50">                .withLabels(labelsFromResource(nameQualifier));</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (ownedByCustomResource) {</span>
+<span class="fc" id="L52">            metaBuilder = metaBuilder.withOwnerReferences(ResourceUtils.buildOwnerReference(this.entandoCustomResource));</span>
         }
-<span class="fc" id="L55">        return metaBuilder.build();</span>
+<span class="fc" id="L54">        return metaBuilder.build();</span>
     }
 
     protected ObjectMeta fromCustomResource(String name) {
-<span class="nc" id="L59">        return new ObjectMetaBuilder()</span>
-<span class="nc" id="L60">                .withName(name)</span>
-<span class="nc" id="L61">                .withNamespace(this.entandoCustomResource.getMetadata().getNamespace())</span>
-<span class="nc" id="L62">                .withLabels(labelsFromResource()).addToOwnerReferences(ResourceUtils.buildOwnerReference(this.entandoCustomResource))</span>
-<span class="nc" id="L63">                .build();</span>
+<span class="fc" id="L58">        return new ObjectMetaBuilder()</span>
+<span class="fc" id="L59">                .withName(name)</span>
+<span class="fc" id="L60">                .withNamespace(this.entandoCustomResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L61">                .withLabels(labelsFromResource()).addToOwnerReferences(ResourceUtils.buildOwnerReference(this.entandoCustomResource))</span>
+<span class="fc" id="L62">                .build();</span>
     }
 
     protected Map&lt;String, String&gt; labelsFromResource(String nameQualifier) {
-<span class="fc" id="L67">        Map&lt;String, String&gt; labels = new ConcurrentHashMap&lt;&gt;();</span>
-<span class="fc" id="L68">        labels.put(KubeUtils.DEPLOYMENT_LABEL_NAME, resolveName(nameQualifier, null));</span>
-<span class="fc" id="L69">        resourceKindLabels(labels);</span>
-<span class="fc" id="L70">        return labels;</span>
+<span class="fc" id="L66">        Map&lt;String, String&gt; labels = labelsFromResource();</span>
+<span class="fc" id="L67">        labels.put(KubeUtils.DEPLOYMENT_LABEL_NAME, resolveName(nameQualifier, null));</span>
+<span class="fc" id="L68">        return labels;</span>
     }
 
     protected Map&lt;String, String&gt; labelsFromResource() {
-<span class="nc" id="L74">        Map&lt;String, String&gt; labels = new ConcurrentHashMap&lt;&gt;();</span>
-<span class="nc" id="L75">        resourceKindLabels(labels);</span>
-<span class="nc" id="L76">        return labels;</span>
+<span class="fc" id="L72">        return ResourceUtils.labelsFromResource(this.entandoCustomResource);</span>
     }
 
-    private void resourceKindLabels(Map&lt;String, String&gt; labels) {
-<span class="fc" id="L80">        labels.put(entandoCustomResource.getKind(), entandoCustomResource.getMetadata().getName());</span>
-<span class="fc" id="L81">        labels.put(KubeUtils.ENTANDO_RESOURCE_KIND_LABEL_NAME, entandoCustomResource.getKind());</span>
-<span class="fc" id="L82">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

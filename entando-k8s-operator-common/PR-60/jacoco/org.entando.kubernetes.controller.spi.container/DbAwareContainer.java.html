@@ -39,22 +39,22 @@ public interface DbAwareContainer extends DeployableContainer {
             EntandoCustomResource entandoBaseCustomResource,
             DatabaseConnectionInfo databaseConnectionInfo,
             List&lt;String&gt; schemaQualifiers) {
-<span class="nc" id="L42">        return schemaQualifiers.stream()</span>
-<span class="nc" id="L43">                .map(schemaQualifier -&gt; {</span>
-<span class="nc" id="L44">                    String schemaName = NameUtils.databaseCompliantName(</span>
+<span class="fc" id="L42">        return schemaQualifiers.stream()</span>
+<span class="fc" id="L43">                .map(schemaQualifier -&gt; {</span>
+<span class="fc" id="L44">                    String schemaName = NameUtils.databaseCompliantName(</span>
                             entandoBaseCustomResource,
                             schemaQualifier,
-<span class="nc" id="L47">                            databaseConnectionInfo.getVendor()</span>
+<span class="fc" id="L47">                            databaseConnectionInfo.getVendor()</span>
                     );
-<span class="nc" id="L49">                    return new DefaultDatabaseSchemaConnectionInfo(databaseConnectionInfo,</span>
+<span class="fc" id="L49">                    return new DefaultDatabaseSchemaConnectionInfo(databaseConnectionInfo,</span>
                             schemaName,
-<span class="nc" id="L51">                            SecretUtils.generateSecret(</span>
+<span class="fc" id="L51">                            SecretUtils.generateSecret(</span>
                                     entandoBaseCustomResource,
-<span class="nc" id="L53">                                    entandoBaseCustomResource.getMetadata().getName() + &quot;-&quot; + schemaQualifier + &quot;-secret&quot;,</span>
+<span class="fc" id="L53">                                    entandoBaseCustomResource.getMetadata().getName() + &quot;-&quot; + schemaQualifier + &quot;-secret&quot;,</span>
                                     schemaName
                             )
                     );
-<span class="nc" id="L57">                }).collect(Collectors.toList());</span>
+<span class="fc" id="L57">                }).collect(Collectors.toList());</span>
     }
 
 }
