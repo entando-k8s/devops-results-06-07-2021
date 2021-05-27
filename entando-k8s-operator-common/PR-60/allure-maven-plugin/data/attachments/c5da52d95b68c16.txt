@@ -1,0 +1,30 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "entando-k8s-operator-common-cmpr60"
+    TestResource: "my-app"
+    deployment: "my-app"
+  name: "my-app-service"
+  namespace: "entando-k8s-operator-common-cmpr60"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "f1a758df-f26a-4cbd-ab55-e19a6382c99c"
+spec:
+  ports:
+  - name: "server-port"
+    port: 8081
+    protocol: "TCP"
+    targetPort: 8081
+  selector:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "entando-k8s-operator-common-cmpr60"
+    TestResource: "my-app"
+    deployment: "my-app"
+  type: "ClusterIP"
