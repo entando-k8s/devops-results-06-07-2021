@@ -43,22 +43,21 @@ public class SerializingDeploymentProcessor implements DeploymentProcessor {
                 timeoutSeconds);
 <span class="fc" id="L44">        SerializableDeploymentResult&lt;?&gt; serializedResult = DeserializationHelper.deserialize(entandoResourceClient, result);</span>
 <span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (serializedResult.getStatus().hasFailed()) {</span>
-<span class="nc" id="L46">            System.out.println(serializedResult.getStatus().getEntandoControllerFailure().getDetailMessage());</span>
-<span class="nc" id="L47">            throw new EntandoControllerException(&quot;Creation of Kubernetes resources has failed&quot;);</span>
+<span class="nc" id="L46">            throw new EntandoControllerException(&quot;Creation of Kubernetes resources has failed&quot;);</span>
         }
-<span class="fc" id="L49">        return deployable.createResult(serializedResult.getDeployment(), serializedResult.getService(), serializedResult.getIngress(),</span>
-<span class="fc" id="L50">                serializedResult.getPod())</span>
-<span class="fc" id="L51">                .withStatus(serializedResult.getStatus());</span>
+<span class="fc" id="L48">        return deployable.createResult(serializedResult.getDeployment(), serializedResult.getService(), serializedResult.getIngress(),</span>
+<span class="fc" id="L49">                serializedResult.getPod())</span>
+<span class="fc" id="L50">                .withStatus(serializedResult.getStatus());</span>
     }
 
     public Deployable&lt;DefaultSerializableDeploymentResult&gt; getSerializedDeployable() {
-<span class="nc" id="L55">        return serializeThenDeserialize(deployable);</span>
+<span class="nc" id="L54">        return serializeThenDeserialize(deployable);</span>
     }
 
     private &lt;S&gt; S serializeThenDeserialize(Object deployable) {
-<span class="nc" id="L59">        final String json = SerializationHelper.serialize(deployable);</span>
-<span class="nc" id="L60">        return DeserializationHelper.deserialize(entandoResourceClient, json);</span>
+<span class="nc" id="L58">        final String json = SerializationHelper.serialize(deployable);</span>
+<span class="nc" id="L59">        return DeserializationHelper.deserialize(entandoResourceClient, json);</span>
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
