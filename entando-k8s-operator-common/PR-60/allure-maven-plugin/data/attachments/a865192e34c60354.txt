@@ -1,0 +1,27 @@
+---
+apiVersion: "test.org/v1"
+kind: "TestResource"
+metadata:
+  name: "specified-dbms"
+  namespace: "my-namespace"
+  resourceVersion: "6271809"
+  uid: "5d2fa4bb-3271-4558-b166-bc4c3ab8415b"
+spec:
+  replicas: 1
+  provisioningStrategy: "UseExternal"
+  dbms: "mysql"
+  externalHostName: "pg.apps.serv.run"
+  adminSecretName: "my-existing-dbms-admin-secret"
+status:
+  serverStatuses:
+    main: !<InternalServerStatus>
+      qualifier: "main"
+      type: "InternalServerStatus"
+      started: "2021-05-28T08:05:23+0000"
+      serviceName: "specified-dbms-service"
+      adminSecretName: "my-existing-dbms-admin-secret"
+      derivedDeploymentParameters:
+        databaseName: "specified_dbms"
+        dbmsVendor: "mysql"
+  phase: "successful"
+crdName: "testresources.test.org"

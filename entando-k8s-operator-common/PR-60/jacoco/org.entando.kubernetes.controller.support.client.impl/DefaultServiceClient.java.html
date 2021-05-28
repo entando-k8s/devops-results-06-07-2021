@@ -33,19 +33,19 @@ public class DefaultServiceClient implements ServiceClient {
 
     private final KubernetesClient client;
 
-<span class="nc" id="L36">    public DefaultServiceClient(KubernetesClient client) {</span>
-<span class="nc" id="L37">        this.client = client;</span>
-<span class="nc" id="L38">    }</span>
+<span class="fc" id="L36">    public DefaultServiceClient(KubernetesClient client) {</span>
+<span class="fc" id="L37">        this.client = client;</span>
+<span class="fc" id="L38">    }</span>
 
     @Override
     public Endpoints createOrReplaceEndpoints(EntandoCustomResource peerInNamespace, Endpoints endpoints) {
         //TODO remove the namespace overriding once we create delegate services from the correct context (the App)
-<span class="nc" id="L43">        return createOrReplace(peerInNamespace, endpoints, client.endpoints());</span>
+<span class="fc" id="L43">        return createOrReplace(peerInNamespace, endpoints, client.endpoints());</span>
     }
 
     @Override
     public Service loadService(EntandoCustomResource peerInNamespace, String name) {
-<span class="nc" id="L48">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
+<span class="fc" id="L48">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
     }
 
     @Override
@@ -55,21 +55,21 @@ public class DefaultServiceClient implements ServiceClient {
 
     @Override
     public Service createOrReplaceService(EntandoCustomResource peerInNamespace, Service endpoints) {
-<span class="nc" id="L58">        return createOrReplace(peerInNamespace, endpoints, client.services());</span>
+<span class="fc" id="L58">        return createOrReplace(peerInNamespace, endpoints, client.services());</span>
     }
 
     private &lt;T extends HasMetadata, L extends KubernetesResourceList&lt;T&gt;, R extends Resource&lt;T&gt;&gt; T createOrReplace(
             EntandoCustomResource peerInNamespace, T endpoints,
             MixedOperation&lt;T, L, R&gt; oper) {
-<span class="nc" id="L64">        String namespace = ofNullable(endpoints.getMetadata().getNamespace())</span>
-<span class="nc" id="L65">                .orElse(peerInNamespace.getMetadata().getNamespace());</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (oper.inNamespace(namespace).withName(endpoints.getMetadata().getName()).get() != null) {</span>
-<span class="nc" id="L67">            oper.inNamespace(namespace).withName(endpoints.getMetadata().getName()).delete();</span>
+<span class="fc" id="L64">        String namespace = ofNullable(endpoints.getMetadata().getNamespace())</span>
+<span class="fc" id="L65">                .orElse(peerInNamespace.getMetadata().getNamespace());</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (oper.inNamespace(namespace).withName(endpoints.getMetadata().getName()).get() != null) {</span>
+<span class="fc" id="L67">            oper.inNamespace(namespace).withName(endpoints.getMetadata().getName()).delete();</span>
         }
-<span class="nc" id="L69">        endpoints.getMetadata().setResourceVersion(null);</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L69">        endpoints.getMetadata().setResourceVersion(null);</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        for (int i = 0; i &lt; 10; i++) {</span>
             try {
-<span class="nc" id="L72">                return oper.inNamespace(namespace).create(endpoints);</span>
+<span class="fc" id="L72">                return oper.inNamespace(namespace).create(endpoints);</span>
 <span class="nc" id="L73">            } catch (KubernetesClientException e) {</span>
                 //Waiting for K8S to delete it.
             }
