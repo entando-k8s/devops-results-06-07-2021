@@ -1,0 +1,24 @@
+---
+mixins:
+- "CapabilityForResource"
+resourceInNeed:
+  apiVersion: "test.org/v1"
+  kind: "TestResource"
+  metadata:
+    name: "my-app"
+    namespace: "entando-k8s-operator-common-cmpr60"
+  isCustomResource: true
+capabilityRequirement:
+  capability: "dbms"
+  implementation: "mysql"
+  provisioningStrategy: "UseExternal"
+  capabilityParameters:
+    jdbc-disconnectOnExpiredPasswords: "true"
+  specifiedCapability:
+    namespace: "entando-k8s-operator-common-cmpr60"
+    name: "specified-dbms"
+  scope: "Specified"
+  externallyProvidedService:
+    host: "pg.apps.serv.run"
+    port: 3307
+    adminSecretName: "my-existing-dbms-admin-secret"

@@ -1,0 +1,38 @@
+---
+internalServiceHostname: "default-postgresql-dbms-in-namespace-service.entando-k8s-operator-common-cmpr60.svc.cluster.local"
+mixins:
+- "ServiceResult"
+- "DatabaseConnectionInfo"
+databaseName: "default_postgresql_dbms_in_namespace"
+port: "5432"
+vendor: "POSTGRESQL"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    labels:
+      EntandoResourceKind: "TestResource"
+      EntandoResourceNamespace: "entando-k8s-operator-common-cmpr60"
+      TestResource: "default-postgresql-dbms-in-namespace"
+      deployment: "default-postgresql-dbms-in-namespace"
+    name: "default-postgresql-dbms-in-namespace-service"
+    namespace: "entando-k8s-operator-common-cmpr60"
+    ownerReferences:
+    - apiVersion: "test.org/v1"
+      kind: "TestResource"
+      blockOwnerDeletion: true
+      controller: true
+      name: "default-postgresql-dbms-in-namespace"
+      uid: "db5507b6-3349-4718-88a3-9b45a67b0d73"
+  spec:
+    ports:
+    - name: "db-port"
+      port: 5432
+      protocol: "TCP"
+      targetPort: 5432
+    selector:
+      EntandoResourceKind: "TestResource"
+      EntandoResourceNamespace: "entando-k8s-operator-common-cmpr60"
+      TestResource: "default-postgresql-dbms-in-namespace"
+      deployment: "default-postgresql-dbms-in-namespace"
+    type: "ClusterIP"

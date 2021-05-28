@@ -1,0 +1,73 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "entando-k8s-operator-common-cmpr60"
+    TestResource: "my-app"
+    deployment: "my-app"
+  name: "my-app-deployment"
+  namespace: "entando-k8s-operator-common-cmpr60"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "e3fbc9fd-f237-440d-9402-cbd64cc0ed11"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoResourceKind: "TestResource"
+      EntandoResourceNamespace: "entando-k8s-operator-common-cmpr60"
+      TestResource: "my-app"
+      deployment: "my-app"
+  template:
+    metadata:
+      labels:
+        EntandoResourceKind: "TestResource"
+        EntandoResourceNamespace: "entando-k8s-operator-common-cmpr60"
+        TestResource: "my-app"
+        deployment: "my-app"
+      name: "my-app-pod"
+    spec:
+      containers:
+      - env:
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        image: "docker.io/test/my-image:6.3.2"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          failureThreshold: 1
+          periodSeconds: 10
+          tcpSocket:
+            host: "localhost"
+            port: 8081
+          timeoutSeconds: 3
+        name: "server-container"
+        ports:
+        - containerPort: 8081
+          name: "server-port"
+          protocol: "TCP"
+        readinessProbe:
+          failureThreshold: 1
+          periodSeconds: 10
+          tcpSocket:
+            host: "localhost"
+            port: 8081
+          timeoutSeconds: 5
+        resources:
+          limits: {}
+          requests: {}
+        startupProbe:
+          failureThreshold: 11
+          periodSeconds: 12
+          tcpSocket:
+            host: "localhost"
+            port: 8081
+          timeoutSeconds: 5
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      serviceAccountName: "default"

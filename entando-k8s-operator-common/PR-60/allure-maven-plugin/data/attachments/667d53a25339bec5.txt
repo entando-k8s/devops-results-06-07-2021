@@ -1,0 +1,134 @@
+---
+publicClientIdToUse: "entando-web"
+replicas: 1
+ingressHostName: "myhost.com"
+customResource:
+  apiVersion: "test.org/v1"
+  kind: "TestResource"
+  metadata:
+    name: "my-app"
+    namespace: "entando-k8s-operator-common-cmpr60"
+  isCustomResource: true
+secrets: []
+ingressNamespace: "entando-k8s-operator-common-cmpr60"
+keycloakRealmToUse: "entando"
+mixins:
+- "IngressingDeployable"
+- "Secretive"
+- "Deployable"
+- "PublicIngressingDeployable"
+defaultServiceAccountName: "default"
+ssoConnectionInfo:
+  defaultRealm: "my-realm"
+  mixins:
+  - "SsoConnectionInfo"
+  password: "password123"
+  externalBaseUrl: "https://mykeycloak.com/auth"
+  internalBaseUrl: "http://default-keycloak-sso-in-namespace-service.entando-k8s-operator-common-cmpr60.svc.cluster.local:8080/auth"
+  adminSecret:
+    apiVersion: "v1"
+    kind: "Secret"
+    metadata:
+      name: "default-keycloak-sso-in-namespace-admin-secret"
+      namespace: "entando-k8s-operator-common-cmpr60"
+    stringData:
+      username: "jon"
+      password: "password123"
+  username: "jon"
+ingressRequired: true
+ingressName: "my-app-ingress"
+containers:
+- publicClientIdToUse: "entando-web"
+  ssoVariables:
+  - name: "KEYCLOAK_ENABLED"
+    value: "true"
+  - name: "KEYCLOAK_REALM"
+    value: "entando"
+  - name: "KEYCLOAK_PUBLIC_CLIENT_ID"
+    value: "entando-web"
+  - name: "KEYCLOAK_AUTH_URL"
+    value: "https://mykeycloak.com/auth"
+  - name: "KEYCLOAK_CLIENT_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: "clientSecret"
+        name: "my-client-secret"
+        optional: false
+  - name: "KEYCLOAK_CLIENT_ID"
+    valueFrom:
+      secretKeyRef:
+        key: "clientId"
+        name: "my-client-secret"
+        optional: false
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI"
+    value: "https://mykeycloak.com/auth/realms/my-realm"
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: "clientSecret"
+        name: "my-client-secret"
+        optional: false
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID"
+    valueFrom:
+      secretKeyRef:
+        key: "clientId"
+        name: "my-client-secret"
+        optional: false
+  memoryLimitMebibytes: 256
+  dockerImageInfo:
+    organization: "test"
+    repository: "my-spring-boot-image"
+    tag: "6.3.2"
+  realmToUse: "entando"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  trustStoreVariables:
+  - name: "JAVA_TOOL_OPTIONS"
+    valueFrom:
+      secretKeyRef:
+        key: "TRUSTSTORE_SETTINGS"
+        name: "entando-default-truststore"
+        optional: false
+  primaryPort: 8081
+  ssoClientConfig:
+    realm: "my-realm"
+    clientId: "my-client"
+    clientName: "my-client"
+    roles: []
+    permissions: []
+    redirectUri: []
+    webOrigins: []
+  webContextPath: "/my-app"
+  mixins:
+  - "SsoAwareContainer"
+  - "DeployableContainer"
+  - "HasWebContext"
+  - "IngressingContainer"
+  - "TrustStoreAwareContainer"
+  - "IngressingPathOnPort"
+  - "ServiceBackingContainer"
+  healthCheckPath: "/my-app/health"
+  kubernetesPermissions: []
+  environmentVariables: []
+  ssoConnectionConfig:
+    defaultRealm: "my-realm"
+    mixins:
+    - "SsoConnectionInfo"
+    password: "password123"
+    externalBaseUrl: "https://mykeycloak.com/auth"
+    internalBaseUrl: "http://default-keycloak-sso-in-namespace-service.entando-k8s-operator-common-cmpr60.svc.cluster.local:8080/auth"
+    adminSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        name: "default-keycloak-sso-in-namespace-admin-secret"
+        namespace: "entando-k8s-operator-common-cmpr60"
+      stringData:
+        username: "jon"
+        password: "password123"
+    username: "jon"
+  nameQualifier: "server"
+  secretsToMount: []
+  cpuLimitMillicores: 500
+  portForIngressPath: 8081
+serviceAccountToUse: "default"

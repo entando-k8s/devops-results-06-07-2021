@@ -33,9 +33,9 @@ public class DefaultDeploymentClient implements DeploymentClient, WaitingClient 
 
     private final KubernetesClient client;
 
-<span class="nc" id="L36">    public DefaultDeploymentClient(KubernetesClient client) {</span>
-<span class="nc" id="L37">        this.client = client;</span>
-<span class="nc" id="L38">    }</span>
+<span class="fc" id="L36">    public DefaultDeploymentClient(KubernetesClient client) {</span>
+<span class="fc" id="L37">        this.client = client;</span>
+<span class="fc" id="L38">    }</span>
 
     @Override
     public boolean supportsStartupProbes() {
@@ -65,36 +65,36 @@ public class DefaultDeploymentClient implements DeploymentClient, WaitingClient 
     @Override
     public Deployment createOrPatchDeployment(EntandoCustomResource peerInNamespace,
             Deployment deployment) {
-<span class="nc" id="L68">        Deployment existingDeployment = getDeploymenResourceFor(peerInNamespace, deployment).get();</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (existingDeployment == null) {</span>
-<span class="nc" id="L70">            return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).create(deployment);</span>
+<span class="fc" id="L68">        Deployment existingDeployment = getDeploymenResourceFor(peerInNamespace, deployment).get();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (existingDeployment == null) {</span>
+<span class="fc" id="L70">            return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).create(deployment);</span>
         } else {
             //Don't wait because the polling in Fabric8 is dodge
-<span class="nc" id="L73">            getDeploymenResourceFor(peerInNamespace, deployment).scale(0, true);</span>
-<span class="nc" id="L74">            FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods()</span>
-<span class="nc" id="L75">                    .inNamespace(existingDeployment.getMetadata().getNamespace())</span>
-<span class="nc" id="L76">                    .withLabelSelector(existingDeployment.getSpec().getSelector());</span>
-<span class="nc" id="L77">            interruptionSafe(() -&gt; podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="nc" id="L78">                    EntandoOperatorConfig.getPodShutdownTimeoutSeconds(),</span>
+<span class="fc" id="L73">            getDeploymenResourceFor(peerInNamespace, deployment).scale(0, true);</span>
+<span class="fc" id="L74">            FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods()</span>
+<span class="fc" id="L75">                    .inNamespace(existingDeployment.getMetadata().getNamespace())</span>
+<span class="fc" id="L76">                    .withLabelSelector(existingDeployment.getSpec().getSelector());</span>
+<span class="fc" id="L77">            interruptionSafe(() -&gt; podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="fc" id="L78">                    EntandoOperatorConfig.getPodShutdownTimeoutSeconds(),</span>
                     TimeUnit.SECONDS));
             //Create the deployment with the correct replicas now. We don't support 0 because we will be waiting for the pod
-<span class="nc" id="L81">            return getDeploymenResourceFor(peerInNamespace, deployment).patch(deployment);</span>
+<span class="fc" id="L81">            return getDeploymenResourceFor(peerInNamespace, deployment).patch(deployment);</span>
         }
     }
 
     private RollableScalableResource&lt;Deployment&gt; getDeploymenResourceFor(
             EntandoCustomResource peerInNamespace,
             Deployment deployment) {
-<span class="nc" id="L88">        return client.apps()</span>
-<span class="nc" id="L89">                .deployments()</span>
-<span class="nc" id="L90">                .inNamespace(peerInNamespace.getMetadata().getNamespace())</span>
-<span class="nc" id="L91">                .withName(deployment.getMetadata().getName());</span>
+<span class="fc" id="L88">        return client.apps()</span>
+<span class="fc" id="L89">                .deployments()</span>
+<span class="fc" id="L90">                .inNamespace(peerInNamespace.getMetadata().getNamespace())</span>
+<span class="fc" id="L91">                .withName(deployment.getMetadata().getName());</span>
     }
 
     @Override
     public Deployment loadDeployment(EntandoCustomResource peerInNamespace, String name) {
-<span class="nc" id="L96">        return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name)</span>
-<span class="nc" id="L97">                .get();</span>
+<span class="fc" id="L96">        return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name)</span>
+<span class="fc" id="L97">                .get();</span>
     }
 
 }
