@@ -1,0 +1,73 @@
+---
+publicClientIdToUse: "entando-web"
+ssoVariables:
+- name: "KEYCLOAK_ENABLED"
+  value: "true"
+- name: "KEYCLOAK_REALM"
+  value: "entando"
+- name: "KEYCLOAK_PUBLIC_CLIENT_ID"
+  value: "entando-web"
+- name: "KEYCLOAK_CLIENT_SECRET"
+  valueFrom:
+    secretKeyRef:
+      key: "clientSecret"
+      name: "my-client-secret"
+      optional: false
+- name: "KEYCLOAK_CLIENT_ID"
+  valueFrom:
+    secretKeyRef:
+      key: "clientId"
+      name: "my-client-secret"
+      optional: false
+- name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET"
+  valueFrom:
+    secretKeyRef:
+      key: "clientSecret"
+      name: "my-client-secret"
+      optional: false
+- name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID"
+  valueFrom:
+    secretKeyRef:
+      key: "clientId"
+      name: "my-client-secret"
+      optional: false
+memoryLimitMebibytes: 256
+dockerImageInfo:
+  organization: "test"
+  repository: "my-spring-boot-image"
+  tag: "6.3.2"
+realmToUse: "entando"
+namesOfSecretsToMount: []
+additionalPorts: []
+trustStoreVariables:
+- name: "JAVA_TOOL_OPTIONS"
+  valueFrom:
+    secretKeyRef:
+      key: "TRUSTSTORE_SETTINGS"
+      name: "entando-default-truststore"
+      optional: false
+primaryPort: 8081
+ssoClientConfig:
+  realm: "my-realm"
+  clientId: "my-client"
+  clientName: "my-client"
+  roles: []
+  permissions: []
+  redirectUri: []
+  webOrigins: []
+webContextPath: "/my-app"
+mixins:
+- "HasWebContext"
+- "TrustStoreAwareContainer"
+- "DeployableContainer"
+- "ServiceBackingContainer"
+- "SsoAwareContainer"
+- "IngressingContainer"
+- "IngressingPathOnPort"
+healthCheckPath: "/my-app/health"
+kubernetesPermissions: []
+environmentVariables: []
+nameQualifier: "server"
+secretsToMount: []
+cpuLimitMillicores: 500
+portForIngressPath: 8081
