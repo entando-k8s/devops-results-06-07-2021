@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EntandoControllerCoordinator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller Coordinator</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.coordinator</a> &gt; <span class="el_source">EntandoControllerCoordinator.java</span></div><h1>EntandoControllerCoordinator.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.coordinator;
+
+import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
+
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.WatcherException;
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
+import io.quarkus.runtime.Startup;
+import io.quarkus.runtime.StartupEvent;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import org.entando.kubernetes.controller.spi.client.SerializedEntandoResource;
+import org.entando.kubernetes.model.capability.ProvidedCapability;
+import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
+
+public class EntandoControllerCoordinator implements Watcher&lt;CustomResourceDefinition&gt; {
+
+    public static final String CAPABILITY_ORG = &quot;.capability.org&quot;;
+    private final SimpleKubernetesClient client;
+<span class="fc" id="L48">    private static final LogDelegator LOGGER = new LogDelegator(EntandoControllerCoordinator.class);</span>
+<span class="fc" id="L49">    private final Map&lt;String, String&gt; derivedControllerImageMap = new ConcurrentHashMap&lt;&gt;();</span>
+    private ConfigMap controllerImageOverrides;
+<span class="fc" id="L51">    private final Map&lt;String, EntandoResourceObserver&gt; observers = new ConcurrentHashMap&lt;&gt;();</span>
+    private CrdNameMapSync crdNameMapSync;
+
+    @Inject
+    public EntandoControllerCoordinator(KubernetesClient client) {
+<span class="nc" id="L56">        this(new DefaultSimpleKubernetesClient(client));</span>
+<span class="nc" id="L57">    }</span>
+
+<span class="fc" id="L59">    public EntandoControllerCoordinator(SimpleKubernetesClient client) {</span>
+<span class="fc" id="L60">        this.client = client;</span>
+<span class="fc" id="L61">    }</span>
+
+    @Startup
+    public void onStartup(StartupEvent e) {
+<span class="fc" id="L65">        client.watchControllerConfigMap(CoordinatorUtils.ENTANDO_OPERATOR_CONFIG, new ConfigListener());</span>
+<span class="fc" id="L66">        this.controllerImageOverrides = client.findOrCreateControllerConfigMap(CoordinatorUtils.CONTROLLER_IMAGE_OVERRIDES_CONFIGMAP);</span>
+<span class="fc" id="L67">        client.watchControllerConfigMap(CoordinatorUtils.CONTROLLER_IMAGE_OVERRIDES_CONFIGMAP, new ControllerImageOverridesWatcher());</span>
+<span class="fc" id="L68">        final List&lt;CustomResourceDefinition&gt; customResourceDefinitions = client.loadCustomResourceDefinitionsOfInterest().stream()</span>
+<span class="fc" id="L69">                .filter(CoordinatorUtils::isOfInterest)</span>
+<span class="fc" id="L70">                .collect(Collectors.toList());</span>
+<span class="fc" id="L71">        this.crdNameMapSync = new CrdNameMapSync(client, customResourceDefinitions);</span>
+<span class="fc" id="L72">        customResourceDefinitions.forEach(this::processCustomResourceDefinition);</span>
+<span class="fc" id="L73">        client.watchCustomResourceDefinitions(this);</span>
+<span class="fc" id="L74">        customResourceDefinitions.forEach(this::startObservingInstances);</span>
+<span class="fc" id="L75">        observers.computeIfAbsent(CoordinatorUtils.keyOf(CustomResourceDefinitionContext.fromCustomResourceType(ProvidedCapability.class)),</span>
+<span class="fc" id="L76">                key -&gt; new EntandoResourceObserver(</span>
+<span class="fc" id="L77">                        this.client.getOperations(CustomResourceDefinitionContext.fromCustomResourceType(ProvidedCapability.class)),</span>
+                        this::startImage,
+                        crdNameMapSync,
+<span class="fc" id="L80">                        1L));</span>
+
+<span class="fc" id="L82">        Liveness.alive();</span>
+<span class="fc" id="L83">    }</span>
+
+    private EntandoResourceObserver startObservingInstances(CustomResourceDefinition crd) {
+<span class="fc" id="L86">        return observers.computeIfAbsent(CoordinatorUtils.keyOf(crd),</span>
+<span class="fc" id="L87">                s1 -&gt; new EntandoResourceObserver(</span>
+<span class="fc" id="L88">                        this.client.getOperations(CustomResourceDefinitionContext.fromCrd(crd)),</span>
+                        this::startImage,
+                        crdNameMapSync,
+<span class="fc" id="L91">                        crd.getMetadata().getGeneration()));</span>
+    }
+
+    public EntandoResourceObserver getObserver(CustomResourceDefinitionContext context) {
+<span class="fc" id="L95">        return observers.get(CoordinatorUtils.keyOf(context));</span>
+    }
+
+    public void shutdownObservers(int wait, TimeUnit timeUnit) {
+<span class="fc" id="L99">        this.observers.values().forEach(observer -&gt; observer.shutDownAndWait(wait, timeUnit));</span>
+<span class="fc" id="L100">    }</span>
+
+    private void processCustomResourceDefinition(CustomResourceDefinition r) {
+<span class="fc" id="L103">        final String key = CoordinatorUtils.keyOf(r);</span>
+<span class="fc" id="L104">        final EntandoResourceObserver existingObserver = observers.get(key);</span>
+<span class="pc bpc" id="L105" title="3 of 4 branches missed.">        if (existingObserver != null &amp;&amp; existingObserver.getCrdGeneration() &lt; r.getMetadata().getGeneration()) {</span>
+<span class="nc" id="L106">            existingObserver.shutDownAndWait(10, TimeUnit.SECONDS);</span>
+<span class="nc" id="L107">            observers.remove(key);</span>
+        }
+<span class="fc" id="L109">        final Optional&lt;String&gt; controllerImageAnnotation = CoordinatorUtils.resolveAnnotation(r, AnnotationNames.CONTROLLER_IMAGE);</span>
+<span class="fc" id="L110">        controllerImageAnnotation.ifPresent(controllerImage -&gt; derivedControllerImageMap.put(CoordinatorUtils.keyOf(r), controllerImage));</span>
+<span class="fc" id="L111">        Optional&lt;String&gt; controllerImage = controllerImageAnnotation</span>
+<span class="fc" id="L112">                .or(() -&gt; CoordinatorUtils.resolveValue(this.controllerImageOverrides, CoordinatorUtils.keyOf(r)));</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (controllerImage.isEmpty()) {</span>
+<span class="fc" id="L114">            LOGGER.log(Level.WARNING,</span>
+<span class="fc" id="L115">                    () -&gt; format(&quot;CRD %s has neither the %s annotation, nor is there an entry in the configmap %s for %s&quot;,</span>
+<span class="fc" id="L116">                            r.getMetadata().getName(),</span>
+<span class="fc" id="L117">                            AnnotationNames.CONTROLLER_IMAGE.getName(),</span>
+                            CoordinatorUtils.CONTROLLER_IMAGE_OVERRIDES_CONFIGMAP,
+<span class="fc" id="L119">                            CoordinatorUtils.keyOf(r)));</span>
+        }
+<span class="fc" id="L121">        controllerImage.ifPresent(</span>
+<span class="fc" id="L122">                i -&gt; CoordinatorUtils.resolveAnnotation(r, AnnotationNames.SUPPORTED_CAPABILITIES)</span>
+<span class="fc" id="L123">                        .ifPresent(capabilities -&gt; Arrays.stream(capabilities.split(&quot;,&quot;))</span>
+<span class="fc" id="L124">                                .forEach(s -&gt; derivedControllerImageMap.put(s + CAPABILITY_ORG, i))));</span>
+
+<span class="fc" id="L126">    }</span>
+
+    private String sanitize(String key) {
+<span class="fc" id="L129">        return key.toLowerCase(Locale.ROOT);</span>
+    }
+
+    public String getControllerImageFor(SerializedEntandoResource resource) {
+        String imageName;
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (resource.getKind().equals(ProvidedCapability.class.getSimpleName())) {</span>
+<span class="fc" id="L135">            imageName = ofNullable(resolveCapabilityFromMap(resource, this.controllerImageOverrides.getData()))</span>
+<span class="fc" id="L136">                    .orElse(resolveCapabilityFromMap(resource, this.derivedControllerImageMap));</span>
+        } else {
+<span class="fc" id="L138">            imageName = ofNullable(resolveCustomControllerFromMap(resource, this.controllerImageOverrides.getData()))</span>
+<span class="fc" id="L139">                    .orElse(resolveCustomControllerFromMap(resource, this.derivedControllerImageMap));</span>
+        }
+<span class="fc" id="L141">        return ofNullable(imageName).orElse(CoordinatorUtils.NO_IMAGE);</span>
+    }
+
+    private String resolveCapabilityFromMap(SerializedEntandoResource pc, Map&lt;String, String&gt; controllerImageMap) {
+<span class="fc" id="L145">        Optional&lt;String&gt; implementation = Optional.ofNullable((String) pc.getSpec().get(&quot;implementation&quot;));</span>
+<span class="fc" id="L146">        String capability = (String) pc.getSpec().get(&quot;capability&quot;);</span>
+<span class="fc" id="L147">        final Optional&lt;Map&lt;String, String&gt;&gt; nullableMap = ofNullable(controllerImageMap);</span>
+<span class="fc" id="L148">        return implementation</span>
+<span class="fc" id="L149">                .flatMap(impl -&gt; nullableMap</span>
+<span class="fc" id="L150">                        .flatMap(map -&gt; ofNullable(map.get(sanitize(impl + &quot;.&quot; + capability + CAPABILITY_ORG)))))</span>
+<span class="fc" id="L151">                .orElse(nullableMap.map(map -&gt; map.get(sanitize(capability + CAPABILITY_ORG))).orElse(null));</span>
+    }
+
+    private String resolveCustomControllerFromMap(SerializedEntandoResource r, Map&lt;String, String&gt; controllerImageMap) {
+<span class="fc" id="L155">        return ofNullable(controllerImageMap).map(map -&gt; map.get(CoordinatorUtils.keyOf(r))).orElse(null);</span>
+    }
+
+    private void startImage(Action action, SerializedEntandoResource resource) {
+        try {
+<span class="fc" id="L160">            final String controllerImage = getControllerImageFor(resource);</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">            if (CoordinatorUtils.NO_IMAGE.equals(controllerImage)) {</span>
+                //A CRD with now Kubernetes semantics
+<span class="fc" id="L163">                client.updatePhase(resource, EntandoDeploymentPhase.SUCCESSFUL);</span>
+            } else {
+<span class="fc" id="L165">                TrustStoreSecretRegenerator.regenerateIfNecessary(client);</span>
+<span class="fc" id="L166">                ControllerExecutor executor = new ControllerExecutor(client.getControllerNamespace(), client, controllerImage);</span>
+<span class="fc" id="L167">                executor.startControllerFor(action, resource);</span>
+            }
+<span class="nc" id="L169">        } catch (Exception e) {</span>
+<span class="nc" id="L170">            LOGGER.log(Level.SEVERE, e, () -&gt; format(&quot;Could not start the controller image for the %s %s/%s&quot;, resource.getKind(),</span>
+<span class="nc" id="L171">                    resource.getMetadata().getNamespace(), resource.getMetadata().getName()));</span>
+<span class="fc" id="L172">        }</span>
+<span class="fc" id="L173">    }</span>
+
+    @Override
+    public void eventReceived(Action action, CustomResourceDefinition customResourceDefinition) {
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">        if (CoordinatorUtils.isOfInterest(customResourceDefinition)) {</span>
+<span class="fc" id="L178">            processCustomResourceDefinition(customResourceDefinition);</span>
+<span class="fc" id="L179">            startObservingInstances(customResourceDefinition);</span>
+        }
+<span class="fc" id="L181">    }</span>
+
+    @Override
+    public void onClose(WatcherException e) {
+<span class="fc" id="L185">        LOGGER.log(Level.SEVERE, e, () -&gt; &quot;EntandoControllerCoordinator closed. Can't reconnect. The container should restart now.&quot;);</span>
+<span class="fc" id="L186">        Liveness.dead();</span>
+<span class="fc" id="L187">    }</span>
+
+<span class="fc" id="L189">    private class ControllerImageOverridesWatcher implements Watcher&lt;ConfigMap&gt; {</span>
+
+        @Override
+        public void eventReceived(Action action, ConfigMap configMap) {
+<span class="fc" id="L193">            EntandoControllerCoordinator.this.controllerImageOverrides = configMap;</span>
+<span class="fc" id="L194">        }</span>
+
+        @Override
+        public void onClose(WatcherException cause) {
+<span class="fc" id="L198">            LOGGER.log(Level.SEVERE, cause,</span>
+<span class="fc" id="L199">                    () -&gt; &quot;ConfigMapObserver closed. Can't reconnect. The container should restart now.&quot;);</span>
+<span class="fc" id="L200">            Liveness.dead();</span>
+<span class="fc" id="L201">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

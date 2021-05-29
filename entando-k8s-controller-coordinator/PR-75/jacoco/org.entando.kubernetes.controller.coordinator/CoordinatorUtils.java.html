@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CoordinatorUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller Coordinator</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.coordinator</a> &gt; <span class="el_source">CoordinatorUtils.java</span></div><h1>CoordinatorUtils.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.coordinator;
+
+import static java.util.Optional.ofNullable;
+
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.OwnerReference;
+import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import org.entando.kubernetes.controller.spi.common.LabelNames;
+import org.entando.kubernetes.model.common.EntandoCustomResource;
+
+public class CoordinatorUtils {
+
+    public static final String NO_IMAGE = &quot;none&quot;;
+    public static final String ENTANDO_OPERATOR_CONFIG = &quot;entando-operator-config&quot;;
+    public static final String CONTROLLER_IMAGE_OVERRIDES_CONFIGMAP = &quot;entando-controller-image-overrides&quot;;
+    public static final String ENTANDO_CRD_NAMES_CONFIGMAP_NAME = &quot;entando-crd-names&quot;;
+
+    private CoordinatorUtils() {
+
+    }
+
+    public static OperatorProcessingInstruction resolveProcessingInstruction(EntandoCustomResource resource) {
+<span class="fc" id="L44">        return resolveAnnotation(resource, AnnotationNames.PROCESSING_INSTRUCTION)</span>
+<span class="fc" id="L45">                .map(value -&gt; OperatorProcessingInstruction</span>
+<span class="fc" id="L46">                        .valueOf(value.toUpperCase(Locale.ROOT).replace(&quot;-&quot;, &quot;_&quot;)))</span>
+<span class="fc" id="L47">                .orElse(OperatorProcessingInstruction.NONE);</span>
+    }
+
+    public static Optional&lt;String&gt; resolveAnnotation(HasMetadata resource, AnnotationNames annotationName) {
+<span class="fc" id="L51">        return ofNullable(resource.getMetadata().getAnnotations()).map(map -&gt; map.get(annotationName.getName()));</span>
+    }
+
+    public static boolean isOfInterest(CustomResourceDefinition r) {
+<span class="fc" id="L55">        return ofNullable(r.getMetadata().getLabels()).map(labels -&gt; labels.containsKey(LabelNames.CRD_OF_INTEREST.getName()))</span>
+<span class="fc" id="L56">                .orElse(false);</span>
+    }
+
+    public static String keyOf(CustomResourceDefinitionContext definitionContext) {
+<span class="fc" id="L60">        return keyOf(definitionContext.getKind(), definitionContext.getGroup());</span>
+    }
+
+    private static String keyOf(String kind, String group) {
+<span class="fc" id="L64">        return kind + &quot;.&quot; + group;</span>
+    }
+
+    public static String keyOf(CustomResourceDefinition r) {
+<span class="fc" id="L68">        return keyOf(r.getSpec().getNames().getKind(), r.getSpec().getGroup());</span>
+    }
+
+    public static String keyOf(EntandoCustomResource r) {
+<span class="fc" id="L72">        return keyOf(r.getKind(), extractGroupFrom(r.getApiVersion()));</span>
+    }
+
+    public static String keyOf(OwnerReference ownerReference) {
+<span class="fc" id="L76">        return keyOf(ownerReference.getKind(), extractGroupFrom(ownerReference.getApiVersion()));</span>
+    }
+
+    private static String extractGroupFrom(String apiVersion) {
+<span class="fc" id="L80">        return apiVersion.substring(0, apiVersion.indexOf(&quot;/&quot;));</span>
+    }
+
+    public static Optional&lt;String&gt; resolveValue(ConfigMap map, String key) {
+<span class="fc" id="L84">        return ofNullable(map.getData()).flatMap(data -&gt; ofNullable(data.get(key)));</span>
+    }
+
+    public static Map&lt;String, String&gt; podLabelsFor(EntandoCustomResource resource) {
+<span class="fc" id="L88">        return Map.of(</span>
+<span class="fc" id="L89">                LabelNames.RESOURCE_KIND.getName(), resource.getKind(),</span>
+<span class="fc" id="L90">                LabelNames.RESOURCE_NAMESPACE.getName(), resource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L91">                resource.getKind(), resource.getMetadata().getName());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

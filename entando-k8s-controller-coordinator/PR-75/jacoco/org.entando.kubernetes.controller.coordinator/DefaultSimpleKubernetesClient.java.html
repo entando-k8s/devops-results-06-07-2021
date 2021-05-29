@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultSimpleKubernetesClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller Coordinator</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.coordinator</a> &gt; <span class="el_source">DefaultSimpleKubernetesClient.java</span></div><h1>DefaultSimpleKubernetesClient.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.coordinator;
+
+import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
+import io.fabric8.kubernetes.api.model.Event;
+import io.fabric8.kubernetes.api.model.EventBuilder;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
+import io.fabric8.kubernetes.client.dsl.internal.RawCustomResourceOperationsImpl;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+import org.entando.kubernetes.controller.spi.client.SerializedEntandoResource;
+import org.entando.kubernetes.controller.spi.common.LabelNames;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.controller.spi.common.ResourceUtils;
+import org.entando.kubernetes.model.common.EntandoCustomResource;
+import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
+
+public class DefaultSimpleKubernetesClient implements SimpleKubernetesClient {
+
+    //There will only be once instance per thread for the duration of the Pod's life
+    @SuppressWarnings(&quot;java:S5164&quot;)
+<span class="fc" id="L60">    private static final ThreadLocal&lt;DateTimeFormatter&gt; dateTimeFormatter = ThreadLocal</span>
+<span class="pc" id="L61">            .withInitial(() -&gt; DateTimeFormatter.ofPattern(&quot;uuuu-MM-dd'T'HH:mm:ss'Z'&quot;));</span>
+
+<span class="fc" id="L63">    Map&lt;String, CustomResourceDefinitionContext&gt; definitionContextMap = new ConcurrentHashMap&lt;&gt;();</span>
+    private final KubernetesClient client;
+
+<span class="fc" id="L66">    public DefaultSimpleKubernetesClient(KubernetesClient client) {</span>
+
+<span class="fc" id="L68">        this.client = client;</span>
+<span class="fc" id="L69">    }</span>
+
+    @Override
+    public SerializedEntandoResource updatePhase(SerializedEntandoResource customResource, EntandoDeploymentPhase phase) {
+<span class="nc" id="L73">        return performStatusUpdate(customResource,</span>
+<span class="nc" id="L74">                t -&gt; t.getStatus().updateDeploymentPhase(phase, t.getMetadata().getGeneration()),</span>
+<span class="nc" id="L75">                e -&gt; e.withType(&quot;Normal&quot;)</span>
+<span class="nc" id="L76">                        .withReason(&quot;PhaseUpdated&quot;)</span>
+<span class="nc" id="L77">                        .withMessage(format(&quot;The deployment of %s  %s/%s was updated  to %s&quot;,</span>
+<span class="nc" id="L78">                                customResource.getKind(),</span>
+<span class="nc" id="L79">                                customResource.getMetadata().getNamespace(),</span>
+<span class="nc" id="L80">                                customResource.getMetadata().getName(),</span>
+<span class="nc" id="L81">                                phase.name()))</span>
+<span class="nc" id="L82">                        .withAction(&quot;PHASE_CHANGE&quot;)</span>
+        );
+    }
+
+    private SerializedEntandoResource performStatusUpdate(SerializedEntandoResource customResource,
+            Consumer&lt;SerializedEntandoResource&gt; consumer, UnaryOperator&lt;EventBuilder&gt; eventPopulator) {
+<span class="nc" id="L88">        final EventBuilder doneableEvent = new EventBuilder()</span>
+<span class="nc" id="L89">                .withNewMetadata()</span>
+<span class="nc" id="L90">                .withNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="nc" id="L91">                .withName(customResource.getMetadata().getName() + &quot;-&quot; + NameUtils.randomNumeric(8))</span>
+<span class="nc" id="L92">                .withOwnerReferences(ResourceUtils.buildOwnerReference(customResource))</span>
+<span class="nc" id="L93">                .withLabels(ResourceUtils.labelsFromResource(customResource))</span>
+<span class="nc" id="L94">                .endMetadata()</span>
+<span class="nc" id="L95">                .withCount(1)</span>
+<span class="nc" id="L96">                .withFirstTimestamp(dateTimeFormatter.get().format(LocalDateTime.now()))</span>
+<span class="nc" id="L97">                .withLastTimestamp(dateTimeFormatter.get().format(LocalDateTime.now()))</span>
+<span class="nc" id="L98">                .withNewSource(NameUtils.controllerNameOf(customResource), null)</span>
+<span class="nc" id="L99">                .withNewInvolvedObject()</span>
+<span class="nc" id="L100">                .withKind(customResource.getKind())</span>
+<span class="nc" id="L101">                .withNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="nc" id="L102">                .withName(customResource.getMetadata().getName())</span>
+<span class="nc" id="L103">                .withUid(customResource.getMetadata().getUid())</span>
+<span class="nc" id="L104">                .withResourceVersion(customResource.getMetadata().getResourceVersion())</span>
+<span class="nc" id="L105">                .withApiVersion(customResource.getApiVersion())</span>
+<span class="nc" id="L106">                .withFieldPath(&quot;status&quot;)</span>
+<span class="nc" id="L107">                .endInvolvedObject();</span>
+<span class="nc" id="L108">        client.v1().events().inNamespace(customResource.getMetadata().getNamespace()).create(eventPopulator.apply(doneableEvent).build());</span>
+        try {
+<span class="nc" id="L110">            SerializedEntandoResource ser = customResource;</span>
+<span class="nc" id="L111">            CustomResourceDefinitionContext definition = Optional.ofNullable(ser.getDefinition()).orElse(</span>
+<span class="nc" id="L112">                    resolveDefinitionContext(ser));</span>
+<span class="nc" id="L113">            ser.setDefinition(definition);</span>
+<span class="nc" id="L114">            RawCustomResourceOperationsImpl resource = client.customResource(definition)</span>
+<span class="nc" id="L115">                    .inNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="nc" id="L116">                    .withName(customResource.getMetadata().getName());</span>
+<span class="nc" id="L117">            final ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="nc" id="L118">            ser = objectMapper.readValue(objectMapper.writeValueAsString(resource.get()), SerializedEntandoResource.class);</span>
+<span class="nc" id="L119">            ser.setDefinition(definition);</span>
+<span class="nc" id="L120">            consumer.accept(ser);</span>
+<span class="nc" id="L121">            final Map&lt;String, Object&gt; map = resource.updateStatus(objectMapper.writeValueAsString(ser));</span>
+<span class="nc" id="L122">            return objectMapper.readValue(objectMapper.writeValueAsString(map), SerializedEntandoResource.class);</span>
+<span class="nc" id="L123">        } catch (IOException e) {</span>
+<span class="nc" id="L124">            throw new IllegalStateException(e);</span>
+        }
+    }
+
+    private CustomResourceDefinitionContext resolveDefinitionContext(SerializedEntandoResource resource) {
+<span class="nc" id="L129">        return definitionContextMap.computeIfAbsent(CoordinatorUtils.keyOf(resource), key -&gt;</span>
+<span class="nc" id="L130">                CustomResourceDefinitionContext.fromCrd(client.apiextensions().v1beta1().customResourceDefinitions()</span>
+<span class="nc" id="L131">                        .withName(ofNullable(</span>
+<span class="nc" id="L132">                                ofNullable(findOrCreateControllerConfigMap(CoordinatorUtils.ENTANDO_CRD_NAMES_CONFIGMAP_NAME).getData())</span>
+<span class="nc" id="L133">                                        .orElse(Collections.emptyMap()).get(key))</span>
+<span class="nc" id="L134">                                .orElseThrow(IllegalStateException::new)).get()));</span>
+    }
+
+    @Override
+    public String getControllerNamespace() {
+<span class="fc" id="L139">        return client.getNamespace();</span>
+    }
+
+    @Override
+    public Secret loadControllerSecret(String s) {
+<span class="nc" id="L144">        return client.secrets().inNamespace(getControllerNamespace()).withName(s).get();</span>
+    }
+
+    @Override
+    public void overwriteControllerSecret(Secret secret) {
+<span class="nc" id="L149">        client.secrets().inNamespace(getControllerNamespace()).createOrReplace(secret);</span>
+<span class="nc" id="L150">    }</span>
+
+    @Override
+    public ConfigMap loadDockerImageInfoConfigMap() {
+<span class="nc" id="L154">        return client.configMaps().inNamespace(getControllerNamespace())</span>
+<span class="nc" id="L155">                .withName(ControllerCoordinatorConfig.getEntandoDockerImageInfoConfigMap()).get();</span>
+    }
+
+    @Override
+    public Pod startPod(Pod pod) {
+<span class="fc" id="L160">        return client.pods().inNamespace(getControllerNamespace()).create(pod);</span>
+    }
+
+    @Override
+    public void removePodsAndWait(String namespace, Map&lt;String, String&gt; labels) {
+<span class="fc" id="L165">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(labels);</span>
+<span class="fc" id="L166">        podResource.delete();</span>
+        try {
+<span class="fc" id="L168">            podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="fc" id="L169">                    ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
+<span class="nc" id="L170">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L171">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L172">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L173">        }</span>
+<span class="fc" id="L174">    }</span>
+
+    @Override
+    public ConfigMap findOrCreateControllerConfigMap(String name) {
+<span class="fc" id="L178">        return Objects.requireNonNullElseGet(this.client.configMaps().inNamespace(getControllerNamespace()).withName(name).get(), () -&gt;</span>
+<span class="fc" id="L179">                this.client.configMaps().inNamespace(getControllerNamespace())</span>
+<span class="fc" id="L180">                        .create(new ConfigMapBuilder()</span>
+<span class="fc" id="L181">                                .withNewMetadata()</span>
+<span class="fc" id="L182">                                .withNamespace(getControllerNamespace())</span>
+<span class="fc" id="L183">                                .withName(name)</span>
+<span class="fc" id="L184">                                .endMetadata()</span>
+<span class="fc" id="L185">                                .build()));</span>
+    }
+
+    @Override
+    public ConfigMap patchControllerConfigMap(ConfigMap configMap) {
+<span class="fc" id="L190">        return client.configMaps().inNamespace(getControllerNamespace()).withName(configMap.getMetadata().getName()).patch(configMap);</span>
+    }
+
+    @Override
+    public void watchControllerConfigMap(String name, Watcher&lt;ConfigMap&gt; configMapWatcher) {
+<span class="nc" id="L195">        this.client.configMaps().inNamespace(getControllerNamespace()).withName(name).watch(configMapWatcher);</span>
+<span class="nc" id="L196">    }</span>
+
+    @Override
+    public void watchCustomResourceDefinitions(Watcher&lt;CustomResourceDefinition&gt; customResourceDefinitionWatcher) {
+<span class="nc" id="L200">        this.client.apiextensions().v1beta1().customResourceDefinitions().withLabel(LabelNames.CRD_OF_INTEREST.getName())</span>
+<span class="nc" id="L201">                .watch(customResourceDefinitionWatcher);</span>
+<span class="nc" id="L202">    }</span>
+
+    @Override
+    public Collection&lt;CustomResourceDefinition&gt; loadCustomResourceDefinitionsOfInterest() {
+<span class="nc" id="L206">        return client.apiextensions().v1beta1().customResourceDefinitions().withLabel(LabelNames.CRD_OF_INTEREST.getName())</span>
+<span class="nc" id="L207">                .list()</span>
+<span class="nc" id="L208">                .getItems();</span>
+    }
+
+    @Override
+    public SimpleEntandoOperations getOperations(CustomResourceDefinitionContext context) {
+<span class="nc" id="L213">        return new DefaultSimpleEntandoOperations(client, client.customResource(context));</span>
+    }
+
+    public List&lt;Event&gt; listEventsFor(EntandoCustomResource resource) {
+<span class="nc" id="L217">        return client.v1().events().inAnyNamespace().withLabels(ResourceUtils.labelsFromResource(resource)).list().getItems();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
