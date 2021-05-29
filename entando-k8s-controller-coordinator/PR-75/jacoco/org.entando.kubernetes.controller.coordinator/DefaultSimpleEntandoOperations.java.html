@@ -42,15 +42,15 @@ import org.entando.kubernetes.controller.spi.common.PodResult.State;
 
 public class DefaultSimpleEntandoOperations implements SimpleEntandoOperations {
 
-<span class="nc" id="L45">    private static final Logger LOGGER = Logger.getLogger(DefaultSimpleEntandoOperations.class.getName());</span>
+<span class="fc" id="L45">    private static final Logger LOGGER = Logger.getLogger(DefaultSimpleEntandoOperations.class.getName());</span>
 
     private final KubernetesClient client;
     private final RawCustomResourceOperationsImpl operations;
 
-<span class="nc" id="L50">    public DefaultSimpleEntandoOperations(KubernetesClient client, RawCustomResourceOperationsImpl operations) {</span>
-<span class="nc" id="L51">        this.client = client;</span>
-<span class="nc" id="L52">        this.operations = operations;</span>
-<span class="nc" id="L53">    }</span>
+<span class="fc" id="L50">    public DefaultSimpleEntandoOperations(KubernetesClient client, RawCustomResourceOperationsImpl operations) {</span>
+<span class="fc" id="L51">        this.client = client;</span>
+<span class="fc" id="L52">        this.operations = operations;</span>
+<span class="fc" id="L53">    }</span>
 
     @Override
     public SimpleEntandoOperations inNamespace(String namespace) {
@@ -143,35 +143,35 @@ public class DefaultSimpleEntandoOperations implements SimpleEntandoOperations {
 
     @Override
     public void removeSuccessfullyCompletedPods(SerializedEntandoResource resource) {
-<span class="nc" id="L146">        String namespace = client.getNamespace();</span>
-<span class="nc" id="L147">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(</span>
-<span class="nc" id="L148">                CoordinatorUtils.podLabelsFor(resource));</span>
+<span class="fc" id="L146">        String namespace = client.getNamespace();</span>
+<span class="fc" id="L147">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(</span>
+<span class="fc" id="L148">                CoordinatorUtils.podLabelsFor(resource));</span>
         try {
-<span class="nc" id="L150">            waitForCompletionOfPods(podResource);</span>
-<span class="nc" id="L151">            removePodsAndWait(podResource);</span>
+<span class="fc" id="L150">            waitForCompletionOfPods(podResource);</span>
+<span class="fc" id="L151">            removePodsAndWait(podResource);</span>
 <span class="nc" id="L152">        } catch (InterruptedException e) {</span>
 <span class="nc" id="L153">            Thread.currentThread().interrupt();</span>
 <span class="nc" id="L154">            throw new IllegalStateException(e);</span>
-<span class="nc" id="L155">        }</span>
-<span class="nc" id="L156">    }</span>
+<span class="fc" id="L155">        }</span>
+<span class="fc" id="L156">    }</span>
 
     private void removePodsAndWait(FilterWatchListDeletable&lt;Pod, PodList&gt; podResource) throws InterruptedException {
-<span class="nc" id="L159">        podResource.delete();</span>
-<span class="nc" id="L160">        podResource.waitUntilCondition(ignore -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="nc" id="L161">                ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
-<span class="nc" id="L162">    }</span>
+<span class="fc" id="L159">        podResource.delete();</span>
+<span class="fc" id="L160">        podResource.waitUntilCondition(ignore -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="fc" id="L161">                ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
+<span class="fc" id="L162">    }</span>
 
     private void waitForCompletionOfPods(FilterWatchListDeletable&lt;Pod, PodList&gt; podResource) throws InterruptedException {
         try {
-<span class="nc" id="L166">            podResource.waitUntilCondition(</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">                    ignored -&gt; podResource.list().getItems().stream().allMatch(pod -&gt; PodResult.of(pod).getState() == State.COMPLETED),</span>
-<span class="nc" id="L168">                    ControllerCoordinatorConfig.getRemovalDelay(), TimeUnit.SECONDS);</span>
+<span class="fc" id="L166">            podResource.waitUntilCondition(</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">                    ignored -&gt; podResource.list().getItems().stream().allMatch(pod -&gt; PodResult.of(pod).getState() == State.COMPLETED),</span>
+<span class="fc" id="L168">                    ControllerCoordinatorConfig.getRemovalDelay(), TimeUnit.SECONDS);</span>
 <span class="nc" id="L169">        } catch (KubernetesClientException e) {</span>
 <span class="nc" id="L170">            LOGGER.log(Level.WARNING, () -&gt; format(</span>
                     &quot;Some pods remained active after the removal delay period. You can consider increasing the setting %s &quot;,
 <span class="nc" id="L172">                    ControllerCoordinatorProperty.ENTANDO_K8S_CONTROLLER_REMOVAL_DELAY.getJvmSystemProperty()));</span>
-<span class="nc" id="L173">        }</span>
-<span class="nc" id="L174">    }</span>
+<span class="fc" id="L173">        }</span>
+<span class="fc" id="L174">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
