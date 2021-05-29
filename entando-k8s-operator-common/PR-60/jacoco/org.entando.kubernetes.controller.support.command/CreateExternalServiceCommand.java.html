@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import org.entando.kubernetes.controller.spi.common.LabelNames;
 import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.spi.common.ResourceUtils;
 import org.entando.kubernetes.controller.spi.deployable.ExternalService;
@@ -37,106 +38,106 @@ public class CreateExternalServiceCommand {
     private static final int TCP6_NUMBER_OF_SEGMENTS = 8;
     private final ExternalService externalService;
     private final EntandoCustomResource entandoCustomResource;
-<span class="fc" id="L40">    private final InternalServerStatus status = new InternalServerStatus();</span>
+<span class="fc" id="L41">    private final InternalServerStatus status = new InternalServerStatus();</span>
 
-<span class="fc" id="L42">    public CreateExternalServiceCommand(ExternalService externalService, EntandoCustomResource entandoCustomResource) {</span>
-<span class="fc" id="L43">        this.externalService = externalService;</span>
-<span class="fc" id="L44">        this.entandoCustomResource = entandoCustomResource;</span>
-<span class="fc" id="L45">        status.setQualifier(NameUtils.MAIN_QUALIFIER);</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L43">    public CreateExternalServiceCommand(ExternalService externalService, EntandoCustomResource entandoCustomResource) {</span>
+<span class="fc" id="L44">        this.externalService = externalService;</span>
+<span class="fc" id="L45">        this.entandoCustomResource = entandoCustomResource;</span>
+<span class="fc" id="L46">        status.setQualifier(NameUtils.MAIN_QUALIFIER);</span>
+<span class="fc" id="L47">    }</span>
 
     public InternalServerStatus getStatus() {
-<span class="fc" id="L49">        return status;</span>
+<span class="fc" id="L50">        return status;</span>
     }
 
     public Service execute(SimpleK8SClient&lt;?&gt; k8sClient) {
         try {
-<span class="fc" id="L54">            Service service = k8sClient.services().createOrReplaceService(entandoCustomResource, newExternalService());</span>
-<span class="fc" id="L55">            maybeCreateEndpoints(k8sClient);</span>
-<span class="fc" id="L56">            this.status.setServiceName(service.getMetadata().getName());</span>
-<span class="fc" id="L57">            return service;</span>
-<span class="nc" id="L58">        } catch (Exception e) {</span>
-<span class="nc" id="L59">            this.status.finishWith(KubeUtils.failureOf(this.entandoCustomResource, e));</span>
-<span class="nc" id="L60">            return null;</span>
+<span class="fc" id="L55">            Service service = k8sClient.services().createOrReplaceService(entandoCustomResource, newExternalService());</span>
+<span class="fc" id="L56">            maybeCreateEndpoints(k8sClient);</span>
+<span class="fc" id="L57">            this.status.setServiceName(service.getMetadata().getName());</span>
+<span class="fc" id="L58">            return service;</span>
+<span class="nc" id="L59">        } catch (Exception e) {</span>
+<span class="nc" id="L60">            this.status.finishWith(KubeUtils.failureOf(this.entandoCustomResource, e));</span>
+<span class="nc" id="L61">            return null;</span>
         }
     }
 
     public Endpoints maybeCreateEndpoints(SimpleK8SClient&lt;?&gt; k8sClient) {
-<span class="fc" id="L65">        Endpoints endpoints = null;</span>
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (isIpAddress()) {</span>
-<span class="nc" id="L67">            endpoints = newEndpoints();</span>
-<span class="nc" id="L68">            k8sClient.services().createOrReplaceEndpoints(entandoCustomResource, endpoints);</span>
+<span class="fc" id="L66">        Endpoints endpoints = null;</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (isIpAddress()) {</span>
+<span class="nc" id="L68">            endpoints = newEndpoints();</span>
+<span class="nc" id="L69">            k8sClient.services().createOrReplaceEndpoints(entandoCustomResource, endpoints);</span>
         }
-<span class="fc" id="L70">        return endpoints;</span>
+<span class="fc" id="L71">        return endpoints;</span>
     }
 
     private Endpoints newEndpoints() {
-<span class="nc" id="L74">        return new EndpointsBuilder()</span>
+<span class="nc" id="L75">        return new EndpointsBuilder()</span>
                 //Needs to match the service name exactly
-<span class="nc" id="L76">                .withMetadata(fromCustomResource())</span>
-<span class="nc" id="L77">                .addNewSubset()</span>
-<span class="nc" id="L78">                .addNewAddress()</span>
-<span class="nc" id="L79">                .withIp(externalService.getHost())</span>
-<span class="nc" id="L80">                .endAddress()</span>
-<span class="nc" id="L81">                .addNewPort()</span>
-<span class="nc" id="L82">                .withPort(externalService.getPort())</span>
-<span class="nc" id="L83">                .endPort()</span>
-<span class="nc" id="L84">                .endSubset()</span>
-<span class="nc" id="L85">                .build();</span>
+<span class="nc" id="L77">                .withMetadata(fromCustomResource())</span>
+<span class="nc" id="L78">                .addNewSubset()</span>
+<span class="nc" id="L79">                .addNewAddress()</span>
+<span class="nc" id="L80">                .withIp(externalService.getHost())</span>
+<span class="nc" id="L81">                .endAddress()</span>
+<span class="nc" id="L82">                .addNewPort()</span>
+<span class="nc" id="L83">                .withPort(externalService.getPort())</span>
+<span class="nc" id="L84">                .endPort()</span>
+<span class="nc" id="L85">                .endSubset()</span>
+<span class="nc" id="L86">                .build();</span>
     }
 
     private Service newExternalService() {
-<span class="fc" id="L89">        return new ServiceBuilder()</span>
-<span class="fc" id="L90">                .withMetadata(fromCustomResource())</span>
-<span class="fc" id="L91">                .withNewSpec()</span>
-<span class="fc" id="L92">                .withExternalName(FluentTernary.useNull(String.class).when(isIpAddress())</span>
-<span class="fc" id="L93">                        .orElse(externalService.getHost()))</span>
-<span class="fc" id="L94">                .withType(FluentTernary.use(&quot;ClusterIP&quot;).when(isIpAddress()).orElse(&quot;ExternalName&quot;))</span>
-<span class="fc" id="L95">                .addNewPort()</span>
-<span class="fc" id="L96">                .withNewTargetPort(</span>
-<span class="fc" id="L97">                        externalService.getPort())</span>
-<span class="fc" id="L98">                .withPort(externalService.getPort())</span>
-<span class="fc" id="L99">                .endPort()</span>
-<span class="fc" id="L100">                .endSpec()</span>
-<span class="fc" id="L101">                .build();</span>
+<span class="fc" id="L90">        return new ServiceBuilder()</span>
+<span class="fc" id="L91">                .withMetadata(fromCustomResource())</span>
+<span class="fc" id="L92">                .withNewSpec()</span>
+<span class="fc" id="L93">                .withExternalName(FluentTernary.useNull(String.class).when(isIpAddress())</span>
+<span class="fc" id="L94">                        .orElse(externalService.getHost()))</span>
+<span class="fc" id="L95">                .withType(FluentTernary.use(&quot;ClusterIP&quot;).when(isIpAddress()).orElse(&quot;ExternalName&quot;))</span>
+<span class="fc" id="L96">                .addNewPort()</span>
+<span class="fc" id="L97">                .withNewTargetPort(</span>
+<span class="fc" id="L98">                        externalService.getPort())</span>
+<span class="fc" id="L99">                .withPort(externalService.getPort())</span>
+<span class="fc" id="L100">                .endPort()</span>
+<span class="fc" id="L101">                .endSpec()</span>
+<span class="fc" id="L102">                .build();</span>
     }
 
     private boolean isIpAddress() {
-<span class="fc" id="L105">        String host = externalService.getHost();</span>
+<span class="fc" id="L106">        String host = externalService.getHost();</span>
         try {
-<span class="fc" id="L107">            String[] split = host.split(&quot;\\.&quot;);</span>
-<span class="pc bpc" id="L108" title="1 of 2 branches missed.">            if (split.length == TCP4_NUMBER_OF_BYTES) {</span>
-<span class="pc bpc" id="L109" title="1 of 2 branches missed.">                for (String s : split) {</span>
-<span class="nc" id="L110">                    int i = Integer.parseInt(s);</span>
-<span class="nc bnc" id="L111" title="All 4 branches missed.">                    if (i &gt; 255 || i &lt; 0) {</span>
-<span class="nc" id="L112">                        return false;</span>
+<span class="fc" id="L108">            String[] split = host.split(&quot;\\.&quot;);</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">            if (split.length == TCP4_NUMBER_OF_BYTES) {</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                for (String s : split) {</span>
+<span class="nc" id="L111">                    int i = Integer.parseInt(s);</span>
+<span class="nc bnc" id="L112" title="All 4 branches missed.">                    if (i &gt; 255 || i &lt; 0) {</span>
+<span class="nc" id="L113">                        return false;</span>
                     }
                 }
-<span class="nc" id="L115">                return true;</span>
+<span class="nc" id="L116">                return true;</span>
             } else {
-<span class="nc" id="L117">                split = host.split(&quot;\\:&quot;);</span>
+<span class="nc" id="L118">                split = host.split(&quot;\\:&quot;);</span>
 
-<span class="nc bnc" id="L119" title="All 2 branches missed.">                if (split.length == TCP6_NUMBER_OF_SEGMENTS) {</span>
-<span class="nc bnc" id="L120" title="All 2 branches missed.">                    for (String s : split) {</span>
-<span class="nc" id="L121">                        Integer.parseInt(s, 16);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                if (split.length == TCP6_NUMBER_OF_SEGMENTS) {</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                    for (String s : split) {</span>
+<span class="nc" id="L122">                        Integer.parseInt(s, 16);</span>
                     }
-<span class="nc" id="L123">                    return true;</span>
+<span class="nc" id="L124">                    return true;</span>
                 }
             }
-<span class="fc" id="L126">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L127">            return false;</span>
-<span class="nc" id="L128">        }</span>
-<span class="nc" id="L129">        return false;</span>
+<span class="fc" id="L127">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L128">            return false;</span>
+<span class="nc" id="L129">        }</span>
+<span class="nc" id="L130">        return false;</span>
     }
 
     private ObjectMeta fromCustomResource() {
-<span class="fc" id="L133">        ObjectMetaBuilder metaBuilder = new ObjectMetaBuilder()</span>
-<span class="fc" id="L134">                .withName(entandoCustomResource.getMetadata().getName() + &quot;-&quot; + NameUtils.DEFAULT_SERVICE_SUFFIX)</span>
-<span class="fc" id="L135">                .withNamespace(entandoCustomResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L136">                .addToLabels(ResourceUtils.ENTANDO_RESOURCE_KIND_LABEL_NAME, entandoCustomResource.getKind())</span>
-<span class="fc" id="L137">                .addToLabels(entandoCustomResource.getKind(), entandoCustomResource.getMetadata().getName());</span>
-<span class="fc" id="L138">        metaBuilder = metaBuilder.withOwnerReferences(ResourceUtils.buildOwnerReference(this.entandoCustomResource));</span>
-<span class="fc" id="L139">        return metaBuilder.build();</span>
+<span class="fc" id="L134">        ObjectMetaBuilder metaBuilder = new ObjectMetaBuilder()</span>
+<span class="fc" id="L135">                .withName(entandoCustomResource.getMetadata().getName() + &quot;-&quot; + NameUtils.DEFAULT_SERVICE_SUFFIX)</span>
+<span class="fc" id="L136">                .withNamespace(entandoCustomResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L137">                .addToLabels(LabelNames.RESOURCE_KIND.getName(), entandoCustomResource.getKind())</span>
+<span class="fc" id="L138">                .addToLabels(entandoCustomResource.getKind(), entandoCustomResource.getMetadata().getName());</span>
+<span class="fc" id="L139">        metaBuilder = metaBuilder.withOwnerReferences(ResourceUtils.buildOwnerReference(this.entandoCustomResource));</span>
+<span class="fc" id="L140">        return metaBuilder.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

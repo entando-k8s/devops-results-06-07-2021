@@ -27,7 +27,7 @@ import org.entando.kubernetes.model.common.EntandoCustomResource;
 
 public class EntandoImageResolver {
 
-    public static final String IMAGE_ANNOTATION_PREFIX = &quot;images.entando.org/&quot;;
+    public static final String IMAGE_OVERRIDE_ANNOTATION_PREFIX = &quot;entando.org/image-override/&quot;;
     private final ConfigMap imageVersionsConfigMap;
     private final EntandoCustomResource resourceOfInterest;
 
@@ -51,8 +51,8 @@ public class EntandoImageResolver {
         //Then we look at the annotations in the resource (for testing purposes)
 <span class="fc bfc" id="L52" title="All 4 branches covered.">        if (resourceOfInterest != null &amp;&amp; resourceOfInterest.getMetadata().getAnnotations() != null) {</span>
 <span class="fc" id="L53">            injectedImageUri = injectedImageUri.or(() -&gt; resourceOfInterest.getMetadata().getAnnotations().entrySet().stream()</span>
-<span class="pc bpc" id="L54" title="1 of 2 branches missed.">                    .filter(entry -&gt; entry.getKey().equals(IMAGE_ANNOTATION_PREFIX + dockerImageInfo.getRepository())</span>
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                            || entry.getKey().equals(IMAGE_ANNOTATION_PREFIX + dockerImageInfo.getOrganizationAwareRepository()))</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">                    .filter(entry -&gt; entry.getKey().equals(IMAGE_OVERRIDE_ANNOTATION_PREFIX + dockerImageInfo.getRepository())</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                            || entry.getKey().equals(IMAGE_OVERRIDE_ANNOTATION_PREFIX + dockerImageInfo.getOrganizationAwareRepository()))</span>
 <span class="fc" id="L56">                    .map(Entry::getValue)</span>
 <span class="fc" id="L57">                    .findFirst());</span>
 

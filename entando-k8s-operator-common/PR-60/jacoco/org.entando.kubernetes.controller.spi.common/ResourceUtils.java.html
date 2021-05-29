@@ -28,36 +28,33 @@ import org.entando.kubernetes.model.common.EntandoCustomResource;
 
 public class ResourceUtils {
 
-    public static final String ENTANDO_RESOURCE_KIND_LABEL_NAME = &quot;EntandoResourceKind&quot;;
-    public static final String ENTANDO_RESOURCE_NAMESPACE_LABEL_NAME = &quot;EntandoResourceNamespace&quot;;
-
     private ResourceUtils() {
 
     }
 
     public static OwnerReference buildOwnerReference(HasMetadata entandoCustomResource) {
-<span class="fc" id="L39">        return new OwnerReferenceBuilder()</span>
-<span class="fc" id="L40">                .withApiVersion(entandoCustomResource.getApiVersion())</span>
-<span class="fc" id="L41">                .withBlockOwnerDeletion(true)</span>
-<span class="fc" id="L42">                .withController(true)</span>
-<span class="fc" id="L43">                .withKind(entandoCustomResource.getKind())</span>
-<span class="fc" id="L44">                .withName(entandoCustomResource.getMetadata().getName())</span>
-<span class="fc" id="L45">                .withUid(entandoCustomResource.getMetadata().getUid()).build();</span>
+<span class="fc" id="L36">        return new OwnerReferenceBuilder()</span>
+<span class="fc" id="L37">                .withApiVersion(entandoCustomResource.getApiVersion())</span>
+<span class="fc" id="L38">                .withBlockOwnerDeletion(true)</span>
+<span class="fc" id="L39">                .withController(true)</span>
+<span class="fc" id="L40">                .withKind(entandoCustomResource.getKind())</span>
+<span class="fc" id="L41">                .withName(entandoCustomResource.getMetadata().getName())</span>
+<span class="fc" id="L42">                .withUid(entandoCustomResource.getMetadata().getUid()).build();</span>
     }
 
     public static boolean customResourceOwns(EntandoCustomResource owner, HasMetadata owned) {
-<span class="fc" id="L49">        return owned.getMetadata().getOwnerReferences().stream()</span>
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">                .anyMatch(ownerReference -&gt; owner.getMetadata().getName().equals(ownerReference.getName())</span>
-<span class="pc bpc" id="L51" title="1 of 2 branches missed.">                        &amp;&amp; owner.getKind().equals(ownerReference.getKind()));</span>
+<span class="fc" id="L46">        return owned.getMetadata().getOwnerReferences().stream()</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">                .anyMatch(ownerReference -&gt; owner.getMetadata().getName().equals(ownerReference.getName())</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">                        &amp;&amp; owner.getKind().equals(ownerReference.getKind()));</span>
     }
 
     public static Map&lt;String, String&gt; labelsFromResource(EntandoCustomResource entandoCustomResource) {
-<span class="fc" id="L55">        Map&lt;String, String&gt; labels = new ConcurrentHashMap&lt;&gt;();</span>
-<span class="fc" id="L56">        labels.put(entandoCustomResource.getKind(), entandoCustomResource.getMetadata().getName());</span>
-<span class="fc" id="L57">        labels.put(ENTANDO_RESOURCE_KIND_LABEL_NAME, entandoCustomResource.getKind());</span>
-<span class="fc" id="L58">        labels.put(ENTANDO_RESOURCE_NAMESPACE_LABEL_NAME, entandoCustomResource.getMetadata().getNamespace());</span>
-<span class="fc" id="L59">        labels.putAll(ofNullable(entandoCustomResource.getMetadata().getLabels()).orElse(Collections.emptyMap()));</span>
-<span class="fc" id="L60">        return labels;</span>
+<span class="fc" id="L52">        Map&lt;String, String&gt; labels = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L53">        labels.put(entandoCustomResource.getKind(), entandoCustomResource.getMetadata().getName());</span>
+<span class="fc" id="L54">        labels.put(LabelNames.RESOURCE_KIND.getName(), entandoCustomResource.getKind());</span>
+<span class="fc" id="L55">        labels.put(LabelNames.RESOURCE_NAMESPACE.getName(), entandoCustomResource.getMetadata().getNamespace());</span>
+<span class="fc" id="L56">        labels.putAll(ofNullable(entandoCustomResource.getMetadata().getLabels()).orElse(Collections.emptyMap()));</span>
+<span class="fc" id="L57">        return labels;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

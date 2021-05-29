@@ -20,8 +20,8 @@ import com.google.common.base.Strings;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import java.util.Map;
+import org.entando.kubernetes.controller.spi.common.LabelNames;
 import org.entando.kubernetes.controller.spi.common.ResourceUtils;
-import org.entando.kubernetes.controller.support.common.KubeUtils;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
 
 public class AbstractK8SResourceCreator {
@@ -64,7 +64,7 @@ public class AbstractK8SResourceCreator {
 
     protected Map&lt;String, String&gt; labelsFromResource(String nameQualifier) {
 <span class="fc" id="L66">        Map&lt;String, String&gt; labels = labelsFromResource();</span>
-<span class="fc" id="L67">        labels.put(KubeUtils.DEPLOYMENT_LABEL_NAME, resolveName(nameQualifier, null));</span>
+<span class="fc" id="L67">        labels.put(LabelNames.DEPLOYMENT.getName(), resolveName(nameQualifier, null));</span>
 <span class="fc" id="L68">        return labels;</span>
     }
 
