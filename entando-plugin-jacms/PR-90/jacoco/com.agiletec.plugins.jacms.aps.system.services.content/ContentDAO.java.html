@@ -53,91 +53,91 @@ import org.apache.commons.lang3.StringUtils;
 
 <span class="fc" id="L54">	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(ContentDAO.class);</span>
 
-<span class="fc" id="L56">	private final String DELETE_CONTENT = &quot;DELETE FROM contents WHERE contentid = ? &quot;;</span>
+	private static final String DELETE_CONTENT = &quot;DELETE FROM contents WHERE contentid = ? &quot;;
 
-<span class="fc" id="L58">	private final String DELETE_CONTENT_REL_RECORD = &quot;DELETE FROM contentrelations WHERE contentid = ? &quot;;</span>
+	private static final String DELETE_CONTENT_REL_RECORD = &quot;DELETE FROM contentrelations WHERE contentid = ? &quot;;
 
-<span class="fc" id="L60">	private final String DELETE_WORK_CONTENT_REL_RECORD = &quot;DELETE FROM workcontentrelations WHERE contentid = ? &quot;;</span>
+	private static final String DELETE_WORK_CONTENT_REL_RECORD = &quot;DELETE FROM workcontentrelations WHERE contentid = ? &quot;;
 
-<span class="fc" id="L62">	private final String ADD_CONTENT_SEARCH_RECORD = &quot;INSERT INTO contentsearch (contentid, attrname, textvalue, datevalue, numvalue, langcode) &quot;</span>
+	private static final String ADD_CONTENT_SEARCH_RECORD = &quot;INSERT INTO contentsearch (contentid, attrname, textvalue, datevalue, numvalue, langcode) &quot;
 			+ &quot;VALUES ( ? , ? , ? , ? , ? , ? )&quot;;
 
-<span class="fc" id="L65">	private final String DELETE_CONTENT_SEARCH_RECORD = &quot;DELETE FROM contentsearch WHERE contentid = ? &quot;;</span>
+	private static final String DELETE_CONTENT_SEARCH_RECORD = &quot;DELETE FROM contentsearch WHERE contentid = ? &quot;;
 
-<span class="fc" id="L67">	private final String ADD_WORK_CONTENT_SEARCH_RECORD = &quot;INSERT INTO workcontentsearch (contentid, attrname, textvalue, datevalue, numvalue, langcode) &quot;</span>
+	private static final String ADD_WORK_CONTENT_SEARCH_RECORD = &quot;INSERT INTO workcontentsearch (contentid, attrname, textvalue, datevalue, numvalue, langcode) &quot;
 			+ &quot;VALUES ( ? , ? , ? , ? , ? , ? )&quot;;
 
-<span class="fc" id="L70">	private final String DELETE_WORK_CONTENT_SEARCH_RECORD = &quot;DELETE FROM workcontentsearch WHERE contentid = ? &quot;;</span>
+	private static final String DELETE_WORK_CONTENT_SEARCH_RECORD = &quot;DELETE FROM workcontentsearch WHERE contentid = ? &quot;;
 
-<span class="fc" id="L72">	private final String ADD_CONTENT_REL_RECORD = &quot;INSERT INTO contentrelations &quot;</span>
+	private static final String ADD_CONTENT_REL_RECORD = &quot;INSERT INTO contentrelations &quot;
 			+ &quot;(contentid, refpage, refcontent, refresource, refcategory, refgroup) VALUES ( ? , ? , ? , ? , ? , ? )&quot;;
 
-<span class="fc" id="L75">	private final String ADD_WORK_CONTENT_REL_RECORD = &quot;INSERT INTO workcontentrelations (contentid, refcategory) VALUES ( ? , ? )&quot;;</span>
+	private static final String ADD_WORK_CONTENT_REL_RECORD = &quot;INSERT INTO workcontentrelations (contentid, refcategory) VALUES ( ? , ? )&quot;;
 
-<span class="fc" id="L77">	private final String LOAD_CONTENTS_ID_MAIN_BLOCK = &quot;SELECT DISTINCT contents.contentid FROM contents &quot;;</span>
+	private static final String LOAD_CONTENTS_ID_MAIN_BLOCK = &quot;SELECT DISTINCT contents.contentid FROM contents &quot;;
 
-<span class="fc" id="L79">	private final String LOAD_REFERENCED_CONTENTS_FOR_PAGE = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+	private static final String LOAD_REFERENCED_CONTENTS_FOR_PAGE = LOAD_CONTENTS_ID_MAIN_BLOCK
 			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refpage = ? &quot;
 			+ &quot;ORDER BY contents.contentid&quot;;
 
-<span class="fc" id="L83">	private final String LOAD_REFERENCED_CONTENTS_FOR_CONTENT = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+	private static final String LOAD_REFERENCED_CONTENTS_FOR_CONTENT = LOAD_CONTENTS_ID_MAIN_BLOCK
 			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refcontent = ? &quot;
 			+ &quot;ORDER BY contents.contentid&quot;;
 
-<span class="fc" id="L87">	private final String LOAD_REFERENCED_CONTENTS_FOR_GROUP = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+	private static final String LOAD_REFERENCED_CONTENTS_FOR_GROUP = LOAD_CONTENTS_ID_MAIN_BLOCK
 			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refgroup = ? &quot;
 			+ &quot;ORDER BY contents.contentid&quot;;
 
-<span class="fc" id="L91">	private final String LOAD_REFERENCED_CONTENTS_FOR_RESOURCE = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+	private static final String LOAD_REFERENCED_CONTENTS_FOR_RESOURCE = LOAD_CONTENTS_ID_MAIN_BLOCK
 			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refresource = ? &quot;
 			+ &quot;ORDER BY contents.contentid&quot;;
 
-<span class="fc" id="L95">	private final String LOAD_REFERENCED_CONTENTS_FOR_CATEGORY = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+	private static final String LOAD_REFERENCED_CONTENTS_FOR_CATEGORY = LOAD_CONTENTS_ID_MAIN_BLOCK
 			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refcategory = ? &quot;
 			+ &quot;ORDER BY contents.contentid&quot;;
 
-<span class="fc" id="L99">	private final String LOAD_CONTENTS_VO_MAIN_BLOCK = &quot;SELECT contents.contentid, contents.contenttype, contents.descr, &quot;</span>
+	private static final String LOAD_CONTENTS_VO_MAIN_BLOCK = &quot;SELECT contents.contentid, contents.contenttype, contents.descr, &quot;
             + &quot;contents.status, contents.workxml, contents.created, contents.lastmodified, contents.onlinexml, contents.published, &quot;
             + &quot;contents.sync, contents.maingroup, contents.currentversion, contents.firsteditor, contents.lasteditor, contents.restriction FROM contents &quot;;
 
-<span class="fc" id="L103">	private final String LOAD_CONTENT_VO = LOAD_CONTENTS_VO_MAIN_BLOCK + &quot; WHERE contents.contentid = ? &quot;;</span>
+	private static final String LOAD_CONTENT_VO = LOAD_CONTENTS_VO_MAIN_BLOCK + &quot; WHERE contents.contentid = ? &quot;;
 
-<span class="fc" id="L105">	private final String LOAD_REFERENCED_WORK_CONTENTS_FOR_CATEGORY = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+	private static final String LOAD_REFERENCED_WORK_CONTENTS_FOR_CATEGORY = LOAD_CONTENTS_ID_MAIN_BLOCK
 			+ &quot; RIGHT JOIN workcontentrelations ON contents.contentid = workcontentrelations.contentid WHERE refcategory = ? &quot;
 			+ &quot;ORDER BY contents.contentid&quot;;
 
-<span class="fc" id="L109">	private final String ADD_CONTENT = &quot;INSERT INTO contents (contentid, contenttype, descr, status, workxml, &quot;</span>
+	private static final String ADD_CONTENT = &quot;INSERT INTO contents (contentid, contenttype, descr, status, workxml, &quot;
 			+ &quot;created, lastmodified, sync, maingroup, currentversion, firsteditor, lasteditor, restriction) &quot;
 			+ &quot;VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ?)&quot;;
 
-<span class="fc" id="L113">	private final String INSERT_ONLINE_CONTENT = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;</span>
+	private static final String INSERT_ONLINE_CONTENT = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;
 			+ &quot;workxml = ? , lastmodified = ? , onlinexml = ? , published = ? , sync = ? , maingroup = ? , currentversion = ? , lasteditor = ? , &quot;
 			+ &quot;restriction = ? WHERE contentid = ? &quot;;
 
-<span class="fc" id="L117">	private final String INSERT_ONLINE_CONTENT_WITHOUT_DATE = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;</span>
+	private static final String INSERT_ONLINE_CONTENT_WITHOUT_DATE = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;
 			+ &quot;workxml = ? , onlinexml = ? , sync = ? , maingroup = ? , currentversion = ? , lasteditor = ? , restriction = ? WHERE contentid = ? &quot;;
 
-<span class="fc" id="L120">	private final String REMOVE_ONLINE_CONTENT = &quot;UPDATE contents SET onlinexml = ? , published = ? , sync = ? , &quot;</span>
+	private static final String REMOVE_ONLINE_CONTENT = &quot;UPDATE contents SET onlinexml = ? , published = ? , sync = ? , &quot;
             + &quot;status = ? , workxml = ? , lastmodified = ? , currentversion = ? , lasteditor = ? , restriction = ? WHERE contentid = ? &quot;;
 
-<span class="fc" id="L123">	private final String REMOVE_ONLINE_CONTENT_WITHOUT_DATE = &quot;UPDATE contents SET onlinexml = ? , published = ? , sync = ? , &quot;</span>
+	private static final String REMOVE_ONLINE_CONTENT_WITHOUT_DATE = &quot;UPDATE contents SET onlinexml = ? , published = ? , sync = ? , &quot;
             + &quot;status = ? , workxml = ? , currentversion = ? , lasteditor = ? , restriction = ? WHERE contentid = ? &quot;;
 
-<span class="fc" id="L126">	private final String UPDATE_CONTENT = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;</span>
+	private static final String UPDATE_CONTENT = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;
 			+ &quot;workxml = ? , sync = ? , lastmodified = ? , maingroup = ? , currentversion = ? , lasteditor = ? , restriction = ? &quot; + &quot;WHERE contentid = ? &quot;;
 
-<span class="fc" id="L129">	private final String UPDATE_CONTENT_WITHOUT_DATE = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;</span>
+	private static final String UPDATE_CONTENT_WITHOUT_DATE = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;
 			+ &quot;workxml = ? , sync = ? , maingroup = ? , currentversion = ? , lasteditor = ? , restriction = ? &quot; + &quot;WHERE contentid = ? &quot;;
 
-<span class="fc" id="L132">	private final String LOAD_ALL_CONTENTS_ID = &quot;SELECT contentid FROM contents&quot;;</span>
+	private static final String LOAD_ALL_CONTENTS_ID = &quot;SELECT contentid FROM contents&quot;;
 
-<span class="fc" id="L134">	private final String ADD_ATTRIBUTE_ROLE_RECORD = &quot;INSERT INTO contentattributeroles (contentid, attrname, rolename) VALUES ( ? , ? , ? )&quot;;</span>
+	private static final String ADD_ATTRIBUTE_ROLE_RECORD = &quot;INSERT INTO contentattributeroles (contentid, attrname, rolename) VALUES ( ? , ? , ? )&quot;;
 
-<span class="fc" id="L136">	private final String DELETE_ATTRIBUTE_ROLE_RECORD = &quot;DELETE FROM contentattributeroles WHERE contentid = ? &quot;;</span>
+	private static final String DELETE_ATTRIBUTE_ROLE_RECORD = &quot;DELETE FROM contentattributeroles WHERE contentid = ? &quot;;
 
-<span class="fc" id="L138">	private final String ADD_WORK_ATTRIBUTE_ROLE_RECORD = &quot;INSERT INTO workcontentattributeroles (contentid, attrname, rolename) VALUES ( ? , ? , ? )&quot;;</span>
+	private static final String ADD_WORK_ATTRIBUTE_ROLE_RECORD = &quot;INSERT INTO workcontentattributeroles (contentid, attrname, rolename) VALUES ( ? , ? , ? )&quot;;
 
-<span class="fc" id="L140">	private final String DELETE_WORK_ATTRIBUTE_ROLE_RECORD = &quot;DELETE FROM workcontentattributeroles WHERE contentid = ? &quot;;</span>
+	private static final String DELETE_WORK_ATTRIBUTE_ROLE_RECORD = &quot;DELETE FROM workcontentattributeroles WHERE contentid = ? &quot;;
     
 	private static final String COUNT_OFFLINE_CONTENTS = 
             &quot;SELECT count(contents.contentid) from contents WHERE contents.sync = 0 and onlinexml is null&quot;;
