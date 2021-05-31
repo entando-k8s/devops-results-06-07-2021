@@ -23,9 +23,11 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.OwnerReference;
 import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import org.entando.kubernetes.controller.coordinator.SimpleEntandoOperations.IoVulnerable;
 import org.entando.kubernetes.controller.spi.common.LabelNames;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
 
@@ -41,54 +43,62 @@ public class CoordinatorUtils {
     }
 
     public static OperatorProcessingInstruction resolveProcessingInstruction(EntandoCustomResource resource) {
-<span class="fc" id="L44">        return resolveAnnotation(resource, AnnotationNames.PROCESSING_INSTRUCTION)</span>
-<span class="fc" id="L45">                .map(value -&gt; OperatorProcessingInstruction</span>
-<span class="fc" id="L46">                        .valueOf(value.toUpperCase(Locale.ROOT).replace(&quot;-&quot;, &quot;_&quot;)))</span>
-<span class="fc" id="L47">                .orElse(OperatorProcessingInstruction.NONE);</span>
+<span class="fc" id="L46">        return resolveAnnotation(resource, AnnotationNames.PROCESSING_INSTRUCTION)</span>
+<span class="fc" id="L47">                .map(value -&gt; OperatorProcessingInstruction</span>
+<span class="fc" id="L48">                        .valueOf(value.toUpperCase(Locale.ROOT).replace(&quot;-&quot;, &quot;_&quot;)))</span>
+<span class="fc" id="L49">                .orElse(OperatorProcessingInstruction.NONE);</span>
     }
 
     public static Optional&lt;String&gt; resolveAnnotation(HasMetadata resource, AnnotationNames annotationName) {
-<span class="fc" id="L51">        return ofNullable(resource.getMetadata().getAnnotations()).map(map -&gt; map.get(annotationName.getName()));</span>
+<span class="fc" id="L53">        return ofNullable(resource.getMetadata().getAnnotations()).map(map -&gt; map.get(annotationName.getName()));</span>
     }
 
     public static boolean isOfInterest(CustomResourceDefinition r) {
-<span class="fc" id="L55">        return ofNullable(r.getMetadata().getLabels()).map(labels -&gt; labels.containsKey(LabelNames.CRD_OF_INTEREST.getName()))</span>
-<span class="fc" id="L56">                .orElse(false);</span>
+<span class="fc" id="L57">        return ofNullable(r.getMetadata().getLabels()).map(labels -&gt; labels.containsKey(LabelNames.CRD_OF_INTEREST.getName()))</span>
+<span class="fc" id="L58">                .orElse(false);</span>
     }
 
     public static String keyOf(CustomResourceDefinitionContext definitionContext) {
-<span class="fc" id="L60">        return keyOf(definitionContext.getKind(), definitionContext.getGroup());</span>
+<span class="fc" id="L62">        return keyOf(definitionContext.getKind(), definitionContext.getGroup());</span>
     }
 
     private static String keyOf(String kind, String group) {
-<span class="fc" id="L64">        return kind + &quot;.&quot; + group;</span>
+<span class="fc" id="L66">        return kind + &quot;.&quot; + group;</span>
     }
 
     public static String keyOf(CustomResourceDefinition r) {
-<span class="fc" id="L68">        return keyOf(r.getSpec().getNames().getKind(), r.getSpec().getGroup());</span>
+<span class="fc" id="L70">        return keyOf(r.getSpec().getNames().getKind(), r.getSpec().getGroup());</span>
     }
 
     public static String keyOf(EntandoCustomResource r) {
-<span class="fc" id="L72">        return keyOf(r.getKind(), extractGroupFrom(r.getApiVersion()));</span>
+<span class="fc" id="L74">        return keyOf(r.getKind(), extractGroupFrom(r.getApiVersion()));</span>
     }
 
     public static String keyOf(OwnerReference ownerReference) {
-<span class="fc" id="L76">        return keyOf(ownerReference.getKind(), extractGroupFrom(ownerReference.getApiVersion()));</span>
+<span class="fc" id="L78">        return keyOf(ownerReference.getKind(), extractGroupFrom(ownerReference.getApiVersion()));</span>
     }
 
     private static String extractGroupFrom(String apiVersion) {
-<span class="fc" id="L80">        return apiVersion.substring(0, apiVersion.indexOf(&quot;/&quot;));</span>
+<span class="fc" id="L82">        return apiVersion.substring(0, apiVersion.indexOf(&quot;/&quot;));</span>
     }
 
     public static Optional&lt;String&gt; resolveValue(ConfigMap map, String key) {
-<span class="fc" id="L84">        return ofNullable(map.getData()).flatMap(data -&gt; ofNullable(data.get(key)));</span>
+<span class="fc" id="L86">        return ofNullable(map.getData()).flatMap(data -&gt; ofNullable(data.get(key)));</span>
     }
 
     public static Map&lt;String, String&gt; podLabelsFor(EntandoCustomResource resource) {
-<span class="fc" id="L88">        return Map.of(</span>
-<span class="fc" id="L89">                LabelNames.RESOURCE_KIND.getName(), resource.getKind(),</span>
-<span class="fc" id="L90">                LabelNames.RESOURCE_NAMESPACE.getName(), resource.getMetadata().getNamespace(),</span>
-<span class="fc" id="L91">                resource.getKind(), resource.getMetadata().getName());</span>
+<span class="fc" id="L90">        return Map.of(</span>
+<span class="fc" id="L91">                LabelNames.RESOURCE_KIND.getName(), resource.getKind(),</span>
+<span class="fc" id="L92">                LabelNames.RESOURCE_NAMESPACE.getName(), resource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L93">                resource.getKind(), resource.getMetadata().getName());</span>
+    }
+
+    public static &lt;T&gt; T callIoVulnerable(IoVulnerable&lt;T&gt; c) {
+        try {
+<span class="fc" id="L98">            return c.call();</span>
+<span class="fc" id="L99">        } catch (IOException e) {</span>
+<span class="fc" id="L100">            throw new IllegalStateException(e);</span>
+        }
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

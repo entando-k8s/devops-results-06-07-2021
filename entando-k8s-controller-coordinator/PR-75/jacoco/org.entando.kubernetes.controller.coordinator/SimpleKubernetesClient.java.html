@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpleKubernetesClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller Coordinator</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.coordinator</a> &gt; <span class="el_source">SimpleKubernetesClient.java</span></div><h1>SimpleKubernetesClient.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.coordinator;
+
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
+import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
+import java.util.Collection;
+import java.util.Map;
+import org.entando.kubernetes.controller.spi.client.SerializedEntandoResource;
+import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
+
+public interface SimpleKubernetesClient {
+
+    SerializedEntandoResource updatePhase(SerializedEntandoResource resource, EntandoDeploymentPhase phase);
+
+    String getControllerNamespace();
+
+    Secret loadControllerSecret(String s);
+
+    Secret overwriteControllerSecret(Secret secret);
+
+    default ConfigMap loadDockerImageInfoConfigMap() {
+<span class="fc" id="L41">        return findOrCreateControllerConfigMap(ControllerCoordinatorConfig.getEntandoDockerImageInfoConfigMap());</span>
+    }
+
+    Pod startPod(Pod pod);
+
+    void removePodsAndWait(String namespace, Map&lt;String, String&gt; labels);
+
+    ConfigMap findOrCreateControllerConfigMap(String name);
+
+    ConfigMap patchControllerConfigMap(ConfigMap configMap);
+
+    void watchControllerConfigMap(String s, Watcher&lt;ConfigMap&gt; configMapWatcher);
+
+    void watchCustomResourceDefinitions(Watcher&lt;CustomResourceDefinition&gt; customResourceDefinitionWatcher);
+
+    Collection&lt;CustomResourceDefinition&gt; loadCustomResourceDefinitionsOfInterest();
+
+    SimpleEntandoOperations getOperations(CustomResourceDefinitionContext context);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

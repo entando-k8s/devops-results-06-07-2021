@@ -102,9 +102,9 @@ public class EntandoControllerCoordinator implements Watcher&lt;CustomResourceDe
     private void processCustomResourceDefinition(CustomResourceDefinition r) {
 <span class="fc" id="L103">        final String key = CoordinatorUtils.keyOf(r);</span>
 <span class="fc" id="L104">        final EntandoResourceObserver existingObserver = observers.get(key);</span>
-<span class="pc bpc" id="L105" title="3 of 4 branches missed.">        if (existingObserver != null &amp;&amp; existingObserver.getCrdGeneration() &lt; r.getMetadata().getGeneration()) {</span>
-<span class="nc" id="L106">            existingObserver.shutDownAndWait(10, TimeUnit.SECONDS);</span>
-<span class="nc" id="L107">            observers.remove(key);</span>
+<span class="pc bpc" id="L105" title="1 of 4 branches missed.">        if (existingObserver != null &amp;&amp; existingObserver.getCrdGeneration() &lt; r.getMetadata().getGeneration()) {</span>
+<span class="fc" id="L106">            existingObserver.shutDownAndWait(10, TimeUnit.SECONDS);</span>
+<span class="fc" id="L107">            observers.remove(key);</span>
         }
 <span class="fc" id="L109">        final Optional&lt;String&gt; controllerImageAnnotation = CoordinatorUtils.resolveAnnotation(r, AnnotationNames.CONTROLLER_IMAGE);</span>
 <span class="fc" id="L110">        controllerImageAnnotation.ifPresent(controllerImage -&gt; derivedControllerImageMap.put(CoordinatorUtils.keyOf(r), controllerImage));</span>

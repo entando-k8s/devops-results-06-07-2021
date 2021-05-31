@@ -17,18 +17,18 @@
 package org.entando.kubernetes.controller.coordinator;
 
 import static java.lang.String.format;
+import static org.entando.kubernetes.controller.coordinator.CoordinatorUtils.callIoVulnerable;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.kubernetes.client.Watcher;
-import io.fabric8.kubernetes.client.WatcherException;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
 import io.fabric8.kubernetes.client.dsl.internal.RawCustomResourceOperationsImpl;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -46,132 +46,120 @@ public class DefaultSimpleEntandoOperations implements SimpleEntandoOperations {
 
     private final KubernetesClient client;
     private final RawCustomResourceOperationsImpl operations;
+    private final boolean anyNamespace;
+    private final CustomResourceDefinitionContext definitionContext;
 
-<span class="fc" id="L50">    public DefaultSimpleEntandoOperations(KubernetesClient client, RawCustomResourceOperationsImpl operations) {</span>
-<span class="fc" id="L51">        this.client = client;</span>
-<span class="fc" id="L52">        this.operations = operations;</span>
-<span class="fc" id="L53">    }</span>
+    public DefaultSimpleEntandoOperations(KubernetesClient client, CustomResourceDefinitionContext definitionContext,
+<span class="fc" id="L53">            RawCustomResourceOperationsImpl operations, boolean anyNamespace) {</span>
+<span class="fc" id="L54">        this.client = client;</span>
+<span class="fc" id="L55">        this.definitionContext = definitionContext;</span>
+<span class="fc" id="L56">        this.operations = operations;</span>
+<span class="fc" id="L57">        this.anyNamespace = anyNamespace;</span>
+<span class="fc" id="L58">    }</span>
 
     @Override
     public SimpleEntandoOperations inNamespace(String namespace) {
-<span class="nc" id="L57">        return new DefaultSimpleEntandoOperations(client, operations.inNamespace(namespace));</span>
+<span class="fc" id="L62">        return new DefaultSimpleEntandoOperations(client, definitionContext, operations.inNamespace(namespace), false);</span>
     }
 
     @Override
     public SimpleEntandoOperations inAnyNamespace() {
-<span class="nc" id="L62">        return new DefaultSimpleEntandoOperations(client, operations.inAnyNamespace());</span>
+<span class="fc" id="L67">        return new DefaultSimpleEntandoOperations(client, definitionContext, operations.inAnyNamespace(), true);</span>
     }
 
     @Override
-    public void watch(Watcher&lt;SerializedEntandoResource&gt; observer) {
+    public void watch(SerializedResourceWatcher observer) {
         try {
-<span class="nc" id="L68">            operations.watch(new Watcher&lt;&gt;() {</span>
-                @Override
-                public void eventReceived(Action action, String s) {
-                    try {
-<span class="nc" id="L72">                        observer.eventReceived(action, new ObjectMapper().readValue(s, SerializedEntandoResource.class));</span>
-<span class="nc" id="L73">                    } catch (JsonProcessingException e) {</span>
-<span class="nc" id="L74">                        throw new IllegalStateException(e);</span>
-<span class="nc" id="L75">                    }</span>
-<span class="nc" id="L76">                }</span>
-
-                @Override
-                public void onClose(WatcherException cause) {
-<span class="nc bnc" id="L80" title="All 4 branches missed.">                    if (cause.getMessage().contains(&quot;resourceVersion&quot;) &amp;&amp; cause.getMessage().contains(&quot;too old&quot;)) {</span>
-<span class="nc" id="L81">                        LOGGER.log(Level.WARNING,</span>
-<span class="nc" id="L82">                                () -&gt; &quot;EntandoResourceObserver closed due to out of date resourceVersion. Reconnecting ... &quot;);</span>
-<span class="nc" id="L83">                        DefaultSimpleEntandoOperations.this.watch(observer);</span>
-                    } else {
-<span class="nc" id="L85">                        LOGGER.log(Level.SEVERE, cause,</span>
-<span class="nc" id="L86">                                () -&gt; &quot;EntandoResourceObserver closed. Can't reconnect. The container should restart now.&quot;);</span>
-<span class="nc" id="L87">                        Liveness.dead();</span>
-                    }
-
-<span class="nc" id="L90">                }</span>
-            });
-<span class="nc" id="L92">        } catch (IOException e) {</span>
-<span class="nc" id="L93">            LOGGER.log(Level.SEVERE, e,</span>
-<span class="nc" id="L94">                    () -&gt; &quot;EntandoResourceObserver registration failed. Can't recover. The container should restart now.&quot;);</span>
-<span class="nc" id="L95">            Liveness.dead();</span>
-<span class="nc" id="L96">        }</span>
-<span class="nc" id="L97">    }</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            if (anyNamespace) {</span>
+<span class="fc" id="L74">                operations.watch(new CustomResourceWatcher(this, observer));</span>
+            } else {
+<span class="fc" id="L76">                operations.watch(operations.getNamespace(), new CustomResourceWatcher(this, observer));</span>
+            }
+<span class="nc" id="L78">        } catch (IOException e) {</span>
+<span class="nc" id="L79">            LOGGER.log(Level.SEVERE, e,</span>
+<span class="nc" id="L80">                    () -&gt; &quot;EntandoResourceObserver registration failed. Can't recover. The container should restart now.&quot;);</span>
+<span class="nc" id="L81">            Liveness.dead();</span>
+<span class="fc" id="L82">        }</span>
+<span class="fc" id="L83">    }</span>
 
     @Override
     @SuppressWarnings(&quot;unchecked&quot;)
     public List&lt;SerializedEntandoResource&gt; list() {
-<span class="nc" id="L102">        final List&lt;Map&lt;String, Object&gt;&gt; items = (List&lt;Map&lt;String, Object&gt;&gt;) operations.list().get(&quot;items&quot;);</span>
-<span class="nc" id="L103">        return items.stream().map(this::toResource).collect(Collectors.toList());</span>
+<span class="fc" id="L88">        final List&lt;Map&lt;String, Object&gt;&gt; items = (List&lt;Map&lt;String, Object&gt;&gt;) operations.list().get(&quot;items&quot;);</span>
+<span class="fc" id="L89">        return items.stream().map(this::toResource).collect(Collectors.toList());</span>
     }
 
     @Override
     public SerializedEntandoResource removeAnnotation(SerializedEntandoResource r, String name) {
-<span class="nc" id="L108">        return editAnnotations(r, a -&gt; a.remove(name));</span>
+<span class="fc" id="L94">        return editAnnotations(r, a -&gt; a.remove(name));</span>
     }
 
     @SuppressWarnings(&quot;unchecked&quot;)
     private SerializedEntandoResource editAnnotations(SerializedEntandoResource r, Consumer&lt;Map&lt;String, Object&gt;&gt; editAction) {
-        try {
-<span class="nc" id="L114">            final Map&lt;String, Object&gt; map = operations.get(r.getMetadata().getNamespace(), r.getMetadata().getName());</span>
-<span class="nc" id="L115">            final Map&lt;String, Object&gt; metadata = (Map&lt;String, Object&gt;) map.get(&quot;metadata&quot;);</span>
-<span class="nc" id="L116">            final Map&lt;String, Object&gt; annotations = (Map&lt;String, Object&gt;) metadata.get(&quot;annotations&quot;);</span>
-<span class="nc" id="L117">            editAction.accept(annotations);</span>
-<span class="nc" id="L118">            operations.edit(map);</span>
-<span class="nc" id="L119">            return this.toResource(map);</span>
-<span class="nc" id="L120">        } catch (IOException e) {</span>
-<span class="nc" id="L121">            throw new IllegalStateException(e);</span>
-        }
+<span class="fc" id="L99">        return callIoVulnerable(() -&gt; {</span>
+<span class="fc" id="L100">            final Map&lt;String, Object&gt; map = operations.get(r.getMetadata().getNamespace(), r.getMetadata().getName());</span>
+<span class="fc" id="L101">            final Map&lt;String, Object&gt; metadata = (Map&lt;String, Object&gt;) map.get(&quot;metadata&quot;);</span>
+<span class="fc" id="L102">            final Map&lt;String, Object&gt; annotations = (Map&lt;String, Object&gt;) metadata</span>
+<span class="fc" id="L103">                    .computeIfAbsent(&quot;annotations&quot;, key -&gt; new HashMap&lt;String, String&gt;());</span>
+<span class="fc" id="L104">            editAction.accept(annotations);</span>
+<span class="fc" id="L105">            operations.inNamespace(r.getMetadata().getNamespace()).withName(r.getMetadata().getName()).edit(map);</span>
+<span class="fc" id="L106">            return this.toResource(map);</span>
+        });
     }
 
     private SerializedEntandoResource toResource(Map&lt;String, Object&gt; map) {
-        try {
-<span class="nc" id="L127">            ObjectMapper objectMapper = new ObjectMapper();</span>
-<span class="nc" id="L128">            return objectMapper.readValue(objectMapper.writeValueAsString(map), SerializedEntandoResource.class);</span>
-<span class="nc" id="L129">        } catch (IOException e) {</span>
-<span class="nc" id="L130">            throw new IllegalStateException(e);</span>
-        }
+<span class="fc" id="L111">        return callIoVulnerable(() -&gt; {</span>
+<span class="fc" id="L112">            ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L113">            return objectMapper.readValue(objectMapper.writeValueAsString(map), SerializedEntandoResource.class);</span>
+        });
     }
 
     @Override
     public SerializedEntandoResource putAnnotation(SerializedEntandoResource r, String name, String value) {
-<span class="nc" id="L136">        return editAnnotations(r, a -&gt; a.put(name, value));</span>
+<span class="fc" id="L119">        return editAnnotations(r, a -&gt; a.put(name, value));</span>
     }
 
     @Override
     public String getControllerNamespace() {
-<span class="nc" id="L141">        return client.getNamespace();</span>
+<span class="nc" id="L124">        return client.getNamespace();</span>
+    }
+
+    @Override
+    public CustomResourceDefinitionContext getDefinitionContext() {
+<span class="fc" id="L129">        return this.definitionContext;</span>
     }
 
     @Override
     public void removeSuccessfullyCompletedPods(SerializedEntandoResource resource) {
-<span class="fc" id="L146">        String namespace = client.getNamespace();</span>
-<span class="fc" id="L147">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(</span>
-<span class="fc" id="L148">                CoordinatorUtils.podLabelsFor(resource));</span>
+<span class="fc" id="L134">        String namespace = client.getNamespace();</span>
+<span class="fc" id="L135">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(</span>
+<span class="fc" id="L136">                CoordinatorUtils.podLabelsFor(resource));</span>
         try {
-<span class="fc" id="L150">            waitForCompletionOfPods(podResource);</span>
-<span class="fc" id="L151">            removePodsAndWait(podResource);</span>
-<span class="nc" id="L152">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L153">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L154">            throw new IllegalStateException(e);</span>
-<span class="fc" id="L155">        }</span>
-<span class="fc" id="L156">    }</span>
+<span class="fc" id="L138">            waitForCompletionOfPods(podResource);</span>
+<span class="fc" id="L139">            removePodsAndWait(podResource);</span>
+<span class="nc" id="L140">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L141">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L142">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L143">        }</span>
+<span class="fc" id="L144">    }</span>
 
     private void removePodsAndWait(FilterWatchListDeletable&lt;Pod, PodList&gt; podResource) throws InterruptedException {
-<span class="fc" id="L159">        podResource.delete();</span>
-<span class="fc" id="L160">        podResource.waitUntilCondition(ignore -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="fc" id="L161">                ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
-<span class="fc" id="L162">    }</span>
+<span class="fc" id="L147">        podResource.delete();</span>
+<span class="fc" id="L148">        podResource.waitUntilCondition(ignore -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="fc" id="L149">                ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
+<span class="fc" id="L150">    }</span>
 
     private void waitForCompletionOfPods(FilterWatchListDeletable&lt;Pod, PodList&gt; podResource) throws InterruptedException {
         try {
-<span class="fc" id="L166">            podResource.waitUntilCondition(</span>
-<span class="fc bfc" id="L167" title="All 2 branches covered.">                    ignored -&gt; podResource.list().getItems().stream().allMatch(pod -&gt; PodResult.of(pod).getState() == State.COMPLETED),</span>
-<span class="fc" id="L168">                    ControllerCoordinatorConfig.getRemovalDelay(), TimeUnit.SECONDS);</span>
-<span class="nc" id="L169">        } catch (KubernetesClientException e) {</span>
-<span class="nc" id="L170">            LOGGER.log(Level.WARNING, () -&gt; format(</span>
+<span class="fc" id="L154">            podResource.waitUntilCondition(</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">                    ignored -&gt; podResource.list().getItems().stream().allMatch(pod -&gt; PodResult.of(pod).getState() == State.COMPLETED),</span>
+<span class="fc" id="L156">                    ControllerCoordinatorConfig.getRemovalDelay(), TimeUnit.SECONDS);</span>
+<span class="nc" id="L157">        } catch (KubernetesClientException e) {</span>
+<span class="nc" id="L158">            LOGGER.log(Level.WARNING, () -&gt; format(</span>
                     &quot;Some pods remained active after the removal delay period. You can consider increasing the setting %s &quot;,
-<span class="nc" id="L172">                    ControllerCoordinatorProperty.ENTANDO_K8S_CONTROLLER_REMOVAL_DELAY.getJvmSystemProperty()));</span>
-<span class="fc" id="L173">        }</span>
-<span class="fc" id="L174">    }</span>
+<span class="nc" id="L160">                    ControllerCoordinatorProperty.ENTANDO_K8S_CONTROLLER_REMOVAL_DELAY.getJvmSystemProperty()));</span>
+<span class="fc" id="L161">        }</span>
+<span class="fc" id="L162">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

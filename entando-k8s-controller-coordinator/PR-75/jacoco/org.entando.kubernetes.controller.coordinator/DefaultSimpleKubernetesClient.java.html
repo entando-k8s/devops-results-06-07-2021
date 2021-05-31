@@ -18,6 +18,7 @@ package org.entando.kubernetes.controller.coordinator;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
+import static org.entando.kubernetes.controller.coordinator.CoordinatorUtils.callIoVulnerable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.ConfigMap;
@@ -33,7 +34,6 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
 import io.fabric8.kubernetes.client.dsl.internal.RawCustomResourceOperationsImpl;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
@@ -106,7 +106,7 @@ public class DefaultSimpleKubernetesClient implements SimpleKubernetesClient {
 <span class="fc" id="L106">                .withFieldPath(&quot;status&quot;)</span>
 <span class="fc" id="L107">                .endInvolvedObject();</span>
 <span class="fc" id="L108">        client.v1().events().inNamespace(customResource.getMetadata().getNamespace()).create(eventPopulator.apply(doneableEvent).build());</span>
-        try {
+<span class="fc" id="L109">        return callIoVulnerable(() -&gt; {</span>
 <span class="fc" id="L110">            SerializedEntandoResource ser = customResource;</span>
 <span class="fc" id="L111">            CustomResourceDefinitionContext definition = Optional.ofNullable(ser.getDefinition()).orElse(</span>
 <span class="fc" id="L112">                    resolveDefinitionContext(ser));</span>
@@ -120,101 +120,93 @@ public class DefaultSimpleKubernetesClient implements SimpleKubernetesClient {
 <span class="fc" id="L120">            consumer.accept(ser);</span>
 <span class="fc" id="L121">            final Map&lt;String, Object&gt; map = resource.updateStatus(objectMapper.writeValueAsString(ser));</span>
 <span class="fc" id="L122">            return objectMapper.readValue(objectMapper.writeValueAsString(map), SerializedEntandoResource.class);</span>
-<span class="nc" id="L123">        } catch (IOException e) {</span>
-<span class="nc" id="L124">            throw new IllegalStateException(e);</span>
-        }
+        });
     }
 
     private CustomResourceDefinitionContext resolveDefinitionContext(SerializedEntandoResource resource) {
-<span class="fc" id="L129">        return definitionContextMap.computeIfAbsent(CoordinatorUtils.keyOf(resource), key -&gt;</span>
-<span class="fc" id="L130">                CustomResourceDefinitionContext.fromCrd(client.apiextensions().v1beta1().customResourceDefinitions()</span>
-<span class="fc" id="L131">                        .withName(ofNullable(</span>
-<span class="fc" id="L132">                                ofNullable(findOrCreateControllerConfigMap(CoordinatorUtils.ENTANDO_CRD_NAMES_CONFIGMAP_NAME).getData())</span>
-<span class="fc" id="L133">                                        .orElse(Collections.emptyMap()).get(key))</span>
-<span class="fc" id="L134">                                .orElseThrow(IllegalStateException::new)).get()));</span>
+<span class="fc" id="L127">        return definitionContextMap.computeIfAbsent(CoordinatorUtils.keyOf(resource), key -&gt;</span>
+<span class="fc" id="L128">                CustomResourceDefinitionContext.fromCrd(client.apiextensions().v1beta1().customResourceDefinitions()</span>
+<span class="fc" id="L129">                        .withName(ofNullable(</span>
+<span class="fc" id="L130">                                ofNullable(findOrCreateControllerConfigMap(CoordinatorUtils.ENTANDO_CRD_NAMES_CONFIGMAP_NAME).getData())</span>
+<span class="fc" id="L131">                                        .orElse(Collections.emptyMap()).get(key))</span>
+<span class="fc" id="L132">                                .orElseThrow(IllegalStateException::new)).get()));</span>
     }
 
     @Override
     public String getControllerNamespace() {
-<span class="fc" id="L139">        return client.getNamespace();</span>
+<span class="fc" id="L137">        return client.getNamespace();</span>
     }
 
     @Override
     public Secret loadControllerSecret(String s) {
-<span class="nc" id="L144">        return client.secrets().inNamespace(getControllerNamespace()).withName(s).get();</span>
+<span class="fc" id="L142">        return client.secrets().inNamespace(getControllerNamespace()).withName(s).get();</span>
     }
 
     @Override
-    public void overwriteControllerSecret(Secret secret) {
-<span class="nc" id="L149">        client.secrets().inNamespace(getControllerNamespace()).createOrReplace(secret);</span>
-<span class="nc" id="L150">    }</span>
-
-    @Override
-    public ConfigMap loadDockerImageInfoConfigMap() {
-<span class="nc" id="L154">        return client.configMaps().inNamespace(getControllerNamespace())</span>
-<span class="nc" id="L155">                .withName(ControllerCoordinatorConfig.getEntandoDockerImageInfoConfigMap()).get();</span>
+    public Secret overwriteControllerSecret(Secret secret) {
+<span class="fc" id="L147">        return client.secrets().inNamespace(getControllerNamespace()).createOrReplace(secret);</span>
     }
 
     @Override
     public Pod startPod(Pod pod) {
-<span class="fc" id="L160">        return client.pods().inNamespace(getControllerNamespace()).create(pod);</span>
+<span class="fc" id="L152">        return client.pods().inNamespace(getControllerNamespace()).create(pod);</span>
     }
 
     @Override
     public void removePodsAndWait(String namespace, Map&lt;String, String&gt; labels) {
-<span class="fc" id="L165">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(labels);</span>
-<span class="fc" id="L166">        podResource.delete();</span>
+<span class="fc" id="L157">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(labels);</span>
+<span class="fc" id="L158">        podResource.delete();</span>
         try {
-<span class="fc" id="L168">            podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="fc" id="L169">                    ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
-<span class="nc" id="L170">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L171">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L172">            throw new IllegalStateException(e);</span>
-<span class="fc" id="L173">        }</span>
-<span class="fc" id="L174">    }</span>
+<span class="fc" id="L160">            podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="fc" id="L161">                    ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
+<span class="nc" id="L162">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L163">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L164">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L165">        }</span>
+<span class="fc" id="L166">    }</span>
 
     @Override
     public ConfigMap findOrCreateControllerConfigMap(String name) {
-<span class="fc" id="L178">        return Objects.requireNonNullElseGet(this.client.configMaps().inNamespace(getControllerNamespace()).withName(name).get(), () -&gt;</span>
-<span class="fc" id="L179">                this.client.configMaps().inNamespace(getControllerNamespace())</span>
-<span class="fc" id="L180">                        .create(new ConfigMapBuilder()</span>
-<span class="fc" id="L181">                                .withNewMetadata()</span>
-<span class="fc" id="L182">                                .withNamespace(getControllerNamespace())</span>
-<span class="fc" id="L183">                                .withName(name)</span>
-<span class="fc" id="L184">                                .endMetadata()</span>
-<span class="fc" id="L185">                                .build()));</span>
+<span class="fc" id="L170">        return Objects.requireNonNullElseGet(this.client.configMaps().inNamespace(getControllerNamespace()).withName(name).get(), () -&gt;</span>
+<span class="fc" id="L171">                this.client.configMaps().inNamespace(getControllerNamespace())</span>
+<span class="fc" id="L172">                        .create(new ConfigMapBuilder()</span>
+<span class="fc" id="L173">                                .withNewMetadata()</span>
+<span class="fc" id="L174">                                .withNamespace(getControllerNamespace())</span>
+<span class="fc" id="L175">                                .withName(name)</span>
+<span class="fc" id="L176">                                .endMetadata()</span>
+<span class="fc" id="L177">                                .build()));</span>
     }
 
     @Override
     public ConfigMap patchControllerConfigMap(ConfigMap configMap) {
-<span class="fc" id="L190">        return client.configMaps().inNamespace(getControllerNamespace()).withName(configMap.getMetadata().getName()).patch(configMap);</span>
+<span class="fc" id="L182">        return client.configMaps().inNamespace(getControllerNamespace()).withName(configMap.getMetadata().getName()).patch(configMap);</span>
     }
 
     @Override
     public void watchControllerConfigMap(String name, Watcher&lt;ConfigMap&gt; configMapWatcher) {
-<span class="nc" id="L195">        this.client.configMaps().inNamespace(getControllerNamespace()).withName(name).watch(configMapWatcher);</span>
-<span class="nc" id="L196">    }</span>
+<span class="fc" id="L187">        this.client.configMaps().inNamespace(getControllerNamespace()).withName(name).watch(configMapWatcher);</span>
+<span class="fc" id="L188">    }</span>
 
     @Override
     public void watchCustomResourceDefinitions(Watcher&lt;CustomResourceDefinition&gt; customResourceDefinitionWatcher) {
-<span class="nc" id="L200">        this.client.apiextensions().v1beta1().customResourceDefinitions().withLabel(LabelNames.CRD_OF_INTEREST.getName())</span>
-<span class="nc" id="L201">                .watch(customResourceDefinitionWatcher);</span>
-<span class="nc" id="L202">    }</span>
+<span class="fc" id="L192">        this.client.apiextensions().v1beta1().customResourceDefinitions().withLabel(LabelNames.CRD_OF_INTEREST.getName())</span>
+<span class="fc" id="L193">                .watch(customResourceDefinitionWatcher);</span>
+<span class="fc" id="L194">    }</span>
 
     @Override
     public Collection&lt;CustomResourceDefinition&gt; loadCustomResourceDefinitionsOfInterest() {
-<span class="nc" id="L206">        return client.apiextensions().v1beta1().customResourceDefinitions().withLabel(LabelNames.CRD_OF_INTEREST.getName())</span>
-<span class="nc" id="L207">                .list()</span>
-<span class="nc" id="L208">                .getItems();</span>
+<span class="fc" id="L198">        return client.apiextensions().v1beta1().customResourceDefinitions().withLabel(LabelNames.CRD_OF_INTEREST.getName())</span>
+<span class="fc" id="L199">                .list()</span>
+<span class="fc" id="L200">                .getItems();</span>
     }
 
     @Override
     public SimpleEntandoOperations getOperations(CustomResourceDefinitionContext context) {
-<span class="nc" id="L213">        return new DefaultSimpleEntandoOperations(client, client.customResource(context));</span>
+<span class="nc" id="L205">        return new DefaultSimpleEntandoOperations(client, context, client.customResource(context), true);</span>
     }
 
     public List&lt;Event&gt; listEventsFor(EntandoCustomResource resource) {
-<span class="fc" id="L217">        return client.v1().events().inAnyNamespace().withLabels(ResourceUtils.labelsFromResource(resource)).list().getItems();</span>
+<span class="fc" id="L209">        return client.v1().events().inAnyNamespace().withLabels(ResourceUtils.labelsFromResource(resource)).list().getItems();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
