@@ -69,12 +69,13 @@ public class ProvidedSsoCapability implements SsoConnectionInfo {
     public String getDefaultRealm() {
 <span class="fc" id="L70">        return ofNullable(</span>
 <span class="fc" id="L71">                capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus().orElseThrow(IllegalStateException::new)</span>
-<span class="fc" id="L72">                        .getDerivedDeploymentParameters().get(DEFAULT_REALM_PARAMETER)).orElse(KeycloakName.ENTANDO_DEFAULT_KEYCLOAK_REALM);</span>
+<span class="fc" id="L72">                        .getDerivedDeploymentParameters()).flatMap(map -&gt; ofNullable(map.get(DEFAULT_REALM_PARAMETER)))</span>
+<span class="fc" id="L73">                .orElse(KeycloakName.ENTANDO_DEFAULT_KEYCLOAK_REALM);</span>
     }
 
     @Override
     public Optional&lt;String&gt; getInternalBaseUrl() {
-<span class="fc" id="L77">        return ofNullable(exposedService.getInternalBaseUrl());</span>
+<span class="fc" id="L78">        return ofNullable(exposedService.getInternalBaseUrl());</span>
     }
 
 }
