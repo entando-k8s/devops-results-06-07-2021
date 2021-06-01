@@ -16,6 +16,8 @@
 
 package org.entando.kubernetes.controller.spi.client;
 
+import static org.entando.kubernetes.controller.spi.common.ExceptionUtils.ioSafe;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
 import java.io.ByteArrayInputStream;
@@ -31,73 +33,69 @@ import org.apache.commons.io.IOUtils;
 public class ExecutionResult implements ExecListener {
 
     private final CompletableFuture&lt;ExecutionResult&gt; future;
-<span class="fc" id="L34">    private ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
-<span class="fc" id="L35">    private ByteArrayOutputStream errorChannel = new ByteArrayOutputStream();</span>
+<span class="fc" id="L36">    private ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
+<span class="fc" id="L37">    private ByteArrayOutputStream errorChannel = new ByteArrayOutputStream();</span>
 
-<span class="fc" id="L37">    public ExecutionResult(CompletableFuture&lt;ExecutionResult&gt; future) {</span>
-<span class="fc" id="L38">        this.future = future;</span>
-<span class="fc" id="L39">    }</span>
+<span class="fc" id="L39">    public ExecutionResult(CompletableFuture&lt;ExecutionResult&gt; future) {</span>
+<span class="fc" id="L40">        this.future = future;</span>
+<span class="fc" id="L41">    }</span>
 
     @Override
     public void onOpen(Response response) {
         //no implementation required
-<span class="fc" id="L44">    }</span>
+<span class="fc" id="L46">    }</span>
 
     @Override
     public void onFailure(Throwable t, Response response) {
-<span class="nc" id="L48">        future.completeExceptionally(t);</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L50">        future.completeExceptionally(t);</span>
+<span class="nc" id="L51">    }</span>
 
     @Override
     public void onClose(int code, String reason) {
-<span class="fc" id="L53">        future.complete(this);</span>
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L55">        future.complete(this);</span>
+<span class="fc" id="L56">    }</span>
 
     @SuppressWarnings(&quot;unchecked&quot;)
     public int getCode() {
-<span class="fc" id="L58">        final List&lt;String&gt; strings = toLines(errorChannel);</span>
-<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (!strings.isEmpty()) {</span>
+<span class="fc" id="L60">        final List&lt;String&gt; strings = toLines(errorChannel);</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (!strings.isEmpty()) {</span>
             try {
-<span class="fc" id="L61">                final Map&lt;String, Object&gt; map = new ObjectMapper().readValue(strings.get(0), Map.class);</span>
+<span class="fc" id="L63">                final Map&lt;String, Object&gt; map = new ObjectMapper().readValue(strings.get(0), Map.class);</span>
 
-<span class="fc bfc" id="L63" title="All 2 branches covered.">                if (&quot;Success&quot;.equals(map.get(&quot;status&quot;))) {</span>
-<span class="fc" id="L64">                    return 0;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">                if (&quot;Success&quot;.equals(map.get(&quot;status&quot;))) {</span>
+<span class="fc" id="L66">                    return 0;</span>
                 }
 
-<span class="fc" id="L67">                final Map&lt;String, Object&gt; details = (Map&lt;String, Object&gt;) map.get(&quot;details&quot;);</span>
-<span class="fc" id="L68">                final List&lt;Map&lt;String, Object&gt;&gt; causes = (List&lt;Map&lt;String, Object&gt;&gt;) details.get(&quot;causes&quot;);</span>
-<span class="fc" id="L69">                final String message = (String) causes.get(0).get(&quot;message&quot;);</span>
-<span class="fc" id="L70">                return Integer.parseInt(message);</span>
-<span class="nc" id="L71">            } catch (IOException | NullPointerException e) {</span>
-<span class="nc" id="L72">                return -1;</span>
+<span class="fc" id="L69">                final Map&lt;String, Object&gt; details = (Map&lt;String, Object&gt;) map.get(&quot;details&quot;);</span>
+<span class="fc" id="L70">                final List&lt;Map&lt;String, Object&gt;&gt; causes = (List&lt;Map&lt;String, Object&gt;&gt;) details.get(&quot;causes&quot;);</span>
+<span class="fc" id="L71">                final String message = (String) causes.get(0).get(&quot;message&quot;);</span>
+<span class="fc" id="L72">                return Integer.parseInt(message);</span>
+<span class="nc" id="L73">            } catch (IOException | NullPointerException e) {</span>
+<span class="nc" id="L74">                return -1;</span>
             }
         } else {
-<span class="nc" id="L75">            return 0;</span>
+<span class="nc" id="L77">            return 0;</span>
         }
     }
 
     public boolean hasFailed() {
-<span class="nc bnc" id="L80" title="All 2 branches missed.">        return getCode() != 0;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        return getCode() != 0;</span>
     }
 
     public ByteArrayOutputStream getOutput() {
-<span class="fc" id="L84">        return output;</span>
+<span class="fc" id="L86">        return output;</span>
     }
 
     public ByteArrayOutputStream getErrorChannel() {
-<span class="fc" id="L88">        return errorChannel;</span>
+<span class="fc" id="L90">        return errorChannel;</span>
     }
 
     private List&lt;String&gt; toLines(ByteArrayOutputStream error) {
-        try {
-<span class="fc" id="L93">            return IOUtils.readLines(new ByteArrayInputStream(error.toByteArray()), StandardCharsets.UTF_8);</span>
-<span class="nc" id="L94">        } catch (IOException e) {</span>
-<span class="nc" id="L95">            throw new IllegalStateException(&quot;Will never happen&quot;);</span>
-        }
+<span class="fc" id="L94">        return ioSafe(() -&gt; IOUtils.readLines(new ByteArrayInputStream(error.toByteArray()), StandardCharsets.UTF_8));</span>
     }
 
     public List&lt;String&gt; getOutputLines() {
-<span class="fc" id="L100">        return toLines(output);</span>
+<span class="fc" id="L98">        return toLines(output);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

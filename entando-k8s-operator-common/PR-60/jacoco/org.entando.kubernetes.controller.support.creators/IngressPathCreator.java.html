@@ -53,13 +53,13 @@ public class IngressPathCreator {
 <span class="fc" id="L53">        List&lt;IngressingPathOnPort&gt; ingressingContainers = ingressingDeployable.stream()</span>
 <span class="fc" id="L54">                .filter(path -&gt; this.httpPathIsAbsent(ingress, path))</span>
 <span class="fc" id="L55">                .collect(Collectors.toList());</span>
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        for (IngressingPathOnPort ingressingContainer : ingressingContainers) {</span>
-<span class="nc" id="L57">            String qualifier = ((DeployableContainer) ingressingContainer).getNameQualifier();</span>
-<span class="nc" id="L58">            ingressClient.addHttpPath(ingress, newHttpPath(ingressingContainer, service), Collections</span>
-<span class="nc" id="L59">                    .singletonMap(&quot;entando.org/&quot; + entandoCustomResource.getMetadata().getName() + &quot;/&quot; + qualifier + &quot;-path&quot;,</span>
-<span class="nc" id="L60">                            ingressingContainer.getWebContextPath()));</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for (IngressingPathOnPort ingressingContainer : ingressingContainers) {</span>
+<span class="fc" id="L57">            String qualifier = ((DeployableContainer) ingressingContainer).getNameQualifier();</span>
+<span class="fc" id="L58">            ingressClient.addHttpPath(ingress, newHttpPath(ingressingContainer, service), Collections</span>
+<span class="fc" id="L59">                    .singletonMap(&quot;entando.org/&quot; + entandoCustomResource.getMetadata().getName() + &quot;/&quot; + qualifier + &quot;-path&quot;,</span>
+<span class="fc" id="L60">                            ingressingContainer.getWebContextPath()));</span>
 
-<span class="nc" id="L62">        }</span>
+<span class="fc" id="L62">        }</span>
 <span class="fc" id="L63">        return ingressClient.loadIngress(ingress.getMetadata().getNamespace(), ingress.getMetadata().getName());</span>
     }
 

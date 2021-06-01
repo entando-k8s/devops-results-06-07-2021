@@ -73,7 +73,7 @@ public final class TrustStoreHelper {
     }
 
     public static void trustCertificateAuthoritiesIn(Secret secret) {
-        try {
+<span class="nc" id="L76">        safely(() -&gt; {</span>
 <span class="nc" id="L77">            char[] trustStorePassword = SecretUtils.randomAlphanumeric(20).toCharArray();</span>
 <span class="nc" id="L78">            KeyStore keyStore = buildKeystoreFrom(secret.getData());</span>
 <span class="nc" id="L79">            Path tempFile = Files.createTempFile(Path.of(EntandoOperatorSpiConfig.getSafeTempFileDirectory()), &quot;trust-store&quot;, &quot;.jks&quot;);</span>
@@ -82,47 +82,58 @@ public final class TrustStoreHelper {
             }
 <span class="nc" id="L83">            System.setProperty(&quot;javax.net.ssl.trustStore&quot;, tempFile.normalize().toAbsolutePath().toString());</span>
 <span class="nc" id="L84">            System.setProperty(&quot;javax.net.ssl.trustStorePassword&quot;, new String(trustStorePassword));</span>
-<span class="nc" id="L85">        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {</span>
-<span class="nc" id="L86">            throw new IllegalStateException(e);</span>
-<span class="nc" id="L87">        }</span>
-<span class="nc" id="L88">    }</span>
+<span class="nc" id="L85">            return null;</span>
+        });
+<span class="nc" id="L87">    }</span>
+
+    public static &lt;T&gt; T safely(ExceptionSafe&lt;T&gt; t) {
+        try {
+<span class="fc" id="L91">            return t.invoke();</span>
+<span class="nc" id="L92">        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {</span>
+<span class="nc" id="L93">            throw new IllegalStateException(e);</span>
+        }
+    }
+
+    interface ExceptionSafe&lt;T&gt; {
+
+        T invoke() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException;
+    }
 
     private static String buildBase64TrustStoreFrom(Secret caSecret, char[] trustStorePassword) {
-        try {
-<span class="fc" id="L92">            KeyStore keyStore = buildKeystoreFrom(caSecret.getData());</span>
-<span class="fc" id="L93">            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="fc" id="L94">                keyStore.store(outputStream, trustStorePassword);</span>
-<span class="fc" id="L95">                return new String(Base64.getEncoder().encode(outputStream.toByteArray()), StandardCharsets.UTF_8);</span>
+<span class="fc" id="L103">        return safely(() -&gt; {</span>
+<span class="fc" id="L104">            KeyStore keyStore = buildKeystoreFrom(caSecret.getData());</span>
+<span class="fc" id="L105">            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="fc" id="L106">                keyStore.store(outputStream, trustStorePassword);</span>
+<span class="fc" id="L107">                return new String(Base64.getEncoder().encode(outputStream.toByteArray()), StandardCharsets.UTF_8);</span>
             }
-<span class="nc" id="L97">        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {</span>
-<span class="nc" id="L98">            throw new IllegalStateException(e);</span>
-        }
+        });
     }
 
     private static KeyStore buildKeystoreFrom(Map&lt;String, String&gt; certs)
             throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
-<span class="fc" id="L104">        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());</span>
-<span class="fc" id="L105">        keyStore.load(null, null);</span>
-<span class="fc" id="L106">        certs.entrySet().forEach(cert -&gt; importCert(keyStore, cert));</span>
-<span class="fc" id="L107">        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(&quot;PKIX&quot;);</span>
-<span class="fc" id="L108">        trustManagerFactory.init((KeyStore) null);</span>
-<span class="fc" id="L109">        TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();</span>
-<span class="fc" id="L110">        X509TrustManager trustManager = (X509TrustManager) trustManagers[0];</span>
-<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (X509Certificate certificate : trustManager.getAcceptedIssuers()) {</span>
-<span class="fc" id="L112">            keyStore.setCertificateEntry(certificate.getSubjectX500Principal().getName(), certificate);</span>
+<span class="fc" id="L114">        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());</span>
+<span class="fc" id="L115">        keyStore.load(null, null);</span>
+<span class="fc" id="L116">        certs.entrySet().forEach(cert -&gt; importCert(keyStore, cert));</span>
+<span class="fc" id="L117">        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(&quot;PKIX&quot;);</span>
+<span class="fc" id="L118">        trustManagerFactory.init((KeyStore) null);</span>
+<span class="fc" id="L119">        TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();</span>
+<span class="fc" id="L120">        X509TrustManager trustManager = (X509TrustManager) trustManagers[0];</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        for (X509Certificate certificate : trustManager.getAcceptedIssuers()) {</span>
+<span class="fc" id="L122">            keyStore.setCertificateEntry(certificate.getSubjectX500Principal().getName(), certificate);</span>
         }
-<span class="fc" id="L114">        return keyStore;</span>
+<span class="fc" id="L124">        return keyStore;</span>
     }
 
     private static void importCert(KeyStore keyStore, Entry&lt;String, String&gt; certPath) {
-<span class="fc" id="L118">        try (InputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(certPath.getValue()))) {</span>
-<span class="fc bfc" id="L119" title="All 2 branches covered.">            for (Certificate cert : CertificateFactory.getInstance(&quot;x.509&quot;).generateCertificates(stream)) {</span>
-<span class="fc" id="L120">                keyStore.setCertificateEntry(((X509Certificate) cert).getSubjectX500Principal().getName(), cert);</span>
-<span class="fc" id="L121">            }</span>
-<span class="nc" id="L122">        } catch (IOException | KeyStoreException | CertificateException e) {</span>
-<span class="nc" id="L123">            throw new IllegalStateException(e);</span>
-<span class="fc" id="L124">        }</span>
-<span class="fc" id="L125">    }</span>
+<span class="fc" id="L128">        safely(() -&gt; {</span>
+<span class="fc" id="L129">            try (InputStream stream = new ByteArrayInputStream(Base64.getDecoder().decode(certPath.getValue()))) {</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">                for (Certificate cert : CertificateFactory.getInstance(&quot;x.509&quot;).generateCertificates(stream)) {</span>
+<span class="fc" id="L131">                    keyStore.setCertificateEntry(((X509Certificate) cert).getSubjectX500Principal().getName(), cert);</span>
+<span class="fc" id="L132">                }</span>
+            }
+<span class="fc" id="L134">            return null;</span>
+        });
+<span class="fc" id="L136">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

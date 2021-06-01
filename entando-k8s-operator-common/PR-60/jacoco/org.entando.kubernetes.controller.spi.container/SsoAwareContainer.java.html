@@ -26,7 +26,7 @@ import org.entando.kubernetes.controller.spi.common.SecretUtils;
 
 public interface SsoAwareContainer extends DeployableContainer, HasWebContext, KeycloakPreference {
 
-    SsoConnectionInfo getSsoConnectionConfig();
+    SsoConnectionInfo getSsoConnectionInfo();
 
     SsoClientConfig getSsoClientConfig();
 
@@ -43,7 +43,7 @@ public interface SsoAwareContainer extends DeployableContainer, HasWebContext, K
 <span class="fc" id="L43">        vars.add(new EnvVar(&quot;KEYCLOAK_ENABLED&quot;, &quot;true&quot;, null));</span>
 <span class="fc" id="L44">        vars.add(new EnvVar(&quot;KEYCLOAK_REALM&quot;, getRealmToUse(), null));</span>
 <span class="fc" id="L45">        vars.add(new EnvVar(&quot;KEYCLOAK_PUBLIC_CLIENT_ID&quot;, getPublicClientIdToUse(), null));</span>
-<span class="fc" id="L46">        ofNullable(getSsoConnectionConfig()).ifPresent(ssoConnectionInfo -&gt;</span>
+<span class="fc" id="L46">        ofNullable(getSsoConnectionInfo()).ifPresent(ssoConnectionInfo -&gt;</span>
 <span class="fc" id="L47">                vars.add(new EnvVar(&quot;KEYCLOAK_AUTH_URL&quot;, ssoConnectionInfo.getExternalBaseUrl(), null)));</span>
 <span class="fc" id="L48">        String keycloakSecretName = KeycloakName.forTheClientSecret(getSsoClientConfig());</span>
 <span class="fc" id="L49">        vars.add(new EnvVar(&quot;KEYCLOAK_CLIENT_SECRET&quot;, null,</span>

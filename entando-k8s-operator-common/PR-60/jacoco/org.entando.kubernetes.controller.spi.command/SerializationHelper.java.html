@@ -16,8 +16,9 @@
 
 package org.entando.kubernetes.controller.spi.command;
 
+import static org.entando.kubernetes.controller.spi.common.ExceptionUtils.ioSafe;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -45,89 +46,87 @@ public class SerializationHelper {
     }
 
     public static String serialize(Object deployable) {
-        try {
-<span class="fc" id="L49">            Map&lt;String, Object&gt; map = toJsonFriendlyMap(deployable);</span>
-<span class="fc" id="L50">            return new ObjectMapper(new YAMLFactory()).writerWithDefaultPrettyPrinter().writeValueAsString(map);</span>
-<span class="nc" id="L51">        } catch (JsonProcessingException e) {</span>
-<span class="nc" id="L52">            throw new IllegalStateException(e);</span>
-        }
+<span class="fc" id="L49">        return ioSafe(() -&gt; {</span>
+<span class="fc" id="L50">            Map&lt;String, Object&gt; map = toJsonFriendlyMap(deployable);</span>
+<span class="fc" id="L51">            return new ObjectMapper(new YAMLFactory()).writerWithDefaultPrettyPrinter().writeValueAsString(map);</span>
+        });
     }
 
     private static Map&lt;String, Object&gt; toJsonFriendlyMap(Object nonSerializableObject) {
-<span class="fc" id="L57">        Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L58">        map.put(&quot;mixins&quot;, Arrays.stream(getAllImplementedInterfaces(nonSerializableObject.getClass()))</span>
-<span class="fc" id="L59">                .filter(ReflectionUtil.KNOWN_INTERFACES::contains)</span>
-<span class="fc" id="L60">                .map(Class::getSimpleName)</span>
-<span class="fc" id="L61">                .collect(Collectors.toList()));</span>
-<span class="fc" id="L62">        Arrays.stream(nonSerializableObject.getClass().getMethods())</span>
-<span class="fc bfc" id="L63" title="All 4 branches covered.">                .filter(method -&gt; (method.getName().startsWith(&quot;get&quot;) || method.getName().startsWith(&quot;is&quot;))</span>
-<span class="fc bfc" id="L64" title="All 2 branches covered.">                        &amp;&amp; method.getReturnType() != void.class</span>
-<span class="fc bfc" id="L65" title="All 2 branches covered.">                        &amp;&amp; method.getParameterCount() == 0)</span>
-<span class="fc" id="L66">                .map(method -&gt; processGetter(nonSerializableObject, method))</span>
-<span class="fc" id="L67">                .filter(Objects::nonNull)</span>
-<span class="fc" id="L68">                .forEach(stringObjectPair -&gt; map.put(stringObjectPair.getKey(), stringObjectPair.getValue()));</span>
-<span class="fc" id="L69">        return map;</span>
+<span class="fc" id="L56">        Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L57">        map.put(&quot;mixins&quot;, Arrays.stream(getAllImplementedInterfaces(nonSerializableObject.getClass()))</span>
+<span class="fc" id="L58">                .filter(ReflectionUtil.KNOWN_INTERFACES::contains)</span>
+<span class="fc" id="L59">                .map(Class::getSimpleName)</span>
+<span class="fc" id="L60">                .collect(Collectors.toList()));</span>
+<span class="fc" id="L61">        Arrays.stream(nonSerializableObject.getClass().getMethods())</span>
+<span class="fc bfc" id="L62" title="All 4 branches covered.">                .filter(method -&gt; (method.getName().startsWith(&quot;get&quot;) || method.getName().startsWith(&quot;is&quot;))</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">                        &amp;&amp; method.getReturnType() != void.class</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">                        &amp;&amp; method.getParameterCount() == 0)</span>
+<span class="fc" id="L65">                .map(method -&gt; processGetter(nonSerializableObject, method))</span>
+<span class="fc" id="L66">                .filter(Objects::nonNull)</span>
+<span class="fc" id="L67">                .forEach(stringObjectPair -&gt; map.put(stringObjectPair.getKey(), stringObjectPair.getValue()));</span>
+<span class="fc" id="L68">        return map;</span>
     }
 
     private static Class&lt;?&gt;[] getAllImplementedInterfaces(Class&lt;?&gt; clazz) {
-<span class="fc" id="L73">        Set&lt;Class&lt;?&gt;&gt; result = new HashSet&lt;&gt;();</span>
-<span class="fc bfc" id="L74" title="All 4 branches covered.">        while (clazz != null &amp;&amp; clazz != Object.class) {</span>
-<span class="fc" id="L75">            result.addAll(Arrays.asList(clazz.getInterfaces()));</span>
-<span class="fc bfc" id="L76" title="All 2 branches covered.">            for (Class&lt;?&gt; intf : clazz.getInterfaces()) {</span>
-<span class="fc" id="L77">                result.addAll(List.of(getAllImplementedInterfaces(intf)));</span>
+<span class="fc" id="L72">        Set&lt;Class&lt;?&gt;&gt; result = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L73" title="All 4 branches covered.">        while (clazz != null &amp;&amp; clazz != Object.class) {</span>
+<span class="fc" id="L74">            result.addAll(Arrays.asList(clazz.getInterfaces()));</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            for (Class&lt;?&gt; intf : clazz.getInterfaces()) {</span>
+<span class="fc" id="L76">                result.addAll(List.of(getAllImplementedInterfaces(intf)));</span>
             }
-<span class="fc" id="L79">            clazz = clazz.getSuperclass();</span>
+<span class="fc" id="L78">            clazz = clazz.getSuperclass();</span>
         }
-<span class="fc" id="L81">        return result.toArray(Class[]::new);</span>
+<span class="fc" id="L80">        return result.toArray(Class[]::new);</span>
     }
 
     private static Pair&lt;String, Object&gt; processGetter(Object nonSerializableObject, Method method) {
         try {
-<span class="fc" id="L86">            Object value = method.invoke(nonSerializableObject);</span>
-<span class="fc bfc" id="L87" title="All 2 branches covered.">            if (value instanceof Optional) {</span>
-<span class="fc" id="L88">                value = ((Optional&lt;?&gt;) value).orElse(null);</span>
+<span class="fc" id="L85">            Object value = method.invoke(nonSerializableObject);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            if (value instanceof Optional) {</span>
+<span class="fc" id="L87">                value = ((Optional&lt;?&gt;) value).orElse(null);</span>
             }
-<span class="fc bfc" id="L90" title="All 2 branches covered.">            if (value != null) {</span>
-<span class="fc bfc" id="L91" title="All 2 branches covered.">                if (ReflectionUtil.getAnnotation(nonSerializableObject.getClass(), method.getName(), SerializeByReference.class) != null) {</span>
-<span class="fc" id="L92">                    return new ImmutablePair&lt;&gt;(ReflectionUtil.propertyName(method), new ResourceReference((HasMetadata) value));</span>
-<span class="pc bpc" id="L93" title="1 of 2 branches missed.">                } else if (ReflectionUtil.getAnnotation(nonSerializableObject.getClass(), method.getName(), JsonIgnore.class) == null) {</span>
-<span class="fc" id="L94">                    return Optional.ofNullable(toJsonSafeValue(value))</span>
-<span class="fc" id="L95">                            .map(jsonSafeValue -&gt; new ImmutablePair&lt;&gt;(ReflectionUtil.propertyName(method), jsonSafeValue))</span>
-<span class="fc" id="L96">                            .orElse(null);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            if (value != null) {</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">                if (ReflectionUtil.getAnnotation(nonSerializableObject.getClass(), method.getName(), SerializeByReference.class) != null) {</span>
+<span class="fc" id="L91">                    return new ImmutablePair&lt;&gt;(ReflectionUtil.propertyName(method), new ResourceReference((HasMetadata) value));</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">                } else if (ReflectionUtil.getAnnotation(nonSerializableObject.getClass(), method.getName(), JsonIgnore.class) == null) {</span>
+<span class="fc" id="L93">                    return Optional.ofNullable(toJsonSafeValue(value))</span>
+<span class="fc" id="L94">                            .map(jsonSafeValue -&gt; new ImmutablePair&lt;&gt;(ReflectionUtil.propertyName(method), jsonSafeValue))</span>
+<span class="fc" id="L95">                            .orElse(null);</span>
                 }
             }
-<span class="fc" id="L99">            return null;</span>
-<span class="nc" id="L100">        } catch (IllegalAccessException e) {</span>
-<span class="nc" id="L101">            throw new IllegalStateException(e);</span>
-<span class="nc" id="L102">        } catch (InvocationTargetException e) {</span>
-<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (e.getTargetException() instanceof RuntimeException) {</span>
-<span class="nc" id="L104">                throw (RuntimeException) e.getTargetException();</span>
+<span class="fc" id="L98">            return null;</span>
+<span class="nc" id="L99">        } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L100">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L101">        } catch (InvocationTargetException e) {</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (e.getTargetException() instanceof RuntimeException) {</span>
+<span class="nc" id="L103">                throw (RuntimeException) e.getTargetException();</span>
             } else {
-<span class="nc" id="L106">                throw new IllegalStateException(e.getTargetException());</span>
+<span class="nc" id="L105">                throw new IllegalStateException(e.getTargetException());</span>
             }
         }
     }
 
     private static Object toJsonSafeValue(Object value) {
-<span class="fc bfc" id="L112" title="All 6 branches covered.">        if (value instanceof Number || value instanceof Boolean || value instanceof String) {</span>
-<span class="fc" id="L113">            return value;</span>
-<span class="fc bfc" id="L114" title="All 2 branches covered.">        } else if (value instanceof Enum) {</span>
-<span class="fc" id="L115">            return ((Enum&lt;?&gt;) value).name().toUpperCase(Locale.ROOT);</span>
-<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        } else if (value instanceof Optional) {</span>
-<span class="nc" id="L117">            return ((Optional&lt;?&gt;) value).map(SerializationHelper::toJsonSafeValue).orElse(null);</span>
-<span class="fc bfc" id="L118" title="All 2 branches covered.">        } else if (value instanceof List) {</span>
-<span class="fc" id="L119">            List&lt;?&gt; list = (List&lt;?&gt;) value;</span>
-<span class="fc" id="L120">            return list.stream().map(SerializationHelper::toJsonSafeValue).collect(Collectors.toList());</span>
-<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        } else if (value != null) {</span>
-<span class="fc bfc" id="L122" title="All 2 branches covered.">            if (value.getClass().getAnnotation(JsonDeserialize.class) != null) {</span>
+<span class="fc bfc" id="L111" title="All 6 branches covered.">        if (value instanceof Number || value instanceof Boolean || value instanceof String) {</span>
+<span class="fc" id="L112">            return value;</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        } else if (value instanceof Enum) {</span>
+<span class="fc" id="L114">            return ((Enum&lt;?&gt;) value).name().toUpperCase(Locale.ROOT);</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        } else if (value instanceof Optional) {</span>
+<span class="nc" id="L116">            return ((Optional&lt;?&gt;) value).map(SerializationHelper::toJsonSafeValue).orElse(null);</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        } else if (value instanceof List) {</span>
+<span class="fc" id="L118">            List&lt;?&gt; list = (List&lt;?&gt;) value;</span>
+<span class="fc" id="L119">            return list.stream().map(SerializationHelper::toJsonSafeValue).collect(Collectors.toList());</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        } else if (value != null) {</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            if (value.getClass().getAnnotation(JsonDeserialize.class) != null) {</span>
                 //We know how to serialize this
-<span class="fc" id="L124">                return value;</span>
-<span class="fc bfc" id="L125" title="All 2 branches covered.">            } else if (ReflectionUtil.implementsKnownInterface(value)) {</span>
+<span class="fc" id="L123">                return value;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            } else if (ReflectionUtil.implementsKnownInterface(value)) {</span>
                 //Can't serialize, but is known, so translate to map
-<span class="fc" id="L127">                return toJsonFriendlyMap(value);</span>
+<span class="fc" id="L126">                return toJsonFriendlyMap(value);</span>
             }
         }
-<span class="fc" id="L130">        return null;</span>
+<span class="fc" id="L129">        return null;</span>
     }
 
 }
