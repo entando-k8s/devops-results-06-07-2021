@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContentDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: CMS</a> &gt; <a href="index.source.html" class="el_package">com.agiletec.plugins.jacms.aps.system.services.content.model</a> &gt; <span class="el_source">ContentDto.java</span></div><h1>ContentDto.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package com.agiletec.plugins.jacms.aps.system.services.content.model;
+
+import com.agiletec.aps.system.common.entity.model.IApsEntity;
+import com.agiletec.aps.system.common.entity.model.attribute.AttributeInterface;
+import com.agiletec.aps.system.services.category.ICategoryManager;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.AbstractResourceAttribute;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.LinkAttribute;
+import com.agiletec.plugins.jacms.aps.system.services.contentmodel.ContentRestriction;
+import com.agiletec.plugins.jacms.aps.system.services.resource.model.AttachResource;
+import com.agiletec.plugins.jacms.aps.system.services.resource.model.ResourceInterface;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import org.entando.entando.aps.system.services.entity.model.EntityAttributeDto;
+import org.entando.entando.aps.system.services.entity.model.EntityDto;
+import org.entando.entando.plugins.jacms.web.content.validator.ContentValidator;
+import org.entando.entando.web.common.json.JsonDateDeserializer;
+import org.entando.entando.web.common.json.JsonDateSerializer;
+import org.springframework.validation.BindingResult;
+
+public class ContentDto extends EntityDto implements Serializable {
+
+    private String status;
+    private boolean onLine;
+    private String viewPage;
+    private String listModel;
+    private String defaultModel;
+
+    private Date created;
+    private Date lastModified;
+
+    private String version;
+    private String firstEditor;
+    private String lastEditor;
+    private String restriction;
+    private String html;
+
+    /**
+     * The references grouped by service name.
+     * &lt;p&gt;
+     * Lists all the managers that may contain references by indicating with
+     * &lt;code&gt;true&lt;/code&gt; the presence of references
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Map&lt;String, Boolean&gt; references;
+
+    public ContentDto() {
+<span class="fc" id="L67">        super();</span>
+<span class="fc" id="L68">    }</span>
+
+    public ContentDto(Content src) {
+<span class="fc" id="L71">        super(src);</span>
+<span class="fc" id="L72">        this.setStatus(src.getStatus());</span>
+<span class="fc" id="L73">        this.setOnLine(src.isOnLine());</span>
+<span class="fc" id="L74">        this.setViewPage(src.getViewPage());</span>
+<span class="fc" id="L75">        this.setListModel(src.getListModel());</span>
+<span class="fc" id="L76">        this.setDefaultModel(src.getDefaultModel());</span>
+<span class="fc" id="L77">        this.setCreated(src.getCreated());</span>
+<span class="fc" id="L78">        this.setLastModified(src.getLastModified());</span>
+<span class="fc" id="L79">        this.setVersion(src.getVersion());</span>
+<span class="fc" id="L80">        this.setFirstEditor(src.getFirstEditor());</span>
+<span class="fc" id="L81">        this.setLastEditor(src.getLastEditor());</span>
+<span class="fc" id="L82">        this.setRestriction(src.getRestriction());</span>
+<span class="fc" id="L83">    }</span>
+
+    public String getStatus() {
+<span class="fc" id="L86">        return status;</span>
+    }
+
+    public void setStatus(String status) {
+<span class="fc" id="L90">        this.status = status;</span>
+<span class="fc" id="L91">    }</span>
+
+    public boolean isOnLine() {
+<span class="fc" id="L94">        return onLine;</span>
+    }
+
+    public void setOnLine(boolean onLine) {
+<span class="fc" id="L98">        this.onLine = onLine;</span>
+<span class="fc" id="L99">    }</span>
+
+    public String getViewPage() {
+<span class="fc" id="L102">        return viewPage;</span>
+    }
+
+    public void setViewPage(String viewPage) {
+<span class="fc" id="L106">        this.viewPage = viewPage;</span>
+<span class="fc" id="L107">    }</span>
+
+    public String getListModel() {
+<span class="fc" id="L110">        return listModel;</span>
+    }
+
+    public void setListModel(String listModel) {
+<span class="fc" id="L114">        this.listModel = listModel;</span>
+<span class="fc" id="L115">    }</span>
+
+    public String getDefaultModel() {
+<span class="fc" id="L118">        return defaultModel;</span>
+    }
+
+    public void setDefaultModel(String defaultModel) {
+<span class="fc" id="L122">        this.defaultModel = defaultModel;</span>
+<span class="fc" id="L123">    }</span>
+
+    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    public Date getCreated() {
+<span class="fc" id="L128">        return created;</span>
+    }
+
+    public void setCreated(Date created) {
+<span class="fc" id="L132">        this.created = created;</span>
+<span class="fc" id="L133">    }</span>
+
+    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    public Date getLastModified() {
+<span class="fc" id="L138">        return lastModified;</span>
+    }
+
+    public void setLastModified(Date lastModified) {
+<span class="fc" id="L142">        this.lastModified = lastModified;</span>
+<span class="fc" id="L143">    }</span>
+
+    public String getVersion() {
+<span class="fc" id="L146">        return version;</span>
+    }
+
+    public void setVersion(String version) {
+<span class="fc" id="L150">        this.version = version;</span>
+<span class="fc" id="L151">    }</span>
+
+    public String getFirstEditor() {
+<span class="fc" id="L154">        return firstEditor;</span>
+    }
+
+    public void setFirstEditor(String firstEditor) {
+<span class="fc" id="L158">        this.firstEditor = firstEditor;</span>
+<span class="fc" id="L159">    }</span>
+
+    public String getLastEditor() {
+<span class="fc" id="L162">        return lastEditor;</span>
+    }
+
+    public void setLastEditor(String lastEditor) {
+<span class="fc" id="L166">        this.lastEditor = lastEditor;</span>
+<span class="fc" id="L167">    }</span>
+
+    public String getRestriction() {
+<span class="fc" id="L170">        return restriction;</span>
+    }
+
+    public void setRestriction(String restriction) {
+<span class="fc" id="L174">        this.restriction = restriction;</span>
+<span class="fc" id="L175">    }</span>
+
+    public String getHtml() {
+<span class="fc" id="L178">        return html;</span>
+    }
+
+    public void setHtml(String html) {
+<span class="fc" id="L182">        this.html = html;</span>
+<span class="fc" id="L183">    }</span>
+
+    public Map&lt;String, Boolean&gt; getReferences() {
+<span class="fc" id="L186">        return references;</span>
+    }
+
+    public void setReferences(Map&lt;String, Boolean&gt; references) {
+<span class="fc" id="L190">        this.references = references;</span>
+<span class="fc" id="L191">    }</span>
+
+    @Override
+    public void fillEntity(IApsEntity prototype, ICategoryManager categoryManager, BindingResult bindingResult) {
+<span class="fc" id="L195">        Content content = (Content) prototype;</span>
+
+<span class="fc" id="L197">        super.fillEntity(prototype, categoryManager, bindingResult);</span>
+
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        content.setFirstEditor(getFirstEditor() == null ? content.getFirstEditor() : getFirstEditor());</span>
+<span class="fc" id="L200">        content.setLastEditor(getLastEditor());</span>
+<span class="fc" id="L201">        content.setRestriction(ContentRestriction.getRestrictionValue(getMainGroup()));</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        content.setStatus(getStatus() == null ? content.getStatus() : getStatus());</span>
+<span class="fc" id="L203">    }</span>
+
+    @Override
+    protected void clearAttribute(AttributeInterface attribute) {
+<span class="fc" id="L207">        clearAbstractResourceAttribute(attribute);</span>
+<span class="fc" id="L208">        clearLinkAttribute(attribute);</span>
+<span class="fc" id="L209">        super.clearAttribute(attribute);</span>
+<span class="fc" id="L210">    }</span>
+
+    @Override
+    protected void fillAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto, BindingResult bindingResult) {
+<span class="fc" id="L214">        super.fillAttribute(attribute, attributeDto, bindingResult);</span>
+<span class="fc" id="L215">        fillAbstractResourceAttribute(attribute, attributeDto);</span>
+<span class="fc" id="L216">        fillLinkAttribute(attribute, attributeDto);</span>
+<span class="fc" id="L217">    }</span>
+
+    @Override
+    protected void rejectAttributeNotFound (BindingResult bindingResult, EntityAttributeDto attributeDto) {
+<span class="nc" id="L221">        bindingResult.reject(ContentValidator.ERRCODE_ATTRIBUTE_INVALID, new String[]{attributeDto.getCode()}, &quot;content.attribute.code.invalid&quot;);</span>
+<span class="nc" id="L222">    }</span>
+
+    private void clearAbstractResourceAttribute(AttributeInterface attribute) {
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        if (AbstractResourceAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L226">            AbstractResourceAttribute resourceAttribute = (AbstractResourceAttribute) attribute;</span>
+<span class="fc" id="L227">            resourceAttribute.getTextMap().clear();</span>
+<span class="fc" id="L228">            resourceAttribute.getResources().clear();</span>
+<span class="fc" id="L229">            resourceAttribute.getMetadatas().clear();</span>
+        }
+<span class="fc" id="L231">    }</span>
+
+    private void clearLinkAttribute(AttributeInterface attribute) {
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        if (LinkAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L235">            LinkAttribute linkAttribute = (LinkAttribute) attribute;</span>
+<span class="fc" id="L236">            linkAttribute.getTextMap().clear();</span>
+<span class="fc" id="L237">            linkAttribute.setSymbolicLink(null);</span>
+        }
+<span class="fc" id="L239">    }</span>
+
+    private void fillAbstractResourceAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto) {
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        if (AbstractResourceAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L243">            AbstractResourceAttribute resourceAttribute = (AbstractResourceAttribute) attribute;</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">            for (Entry&lt;String, Object&gt; resourceEntry : attributeDto.getValues().entrySet()) {</span>
+
+<span class="fc" id="L246">                String langCode = resourceEntry.getKey();</span>
+<span class="fc" id="L247">                String correlationCode = (String) ((Map&lt;String, Object&gt;) resourceEntry.getValue()).get(&quot;correlationCode&quot;);</span>
+<span class="fc" id="L248">                String resourceId = (String) ((Map&lt;String, Object&gt;) resourceEntry.getValue()).get(&quot;id&quot;);</span>
+<span class="fc" id="L249">                String name = (String) ((Map&lt;String, Object&gt;) resourceEntry.getValue()).get(&quot;name&quot;);</span>
+
+<span class="fc bfc" id="L251" title="All 2 branches covered.">                if (name != null) {</span>
+<span class="fc" id="L252">                    resourceAttribute.setText(name, langCode);</span>
+                }
+
+<span class="fc" id="L255">                ResourceInterface resource = new AttachResource();</span>
+<span class="fc" id="L256">                resource.setId(resourceId);</span>
+<span class="fc" id="L257">                resource.setCorrelationCode(correlationCode);</span>
+
+<span class="fc" id="L259">                resourceAttribute.setResource(resource, langCode);</span>
+
+<span class="fc" id="L261">                Map&lt;String, Object&gt; values = (Map&lt;String, Object&gt;) ((Map&lt;String, Object&gt;) resourceEntry.getValue())</span>
+<span class="fc" id="L262">                        .get(&quot;metadata&quot;);</span>
+
+<span class="fc bfc" id="L264" title="All 2 branches covered.">                if (values != null) {</span>
+<span class="fc" id="L265">                    Map&lt;String, String&gt; metadata = values.entrySet().stream()</span>
+<span class="fc" id="L266">                            .collect(Collectors.toMap(Entry::getKey, e -&gt; (String) e.getValue()));</span>
+<span class="fc" id="L267">                    resourceAttribute.setMetadataMap(langCode, metadata);</span>
+                }
+<span class="fc" id="L269">            }</span>
+        }
+<span class="fc" id="L271">    }</span>
+
+    private Map&lt;String, String&gt; getAdditionalLinkAttributes (final EntityAttributeDto attributeDto) {
+<span class="fc" id="L274">        final Map&lt;String, String&gt; linkProperties = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L275">        final String rel = (String)((Map) attributeDto.getValue()).get(&quot;rel&quot;);</span>
+<span class="fc bfc" id="L276" title="All 2 branches covered.">        if (rel != null ) {</span>
+<span class="fc" id="L277">            linkProperties.put(&quot;rel&quot;, rel);</span>
+        }
+<span class="fc" id="L279">        final String target = (String)((Map) attributeDto.getValue()).get(&quot;target&quot;);</span>
+<span class="fc bfc" id="L280" title="All 2 branches covered.">        if (target != null ) {</span>
+<span class="fc" id="L281">            linkProperties.put(&quot;target&quot;, target);</span>
+        }
+<span class="fc" id="L283">        final String hreflang = (String)((Map) attributeDto.getValue()).get(&quot;hreflang&quot;);</span>
+<span class="fc bfc" id="L284" title="All 2 branches covered.">        if (hreflang != null ) {</span>
+<span class="fc" id="L285">            linkProperties.put(&quot;hreflang&quot;, hreflang);</span>
+        }
+<span class="fc" id="L287">        return linkProperties;</span>
+    }
+
+    private void fillLinkAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto) {
+<span class="fc bfc" id="L291" title="All 2 branches covered.">        if (LinkAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L292">            LinkAttribute linkAttribute = (LinkAttribute)attribute;</span>
+<span class="fc" id="L293">            SymbolicLink link = new SymbolicLink();</span>
+<span class="fc" id="L294">            Map&lt;String, String&gt; additionalLinkAttributes = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">            if (attributeDto.getValue() != null) {</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">                if (attributeDto.getValue() instanceof Map) {</span>
+<span class="fc" id="L297">                    Object destType = ((Map) attributeDto.getValue()).get(&quot;destType&quot;);</span>
+<span class="fc bfc" id="L298" title="All 2 branches covered.">                    if (destType != null) {</span>
+<span class="fc bfc" id="L299" title="All 6 branches covered.">                        switch ((Integer) destType) {</span>
+                            case SymbolicLink.URL_TYPE:
+<span class="fc" id="L301">                                link.setDestinationToUrl((String) ((Map) attributeDto.getValue()).get(&quot;urlDest&quot;));</span>
+<span class="fc" id="L302">                                additionalLinkAttributes = getAdditionalLinkAttributes(attributeDto);</span>
+<span class="fc" id="L303">                                break;</span>
+                            case SymbolicLink.PAGE_TYPE:
+<span class="fc" id="L305">                                link.setDestinationToPage(</span>
+<span class="fc" id="L306">                                        (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
+<span class="fc" id="L307">                                additionalLinkAttributes = getAdditionalLinkAttributes(attributeDto);</span>
+<span class="fc" id="L308">                                break;</span>
+                            case SymbolicLink.RESOURCE_TYPE:
+<span class="fc" id="L310">                                link.setDestinationToResource(</span>
+<span class="fc" id="L311">                                        (String) ((Map) attributeDto.getValue()).get(&quot;resourceDest&quot;));</span>
+<span class="fc" id="L312">                                break;</span>
+                            case SymbolicLink.CONTENT_TYPE:
+<span class="fc" id="L314">                                link.setDestinationToContent(</span>
+<span class="fc" id="L315">                                        (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;));</span>
+<span class="fc" id="L316">                                additionalLinkAttributes = getAdditionalLinkAttributes(attributeDto);</span>
+<span class="fc" id="L317">                                break;</span>
+                            case SymbolicLink.CONTENT_ON_PAGE_TYPE:
+<span class="fc" id="L319">                                link.setDestinationToContentOnPage(</span>
+<span class="fc" id="L320">                                        (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;),</span>
+<span class="fc" id="L321">                                        (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
+<span class="fc" id="L322">                                break;</span>
+                            default: break;
+                        }
+                    }
+                }
+            }
+<span class="fc" id="L328">            linkAttribute.setSymbolicLink(link);</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">            if (!additionalLinkAttributes.isEmpty()) {</span>
+<span class="fc" id="L330">                linkAttribute.setLinkProperties(additionalLinkAttributes);</span>
+            }
+        }
+<span class="fc" id="L333">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
