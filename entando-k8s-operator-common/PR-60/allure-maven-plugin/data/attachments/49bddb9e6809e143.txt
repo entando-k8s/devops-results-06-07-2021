@@ -1,0 +1,84 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    openshift.io/scc: "anyuid"
+  creationTimestamp: "2021-06-02T15:50:47Z"
+  labels:
+    pod-label: "123"
+  name: "my-pod"
+  namespace: "entando-k8s-operator-common-cmpr60"
+  resourceVersion: "201059966"
+  selfLink: "/api/v1/namespaces/entando-k8s-operator-common-cmpr60/pods/my-pod"
+  uid: "4c4d505e-c3ba-11eb-8f1b-fa163ea775ae"
+spec:
+  containers:
+  - command:
+    - "/usr/libexec/s2i/run"
+    image: "entando/test-nginx-container:latest"
+    imagePullPolicy: "Always"
+    name: "nginx"
+    ports:
+    - containerPort: 8080
+      protocol: "TCP"
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - "MKNOD"
+    terminationMessagePath: "/dev/termination-log"
+    terminationMessagePolicy: "File"
+    volumeMounts:
+    - mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      name: "default-token-crq8c"
+      readOnly: true
+  dnsPolicy: "ClusterFirst"
+  imagePullSecrets:
+  - name: "default-dockercfg-blfpn"
+  nodeName: "openshift"
+  nodeSelector:
+    node-role.kubernetes.io/compute: "true"
+  priority: 0
+  restartPolicy: "Always"
+  schedulerName: "default-scheduler"
+  securityContext:
+    seLinuxOptions:
+      level: "s0:c29,c4"
+  serviceAccount: "default"
+  serviceAccountName: "default"
+  terminationGracePeriodSeconds: 30
+  volumes:
+  - name: "default-token-crq8c"
+    secret:
+      defaultMode: 420
+      secretName: "default-token-crq8c"
+status:
+  conditions:
+  - lastTransitionTime: "2021-06-02T15:50:47Z"
+    status: "True"
+    type: "Initialized"
+  - lastTransitionTime: "2021-06-02T15:50:56Z"
+    status: "True"
+    type: "Ready"
+  - status: "True"
+    type: "ContainersReady"
+  - lastTransitionTime: "2021-06-02T15:50:47Z"
+    status: "True"
+    type: "PodScheduled"
+  containerStatuses:
+  - containerID: "docker://af078003c062cb5601dae14b3692274e665f0f402134b2583ce7225651cbf968"
+    image: "docker-registry.default.svc:5000/my-app-namespace/nginx-container:latest"
+    imageID: "docker-pullable://docker-registry.default.svc:5000/my-app-namespace/nginx-container@sha256:6aa6f522f5ff569c4e43e8c5d5f193eca213599f16fe0dfc7d0e357ccfc5701f"
+    lastState: {}
+    name: "nginx"
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: "2021-06-02T15:50:55Z"
+  hostIP: "54.36.53.206"
+  phase: "Running"
+  podIP: "10.128.0.206"
+  qosClass: "BestEffort"
+  startTime: "2021-06-02T15:50:47Z"
