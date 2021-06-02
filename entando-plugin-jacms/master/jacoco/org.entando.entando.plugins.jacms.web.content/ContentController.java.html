@@ -308,5 +308,15 @@ import org.springframework.validation.Errors;
 <span class="fc" id="L308">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(payload), HttpStatus.OK);</span>
     }
 
+    @RestAccessControl(permission = Permission.CONTENT_EDITOR)
+    @PostMapping(value = &quot;/{code}/clone&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity&lt;SimpleRestResponse&lt;ContentDto&gt;&gt; cloneContent(@PathVariable String code) {
+<span class="fc" id="L314">        DataBinder binder = new DataBinder(code);</span>
+<span class="fc" id="L315">        BindingResult bindingResult = binder.getBindingResult();</span>
+<span class="fc" id="L316">        UserDetails userDetails = HttpSessionHelper.extractCurrentUser(httpSession);</span>
+<span class="fc" id="L317">        ContentDto response = contentService.cloneContent(code, userDetails, bindingResult);</span>
+<span class="fc" id="L318">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+    }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
