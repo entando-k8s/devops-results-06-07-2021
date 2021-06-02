@@ -1,0 +1,59 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    openshift.io/scc: "anyuid"
+  creationTimestamp: "2021-06-02T15:27:39Z"
+  labels:
+    pod-label: "123"
+  name: "my-pod"
+  namespace: "entando-k8s-operator-common-cmpr60"
+  resourceVersion: "201056439"
+  selfLink: "/api/v1/namespaces/entando-k8s-operator-common-cmpr60/pods/my-pod"
+  uid: "10b2736c-c3b7-11eb-8f1b-fa163ea775ae"
+spec:
+  containers:
+  - command:
+    - "/usr/libexec/s2i/run"
+    image: "centos/nginx-116-centos7"
+    imagePullPolicy: "Always"
+    name: "nginx"
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - "MKNOD"
+    terminationMessagePath: "/dev/termination-log"
+    terminationMessagePolicy: "File"
+    volumeMounts:
+    - mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      name: "default-token-crq8c"
+      readOnly: true
+  dnsPolicy: "ClusterFirst"
+  imagePullSecrets:
+  - name: "default-dockercfg-blfpn"
+  nodeName: "openshift"
+  nodeSelector:
+    node-role.kubernetes.io/compute: "true"
+  priority: 0
+  restartPolicy: "Always"
+  schedulerName: "default-scheduler"
+  securityContext:
+    seLinuxOptions:
+      level: "s0:c29,c4"
+  serviceAccount: "default"
+  serviceAccountName: "default"
+  terminationGracePeriodSeconds: 30
+  volumes:
+  - name: "default-token-crq8c"
+    secret:
+      defaultMode: 420
+      secretName: "default-token-crq8c"
+status:
+  conditions:
+  - lastTransitionTime: "2021-06-02T15:27:39Z"
+    status: "True"
+    type: "PodScheduled"
+  phase: "Pending"
+  qosClass: "BestEffort"
