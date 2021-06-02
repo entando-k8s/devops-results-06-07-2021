@@ -1,0 +1,52 @@
+---
+ingressNamespace: "my-namespace"
+mixins:
+- "Secretive"
+- "IngressingDeployable"
+- "Deployable"
+defaultServiceAccountName: "default"
+ingressRequired: true
+ingressName: "my-app-ingress"
+replicas: 1
+ingressHostName: "myhost.com"
+customResource:
+  apiVersion: "test.org/v1"
+  kind: "TestResource"
+  metadata:
+    name: "my-app"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- memoryLimitMebibytes: 256
+  dockerImageInfo:
+    organization: "test"
+    repository: "my-image"
+    tag: "6.3.2"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  trustStoreVariables:
+  - name: "JAVA_TOOL_OPTIONS"
+    valueFrom:
+      secretKeyRef:
+        key: "TRUSTSTORE_SETTINGS"
+        name: "entando-default-truststore"
+        optional: false
+  primaryPort: 8081
+  webContextPath: "/my-app"
+  mixins:
+  - "TrustStoreAwareContainer"
+  - "HasWebContext"
+  - "DeployableContainer"
+  - "IngressingContainer"
+  - "IngressingPathOnPort"
+  - "ServiceBackingContainer"
+  healthCheckPath: "/my-app/health"
+  kubernetesPermissions: []
+  environmentVariables: []
+  nameQualifier: "server"
+  secretsToMount: []
+  cpuLimitMillicores: 500
+  portForIngressPath: 8081
+secrets: []
+serviceAccountToUse: "default"
+tlsSecretName: "test-tls-secret"

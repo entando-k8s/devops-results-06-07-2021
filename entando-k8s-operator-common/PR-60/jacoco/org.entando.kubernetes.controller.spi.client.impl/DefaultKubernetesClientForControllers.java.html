@@ -197,32 +197,33 @@ public class DefaultKubernetesClientForControllers implements KubernetesClientFo
         );
     }
 
-    public &lt;T extends EntandoCustomResource&gt; T deploymentFailed(T customResource, Exception reason) {
+    public &lt;T extends EntandoCustomResource&gt; T deploymentFailed(T customResource, Exception reason, String serverQualifier) {
 <span class="fc" id="L201">        return performStatusUpdate(customResource,</span>
                 t -&gt; {
-<span class="pc bpc" id="L203" title="1 of 2 branches missed.">                    if (t.getStatus().findCurrentServerStatus().isEmpty()) {</span>
-<span class="nc" id="L204">                        t.getStatus().putServerStatus(new InternalServerStatus(NameUtils.MAIN_QUALIFIER));</span>
+<span class="fc" id="L203">                    String qualifierToUse = ofNullable(serverQualifier).orElse(NameUtils.MAIN_QUALIFIER);</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">                    if (t.getStatus().getServerStatus(qualifierToUse).isEmpty()) {</span>
+<span class="fc" id="L205">                        t.getStatus().putServerStatus(new InternalServerStatus(qualifierToUse));</span>
                     }
-<span class="fc" id="L206">                    t.getStatus().findCurrentServerStatus()</span>
-<span class="fc" id="L207">                            .ifPresent(</span>
-<span class="fc" id="L208">                                    newStatus -&gt; newStatus.finishWith(new EntandoControllerFailureBuilder()</span>
-<span class="fc" id="L209">                                            .withException(reason)</span>
-<span class="fc" id="L210">                                            .withFailedObjectName(customResource.getMetadata().getNamespace(),</span>
-<span class="fc" id="L211">                                                    customResource.getMetadata().getName())</span>
-<span class="fc" id="L212">                                            .withFailedObjectType(customResource.getKind())</span>
-<span class="fc" id="L213">                                            .build()));</span>
-<span class="fc" id="L214">                    t.getStatus().updateDeploymentPhase(EntandoDeploymentPhase.FAILED, t.getMetadata().getGeneration());</span>
-<span class="fc" id="L215">                },</span>
-<span class="fc" id="L216">                e -&gt; e.withType(&quot;Error&quot;)</span>
-<span class="fc" id="L217">                        .withReason(&quot;Failed&quot;)</span>
-<span class="fc" id="L218">                        .withMessage(</span>
-<span class="fc" id="L219">                                format(&quot;The deployment of %s %s/%s failed due to %s. Fix the root cause and then trigger a redeployment &quot;</span>
+<span class="fc" id="L207">                    t.getStatus().getServerStatus(qualifierToUse)</span>
+<span class="fc" id="L208">                            .ifPresent(</span>
+<span class="fc" id="L209">                                    newStatus -&gt; newStatus.finishWith(new EntandoControllerFailureBuilder()</span>
+<span class="fc" id="L210">                                            .withException(reason)</span>
+<span class="fc" id="L211">                                            .withFailedObjectName(customResource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L212">                                                    customResource.getMetadata().getName())</span>
+<span class="fc" id="L213">                                            .withFailedObjectType(customResource.getKind())</span>
+<span class="fc" id="L214">                                            .build()));</span>
+<span class="fc" id="L215">                    t.getStatus().updateDeploymentPhase(EntandoDeploymentPhase.FAILED, t.getMetadata().getGeneration());</span>
+<span class="fc" id="L216">                },</span>
+<span class="fc" id="L217">                e -&gt; e.withType(&quot;Error&quot;)</span>
+<span class="fc" id="L218">                        .withReason(&quot;Failed&quot;)</span>
+<span class="fc" id="L219">                        .withMessage(</span>
+<span class="fc" id="L220">                                format(&quot;The deployment of %s %s/%s failed due to %s. Fix the root cause and then trigger a redeployment &quot;</span>
                                                 + &quot;by adding the annotation 'entando.org/processing-instruction: force'&quot;,
-<span class="fc" id="L221">                                        customResource.getKind(),</span>
-<span class="fc" id="L222">                                        customResource.getMetadata().getNamespace(),</span>
-<span class="fc" id="L223">                                        customResource.getMetadata().getName(),</span>
-<span class="fc" id="L224">                                        reason.getMessage()))</span>
-<span class="fc" id="L225">                        .withAction(&quot;FAILED&quot;)</span>
+<span class="fc" id="L222">                                        customResource.getKind(),</span>
+<span class="fc" id="L223">                                        customResource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L224">                                        customResource.getMetadata().getName(),</span>
+<span class="fc" id="L225">                                        reason.getMessage()))</span>
+<span class="fc" id="L226">                        .withAction(&quot;FAILED&quot;)</span>
         );
     }
 
@@ -232,60 +233,60 @@ public class DefaultKubernetesClientForControllers implements KubernetesClientFo
     //TODO find a way to serialize to our generic objects using the HashMaps from the Raw custom resources
     private &lt;T extends EntandoCustomResource&gt; T performStatusUpdate(T customResource, Consumer&lt;T&gt; consumer,
             UnaryOperator&lt;EventBuilder&gt; eventPopulator) {
-<span class="fc" id="L235">        final EventBuilder doneableEvent = new EventBuilder()</span>
-<span class="fc" id="L236">                .withNewMetadata()</span>
-<span class="fc" id="L237">                .withNamespace(customResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L238">                .withName(customResource.getMetadata().getName() + &quot;-&quot; + NameUtils.randomNumeric(8))</span>
-<span class="fc" id="L239">                .withLabels(ResourceUtils.labelsFromResource(customResource))</span>
-<span class="fc" id="L240">                .withOwnerReferences(ResourceUtils.buildOwnerReference(customResource))</span>
-<span class="fc" id="L241">                .endMetadata()</span>
-<span class="fc" id="L242">                .withCount(1)</span>
-<span class="fc" id="L243">                .withFirstTimestamp(dateTimeFormatter.format(LocalDateTime.now()))</span>
-<span class="fc" id="L244">                .withLastTimestamp(dateTimeFormatter.format(LocalDateTime.now()))</span>
-<span class="fc" id="L245">                .withNewSource(NameUtils.controllerNameOf(customResource), null)</span>
-<span class="fc" id="L246">                .withNewInvolvedObject()</span>
-<span class="fc" id="L247">                .withKind(customResource.getKind())</span>
-<span class="fc" id="L248">                .withNamespace(customResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L249">                .withName(customResource.getMetadata().getName())</span>
-<span class="fc" id="L250">                .withUid(customResource.getMetadata().getUid())</span>
-<span class="fc" id="L251">                .withResourceVersion(customResource.getMetadata().getResourceVersion())</span>
-<span class="fc" id="L252">                .withApiVersion(customResource.getApiVersion())</span>
-<span class="fc" id="L253">                .withFieldPath(&quot;status&quot;)</span>
-<span class="fc" id="L254">                .endInvolvedObject();</span>
-<span class="fc" id="L255">        client.v1().events().inNamespace(customResource.getMetadata().getNamespace()).create(eventPopulator.apply(doneableEvent).build());</span>
-<span class="fc bfc" id="L256" title="All 2 branches covered.">        if (customResource instanceof SerializedEntandoResource) {</span>
-<span class="fc" id="L257">            return ioSafe(() -&gt; {</span>
-<span class="fc" id="L258">                SerializedEntandoResource ser = (SerializedEntandoResource) customResource;</span>
-<span class="fc" id="L259">                CustomResourceDefinitionContext definition = Optional.ofNullable(ser.getDefinition()).orElse(</span>
-<span class="fc" id="L260">                        resolveDefinitionContext(ser.getKind(), ser.getApiVersion()));</span>
-<span class="fc" id="L261">                ser.setDefinition(definition);</span>
-<span class="fc" id="L262">                RawCustomResourceOperationsImpl resource = client.customResource(definition)</span>
-<span class="fc" id="L263">                        .inNamespace(customResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L264">                        .withName(customResource.getMetadata().getName());</span>
-<span class="fc" id="L265">                final ObjectMapper objectMapper = new ObjectMapper();</span>
-<span class="fc" id="L266">                ser = objectMapper.readValue(objectMapper.writeValueAsString(resource.get()), SerializedEntandoResource.class);</span>
-<span class="fc" id="L267">                ser.setDefinition(definition);</span>
-<span class="fc" id="L268">                T latest = (T) ser;</span>
-<span class="fc" id="L269">                consumer.accept(latest);</span>
-<span class="fc" id="L270">                return (T) objectMapper.readValue(</span>
-<span class="fc" id="L271">                        objectMapper.writeValueAsString(resource.updateStatus(objectMapper.writeValueAsString(latest))),</span>
+<span class="fc" id="L236">        final EventBuilder doneableEvent = new EventBuilder()</span>
+<span class="fc" id="L237">                .withNewMetadata()</span>
+<span class="fc" id="L238">                .withNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L239">                .withName(customResource.getMetadata().getName() + &quot;-&quot; + NameUtils.randomNumeric(8))</span>
+<span class="fc" id="L240">                .withLabels(ResourceUtils.labelsFromResource(customResource))</span>
+<span class="fc" id="L241">                .withOwnerReferences(ResourceUtils.buildOwnerReference(customResource))</span>
+<span class="fc" id="L242">                .endMetadata()</span>
+<span class="fc" id="L243">                .withCount(1)</span>
+<span class="fc" id="L244">                .withFirstTimestamp(dateTimeFormatter.format(LocalDateTime.now()))</span>
+<span class="fc" id="L245">                .withLastTimestamp(dateTimeFormatter.format(LocalDateTime.now()))</span>
+<span class="fc" id="L246">                .withNewSource(NameUtils.controllerNameOf(customResource), null)</span>
+<span class="fc" id="L247">                .withNewInvolvedObject()</span>
+<span class="fc" id="L248">                .withKind(customResource.getKind())</span>
+<span class="fc" id="L249">                .withNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L250">                .withName(customResource.getMetadata().getName())</span>
+<span class="fc" id="L251">                .withUid(customResource.getMetadata().getUid())</span>
+<span class="fc" id="L252">                .withResourceVersion(customResource.getMetadata().getResourceVersion())</span>
+<span class="fc" id="L253">                .withApiVersion(customResource.getApiVersion())</span>
+<span class="fc" id="L254">                .withFieldPath(&quot;status&quot;)</span>
+<span class="fc" id="L255">                .endInvolvedObject();</span>
+<span class="fc" id="L256">        client.v1().events().inNamespace(customResource.getMetadata().getNamespace()).create(eventPopulator.apply(doneableEvent).build());</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">        if (customResource instanceof SerializedEntandoResource) {</span>
+<span class="fc" id="L258">            return ioSafe(() -&gt; {</span>
+<span class="fc" id="L259">                SerializedEntandoResource ser = (SerializedEntandoResource) customResource;</span>
+<span class="fc" id="L260">                CustomResourceDefinitionContext definition = Optional.ofNullable(ser.getDefinition()).orElse(</span>
+<span class="fc" id="L261">                        resolveDefinitionContext(ser.getKind(), ser.getApiVersion()));</span>
+<span class="fc" id="L262">                ser.setDefinition(definition);</span>
+<span class="fc" id="L263">                RawCustomResourceOperationsImpl resource = client.customResource(definition)</span>
+<span class="fc" id="L264">                        .inNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L265">                        .withName(customResource.getMetadata().getName());</span>
+<span class="fc" id="L266">                final ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L267">                ser = objectMapper.readValue(objectMapper.writeValueAsString(resource.get()), SerializedEntandoResource.class);</span>
+<span class="fc" id="L268">                ser.setDefinition(definition);</span>
+<span class="fc" id="L269">                T latest = (T) ser;</span>
+<span class="fc" id="L270">                consumer.accept(latest);</span>
+<span class="fc" id="L271">                return (T) objectMapper.readValue(</span>
+<span class="fc" id="L272">                        objectMapper.writeValueAsString(resource.updateStatus(objectMapper.writeValueAsString(latest))),</span>
                         SerializedEntandoResource.class);
             });
         } else {
-<span class="fc" id="L275">            MixedOperation&lt;T, KubernetesResourceList&lt;T&gt;, Resource&lt;T&gt;&gt; operations = getOperations(</span>
-<span class="fc" id="L276">                    (Class&lt;T&gt;) customResource.getClass());</span>
-<span class="fc" id="L277">            Resource&lt;T&gt; resource = operations</span>
-<span class="fc" id="L278">                    .inNamespace(customResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L279">                    .withName(customResource.getMetadata().getName());</span>
-<span class="fc" id="L280">            T latest = resource.fromServer().get();</span>
-<span class="fc" id="L281">            consumer.accept(latest);</span>
-<span class="fc" id="L282">            return resource.updateStatus(latest);</span>
+<span class="fc" id="L276">            MixedOperation&lt;T, KubernetesResourceList&lt;T&gt;, Resource&lt;T&gt;&gt; operations = getOperations(</span>
+<span class="fc" id="L277">                    (Class&lt;T&gt;) customResource.getClass());</span>
+<span class="fc" id="L278">            Resource&lt;T&gt; resource = operations</span>
+<span class="fc" id="L279">                    .inNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L280">                    .withName(customResource.getMetadata().getName());</span>
+<span class="fc" id="L281">            T latest = resource.fromServer().get();</span>
+<span class="fc" id="L282">            consumer.accept(latest);</span>
+<span class="fc" id="L283">            return resource.updateStatus(latest);</span>
         }
     }
 
     private CustomResourceDefinitionContext resolveDefinitionContext(String kind, String apiVersion) {
-<span class="fc" id="L287">        return CustomResourceDefinitionContext.fromCrd(client.apiextensions().v1beta1().customResourceDefinitions()</span>
-<span class="fc" id="L288">                .withName(crdNameMap.getData().get(kind + &quot;.&quot; + apiVersion.substring(0, apiVersion.indexOf(&quot;/&quot;)))).get());</span>
+<span class="fc" id="L288">        return CustomResourceDefinitionContext.fromCrd(client.apiextensions().v1beta1().customResourceDefinitions()</span>
+<span class="fc" id="L289">                .withName(crdNameMap.getData().get(kind + &quot;.&quot; + apiVersion.substring(0, apiVersion.indexOf(&quot;/&quot;)))).get());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
