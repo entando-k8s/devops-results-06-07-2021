@@ -271,65 +271,69 @@ public class ContentDto extends EntityDto implements Serializable {
 <span class="fc" id="L271">    }</span>
 
     private Map&lt;String, String&gt; getAdditionalLinkAttributes (final EntityAttributeDto attributeDto) {
-<span class="fc" id="L274">        final Map&lt;String, String&gt; linkProperties = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L275">        final String rel = (String)((Map) attributeDto.getValue()).get(&quot;rel&quot;);</span>
-<span class="fc bfc" id="L276" title="All 2 branches covered.">        if (rel != null ) {</span>
-<span class="fc" id="L277">            linkProperties.put(&quot;rel&quot;, rel);</span>
+<span class="nc" id="L274">        final Map&lt;String, String&gt; linkProperties = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L275">        final String rel = (String)((Map) attributeDto.getValue()).get(&quot;rel&quot;);</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">        if (rel != null ) {</span>
+<span class="nc" id="L277">            linkProperties.put(&quot;rel&quot;, rel);</span>
         }
-<span class="fc" id="L279">        final String target = (String)((Map) attributeDto.getValue()).get(&quot;target&quot;);</span>
-<span class="fc bfc" id="L280" title="All 2 branches covered.">        if (target != null ) {</span>
-<span class="fc" id="L281">            linkProperties.put(&quot;target&quot;, target);</span>
+<span class="nc" id="L279">        final String target = (String)((Map) attributeDto.getValue()).get(&quot;target&quot;);</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">        if (target != null ) {</span>
+<span class="nc" id="L281">            linkProperties.put(&quot;target&quot;, target);</span>
         }
-<span class="fc" id="L283">        final String hreflang = (String)((Map) attributeDto.getValue()).get(&quot;hreflang&quot;);</span>
-<span class="fc bfc" id="L284" title="All 2 branches covered.">        if (hreflang != null ) {</span>
-<span class="fc" id="L285">            linkProperties.put(&quot;hreflang&quot;, hreflang);</span>
+<span class="nc" id="L283">        final String hreflang = (String)((Map) attributeDto.getValue()).get(&quot;hreflang&quot;);</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">        if (hreflang != null ) {</span>
+<span class="nc" id="L285">            linkProperties.put(&quot;hreflang&quot;, hreflang);</span>
         }
-<span class="fc" id="L287">        return linkProperties;</span>
+<span class="nc" id="L287">        return linkProperties;</span>
     }
 
     private void fillLinkAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto) {
 <span class="fc bfc" id="L291" title="All 2 branches covered.">        if (LinkAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
 <span class="fc" id="L292">            LinkAttribute linkAttribute = (LinkAttribute)attribute;</span>
 <span class="fc" id="L293">            SymbolicLink link = new SymbolicLink();</span>
-<span class="fc" id="L294">            Map&lt;String, String&gt; additionalLinkAttributes = new HashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L295" title="All 2 branches covered.">            if (attributeDto.getValue() != null) {</span>
-<span class="fc bfc" id="L296" title="All 2 branches covered.">                if (attributeDto.getValue() instanceof Map) {</span>
-<span class="fc" id="L297">                    Object destType = ((Map) attributeDto.getValue()).get(&quot;destType&quot;);</span>
-<span class="fc bfc" id="L298" title="All 2 branches covered.">                    if (destType != null) {</span>
-<span class="fc bfc" id="L299" title="All 6 branches covered.">                        switch ((Integer) destType) {</span>
-                            case SymbolicLink.URL_TYPE:
-<span class="fc" id="L301">                                link.setDestinationToUrl((String) ((Map) attributeDto.getValue()).get(&quot;urlDest&quot;));</span>
-<span class="fc" id="L302">                                additionalLinkAttributes = getAdditionalLinkAttributes(attributeDto);</span>
-<span class="fc" id="L303">                                break;</span>
-                            case SymbolicLink.PAGE_TYPE:
-<span class="fc" id="L305">                                link.setDestinationToPage(</span>
-<span class="fc" id="L306">                                        (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
-<span class="fc" id="L307">                                additionalLinkAttributes = getAdditionalLinkAttributes(attributeDto);</span>
-<span class="fc" id="L308">                                break;</span>
-                            case SymbolicLink.RESOURCE_TYPE:
-<span class="fc" id="L310">                                link.setDestinationToResource(</span>
-<span class="fc" id="L311">                                        (String) ((Map) attributeDto.getValue()).get(&quot;resourceDest&quot;));</span>
-<span class="fc" id="L312">                                break;</span>
-                            case SymbolicLink.CONTENT_TYPE:
-<span class="fc" id="L314">                                link.setDestinationToContent(</span>
-<span class="fc" id="L315">                                        (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;));</span>
-<span class="fc" id="L316">                                additionalLinkAttributes = getAdditionalLinkAttributes(attributeDto);</span>
-<span class="fc" id="L317">                                break;</span>
-                            case SymbolicLink.CONTENT_ON_PAGE_TYPE:
-<span class="fc" id="L319">                                link.setDestinationToContentOnPage(</span>
-<span class="fc" id="L320">                                        (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;),</span>
-<span class="fc" id="L321">                                        (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
-<span class="fc" id="L322">                                break;</span>
-                            default: break;
-                        }
-                    }
-                }
-            }
-<span class="fc" id="L328">            linkAttribute.setSymbolicLink(link);</span>
-<span class="fc bfc" id="L329" title="All 2 branches covered.">            if (!additionalLinkAttributes.isEmpty()) {</span>
-<span class="fc" id="L330">                linkAttribute.setLinkProperties(additionalLinkAttributes);</span>
+<span class="fc" id="L294">            Map&lt;String, String&gt; additionalLinkAttributes = processLinkAttribute(attributeDto, link);</span>
+<span class="fc" id="L295">            linkAttribute.setSymbolicLink(link);</span>
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">            if (!additionalLinkAttributes.isEmpty()) {</span>
+<span class="nc" id="L297">                linkAttribute.setLinkProperties(additionalLinkAttributes);</span>
             }
         }
-<span class="fc" id="L333">    }</span>
+<span class="fc" id="L300">    }</span>
+
+    private Map&lt;String, String&gt; processLinkAttribute(EntityAttributeDto attributeDto, SymbolicLink link) {
+<span class="fc" id="L303">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L304" title="1 of 4 branches missed.">        if (attributeDto.getValue() != null &amp;&amp; attributeDto.getValue().getClass().isInstance(Map.class)) {</span>
+<span class="nc" id="L305">            Object destType = ((Map) attributeDto.getValue()).get(&quot;destType&quot;);</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">            if (destType != null) {</span>
+<span class="nc bnc" id="L307" title="All 6 branches missed.">                switch ((Integer) destType) {</span>
+                    case SymbolicLink.URL_TYPE:
+<span class="nc" id="L309">                        link.setDestinationToUrl((String) ((Map) attributeDto.getValue()).get(&quot;urlDest&quot;));</span>
+<span class="nc" id="L310">                        result = getAdditionalLinkAttributes(attributeDto);</span>
+<span class="nc" id="L311">                        break;</span>
+                    case SymbolicLink.PAGE_TYPE:
+<span class="nc" id="L313">                        link.setDestinationToPage(</span>
+<span class="nc" id="L314">                                (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
+<span class="nc" id="L315">                        result = getAdditionalLinkAttributes(attributeDto);</span>
+<span class="nc" id="L316">                        break;</span>
+                    case SymbolicLink.RESOURCE_TYPE:
+<span class="nc" id="L318">                        link.setDestinationToResource(</span>
+<span class="nc" id="L319">                                (String) ((Map) attributeDto.getValue()).get(&quot;resourceDest&quot;));</span>
+<span class="nc" id="L320">                        break;</span>
+                    case SymbolicLink.CONTENT_TYPE:
+<span class="nc" id="L322">                        link.setDestinationToContent(</span>
+<span class="nc" id="L323">                                (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;));</span>
+<span class="nc" id="L324">                        result = getAdditionalLinkAttributes(attributeDto);</span>
+<span class="nc" id="L325">                        break;</span>
+                    case SymbolicLink.CONTENT_ON_PAGE_TYPE:
+<span class="nc" id="L327">                        link.setDestinationToContentOnPage(</span>
+<span class="nc" id="L328">                                (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;),</span>
+<span class="nc" id="L329">                                (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
+<span class="nc" id="L330">                        break;</span>
+                    default:
+                        break;
+                }
+            }
+        }
+<span class="fc" id="L336">        return result;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
