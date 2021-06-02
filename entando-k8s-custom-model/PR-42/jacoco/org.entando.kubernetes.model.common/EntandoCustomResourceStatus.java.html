@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,53 +40,61 @@ import java.util.concurrent.ConcurrentHashMap;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EntandoCustomResourceStatus implements Serializable {
 
-<span class="fc" id="L41">    private Map&lt;String, AbstractServerStatus&gt; serverStatuses = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L43">    private Map&lt;String, AbstractServerStatus&gt; serverStatuses = new ConcurrentHashMap&lt;&gt;();</span>
 
     private Long observedGeneration;
 
     private EntandoDeploymentPhase phase;
 
-<span class="fc" id="L47">    public EntandoCustomResourceStatus() {</span>
-<span class="fc" id="L48">        phase = EntandoDeploymentPhase.REQUESTED;</span>
-<span class="fc" id="L49">    }</span>
+<span class="fc" id="L49">    public EntandoCustomResourceStatus() {</span>
+<span class="fc" id="L50">        phase = EntandoDeploymentPhase.REQUESTED;</span>
+<span class="fc" id="L51">    }</span>
 
     public EntandoDeploymentPhase getPhase() {
-<span class="fc" id="L52">        return phase;</span>
+<span class="fc" id="L54">        return phase;</span>
     }
 
     public void updateDeploymentPhase(EntandoDeploymentPhase entandoDeploymentPhase, Long observedGeneration) {
-<span class="fc" id="L56">        this.phase = entandoDeploymentPhase;</span>
-<span class="fc" id="L57">        this.observedGeneration = observedGeneration;</span>
-<span class="fc" id="L58">    }</span>
+<span class="fc" id="L58">        this.phase = entandoDeploymentPhase;</span>
+<span class="fc" id="L59">        this.observedGeneration = observedGeneration;</span>
+<span class="fc" id="L60">    }</span>
 
     public boolean hasFailed() {
-<span class="fc" id="L61">        return serverStatuses.values().stream().anyMatch(AbstractServerStatus::hasFailed);</span>
+<span class="fc" id="L63">        return findFailedServerStatus().isPresent();</span>
+    }
+
+    public Optional&lt;AbstractServerStatus&gt; findFailedServerStatus() {
+<span class="fc" id="L67">        return serverStatuses.values().stream().filter(AbstractServerStatus::hasFailed).findFirst();</span>
+    }
+
+    public Collection&lt;AbstractServerStatus&gt; getServerStatuses() {
+<span class="fc" id="L71">        return Collections.unmodifiableCollection(this.serverStatuses.values());</span>
     }
 
     public void putServerStatus(AbstractServerStatus status) {
-<span class="fc" id="L65">        serverStatuses.put(status.getQualifier(), status);</span>
-<span class="fc" id="L66">    }</span>
+<span class="fc" id="L75">        serverStatuses.put(status.getQualifier(), status);</span>
+<span class="fc" id="L76">    }</span>
 
     public Optional&lt;AbstractServerStatus&gt; getServerStatus(String qualifier) {
-<span class="fc" id="L69">        return Optional.ofNullable(serverStatuses.get(qualifier));</span>
+<span class="fc" id="L79">        return Optional.ofNullable(serverStatuses.get(qualifier));</span>
     }
 
     public Optional&lt;AbstractServerStatus&gt; findCurrentServerStatus() {
-<span class="fc" id="L73">        return this.serverStatuses.values().stream().reduce((abstractServerStatus, abstractServerStatus2) -&gt; {</span>
-<span class="pc bpc" id="L74" title="1 of 2 branches missed.">            if (abstractServerStatus.getStarted().before(abstractServerStatus2.getStarted())) {</span>
-<span class="nc" id="L75">                return abstractServerStatus2;</span>
+<span class="fc" id="L83">        return this.serverStatuses.values().stream().reduce((abstractServerStatus, abstractServerStatus2) -&gt; {</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">            if (abstractServerStatus.getStarted().before(abstractServerStatus2.getStarted())) {</span>
+<span class="nc" id="L85">                return abstractServerStatus2;</span>
             } else {
-<span class="fc" id="L77">                return abstractServerStatus;</span>
+<span class="fc" id="L87">                return abstractServerStatus;</span>
             }
         });
     }
 
     public EntandoDeploymentPhase calculateFinalPhase() {
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        return hasFailed() ? EntandoDeploymentPhase.FAILED : EntandoDeploymentPhase.SUCCESSFUL;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        return hasFailed() ? EntandoDeploymentPhase.FAILED : EntandoDeploymentPhase.SUCCESSFUL;</span>
     }
 
     public Long getObservedGeneration() {
-<span class="fc" id="L87">        return observedGeneration;</span>
+<span class="fc" id="L97">        return observedGeneration;</span>
     }
 
 }
