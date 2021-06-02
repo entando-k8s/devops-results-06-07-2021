@@ -54,15 +54,15 @@ public class SymbolicLinkValidator {
      */
     public AttributeFieldError scan(SymbolicLink symbLink, Content content) {
 <span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (symbLink != null) {</span>
-<span class="pc bpc" id="L57" title="2 of 6 branches missed.">            switch (symbLink.getDestType()) {</span>
+<span class="fc bfc" id="L57" title="All 6 branches covered.">            switch (symbLink.getDestType()) {</span>
                 case SymbolicLink.URL_TYPE:
 <span class="fc" id="L59">                    return null;</span>
                 case SymbolicLink.PAGE_TYPE:
-<span class="nc" id="L61">                    return this.checkPageDest(symbLink, content);</span>
+<span class="fc" id="L61">                    return this.checkPageDest(symbLink, content);</span>
                 case SymbolicLink.CONTENT_TYPE:
 <span class="fc" id="L63">                    return this.checkContentDest(symbLink, content);</span>
                 case SymbolicLink.CONTENT_ON_PAGE_TYPE:
-<span class="nc" id="L65">                    return this.checkContentOnPageDest(symbLink, content);</span>
+<span class="fc" id="L65">                    return this.checkContentOnPageDest(symbLink, content);</span>
                 case SymbolicLink.RESOURCE_TYPE:
 <span class="fc" id="L67">                    return this.checkResourceDest(symbLink, content);</span>
             }
@@ -71,38 +71,38 @@ public class SymbolicLinkValidator {
     }
 
     protected AttributeFieldError checkPageDest(SymbolicLink symbLink, Content content) {
-<span class="nc" id="L74">        String pageCode = symbLink.getPageDest();</span>
-<span class="nc" id="L75">        IPage page = this.getPageManager().getOnlinePage(pageCode);</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (null == page) {</span>
-<span class="nc" id="L77">            AttributeFieldError result = new AttributeFieldError(null, ICmsAttributeErrorCodes.INVALID_PAGE, null);</span>
-<span class="nc" id="L78">            result.setMessage(&quot;The destination page must be published&quot;);</span>
-<span class="nc" id="L79">            return result;</span>
+<span class="fc" id="L74">        String pageCode = symbLink.getPageDest();</span>
+<span class="fc" id="L75">        IPage page = this.getPageManager().getOnlinePage(pageCode);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (null == page) {</span>
+<span class="fc" id="L77">            AttributeFieldError result = new AttributeFieldError(null, ICmsAttributeErrorCodes.INVALID_PAGE, null);</span>
+<span class="fc" id="L78">            result.setMessage(&quot;The destination page must be published&quot;);</span>
+<span class="fc" id="L79">            return result;</span>
         } else {
-<span class="nc" id="L81">            Set&lt;String&gt; pageGroups = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L82">            pageGroups.add(page.getGroup());</span>
-<span class="nc" id="L83">            Set&lt;String&gt; extraGroups = page.getMetadata().getExtraGroups();</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (null != extraGroups) {</span>
+<span class="fc" id="L81">            Set&lt;String&gt; pageGroups = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L82">            pageGroups.add(page.getGroup());</span>
+<span class="fc" id="L83">            Set&lt;String&gt; extraGroups = page.getMetadata().getExtraGroups();</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">            if (null != extraGroups) {</span>
 <span class="nc" id="L85">                pageGroups.addAll(extraGroups);</span>
             }
-<span class="nc bnc" id="L87" title="All 2 branches missed.">            if (pageGroups.contains(Group.FREE_GROUP_NAME)) {</span>
-<span class="nc" id="L88">                return null;</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">            if (pageGroups.contains(Group.FREE_GROUP_NAME)) {</span>
+<span class="fc" id="L88">                return null;</span>
             }
-<span class="nc" id="L90">            Set&lt;String&gt; linkingContentGroups = this.extractContentGroups(content);</span>
-<span class="nc" id="L91">            boolean check = CollectionUtils.containsAll(pageGroups, linkingContentGroups);</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (!check) {</span>
-<span class="nc" id="L93">                boolean first = true;</span>
-<span class="nc" id="L94">                StringBuilder sb = new StringBuilder(&quot;The destination page must belong to the group(s): &quot;);</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">                for (String group : linkingContentGroups) {</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">                    if (first) {</span>
-<span class="nc" id="L97">                        first = false;</span>
+<span class="fc" id="L90">            Set&lt;String&gt; linkingContentGroups = this.extractContentGroups(content);</span>
+<span class="fc" id="L91">            boolean check = CollectionUtils.containsAll(pageGroups, linkingContentGroups);</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">            if (!check) {</span>
+<span class="fc" id="L93">                boolean first = true;</span>
+<span class="fc" id="L94">                StringBuilder sb = new StringBuilder(&quot;The destination page must belong to the group(s): &quot;);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                for (String group : linkingContentGroups) {</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                    if (first) {</span>
+<span class="fc" id="L97">                        first = false;</span>
                     } else {
 <span class="nc" id="L99">                        sb.append(&quot;, &quot;);</span>
                     }
-<span class="nc" id="L101">                    sb.append(group);</span>
-<span class="nc" id="L102">                }</span>
-<span class="nc" id="L103">                AttributeFieldError result = new AttributeFieldError(null, ICmsAttributeErrorCodes.INVALID_PAGE_GROUPS, null);</span>
-<span class="nc" id="L104">                result.setMessage(sb.toString());</span>
-<span class="nc" id="L105">                return result;</span>
+<span class="fc" id="L101">                    sb.append(group);</span>
+<span class="fc" id="L102">                }</span>
+<span class="fc" id="L103">                AttributeFieldError result = new AttributeFieldError(null, ICmsAttributeErrorCodes.INVALID_PAGE_GROUPS, null);</span>
+<span class="fc" id="L104">                result.setMessage(sb.toString());</span>
+<span class="fc" id="L105">                return result;</span>
             }
         }
 <span class="nc" id="L108">        return null;</span>
@@ -119,8 +119,8 @@ public class SymbolicLinkValidator {
 <span class="nc" id="L119">            return new AttributeFieldError(null, ICmsAttributeErrorCodes.INVALID_CONTENT, null);</span>
         }
 <span class="fc" id="L121">        Set&lt;String&gt; linkedContentGroups = this.extractContentGroups(linkedContent);</span>
-<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        if (linkedContentGroups.contains(Group.FREE_GROUP_NAME)) {</span>
-<span class="nc" id="L123">            return null;</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (linkedContentGroups.contains(Group.FREE_GROUP_NAME)) {</span>
+<span class="fc" id="L123">            return null;</span>
         }
 <span class="fc" id="L125">        Set&lt;String&gt; linkingContentGroups = this.extractContentGroups(content);</span>
 <span class="fc" id="L126">        boolean check = CollectionUtils.containsAll(linkedContentGroups, linkingContentGroups);</span>
@@ -153,11 +153,11 @@ public class SymbolicLinkValidator {
     }
 
     protected AttributeFieldError checkContentOnPageDest(SymbolicLink symbLink, Content content) {
-<span class="nc" id="L156">        AttributeFieldError error = this.checkContentDest(symbLink, content);</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (error == null) {</span>
-<span class="nc" id="L158">            error = this.checkPageDest(symbLink, content);</span>
+<span class="fc" id="L156">        AttributeFieldError error = this.checkContentDest(symbLink, content);</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (error == null) {</span>
+<span class="fc" id="L158">            error = this.checkPageDest(symbLink, content);</span>
         }
-<span class="nc" id="L160">        return error;</span>
+<span class="fc" id="L160">        return error;</span>
     }
 
     /**
@@ -188,7 +188,7 @@ public class SymbolicLinkValidator {
 <span class="fc" id="L188">    }</span>
 
     protected IPageManager getPageManager() {
-<span class="nc" id="L191">        return _pageManager;</span>
+<span class="fc" id="L191">        return _pageManager;</span>
     }
 
     protected void setPageManager(IPageManager pageManager) {

@@ -713,11 +713,11 @@ import org.springframework.validation.BindingResult;
 <span class="fc bfc" id="L713" title="All 2 branches covered.">                    while (iter.hasNext()) {</span>
 <span class="fc" id="L714">                        ContentServiceUtilizer serviceUtilizer = iter.next();</span>
 <span class="fc" id="L715">                        List utilizer = serviceUtilizer.getContentUtilizer(code);</span>
-<span class="pc bpc" id="L716" title="2 of 4 branches missed.">                        if (null != utilizer &amp;&amp; utilizer.size() &gt; 0) {</span>
-<span class="nc" id="L717">                            bindingResult</span>
-<span class="nc" id="L718">                                    .reject(ContentController.ERRCODE_REFERENCED_ONLINE_CONTENT, new String[]{code},</span>
+<span class="pc bpc" id="L716" title="1 of 4 branches missed.">                        if (null != utilizer &amp;&amp; utilizer.size() &gt; 0) {</span>
+<span class="fc" id="L717">                            bindingResult</span>
+<span class="fc" id="L718">                                    .reject(ContentController.ERRCODE_REFERENCED_ONLINE_CONTENT, new String[]{code},</span>
                                             &quot;plugins.jacms.content.status.invalid.online.ref&quot;);
-<span class="nc" id="L720">                            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L720">                            throw new ValidationGenericException(bindingResult);</span>
                         }
 <span class="fc" id="L722">                    }</span>
                 }
@@ -725,8 +725,8 @@ import org.springframework.validation.BindingResult;
 <span class="fc" id="L725">                newContent = this.getContentManager().loadContent(code, false);</span>
             }
 <span class="fc" id="L727">            return this.getDtoBuilder().convert(newContent);</span>
-<span class="nc" id="L728">        } catch (ValidationGenericException | ResourceNotFoundException e) {</span>
-<span class="nc" id="L729">            throw e;</span>
+<span class="fc" id="L728">        } catch (ValidationGenericException | ResourceNotFoundException e) {</span>
+<span class="fc" id="L729">            throw e;</span>
 <span class="nc" id="L730">        } catch (EntException e) {</span>
 <span class="nc" id="L731">            logger.error(&quot;Error updating content {} status&quot;, code, e);</span>
 <span class="nc" id="L732">            throw new RestServerError(&quot;error in update page content&quot;, e);</span>
@@ -740,15 +740,15 @@ import org.springframework.validation.BindingResult;
 <span class="fc" id="L740">                .map(code -&gt; {</span>
                     try {
 <span class="fc" id="L742">                        return updateContentStatus(code, status, user, bindingResult);</span>
-<span class="nc" id="L743">                    } catch (Exception e) {</span>
-<span class="nc" id="L744">                        logger.error(&quot;Error in updating content(code: {}) status {}&quot;, code, e);</span>
-<span class="nc" id="L745">                        return null;</span>
+<span class="fc" id="L743">                    } catch (Exception e) {</span>
+<span class="fc" id="L744">                        logger.error(&quot;Error in updating content(code: {}) status {}&quot;, code, e);</span>
+<span class="fc" id="L745">                        return null;</span>
                     }
                 })
-<span class="pc bpc" id="L748" title="1 of 2 branches missed.">                .filter(content -&gt; content != null)</span>
+<span class="fc bfc" id="L748" title="All 2 branches covered.">                .filter(content -&gt; content != null)</span>
 <span class="fc" id="L749">                .collect(Collectors.toList());</span>
-<span class="pc bpc" id="L750" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L751">            throw new ValidationGenericException(bindingResult);</span>
+<span class="fc bfc" id="L750" title="All 2 branches covered.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L751">            throw new ValidationGenericException(bindingResult);</span>
         }
 
 <span class="fc" id="L754">        return result;</span>
@@ -834,19 +834,19 @@ import org.springframework.validation.BindingResult;
                     try {
 <span class="fc" id="L835">                        resource = resourcesService.getAsset(res.getId(), res.getCorrelationCode());</span>
 <span class="fc" id="L836">                        res.setId(resource.getId());</span>
-<span class="nc" id="L837">                    } catch (ResourceNotFoundException e) {</span>
-<span class="nc" id="L838">                        logger.error(&quot;Resource not found: &quot; + idOrCode);</span>
-<span class="nc" id="L839">                        bindingResult.reject(EntityValidator.ERRCODE_ATTRIBUTE_INVALID,</span>
+<span class="fc" id="L837">                    } catch (ResourceNotFoundException e) {</span>
+<span class="fc" id="L838">                        logger.error(&quot;Resource not found: &quot; + idOrCode);</span>
+<span class="fc" id="L839">                        bindingResult.reject(EntityValidator.ERRCODE_ATTRIBUTE_INVALID,</span>
                                 &quot;Resource not found - &quot; + idOrCode);
-<span class="nc" id="L841">                        return;</span>
+<span class="fc" id="L841">                        return;</span>
 <span class="fc" id="L842">                    }</span>
 
 <span class="fc" id="L844">                    String resourceMainGroup = resource.getGroup();</span>
 
-<span class="pc bpc" id="L846" title="1 of 2 branches missed.">                    if (!resourceMainGroup.equals(Group.FREE_GROUP_NAME)</span>
-<span class="nc bnc" id="L847" title="All 2 branches missed.">                            &amp;&amp; !resourceMainGroup.equals(currentEntity.getMainGroup())</span>
-<span class="nc bnc" id="L848" title="All 2 branches missed.">                            &amp;&amp; !currentEntity.getGroups().contains(resourceMainGroup)) {</span>
-<span class="nc" id="L849">                        bindingResult.reject(EntityValidator.ERRCODE_ATTRIBUTE_INVALID,</span>
+<span class="fc bfc" id="L846" title="All 2 branches covered.">                    if (!resourceMainGroup.equals(Group.FREE_GROUP_NAME)</span>
+<span class="pc bpc" id="L847" title="1 of 2 branches missed.">                            &amp;&amp; !resourceMainGroup.equals(currentEntity.getMainGroup())</span>
+<span class="pc bpc" id="L848" title="1 of 2 branches missed.">                            &amp;&amp; !currentEntity.getGroups().contains(resourceMainGroup)) {</span>
+<span class="fc" id="L849">                        bindingResult.reject(EntityValidator.ERRCODE_ATTRIBUTE_INVALID,</span>
                                 &quot;Invalid resource group - &quot; + resourceMainGroup);
                     }
 <span class="fc" id="L852">                }</span>
