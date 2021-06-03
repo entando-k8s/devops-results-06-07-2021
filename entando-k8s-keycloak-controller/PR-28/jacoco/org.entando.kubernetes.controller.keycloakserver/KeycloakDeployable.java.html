@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KeycloakDeployable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller for Keycloak</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.keycloakserver</a> &gt; <span class="el_source">KeycloakDeployable.java</span></div><h1>KeycloakDeployable.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.keycloakserver;
+
+import static java.util.Optional.ofNullable;
+import static org.entando.kubernetes.controller.spi.common.SecretUtils.generateSecret;
+
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.controller.spi.container.DeployableContainer;
+import org.entando.kubernetes.controller.spi.deployable.DbAwareDeployable;
+import org.entando.kubernetes.controller.spi.deployable.ExternalService;
+import org.entando.kubernetes.controller.spi.deployable.Secretive;
+import org.entando.kubernetes.controller.spi.result.DatabaseConnectionInfo;
+import org.entando.kubernetes.controller.support.spibase.IngressingDeployableBase;
+import org.entando.kubernetes.model.capability.CapabilityProvisioningStrategy;
+import org.entando.kubernetes.model.keycloakserver.EntandoKeycloakServer;
+import org.entando.kubernetes.model.keycloakserver.StandardKeycloakImage;
+
+public class KeycloakDeployable
+        implements IngressingDeployableBase&lt;KeycloakDeploymentResult&gt;, DbAwareDeployable&lt;KeycloakDeploymentResult&gt;,
+        Secretive {
+
+    public static final long KEYCLOAK_IMAGE_DEFAULT_USERID = 1000L;
+    public static final long REDHAT_SSO_IMAGE_DEFAULT_USERID = 185L;
+    private final EntandoKeycloakServer keycloakServer;
+    private final List&lt;DeployableContainer&gt; containers;
+    private Secret keycloakAdminSecret;
+
+<span class="fc" id="L52">    public KeycloakDeployable(EntandoKeycloakServer keycloakServer, DatabaseConnectionInfo databaseServiceResult, Secret caCertSecret) {</span>
+<span class="fc" id="L53">        this.keycloakServer = keycloakServer;</span>
+<span class="fc" id="L54">        this.containers = Collections.singletonList(new KeycloakDeployableContainer(keycloakServer, databaseServiceResult, caCertSecret));</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (keycloakServer.getSpec().getAdminSecretName().isEmpty()) {</span>
+<span class="fc" id="L56">            this.keycloakAdminSecret = generateSecret(</span>
+                    this.keycloakServer,
+<span class="fc" id="L58">                    KeycloakDeployableContainer.secretName(this.keycloakServer),</span>
+                    &quot;entando_keycloak_admin&quot;);
+        }
+<span class="fc" id="L61">    }</span>
+
+    @Override
+    public boolean isIngressRequired() {
+<span class="fc" id="L65">        return keycloakServer.getSpec().getProvisioningStrategy().map(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY::equals).orElse(true);</span>
+    }
+
+    @Override
+    public Optional&lt;ExternalService&gt; getExternalService() {
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (keycloakServer.getSpec().getProvisioningStrategy().orElse(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY)</span>
+                == CapabilityProvisioningStrategy.USE_EXTERNAL) {
+<span class="fc" id="L72">            final String frontEndUrl = keycloakServer.getSpec().getFrontEndUrl().orElseThrow(IllegalStateException::new);</span>
+<span class="fc" id="L73">            return Optional.of(new ExternalKeycloakService(frontEndUrl));</span>
+        }
+<span class="fc" id="L75">        return IngressingDeployableBase.super.getExternalService();</span>
+    }
+
+    @Override
+    public Optional&lt;Long&gt; getFileSystemUserAndGroupId() {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (EntandoKeycloakHelper.determineStandardImage(keycloakServer) == StandardKeycloakImage.KEYCLOAK) {</span>
+<span class="fc" id="L81">            return Optional.of(KEYCLOAK_IMAGE_DEFAULT_USERID);</span>
+        } else {
+<span class="fc" id="L83">            return Optional.of(REDHAT_SSO_IMAGE_DEFAULT_USERID);</span>
+        }
+    }
+
+    @Override
+    public List&lt;DeployableContainer&gt; getContainers() {
+<span class="fc" id="L89">        return containers;</span>
+    }
+
+    @Override
+    public Optional&lt;String&gt; getQualifier() {
+<span class="fc" id="L94">        return Optional.empty();</span>
+    }
+
+    @Override
+    public EntandoKeycloakServer getCustomResource() {
+<span class="fc" id="L99">        return keycloakServer;</span>
+    }
+
+    @Override
+    public KeycloakDeploymentResult createResult(Deployment deployment, Service service, Ingress ingress, Pod pod) {
+<span class="fc" id="L104">        return new KeycloakDeploymentResult(pod, service, ingress, KeycloakDeployableContainer.secretName(keycloakServer), keycloakServer);</span>
+    }
+
+    @Override
+    public String getServiceAccountToUse() {
+<span class="fc" id="L109">        return keycloakServer.getSpec().getServiceAccountToUse().orElse(getDefaultServiceAccountName());</span>
+    }
+
+    @Override
+    public int getReplicas() {
+<span class="fc" id="L114">        return keycloakServer.getSpec().getReplicas().orElse(1);</span>
+    }
+
+    @Override
+    public String getIngressName() {
+<span class="fc" id="L119">        return NameUtils.standardIngressName(keycloakServer);</span>
+    }
+
+    @Override
+    public String getIngressNamespace() {
+<span class="fc" id="L124">        return keycloakServer.getMetadata().getNamespace();</span>
+    }
+
+    @Override
+    public List&lt;Secret&gt; getSecrets() {
+<span class="fc" id="L129">        return ofNullable(keycloakAdminSecret).stream().collect(Collectors.toList());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
