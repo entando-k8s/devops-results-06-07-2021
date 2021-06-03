@@ -53,25 +53,26 @@ import org.entando.kubernetes.controller.support.command.InProcessCommandStream;
 
     @Produces
     public DeploymentProcessor deploymentProcessor() {
-<span class="nc" id="L56">        return new SerializingDeploymentProcessor(entandoResourceClient(), new InProcessCommandStream(getSimpleKubernetesClient(), keycloakClient()));</span>
+<span class="nc" id="L56">        return new SerializingDeploymentProcessor(entandoResourceClient(),</span>
+<span class="nc" id="L57">                new InProcessCommandStream(getSimpleKubernetesClient(), keycloakClient()));</span>
     }
 
     @Produces
     public CapabilityProvider capabilityProvider() {
-<span class="nc" id="L61">        return new SerializingCapabilityProvider(entandoResourceClient(),</span>
-<span class="nc" id="L62">                new InProcessCommandStream(getSimpleKubernetesClient(), new DefaultKeycloakClient()));</span>
+<span class="nc" id="L62">        return new SerializingCapabilityProvider(entandoResourceClient(),</span>
+<span class="nc" id="L63">                new InProcessCommandStream(getSimpleKubernetesClient(), new DefaultKeycloakClient()));</span>
     }
 
     @Produces
     public SimpleKeycloakClient keycloakClient() {
-<span class="nc" id="L67">        return new DefaultKeycloakClient();</span>
+<span class="nc" id="L68">        return new DefaultKeycloakClient();</span>
     }
 
     private SimpleK8SClient&lt;EntandoResourceClient&gt; getSimpleKubernetesClient() {
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (simpleK8SClient == null) {</span>
-<span class="nc" id="L72">            simpleK8SClient = new DefaultSimpleK8SClient(getKubernetesClient());</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (simpleK8SClient == null) {</span>
+<span class="nc" id="L73">            simpleK8SClient = new DefaultSimpleK8SClient(getKubernetesClient());</span>
         }
-<span class="nc" id="L74">        return simpleK8SClient;</span>
+<span class="nc" id="L75">        return simpleK8SClient;</span>
     }
 
 }
