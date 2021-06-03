@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DatabaseDeploymentResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller for shared Database Services</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.databaseservice</a> &gt; <span class="el_source">DatabaseDeploymentResult.java</span></div><h1>DatabaseDeploymentResult.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.databaseservice;
+
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
+import java.util.Locale;
+import org.entando.kubernetes.controller.spi.common.DbmsVendorConfig;
+import org.entando.kubernetes.controller.spi.container.ProvidedDatabaseCapability;
+import org.entando.kubernetes.controller.spi.result.AbstractServiceResult;
+import org.entando.kubernetes.controller.spi.result.ServiceDeploymentResult;
+import org.entando.kubernetes.model.common.AbstractServerStatus;
+
+//TODO move to org.entando.kubernetes.controller.support
+public class DatabaseDeploymentResult extends AbstractServiceResult implements ServiceDeploymentResult&lt;DatabaseDeploymentResult&gt; {
+
+    /*migrate to DbmsVendorConfig*/
+    private final DbmsVendorConfig vendor;
+    private final String databaseName;
+    private final String databaseSecretName;
+    private final Pod pod;
+    private AbstractServerStatus status;
+
+    public DatabaseDeploymentResult(Service service, DbmsVendorConfig vendor, String databaseName, String databaseSecretName, Pod pod) {
+<span class="fc" id="L39">        super(service);</span>
+<span class="fc" id="L40">        this.pod = pod;</span>
+<span class="fc" id="L41">        this.vendor = vendor;</span>
+<span class="fc" id="L42">        this.databaseName = databaseName;</span>
+<span class="fc" id="L43">        this.databaseSecretName = databaseSecretName;</span>
+<span class="fc" id="L44">    }</span>
+
+    @Override
+    public DatabaseDeploymentResult withStatus(AbstractServerStatus status) {
+<span class="fc" id="L48">        this.status = status;</span>
+<span class="fc" id="L49">        this.status.setAdminSecretName(databaseSecretName);</span>
+<span class="fc" id="L50">        this.status.putDerivedDeploymentParameter(ProvidedDatabaseCapability.DATABASE_NAME_PARAMETER, databaseName);</span>
+<span class="fc" id="L51">        this.status.putDerivedDeploymentParameter(ProvidedDatabaseCapability.DBMS_VENDOR_PARAMETER, vendor.name().toLowerCase(Locale.ROOT));</span>
+<span class="fc" id="L52">        return this;</span>
+    }
+
+    public AbstractServerStatus getStatus() {
+<span class="fc" id="L56">        return status;</span>
+    }
+
+    @Override
+    public Pod getPod() {
+<span class="nc" id="L61">        return pod;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
