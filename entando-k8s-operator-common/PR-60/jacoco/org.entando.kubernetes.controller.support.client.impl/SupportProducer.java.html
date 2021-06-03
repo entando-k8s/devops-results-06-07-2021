@@ -19,6 +19,7 @@ package org.entando.kubernetes.controller.support.client.impl;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import org.entando.kubernetes.controller.spi.capability.CapabilityProvider;
 import org.entando.kubernetes.controller.spi.capability.SerializingCapabilityProvider;
@@ -30,46 +31,47 @@ import org.entando.kubernetes.controller.support.client.SimpleK8SClient;
 import org.entando.kubernetes.controller.support.client.SimpleKeycloakClient;
 import org.entando.kubernetes.controller.support.command.InProcessCommandStream;
 
-<span class="nc" id="L33">public class SupportProducer {</span>
+@ApplicationScoped
+<span class="nc" id="L35">public class SupportProducer {</span>
 
     private KubernetesClient kubernetesClient;
     private SimpleK8SClient&lt;EntandoResourceClient&gt; simpleK8SClient;
 
     @Produces
     public KubernetesClient getKubernetesClient() {
-<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (kubernetesClient == null) {</span>
-<span class="nc" id="L41">            ConfigBuilder configBuilder = new ConfigBuilder().withTrustCerts(true).withRequestTimeout(30000).withConnectionTimeout(30000);</span>
-<span class="nc" id="L42">            kubernetesClient = new DefaultKubernetesClient(configBuilder.build());</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (kubernetesClient == null) {</span>
+<span class="nc" id="L43">            ConfigBuilder configBuilder = new ConfigBuilder().withTrustCerts(true).withRequestTimeout(30000).withConnectionTimeout(30000);</span>
+<span class="nc" id="L44">            kubernetesClient = new DefaultKubernetesClient(configBuilder.build());</span>
         }
-<span class="nc" id="L44">        return kubernetesClient;</span>
+<span class="nc" id="L46">        return kubernetesClient;</span>
     }
 
     @Produces
     public KubernetesClientForControllers entandoResourceClient() {
-<span class="nc" id="L49">        return getSimpleKubernetesClient().entandoResources();</span>
+<span class="nc" id="L51">        return getSimpleKubernetesClient().entandoResources();</span>
     }
 
     @Produces
     public DeploymentProcessor deploymentProcessor() {
-<span class="nc" id="L54">        return new SerializingDeploymentProcessor(entandoResourceClient(), new InProcessCommandStream(simpleK8SClient, keycloakClient()));</span>
+<span class="nc" id="L56">        return new SerializingDeploymentProcessor(entandoResourceClient(), new InProcessCommandStream(getSimpleKubernetesClient(), keycloakClient()));</span>
     }
 
     @Produces
     public CapabilityProvider capabilityProvider() {
-<span class="nc" id="L59">        return new SerializingCapabilityProvider(entandoResourceClient(),</span>
-<span class="nc" id="L60">                new InProcessCommandStream(getSimpleKubernetesClient(), new DefaultKeycloakClient()));</span>
+<span class="nc" id="L61">        return new SerializingCapabilityProvider(entandoResourceClient(),</span>
+<span class="nc" id="L62">                new InProcessCommandStream(getSimpleKubernetesClient(), new DefaultKeycloakClient()));</span>
     }
 
     @Produces
     public SimpleKeycloakClient keycloakClient() {
-<span class="nc" id="L65">        return new DefaultKeycloakClient();</span>
+<span class="nc" id="L67">        return new DefaultKeycloakClient();</span>
     }
 
     private SimpleK8SClient&lt;EntandoResourceClient&gt; getSimpleKubernetesClient() {
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (simpleK8SClient == null) {</span>
-<span class="nc" id="L70">            simpleK8SClient = new DefaultSimpleK8SClient(getKubernetesClient());</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (simpleK8SClient == null) {</span>
+<span class="nc" id="L72">            simpleK8SClient = new DefaultSimpleK8SClient(getKubernetesClient());</span>
         }
-<span class="nc" id="L72">        return simpleK8SClient;</span>
+<span class="nc" id="L74">        return simpleK8SClient;</span>
     }
 
 }
