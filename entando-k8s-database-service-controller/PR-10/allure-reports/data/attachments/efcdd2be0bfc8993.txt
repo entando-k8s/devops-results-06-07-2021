@@ -1,0 +1,31 @@
+---
+internalServiceHostname: "mysql-dbms-9859-service.my-namespace.svc.cluster.local"
+mixins:
+- "ServiceResult"
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "mysql-dbms-9859-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "3306"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "mysql-dbms-9859-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+status:
+  qualifier: "main"
+  type: "InternalServerStatus"
+  started: "2021-06-03T08:05:30+0000"
+  serviceName: "mysql-dbms-9859-service"
+  deploymentName: "mysql-dbms-9859-deployment"
+  podPhases:
+    mysql-dbms-9859-deployment: "Running"
+  persistentVolumeClaimPhases:
+    mysql-dbms-9859-db-pvc: "Pending"
