@@ -1,0 +1,30 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  labels:
+    EntandoKeycloakServer: "my-keycloak"
+  name: "my-keycloak-ingress"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-keycloak"
+    uid: "e5e21bff-521c-4cd7-b2d9-30c571bfe324"
+spec:
+  rules:
+  - host: "my-keycloak-my-namespace.apps.serv.run"
+    http:
+      paths:
+      - backend:
+          serviceName: "my-keycloak-service"
+          servicePort: 8080
+        path: "/auth"
+  tls:
+  - hosts:
+    - "my-keycloak-my-namespace.apps.serv.run"
+    secretName: "default-tls-secret"
