@@ -1,0 +1,32 @@
+---
+internalServiceHostname: "specified-dbms-service.my-namespace.svc.cluster.local"
+mixins:
+- "ServiceResult"
+- "DatabaseConnectionInfo"
+databaseName: "specified_dbms"
+port: "3307"
+vendor: "MYSQL"
+adminSecretName: "my-existing-dbms-admin-secret"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    labels:
+      EntandoResourceKind: "TestResource"
+      TestResource: "specified-dbms"
+    name: "specified-dbms-service"
+    namespace: "my-namespace"
+    ownerReferences:
+    - apiVersion: "test.org/v1"
+      kind: "TestResource"
+      blockOwnerDeletion: true
+      controller: true
+      name: "specified-dbms"
+      uid: "8dc7e6b0-49c9-4015-8b34-37b8e548a5ac"
+  spec:
+    clusterIP: "10.0.0.123"
+    externalName: "pg.apps.serv.run"
+    ports:
+    - port: 3307
+      targetPort: 3307
+    type: "ExternalName"

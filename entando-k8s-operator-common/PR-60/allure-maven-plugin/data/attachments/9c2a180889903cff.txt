@@ -1,0 +1,29 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "my-namespace"
+    TestResource: "default-postgresql-dbms-in-namespace"
+    deployment: "default-postgresql-dbms-in-namespace"
+  name: "default-postgresql-dbms-in-namespace-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "default-postgresql-dbms-in-namespace"
+    uid: "811d27f5-4d8a-4242-bf5f-ffc5cd24120a"
+spec:
+  containers:
+  - {}
+status:
+  conditions:
+  - lastTransitionTime: "2021-06-03T11:52:13Z"
+    type: "Ready"
+  containerStatuses:
+  - state:
+      running: {}
+  phase: "Running"

@@ -1,0 +1,59 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    openshift.io/scc: "anyuid"
+  creationTimestamp: "2021-06-03T11:54:26Z"
+  labels:
+    pod-label: "123"
+  name: "my-pod"
+  namespace: "entando-k8s-operator-common-cmpr60"
+  resourceVersion: "201225346"
+  selfLink: "/api/v1/namespaces/entando-k8s-operator-common-cmpr60/pods/my-pod"
+  uid: "725ece3c-c462-11eb-9bde-fa163ea775ae"
+spec:
+  containers:
+  - command:
+    - "/usr/libexec/s2i/run"
+    image: "centos/nginx-116-centos7"
+    imagePullPolicy: "Always"
+    name: "nginx"
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - "MKNOD"
+    terminationMessagePath: "/dev/termination-log"
+    terminationMessagePolicy: "File"
+    volumeMounts:
+    - mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      name: "default-token-fx666"
+      readOnly: true
+  dnsPolicy: "ClusterFirst"
+  imagePullSecrets:
+  - name: "default-dockercfg-mgkb6"
+  nodeName: "openshift"
+  nodeSelector:
+    node-role.kubernetes.io/compute: "true"
+  priority: 0
+  restartPolicy: "Always"
+  schedulerName: "default-scheduler"
+  securityContext:
+    seLinuxOptions:
+      level: "s0:c18,c7"
+  serviceAccount: "default"
+  serviceAccountName: "default"
+  terminationGracePeriodSeconds: 30
+  volumes:
+  - name: "default-token-fx666"
+    secret:
+      defaultMode: 420
+      secretName: "default-token-fx666"
+status:
+  conditions:
+  - lastTransitionTime: "2021-06-03T11:54:26Z"
+    status: "True"
+    type: "PodScheduled"
+  phase: "Pending"
+  qosClass: "BestEffort"

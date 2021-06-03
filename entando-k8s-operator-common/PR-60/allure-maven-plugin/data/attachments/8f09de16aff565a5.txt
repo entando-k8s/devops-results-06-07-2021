@@ -1,0 +1,29 @@
+---
+apiVersion: "test.org/v1"
+kind: "TestResource"
+metadata:
+  name: "default-postgresql-dbms-in-namespace"
+  namespace: "my-namespace"
+  resourceVersion: "9471799"
+  uid: "811d27f5-4d8a-4242-bf5f-ffc5cd24120a"
+spec:
+  replicas: 1
+  provisioningStrategy: "DeployDirectly"
+  dbms: "postgresql"
+status:
+  serverStatuses:
+    main: !<InternalServerStatus>
+      qualifier: "main"
+      type: "InternalServerStatus"
+      started: "2021-06-03T11:52:13+0000"
+      serviceName: "default-postgresql-dbms-in-namespace-service"
+      deploymentName: "default-postgresql-dbms-in-namespace-deployment"
+      podPhases:
+        default-postgresql-dbms-in-namespace-deployment: "Running"
+      persistentVolumeClaimPhases:
+        default-postgresql-dbms-in-namespace-db-pvc: "Pending"
+      derivedDeploymentParameters:
+        databaseName: "default_postgresql_dbms_in_namespace"
+        dbmsVendor: "postgresql"
+  phase: "successful"
+crdName: "testresources.test.org"

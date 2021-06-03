@@ -1,0 +1,527 @@
+{
+  "uid" : "12c63abe752c07ea",
+  "name" : "exposeSecondPathOnHttpsServiceOverSpecifiedHostName()",
+  "fullName" : "org.entando.kubernetes.controller.ExposedServiceTest.exposeSecondPathOnHttpsServiceOverSpecifiedHostName",
+  "historyId" : "1ad190650150f4d23a73356d9c465abf",
+  "time" : {
+    "start" : 1622721133814,
+    "stop" : 1622721134784,
+    "duration" : 970
+  },
+  "description" : "Should expose the path to a second service over HTTPS using the host name specified ",
+  "descriptionHtml" : "<p>Should expose the path to a second service over HTTPS using the host name specified</p>\n",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ {
+    "name" : "beforeEach",
+    "time" : {
+      "start" : 1622721133815,
+      "stop" : 1622721133846,
+      "duration" : 31
+    },
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "Given I have registered a CustomResourceDefinition for the resource kind 'TestResource'",
+      "time" : {
+        "start" : 1622721133815,
+        "stop" : 1622721133846,
+        "duration" : 31
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    } ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 1,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "hasContent" : true
+  }, {
+    "name" : "resetSystemPropertiesUsed",
+    "time" : {
+      "start" : 1622721133846,
+      "stop" : 1622721133846,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 0,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "hasContent" : false
+  } ],
+  "testStage" : {
+    "description" : "Should expose the path to a second service over HTTPS using the host name specified ",
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "Given I have two custom resource of kind TestResource",
+      "time" : {
+        "start" : 1622721133847,
+        "stop" : 1622721133849,
+        "duration" : 2
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "the first in the namespace 'my-namespace' with name 'my-app'",
+        "time" : {
+          "start" : 1622721133848,
+          "stop" : 1622721133849,
+          "duration" : 1
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ {
+          "uid" : "4ac6a00c766ea4ee",
+          "name" : "TestResource 1",
+          "source" : "4ac6a00c766ea4ee.txt",
+          "type" : "text/plain",
+          "size" : 9
+        } ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 1,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      }, {
+        "name" : "the second in the namespace 'my-namespace2' with name 'my-app2'",
+        "time" : {
+          "start" : 1622721133849,
+          "stop" : 1622721133849,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ {
+          "uid" : "6b2b45313af1cb7d",
+          "name" : "TestResource 2",
+          "source" : "6b2b45313af1cb7d.txt",
+          "type" : "text/plain",
+          "size" : 9
+        } ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 1,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      } ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 2,
+      "attachmentsCount" : 2,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And I have created the necessary Kubernetes Secrets to support TLS",
+      "time" : {
+        "start" : 1622721133850,
+        "stop" : 1622721134237,
+        "duration" : 387
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    }, {
+      "name" : "And I have an IngressingDeployable that specifies the TLS Secret test-tls-secret and the hostname 'myhost.com', targeting an Ingress in the same namespace as the custom resource ",
+      "time" : {
+        "start" : 1622721134237,
+        "stop" : 1622721134247,
+        "duration" : 10
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "2ecf468196a55f6a",
+        "name" : "Deployable",
+        "source" : "2ecf468196a55f6a.txt",
+        "type" : "text/plain",
+        "size" : 321
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "and I have deployed the first TestResource 'my-app' in namespace 'my-namespace' with the context path '/my-app' and the health check path '/my-app/health'",
+      "time" : {
+        "start" : 1622721134250,
+        "stop" : 1622721134521,
+        "duration" : 271
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "Executing command PROCESS_DEPLOYABLE",
+        "time" : {
+          "start" : 1622721134273,
+          "stop" : 1622721134499,
+          "duration" : 226
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ {
+          "uid" : "a2b90c11bdf71885",
+          "name" : "Input Deployable",
+          "source" : "a2b90c11bdf71885.txt",
+          "type" : "text/plain",
+          "size" : 1236
+        }, {
+          "uid" : "964d7ffad0559b28",
+          "name" : "Ouput DeploymentResult",
+          "source" : "964d7ffad0559b28.txt",
+          "type" : "text/plain",
+          "size" : 1022
+        } ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 2,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      } ],
+      "attachments" : [ {
+        "uid" : "e8a98ac56924fa69",
+        "name" : "Container",
+        "source" : "e8a98ac56924fa69.txt",
+        "type" : "text/plain",
+        "size" : 709
+      }, {
+        "uid" : "2b32d65ff541096b",
+        "name" : "TestResource",
+        "source" : "2b32d65ff541096b.txt",
+        "type" : "text/plain",
+        "size" : 210
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 1,
+      "attachmentsCount" : 4,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "When I deploy the second TestResource 'my-app2' in namespace 'my-namespace2' with the context path '/my-app2' and the health check path '/my-app2/health'",
+      "time" : {
+        "start" : 1622721134522,
+        "stop" : 1622721134726,
+        "duration" : 204
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "Executing command PROCESS_DEPLOYABLE",
+        "time" : {
+          "start" : 1622721134549,
+          "stop" : 1622721134689,
+          "duration" : 140
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ {
+          "uid" : "9344b44f2e61f09e",
+          "name" : "Input Deployable",
+          "source" : "9344b44f2e61f09e.txt",
+          "type" : "text/plain",
+          "size" : 1240
+        }, {
+          "uid" : "40cf09e08b211212",
+          "name" : "Ouput DeploymentResult",
+          "source" : "40cf09e08b211212.txt",
+          "type" : "text/plain",
+          "size" : 1035
+        } ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 2,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      } ],
+      "attachments" : [ {
+        "uid" : "bf442ede61c6b0a7",
+        "name" : "Container",
+        "source" : "bf442ede61c6b0a7.txt",
+        "type" : "text/plain",
+        "size" : 711
+      }, {
+        "uid" : "a9d3548bb8a1a72e",
+        "name" : "TestResource",
+        "source" : "a9d3548bb8a1a72e.txt",
+        "type" : "text/plain",
+        "size" : 212
+      }, {
+        "uid" : "a10d1545ab7bf90a",
+        "name" : "TestResource",
+        "source" : "a10d1545ab7bf90a.txt",
+        "type" : "text/plain",
+        "size" : 212
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 1,
+      "attachmentsCount" : 5,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "Then a second Deployment was created with a single Container",
+      "time" : {
+        "start" : 1622721134727,
+        "stop" : 1622721134752,
+        "duration" : 25
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "that has the standard Java truststore variable JAVA_TOOL_OPTIONS set to point to the Secret key entando-default-truststore.TRUSTSTORE_SETTINGS",
+        "time" : {
+          "start" : 1622721134751,
+          "stop" : 1622721134751,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : false
+      }, {
+        "name" : "and its startupProbe, readinessProbe and livenessProbe all point to the path /my-app/health",
+        "time" : {
+          "start" : 1622721134751,
+          "stop" : 1622721134752,
+          "duration" : 1
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : false
+      } ],
+      "attachments" : [ {
+        "uid" : "fa5d9cb8d115beb5",
+        "name" : "Deployment",
+        "source" : "fa5d9cb8d115beb5.txt",
+        "type" : "text/plain",
+        "size" : 2614
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 2,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And a Service was created that points to port 8081 on the target Container",
+      "time" : {
+        "start" : 1622721134752,
+        "stop" : 1622721134758,
+        "duration" : 6
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "8e9f747a443a826c",
+        "name" : "Service",
+        "source" : "8e9f747a443a826c.txt",
+        "type" : "text/plain",
+        "size" : 737
+      }, {
+        "uid" : "8d78824a030864b1",
+        "name" : "Service",
+        "source" : "8d78824a030864b1.txt",
+        "type" : "text/plain",
+        "size" : 737
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 2,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And a delegate Service 'my-app-ingress-to-my-app2-service' was created in namespace 'my-namespace' that points to the service in namespace 'my-namespace2' ",
+      "time" : {
+        "start" : 1622721134760,
+        "stop" : 1622721134766,
+        "duration" : 6
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "1b30b11dc891040e",
+        "name" : "Service",
+        "source" : "1b30b11dc891040e.txt",
+        "type" : "text/plain",
+        "size" : 556
+      }, {
+        "uid" : "3fc7e54b93c29386",
+        "name" : "Service",
+        "source" : "3fc7e54b93c29386.txt",
+        "type" : "text/plain",
+        "size" : 556
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 2,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And the delegate Service is backed by a Endpoints resource that points to the second service in namespace 'my-namespace2'",
+      "time" : {
+        "start" : 1622721134766,
+        "stop" : 1622721134774,
+        "duration" : 8
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "d194481ce943bb72",
+        "name" : "Service",
+        "source" : "d194481ce943bb72.txt",
+        "type" : "text/plain",
+        "size" : 574
+      }, {
+        "uid" : "4930aeabbd74f779",
+        "name" : "Service",
+        "source" : "4930aeabbd74f779.txt",
+        "type" : "text/plain",
+        "size" : 574
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 2,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And a new path was created on the original Ingress for '/my-app2'",
+      "time" : {
+        "start" : 1622721134774,
+        "stop" : 1622721134783,
+        "duration" : 9
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : " that points to port 8081 on the target Service",
+        "time" : {
+          "start" : 1622721134782,
+          "stop" : 1622721134783,
+          "duration" : 1
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : false
+      } ],
+      "attachments" : [ {
+        "uid" : "e327add261f64efc",
+        "name" : "Ingress",
+        "source" : "e327add261f64efc.txt",
+        "type" : "text/plain",
+        "size" : 836
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 1,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    } ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 17,
+    "attachmentsCount" : 20,
+    "shouldDisplayMessage" : false,
+    "hasContent" : true
+  },
+  "afterStages" : [ {
+    "name" : "resetSystemPropertiesUsed",
+    "time" : {
+      "start" : 1622721134783,
+      "stop" : 1622721134784,
+      "duration" : 1
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 0,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "hasContent" : false
+  } ],
+  "labels" : [ {
+    "name" : "tag",
+    "value" : "inner-hexagon"
+  }, {
+    "name" : "tag",
+    "value" : "in-process"
+  }, {
+    "name" : "tag",
+    "value" : "allure"
+  }, {
+    "name" : "tag",
+    "value" : "pre-deployment"
+  }, {
+    "name" : "feature",
+    "value" : "As a controller developer, I would like to expose my service over HTTP so that others can access it"
+  }, {
+    "name" : "host",
+    "value" : "entando-k8s-entando-k8s-operato-xp8rp-35-from-build-pack--wl75g"
+  }, {
+    "name" : "thread",
+    "value" : "104@entando-k8s-entando-k8s-operato-xp8rp-35-from-build-pack--wl75g.ForkJoinPool-1-worker-3(17)"
+  }, {
+    "name" : "framework",
+    "value" : "junit-platform"
+  }, {
+    "name" : "language",
+    "value" : "java"
+  }, {
+    "name" : "package",
+    "value" : "org.entando.kubernetes.controller.ExposedServiceTest"
+  }, {
+    "name" : "testClass",
+    "value" : "org.entando.kubernetes.controller.ExposedServiceTest"
+  }, {
+    "name" : "testMethod",
+    "value" : "exposeSecondPathOnHttpsServiceOverSpecifiedHostName"
+  }, {
+    "name" : "suite",
+    "value" : "org.entando.kubernetes.controller.ExposedServiceTest"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ {
+    "name" : "ENG-2284",
+    "url" : "https://entando.myjetbrains.com/youtrack/issue/ENG-2284",
+    "type" : "issue"
+  }, {
+    "name" : "ExposedServiceTest.java",
+    "url" : "https://github.com/entando-k8s/entando-k8s-operator-common/tree/ENG-2284_removing_cluster_infrastructure/src/test/java/org/entando/kubernetes/controller/ExposedServiceTest.java",
+    "type" : "source"
+  } ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ "inner-hexagon", "pre-deployment", "allure", "in-process" ]
+  },
+  "source" : "12c63abe752c07ea.json",
+  "parameterValues" : [ ]
+}
