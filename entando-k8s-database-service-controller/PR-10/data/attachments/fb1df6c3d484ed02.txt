@@ -1,0 +1,119 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoDatabaseService: "default-dbms-in-namespace"
+    EntandoResourceKind: "EntandoDatabaseService"
+    entando.org/capability: "Dbms"
+    capabilityProvisionScope: "Namespace"
+    EntandoResourceNamespace: "my-namespace"
+    deployment: "default-dbms-in-namespace"
+  name: "default-dbms-in-namespace-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoDatabaseService"
+    blockOwnerDeletion: true
+    controller: true
+    name: "default-dbms-in-namespace"
+    uid: "023baada-ae23-4a11-b8b9-e21ed271204c"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoDatabaseService: "default-dbms-in-namespace"
+      EntandoResourceKind: "EntandoDatabaseService"
+      entando.org/capability: "Dbms"
+      capabilityProvisionScope: "Namespace"
+      EntandoResourceNamespace: "my-namespace"
+      deployment: "default-dbms-in-namespace"
+  template:
+    metadata:
+      labels:
+        EntandoDatabaseService: "default-dbms-in-namespace"
+        EntandoResourceKind: "EntandoDatabaseService"
+        entando.org/capability: "Dbms"
+        capabilityProvisionScope: "Namespace"
+        EntandoResourceNamespace: "my-namespace"
+        deployment: "default-dbms-in-namespace"
+      name: "default-dbms-in-namespace-pod"
+    spec:
+      containers:
+      - env:
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        - name: "POSTGRESQL_DATABASE"
+          value: "default_dbms_in_namespace_db"
+        - name: "POSTGRESQL_USER"
+          value: "default_dbms_in_namespace_db_user"
+        - name: "POSTGRESQL_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "default-dbms-in-namespace-admin-secret"
+              optional: false
+        - name: "POSTGRESQL_ADMIN_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "default-dbms-in-namespace-admin-secret"
+              optional: false
+        image: "registry.redhat.io/rhel8/postgresql-12:latest"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          exec:
+            command:
+            - "/bin/sh"
+            - "-i"
+            - "-c"
+            - "/usr/libexec/check-container"
+          failureThreshold: 1
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: "db-container"
+        ports:
+        - containerPort: 5432
+          name: "db-port"
+          protocol: "TCP"
+        readinessProbe:
+          exec:
+            command:
+            - "/bin/sh"
+            - "-i"
+            - "-c"
+            - "/usr/libexec/check-container"
+          failureThreshold: 1
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+        startupProbe:
+          exec:
+            command:
+            - "/bin/sh"
+            - "-i"
+            - "-c"
+            - "/usr/libexec/check-container"
+          failureThreshold: 11
+          periodSeconds: 9
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: "/var/lib/pgsql/data"
+          name: "default-dbms-in-namespace-db-volume"
+          readOnly: false
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      securityContext:
+        fsGroup: 26
+      serviceAccountName: "default"
+      volumes:
+      - name: "default-dbms-in-namespace-db-volume"
+        persistentVolumeClaim:
+          claimName: "default-dbms-in-namespace-db-pvc"
+          readOnly: false

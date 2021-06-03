@@ -1,0 +1,48 @@
+---
+internalServiceHostname: "mysql-dbms-3891-service.my-namespace.svc.cluster.local"
+mixins:
+- "DatabaseConnectionInfo"
+- "ServiceResult"
+databaseName: "my_db"
+port: "3306"
+vendor: "MYSQL"
+adminSecretName: "mysql-dbms-3891-admin-secret"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    labels:
+      EntandoDatabaseService: "mysql-dbms-3891"
+      EntandoResourceKind: "EntandoDatabaseService"
+      entando.org/capability: "Dbms"
+      capabilityProvisionScope: "Labeled"
+      my-label: "my-label-value"
+      EntandoResourceNamespace: "my-namespace"
+      entando.org/capability-implementation: "Mysql"
+      deployment: "mysql-dbms-3891"
+    name: "mysql-dbms-3891-service"
+    namespace: "my-namespace"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoDatabaseService"
+      blockOwnerDeletion: true
+      controller: true
+      name: "mysql-dbms-3891"
+      uid: "a8a54aad-b365-4b36-b580-3ed29317cdd7"
+  spec:
+    clusterIP: "10.0.0.-52"
+    ports:
+    - name: "db-port"
+      port: 3306
+      protocol: "TCP"
+      targetPort: 3306
+    selector:
+      EntandoDatabaseService: "mysql-dbms-3891"
+      EntandoResourceKind: "EntandoDatabaseService"
+      entando.org/capability: "Dbms"
+      capabilityProvisionScope: "Labeled"
+      my-label: "my-label-value"
+      EntandoResourceNamespace: "my-namespace"
+      entando.org/capability-implementation: "Mysql"
+      deployment: "mysql-dbms-3891"
+    type: "ClusterIP"

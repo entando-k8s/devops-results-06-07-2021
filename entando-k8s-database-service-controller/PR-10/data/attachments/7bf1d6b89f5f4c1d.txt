@@ -1,0 +1,31 @@
+---
+internalServiceHostname: "mysql-dbms-3891-service.my-namespace.svc.cluster.local"
+mixins:
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "mysql-dbms-3891-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "3306"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "mysql-dbms-3891-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+status:
+  qualifier: "main"
+  type: "InternalServerStatus"
+  started: "2021-06-03T07:14:11+0000"
+  serviceName: "mysql-dbms-3891-service"
+  deploymentName: "mysql-dbms-3891-deployment"
+  podPhases:
+    mysql-dbms-3891-deployment: "Running"
+  persistentVolumeClaimPhases:
+    mysql-dbms-3891-db-pvc: "Pending"

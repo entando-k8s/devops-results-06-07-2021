@@ -1,0 +1,55 @@
+---
+mixins:
+- "Secretive"
+- "Deployable"
+fileSystemUserAndGroupId: 27
+defaultServiceAccountName: "default"
+externalService:
+  mixins:
+  - "ExternalService"
+  port: 3307
+  host: "pg.apps.serv.run"
+  createDelegateService: true
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoDatabaseService"
+  metadata:
+    name: "specified-dbms"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- memoryLimitMebibytes: 512
+  dockerImageInfo:
+    registryHost: "docker.io"
+    organization: "centos"
+    repository: "mysql-80-centos7"
+    tag: "latest"
+  volumeMountPath: "/var/lib/mysql/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 3307
+  storageLimitMebibytes: 2048
+  accessMode: "ReadWriteOnce"
+  mixins:
+  - "DeployableContainer"
+  - "HasHealthCommand"
+  - "ConfigurableResourceContainer"
+  - "PersistentVolumeAwareContainer"
+  - "ServiceBackingContainer"
+  maximumStartupTimeSeconds: 90
+  healthCheckCommand: "MYSQL_PWD=${MYSQL_ROOT_PASSWORD} mysql -h 127.0.0.1 -u root\
+    \ -e 'SELECT 1'"
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "MYSQL_ROOT_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-existing-dbms-admin-secret"
+        optional: false
+  nameQualifier: "db"
+  secretsToMount: []
+  cpuLimitMillicores: 500
+secrets: []
+serviceAccountToUse: "default"

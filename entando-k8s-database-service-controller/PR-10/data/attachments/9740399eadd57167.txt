@@ -1,0 +1,40 @@
+---
+internalServiceHostname: "default-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+mixins:
+- "DatabaseConnectionInfo"
+- "ServiceResult"
+databaseName: "default_dbms_in_namespace_db"
+port: "5432"
+vendor: "POSTGRESQL"
+adminSecretName: "default-dbms-in-namespace-admin-secret"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    labels:
+      EntandoDatabaseService: "default-dbms-in-namespace"
+      EntandoResourceKind: "EntandoDatabaseService"
+      EntandoResourceNamespace: "my-namespace"
+      deployment: "default-dbms-in-namespace"
+    name: "default-dbms-in-namespace-service"
+    namespace: "my-namespace"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoDatabaseService"
+      blockOwnerDeletion: true
+      controller: true
+      name: "default-dbms-in-namespace"
+      uid: "f33dd494-709e-4798-a6e1-2babccf236bb"
+  spec:
+    clusterIP: "10.0.0.45"
+    ports:
+    - name: "db-port"
+      port: 5432
+      protocol: "TCP"
+      targetPort: 5432
+    selector:
+      EntandoDatabaseService: "default-dbms-in-namespace"
+      EntandoResourceKind: "EntandoDatabaseService"
+      EntandoResourceNamespace: "my-namespace"
+      deployment: "default-dbms-in-namespace"
+    type: "ClusterIP"
