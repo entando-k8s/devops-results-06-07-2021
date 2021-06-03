@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InstallPlanValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Component Manager</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.validator</a> &gt; <span class="el_source">InstallPlanValidator.java</span></div><h1>InstallPlanValidator.java</h1><pre class="source lang-java linenums">package org.entando.kubernetes.validator;
+
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.entando.kubernetes.controller.digitalexchange.job.model.ComponentInstallPlan;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallAction;
+import org.entando.kubernetes.controller.digitalexchange.job.model.InstallPlan;
+import org.entando.kubernetes.controller.digitalexchange.job.model.Status;
+import org.entando.kubernetes.exception.EntandoComponentManagerException;
+import org.entando.kubernetes.model.bundle.ComponentType;
+import org.springframework.stereotype.Component;
+
+@Component
+<span class="fc" id="L14">public class InstallPlanValidator {</span>
+
+    public boolean validateInstallPlanOrThrow(InstallPlan installPlan) {
+
+<span class="fc bfc" id="L18" title="All 2 branches covered.">        if (null != installPlan) {</span>
+<span class="fc" id="L19">            this.validateComponentMapOfThrow(installPlan.getFragments(), ComponentType.FRAGMENT);</span>
+<span class="fc" id="L20">            this.validateComponentMapOfThrow(installPlan.getAssets(), ComponentType.ASSET);</span>
+<span class="fc" id="L21">            this.validateComponentMapOfThrow(installPlan.getCategories(), ComponentType.CATEGORY);</span>
+<span class="fc" id="L22">            this.validateComponentMapOfThrow(installPlan.getContents(), ComponentType.CONTENT);</span>
+<span class="fc" id="L23">            this.validateComponentMapOfThrow(installPlan.getContentTemplates(), ComponentType.CONTENT_TEMPLATE);</span>
+<span class="fc" id="L24">            this.validateComponentMapOfThrow(installPlan.getContentTypes(), ComponentType.CONTENT_TYPE);</span>
+<span class="fc" id="L25">            this.validateComponentMapOfThrow(installPlan.getDirectories(), ComponentType.DIRECTORY);</span>
+<span class="fc" id="L26">            this.validateComponentMapOfThrow(installPlan.getGroups(), ComponentType.GROUP);</span>
+<span class="fc" id="L27">            this.validateComponentMapOfThrow(installPlan.getLabels(), ComponentType.LABEL);</span>
+<span class="fc" id="L28">            this.validateComponentMapOfThrow(installPlan.getLanguages(), ComponentType.LANGUAGE);</span>
+<span class="fc" id="L29">            this.validateComponentMapOfThrow(installPlan.getPages(), ComponentType.PAGE);</span>
+<span class="fc" id="L30">            this.validateComponentMapOfThrow(installPlan.getPageTemplates(), ComponentType.PAGE_TEMPLATE);</span>
+<span class="fc" id="L31">            this.validateComponentMapOfThrow(installPlan.getPlugins(), ComponentType.PLUGIN);</span>
+<span class="fc" id="L32">            this.validateComponentMapOfThrow(installPlan.getResources(), ComponentType.RESOURCE);</span>
+<span class="fc" id="L33">            this.validateComponentMapOfThrow(installPlan.getWidgets(), ComponentType.WIDGET);</span>
+        }
+
+<span class="fc" id="L36">        return true;</span>
+    }
+
+    private void validateComponentMapOfThrow(Map&lt;String, ComponentInstallPlan&gt; componentInstallPlanMap,
+            ComponentType componentType) {
+
+<span class="fc" id="L42">        componentInstallPlanMap.forEach((key, componentInstallPlan) -&gt; {</span>
+<span class="fc" id="L43">            validateKeyOrThrow(key, componentType);</span>
+<span class="fc" id="L44">            validateActionOrThrow(key, componentInstallPlan.getAction(), componentType);</span>
+<span class="fc" id="L45">            validateStatusNEW(key, componentInstallPlan.getStatus(), componentInstallPlan.getAction(), componentType);</span>
+<span class="fc" id="L46">            validateStatusNotNEW(key, componentInstallPlan.getStatus(), componentInstallPlan.getAction(), componentType);</span>
+<span class="fc" id="L47">        });</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * key must NOT be empty.
+     * @param key the key of the current component
+     * @param componentType he current component type
+     */
+    private void validateKeyOrThrow(String key, ComponentType componentType) {
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (StringUtils.isEmpty(key)) {</span>
+<span class="fc" id="L57">            throw new EntandoComponentManagerException(</span>
+<span class="fc" id="L58">                    String.format(&quot;Empty key found in the InstallPlan for components %s&quot;,</span>
+<span class="fc" id="L59">                            componentType.getTypeName()));</span>
+        }
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * install action must NOT be null.
+     *
+     * @param action the action to validate
+     * @param componentType the current component type
+     * @param key the key of the current component
+     */
+    private void validateActionOrThrow(String key, InstallAction action, ComponentType componentType) {
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (null == action) {</span>
+<span class="nc" id="L72">            throw new EntandoComponentManagerException(</span>
+<span class="nc" id="L73">                    String.format(&quot;Null action found in the InstallPlan for %s %s&quot;,</span>
+<span class="nc" id="L74">                            componentType.getTypeName(), key));</span>
+        }
+<span class="fc" id="L76">    }</span>
+
+    /**
+     * if the Status == NEW the action can be only CREATE.
+     * @param status the status of the component to validate
+     * @param action the action to validate
+     * @param componentType the current component type
+     * @param key the key of the current component
+     */
+    private void validateStatusNEW(String key, Status status, InstallAction action, ComponentType componentType) {
+<span class="fc bfc" id="L86" title="All 4 branches covered.">        if (status == Status.NEW &amp;&amp; action != InstallAction.CREATE) {</span>
+<span class="fc" id="L87">            throw new EntandoComponentManagerException(</span>
+<span class="fc" id="L88">                    String.format(</span>
+                            &quot;The InstallAction %s supplied for the %s %s is not valid. A component with Status.NEW &quot;
+                                    + &quot;can receives only an InstallAction.CREATE&quot;,
+<span class="fc" id="L91">                            action, componentType.getTypeName(), key));</span>
+        }
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * if the Status != NEW the action can be only SKIP or OVERRIDE.
+     * @param status the status of the component to validate
+     * @param action the action to validate
+     * @param componentType the current component type
+     * @param key the key of the current component
+     */
+    private void validateStatusNotNEW(String key, Status status, InstallAction action, ComponentType componentType) {
+<span class="fc bfc" id="L103" title="All 4 branches covered.">        if (status != Status.NEW &amp;&amp; action == InstallAction.CREATE) {</span>
+<span class="fc" id="L104">            throw new EntandoComponentManagerException(</span>
+<span class="fc" id="L105">                    String.format(</span>
+                            &quot;The InstallAction %s supplied for the %s %s is not valid. A component with Status.DIFF &quot;
+                                    + &quot;or Status.EQUAL can receives only InstallAction.SKIP or InstallAction.OVERRIDE&quot;,
+<span class="fc" id="L108">                            action, componentType.getTypeName(), key));</span>
+        }
+<span class="fc" id="L110">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
