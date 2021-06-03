@@ -1,0 +1,40 @@
+---
+apiVersion: "entando.org/v1"
+kind: "ProvidedCapability"
+metadata:
+  name: "my-external-dbms"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoDatabaseService"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-external-dbms"
+    uid: "c79d5bbc-075c-4796-96cd-a8ed040a1587"
+  resourceVersion: "424556"
+  uid: "07309e57-a56a-4f62-9b35-155edd540492"
+spec:
+  capability: "dbms"
+  implementation: "postgresql"
+  resolutionScopePreference:
+  - "Namespace"
+  provisioningStrategy: "UseExternal"
+  capabilityParameters:
+    databaseName: "my_db"
+  externallyProvidedService:
+    host: "pg.apps.serv.run"
+    port: 5432
+    adminSecretName: "my-existing-dbms-admin-secret"
+status:
+  serverStatuses:
+    main: !<InternalServerStatus>
+      qualifier: "main"
+      type: "InternalServerStatus"
+      started: "2021-06-03T07:03:11+0000"
+      serviceName: "my-external-dbms-service"
+      adminSecretName: "my-existing-dbms-admin-secret"
+      derivedDeploymentParameters:
+        databaseName: "my_db"
+        dbmsVendor: "postgresql"
+  phase: "successful"
+crdName: "providedcapabilities.entando.org"
