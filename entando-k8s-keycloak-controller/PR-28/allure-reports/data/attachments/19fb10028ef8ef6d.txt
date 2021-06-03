@@ -1,0 +1,43 @@
+---
+internalServiceHostname: "my-app-sso-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-app-sso-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-app-sso-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8080"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-app-sso-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "https://myhost.com/auth"
+externalHostUrl: "https://myhost.com"
+internalBaseUrl: "http://my-app-sso-service.my-namespace.svc.cluster.local:8080/auth"
+status:
+  qualifier: "main"
+  type: "ExposedServerStatus"
+  started: "2021-06-03T09:54:06+0000"
+  serviceName: "my-app-sso-service"
+  deploymentName: "my-app-sso-deployment"
+  podPhases:
+    my-app-sso-dbprep-64f5: "Complete"
+    my-app-sso-deployment: "Running"
+  persistentVolumeClaimPhases:
+    my-app-sso-server-pvc: "Pending"
+  ingressName: "my-app-sso-ingress"

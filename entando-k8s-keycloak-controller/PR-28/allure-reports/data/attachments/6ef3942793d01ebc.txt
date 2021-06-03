@@ -1,0 +1,86 @@
+---
+ingressNamespace: "my-namespace"
+mixins:
+- "Secretive"
+- "DbAwareDeployable"
+- "Deployable"
+- "IngressingDeployable"
+fileSystemUserAndGroupId: 1000
+defaultServiceAccountName: "default"
+ingressRequired: true
+replicas: 1
+ingressName: "default-sso-in-namespace-ingress"
+expectingDatabaseSchemas: false
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoKeycloakServer"
+  metadata:
+    name: "default-sso-in-namespace"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- environmentVariableOverrides: []
+  memoryLimitMebibytes: 768
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-keycloak"
+  volumeMountPath: "/opt/jboss/keycloak/standalone/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 8080
+  storageLimitMebibytes: 2048
+  webContextPath: "/auth"
+  mixins:
+  - "PersistentVolumeAwareContainer"
+  - "ParameterizableContainer"
+  - "DeployableContainer"
+  - "IngressingContainer"
+  - "DbAwareContainer"
+  - "ConfigurableResourceContainer"
+  - "HasWebContext"
+  - "ServiceBackingContainer"
+  - "IngressingPathOnPort"
+  maximumStartupTimeSeconds: 180
+  healthCheckPath: "/auth"
+  databaseConnectionVariables:
+  - name: "DB_VENDOR"
+    value: "h2"
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "KEYCLOAK_USER"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "default-sso-in-namespace-admin-secret"
+        optional: false
+  - name: "KEYCLOAK_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "default-sso-in-namespace-admin-secret"
+        optional: false
+  - name: "PROXY_ADDRESS_FORWARDING"
+    value: "true"
+  schemaConnectionInfo: []
+  nameQualifier: "server"
+  secretsToMount: []
+  cpuLimitMillicores: 1000
+  portForIngressPath: 8080
+secrets:
+- apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoKeycloakServer: "default-sso-in-namespace"
+    name: "default-sso-in-namespace-admin-secret"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoKeycloakServer"
+      blockOwnerDeletion: true
+      controller: true
+      name: "default-sso-in-namespace"
+      uid: "c009a7cf-f0aa-41ba-808f-7d361d932ce8"
+  stringData:
+    username: "entando_keycloak_admin"
+    password: "6afef0bf551a4652"
+serviceAccountToUse: "default"

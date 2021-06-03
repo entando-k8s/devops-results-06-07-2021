@@ -1,0 +1,35 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Namespace"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoKeycloakServer: "default-sso-in-namespace"
+    deployment: "default-sso-in-namespace"
+  name: "default-sso-in-namespace-service"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "default-sso-in-namespace"
+    uid: "c009a7cf-f0aa-41ba-808f-7d361d932ce8"
+spec:
+  clusterIP: "10.0.0.-120"
+  ports:
+  - name: "server-port"
+    port: 8080
+    protocol: "TCP"
+    targetPort: 8080
+  selector:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Namespace"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoKeycloakServer: "default-sso-in-namespace"
+    deployment: "default-sso-in-namespace"
+  type: "ClusterIP"

@@ -1,0 +1,15 @@
+--- !<EntandoKeycloakServer>
+apiVersion: "entando.org/v1"
+kind: "EntandoKeycloakServer"
+metadata:
+  name: "my-external-kc"
+  namespace: "my-namespace"
+spec:
+  standardImage: "keycloak"
+  frontEndUrl: "https://kc.apps.serv.run/auth"
+  provisioningStrategy: "UseExternal"
+  adminSecretName: "my-existing-sso-admin-secret"
+  replicas: 1
+  isDefault: false
+  environmentVariables: []
+crdName: "entandokeycloakservers.entando.org"

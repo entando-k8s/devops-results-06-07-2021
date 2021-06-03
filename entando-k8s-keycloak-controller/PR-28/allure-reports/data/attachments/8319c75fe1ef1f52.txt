@@ -1,0 +1,39 @@
+---
+apiVersion: "entando.org/v1"
+kind: "ProvidedCapability"
+metadata:
+  name: "my-external-kc"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-external-kc"
+    uid: "3c6c8699-87db-4946-9ac2-6e7c5f23219f"
+  resourceVersion: "9226848"
+  uid: "c17c743d-2581-4ad1-a385-0e0370fe5441"
+spec:
+  capability: "sso"
+  implementation: "keycloak"
+  resolutionScopePreference:
+  - "Namespace"
+  provisioningStrategy: "UseExternal"
+  capabilityParameters:
+    preferredIngressHostName: null
+    preferredTlsSecretName: null
+  externallyProvidedService:
+    host: "kc.apps.serv.run"
+    port: 443
+    adminSecretName: "my-existing-sso-admin-secret"
+    path: "/auth"
+status:
+  serverStatuses:
+    main: !<ExposedServerStatus>
+      qualifier: "main"
+      type: "ExposedServerStatus"
+      started: "2021-06-03T09:54:16+0000"
+      adminSecretName: "my-existing-sso-admin-secret"
+      externalBaseUrl: "https://kc.apps.serv.run/auth"
+  phase: "successful"
+crdName: "providedcapabilities.entando.org"
