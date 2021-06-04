@@ -1,0 +1,170 @@
+---
+publicClientIdToUse: "entando-web"
+fileSystemUserAndGroupId: 185
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoApp"
+  metadata:
+    name: "my-app"
+    namespace: "my-namespace"
+  isCustomResource: true
+ingressNamespace: "my-namespace"
+keycloakRealmToUse: "my-realm"
+mixins:
+- "Deployable"
+- "PublicIngressingDeployable"
+- "IngressingDeployable"
+- "DbAwareDeployable"
+defaultServiceAccountName: "default"
+ingressRequired: true
+ssoConnectionInfo:
+  baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  defaultRealm: "my-realm"
+  mixins:
+  - "SsoConnectionInfo"
+  password: "password123"
+  externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+  internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  adminSecret:
+    apiVersion: "v1"
+    kind: "Secret"
+    metadata:
+      name: "default-sso-in-namespace-admin-secret"
+      namespace: "my-namespace"
+    stringData:
+      username: "jon"
+      password: "password123"
+  username: "jon"
+ingressName: "my-app-ingress"
+expectingDatabaseSchemas: false
+containers:
+- ssoVariables:
+  - name: "KEYCLOAK_ENABLED"
+    value: "true"
+  - name: "KEYCLOAK_REALM"
+    value: "my-realm"
+  - name: "KEYCLOAK_PUBLIC_CLIENT_ID"
+    value: "entando-web"
+  - name: "KEYCLOAK_AUTH_URL"
+    value: "https://mykeycloak.apps.serv.run/auth"
+  - name: "KEYCLOAK_CLIENT_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: "clientSecret"
+        name: "my-app-secret"
+        optional: false
+  - name: "KEYCLOAK_CLIENT_ID"
+    valueFrom:
+      secretKeyRef:
+        key: "clientId"
+        name: "my-app-secret"
+        optional: false
+  realmToUse: "my-realm"
+  additionalPorts:
+  - name: "ping"
+    port: 8888
+  - name: "ping2"
+    port: 7600
+  databasePopulator:
+    mixins:
+    - "DatabasePopulator"
+    environmentVariables:
+    - name: "DB_STARTUP_CHECK"
+      value: "false"
+    - name: "PORTDB_DRIVER"
+      value: "derby"
+    - name: "SERVDB_DRIVER"
+      value: "derby"
+    dockerImageInfo:
+      organization: "entando"
+      repository: "entando-de-app-wildfly"
+    command:
+    - "/bin/bash"
+    - "-c"
+    - "/entando-common/init-db-from-deployment.sh"
+  ssoClientConfig:
+    realm: "my-realm"
+    clientId: "my-app"
+    clientName: "my-app"
+    roles:
+    - code: "superuser"
+    permissions:
+    - clientId: "realm-management"
+      role: "realm-admin"
+    redirectUri: []
+    webOrigins: []
+  webContextPath: "/entando-de-app"
+  mixins:
+  - "HasWebContext"
+  - "TrustStoreAwareContainer"
+  - "DbAwareContainer"
+  - "ServiceBackingContainer"
+  - "ParameterizableContainer"
+  - "IngressingContainer"
+  - "SsoAwareContainer"
+  - "DeployableContainer"
+  - "PersistentVolumeAwareContainer"
+  - "IngressingPathOnPort"
+  - "ConfigurableResourceContainer"
+  kubernetesPermissions: []
+  nameQualifier: "server"
+  portForIngressPath: 8080
+  publicClientIdToUse: "entando-web"
+  environmentVariableOverrides: []
+  memoryLimitMebibytes: 1792
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-de-app-wildfly"
+  volumeMountPath: "/entando-data"
+  namesOfSecretsToMount: []
+  trustStoreVariables:
+  - name: "JAVA_TOOL_OPTIONS"
+    valueFrom:
+      secretKeyRef:
+        key: "TRUSTSTORE_SETTINGS"
+        name: "entando-default-truststore"
+        optional: false
+  primaryPort: 8080
+  storageLimitMebibytes: 2048
+  keycloakRealmToUse: "my-realm"
+  maximumStartupTimeSeconds: 240
+  healthCheckPath: "/entando-de-app/api/health"
+  databaseConnectionVariables:
+  - name: "DB_STARTUP_CHECK"
+    value: "false"
+  - name: "PORTDB_DRIVER"
+    value: "derby"
+  - name: "SERVDB_DRIVER"
+    value: "derby"
+  ssoConnectionInfo:
+    baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    defaultRealm: "my-realm"
+    mixins:
+    - "SsoConnectionInfo"
+    password: "password123"
+    externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+    internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    adminSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        name: "default-sso-in-namespace-admin-secret"
+        namespace: "my-namespace"
+      stringData:
+        username: "jon"
+        password: "password123"
+    username: "jon"
+  environmentVariables:
+  - name: "JGROUPS_CLUSTER_PASSWORD"
+    value: "342c51d711"
+  - name: "JGROUPS_JOIN_TIMEOUT"
+    value: "3000"
+  - name: "KUBERNETES_NAMESPACE"
+    value: "my-namespace"
+  - name: "KUBERNETES_LABELS"
+    value: "deployment=my-app-server"
+  schemaConnectionInfo: []
+  secretsToMount: []
+  cpuLimitMillicores: 1500
+serviceAccountToUse: "default"
