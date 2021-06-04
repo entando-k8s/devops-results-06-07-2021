@@ -1,0 +1,26 @@
+---
+apiVersion: "v1"
+kind: "PersistentVolumeClaim"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoApp"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoApp: "my-app"
+    deployment: "my-app-cm"
+  name: "my-app-de-pvc"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "6e17310c-b83e-4138-a246-159a8a4402b7"
+spec:
+  accessModes:
+  - "ReadWriteOnce"
+  resources:
+    limits:
+      storage: "2048Mi"
+    requests:
+      storage: "512Mi"

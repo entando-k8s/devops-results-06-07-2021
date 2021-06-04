@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractEntandoAppDeployable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller for Entando App Deployments</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.app</a> &gt; <span class="el_source">AbstractEntandoAppDeployable.java</span></div><h1>AbstractEntandoAppDeployable.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.app;
+
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import java.util.Optional;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.controller.spi.container.SsoConnectionInfo;
+import org.entando.kubernetes.controller.spi.deployable.PublicIngressingDeployable;
+import org.entando.kubernetes.model.app.EntandoApp;
+import org.entando.kubernetes.model.common.EntandoResourceRequirements;
+import org.entando.kubernetes.model.common.KeycloakToUse;
+
+public abstract class AbstractEntandoAppDeployable implements PublicIngressingDeployable&lt;EntandoAppDeploymentResult&gt; {
+
+    /**
+     * The operating system level id of the default user in the Red Hat base images. Was determined to be 185 running the 'id' command in
+     * the entando/entando-eap72-clusted-base image or entando/entando-wildfly17-base image or entando-component-manager image
+     */
+    public static final long DEFAULT_USERID_IN_JBOSS_BASE_IMAGES = 185L;
+
+    protected final EntandoApp entandoApp;
+    protected final SsoConnectionInfo keycloakConnectionConfig;
+
+<span class="fc" id="L42">    protected AbstractEntandoAppDeployable(EntandoApp entandoApp, SsoConnectionInfo keycloakConnectionConfig) {</span>
+<span class="fc" id="L43">        this.entandoApp = entandoApp;</span>
+<span class="fc" id="L44">        this.keycloakConnectionConfig = keycloakConnectionConfig;</span>
+<span class="fc" id="L45">    }</span>
+
+    @Override
+    public Optional&lt;KeycloakToUse&gt; getPreferredKeycloakToUse() {
+<span class="fc" id="L49">        return entandoApp.getSpec().getKeycloakToUse();</span>
+    }
+
+    @Override
+    public boolean isIngressRequired() {
+<span class="fc" id="L54">        return true;</span>
+    }
+
+    @Override
+    public Optional&lt;Long&gt; getFileSystemUserAndGroupId() {
+<span class="fc" id="L59">        return Optional.of(DEFAULT_USERID_IN_JBOSS_BASE_IMAGES);</span>
+    }
+
+    @Override
+    public int getReplicas() {
+<span class="fc" id="L64">        return entandoApp.getSpec().getReplicas().orElse(1);</span>
+    }
+
+    @Override
+    public EntandoApp getCustomResource() {
+<span class="fc" id="L69">        return entandoApp;</span>
+    }
+
+    @Override
+    public EntandoAppDeploymentResult createResult(Deployment deployment, Service service, Ingress ingress, Pod pod) {
+<span class="fc" id="L74">        return new EntandoAppDeploymentResult(pod, service, ingress);</span>
+    }
+
+    @Override
+    public String getIngressName() {
+<span class="fc" id="L79">        return NameUtils.standardIngressName(entandoApp);</span>
+    }
+
+    @Override
+    public String getIngressNamespace() {
+<span class="fc" id="L84">        return entandoApp.getMetadata().getNamespace();</span>
+    }
+
+    @Override
+    public SsoConnectionInfo getSsoConnectionInfo() {
+<span class="fc" id="L89">        return keycloakConnectionConfig;</span>
+    }
+
+    public Optional&lt;String&gt; getFileUploadLimit() {
+<span class="fc" id="L93">        return entandoApp.getSpec().getResourceRequirements().flatMap(EntandoResourceRequirements::getFileUploadLimit);</span>
+    }
+
+    @Override
+    public Optional&lt;String&gt; getTlsSecretName() {
+<span class="fc" id="L98">        return entandoApp.getSpec().getTlsSecretName();</span>
+    }
+
+    @Override
+    public Optional&lt;String&gt; getIngressHostName() {
+<span class="fc" id="L103">        return entandoApp.getSpec().getIngressHostName();</span>
+    }
+
+    @Override
+    public String getServiceAccountToUse() {
+<span class="fc" id="L108">        return getCustomResource().getSpec().getServiceAccountToUse().orElse(getDefaultServiceAccountName());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
