@@ -1,0 +1,31 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoApp"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoApp: "my-app"
+    deployment: "my-app-cm"
+  name: "my-app-cm-service"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "3933136f-7ce6-41bb-bd97-28d7b68072b8"
+spec:
+  clusterIP: "10.0.0.-106"
+  ports:
+  - name: "de-port"
+    port: 8083
+    protocol: "TCP"
+    targetPort: 8083
+  selector:
+    EntandoResourceKind: "EntandoApp"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoApp: "my-app"
+    deployment: "my-app-cm"
+  type: "ClusterIP"
