@@ -232,96 +232,98 @@ public class DefaultKubernetesClientForControllers implements KubernetesClientFo
             UnaryOperator&lt;EventBuilder&gt; eventPopulator) {
 <span class="fc" id="L233">        issueEvent(customResource, eventPopulator);</span>
         //Could be updating the status concurrently from multiple Deployables
-<span class="pc bnc" id="L235" title="All 4 branches missed.">        return retry(() -&gt; performStatusUpdate(customResource, consumer), e -&gt; e instanceof KubernetesClientException &amp;&amp; ((KubernetesClientException) e).getCode() == HttpURLConnection.HTTP_CONFLICT, 4);</span>
+<span class="fc" id="L235">        return retry(() -&gt; performStatusUpdate(customResource, consumer),</span>
+<span class="nc bnc" id="L236" title="All 4 branches missed.">                e -&gt; e instanceof KubernetesClientException &amp;&amp; ((KubernetesClientException) e).getCode() == HttpURLConnection.HTTP_CONFLICT,</span>
+                4);
     }
 
     private &lt;T extends EntandoCustomResource&gt; void issueEvent(T customResource, UnaryOperator&lt;EventBuilder&gt; eventPopulator) {
-<span class="fc" id="L239">        final EventBuilder doneableEvent = new EventBuilder()</span>
-<span class="fc" id="L240">                .withNewMetadata()</span>
-<span class="fc" id="L241">                .withNamespace(customResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L242">                .withName(customResource.getMetadata().getName() + &quot;-&quot; + NameUtils.randomNumeric(8))</span>
-<span class="fc" id="L243">                .withLabels(ResourceUtils.labelsFromResource(customResource))</span>
-<span class="fc" id="L244">                .withOwnerReferences(ResourceUtils.buildOwnerReference(customResource))</span>
-<span class="fc" id="L245">                .endMetadata()</span>
-<span class="fc" id="L246">                .withCount(1)</span>
-<span class="fc" id="L247">                .withFirstTimestamp(dateTimeFormatter.format(LocalDateTime.now()))</span>
-<span class="fc" id="L248">                .withLastTimestamp(dateTimeFormatter.format(LocalDateTime.now()))</span>
-<span class="fc" id="L249">                .withNewSource(NameUtils.controllerNameOf(customResource), null)</span>
-<span class="fc" id="L250">                .withNewInvolvedObject()</span>
-<span class="fc" id="L251">                .withKind(customResource.getKind())</span>
-<span class="fc" id="L252">                .withNamespace(customResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L253">                .withName(customResource.getMetadata().getName())</span>
-<span class="fc" id="L254">                .withUid(customResource.getMetadata().getUid())</span>
-<span class="fc" id="L255">                .withResourceVersion(customResource.getMetadata().getResourceVersion())</span>
-<span class="fc" id="L256">                .withApiVersion(customResource.getApiVersion())</span>
-<span class="fc" id="L257">                .withFieldPath(&quot;status&quot;)</span>
-<span class="fc" id="L258">                .endInvolvedObject();</span>
-<span class="fc" id="L259">        client.v1().events().inNamespace(customResource.getMetadata().getNamespace()).create(eventPopulator.apply(doneableEvent).build());</span>
-<span class="fc" id="L260">    }</span>
+<span class="fc" id="L241">        final EventBuilder doneableEvent = new EventBuilder()</span>
+<span class="fc" id="L242">                .withNewMetadata()</span>
+<span class="fc" id="L243">                .withNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L244">                .withName(customResource.getMetadata().getName() + &quot;-&quot; + NameUtils.randomNumeric(8))</span>
+<span class="fc" id="L245">                .withLabels(ResourceUtils.labelsFromResource(customResource))</span>
+<span class="fc" id="L246">                .withOwnerReferences(ResourceUtils.buildOwnerReference(customResource))</span>
+<span class="fc" id="L247">                .endMetadata()</span>
+<span class="fc" id="L248">                .withCount(1)</span>
+<span class="fc" id="L249">                .withFirstTimestamp(dateTimeFormatter.format(LocalDateTime.now()))</span>
+<span class="fc" id="L250">                .withLastTimestamp(dateTimeFormatter.format(LocalDateTime.now()))</span>
+<span class="fc" id="L251">                .withNewSource(NameUtils.controllerNameOf(customResource), null)</span>
+<span class="fc" id="L252">                .withNewInvolvedObject()</span>
+<span class="fc" id="L253">                .withKind(customResource.getKind())</span>
+<span class="fc" id="L254">                .withNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L255">                .withName(customResource.getMetadata().getName())</span>
+<span class="fc" id="L256">                .withUid(customResource.getMetadata().getUid())</span>
+<span class="fc" id="L257">                .withResourceVersion(customResource.getMetadata().getResourceVersion())</span>
+<span class="fc" id="L258">                .withApiVersion(customResource.getApiVersion())</span>
+<span class="fc" id="L259">                .withFieldPath(&quot;status&quot;)</span>
+<span class="fc" id="L260">                .endInvolvedObject();</span>
+<span class="fc" id="L261">        client.v1().events().inNamespace(customResource.getMetadata().getNamespace()).create(eventPopulator.apply(doneableEvent).build());</span>
+<span class="fc" id="L262">    }</span>
 
     @SuppressWarnings({&quot;unchecked&quot;, &quot;java:S1905&quot;, &quot;java:S1874&quot;})
     //These casts are necessary to circumvent our &quot;inaccurate&quot; use of type parameters for our generic Serializable resources
     //We have to use the deprecated methods in question to &quot;generically&quot; resolve our Serializable resources
     private &lt;T extends EntandoCustomResource&gt; T performStatusUpdate(T customResource, Consumer&lt;T&gt; consumer) {
-<span class="fc bfc" id="L266" title="All 2 branches covered.">        if (customResource instanceof SerializedEntandoResource) {</span>
-<span class="fc" id="L267">            return ioSafe(() -&gt; {</span>
-<span class="fc" id="L268">                SerializedEntandoResource ser = (SerializedEntandoResource) customResource;</span>
-<span class="fc" id="L269">                CustomResourceDefinitionContext definition = Optional.ofNullable(ser.getDefinition()).orElse(</span>
-<span class="fc" id="L270">                        resolveDefinitionContext(ser.getKind(), ser.getApiVersion()));</span>
-<span class="fc" id="L271">                ser.setDefinition(definition);</span>
-<span class="fc" id="L272">                RawCustomResourceOperationsImpl resource = client.customResource(definition)</span>
-<span class="fc" id="L273">                        .inNamespace(customResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L274">                        .withName(customResource.getMetadata().getName());</span>
-<span class="fc" id="L275">                final ObjectMapper objectMapper = new ObjectMapper();</span>
-<span class="fc" id="L276">                ser = objectMapper.readValue(objectMapper.writeValueAsString(resource.get()), SerializedEntandoResource.class);</span>
-<span class="fc" id="L277">                ser.setDefinition(definition);</span>
-<span class="fc" id="L278">                T latest = (T) ser;</span>
-<span class="fc" id="L279">                consumer.accept(latest);</span>
-<span class="fc" id="L280">                return (T) objectMapper.readValue(</span>
-<span class="fc" id="L281">                        objectMapper.writeValueAsString(resource.updateStatus(objectMapper.writeValueAsString(latest))),</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">        if (customResource instanceof SerializedEntandoResource) {</span>
+<span class="fc" id="L269">            return ioSafe(() -&gt; {</span>
+<span class="fc" id="L270">                SerializedEntandoResource ser = (SerializedEntandoResource) customResource;</span>
+<span class="fc" id="L271">                CustomResourceDefinitionContext definition = Optional.ofNullable(ser.getDefinition()).orElse(</span>
+<span class="fc" id="L272">                        resolveDefinitionContext(ser.getKind(), ser.getApiVersion()));</span>
+<span class="fc" id="L273">                ser.setDefinition(definition);</span>
+<span class="fc" id="L274">                RawCustomResourceOperationsImpl resource = client.customResource(definition)</span>
+<span class="fc" id="L275">                        .inNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L276">                        .withName(customResource.getMetadata().getName());</span>
+<span class="fc" id="L277">                final ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L278">                ser = objectMapper.readValue(objectMapper.writeValueAsString(resource.get()), SerializedEntandoResource.class);</span>
+<span class="fc" id="L279">                ser.setDefinition(definition);</span>
+<span class="fc" id="L280">                T latest = (T) ser;</span>
+<span class="fc" id="L281">                consumer.accept(latest);</span>
+<span class="fc" id="L282">                return (T) objectMapper.readValue(</span>
+<span class="fc" id="L283">                        objectMapper.writeValueAsString(resource.updateStatus(objectMapper.writeValueAsString(latest))),</span>
                         SerializedEntandoResource.class);
             });
         } else {
-<span class="fc" id="L285">            MixedOperation&lt;T, KubernetesResourceList&lt;T&gt;, Resource&lt;T&gt;&gt; operations = getOperations(</span>
-<span class="fc" id="L286">                    (Class&lt;T&gt;) customResource.getClass());</span>
-<span class="fc" id="L287">            Resource&lt;T&gt; resource = operations</span>
-<span class="fc" id="L288">                    .inNamespace(customResource.getMetadata().getNamespace())</span>
-<span class="fc" id="L289">                    .withName(customResource.getMetadata().getName());</span>
-<span class="fc" id="L290">            T latest = resource.fromServer().get();</span>
-<span class="fc" id="L291">            consumer.accept(latest);</span>
-<span class="fc" id="L292">            return resource.updateStatus(latest);</span>
+<span class="fc" id="L287">            MixedOperation&lt;T, KubernetesResourceList&lt;T&gt;, Resource&lt;T&gt;&gt; operations = getOperations(</span>
+<span class="fc" id="L288">                    (Class&lt;T&gt;) customResource.getClass());</span>
+<span class="fc" id="L289">            Resource&lt;T&gt; resource = operations</span>
+<span class="fc" id="L290">                    .inNamespace(customResource.getMetadata().getNamespace())</span>
+<span class="fc" id="L291">                    .withName(customResource.getMetadata().getName());</span>
+<span class="fc" id="L292">            T latest = resource.fromServer().get();</span>
+<span class="fc" id="L293">            consumer.accept(latest);</span>
+<span class="fc" id="L294">            return resource.updateStatus(latest);</span>
         }
     }
 
     private CustomResourceDefinitionContext resolveDefinitionContext(String kind, String apiVersion) {
-<span class="fc" id="L297">        final String key = kind + &quot;.&quot; + apiVersion.substring(0, apiVersion.indexOf(&quot;/&quot;));</span>
-<span class="fc" id="L298">        final String name = getCrdNameMap().getData().get(key);</span>
-<span class="fc" id="L299">        return CustomResourceDefinitionContext.fromCrd(client.apiextensions().v1beta1().customResourceDefinitions()</span>
-<span class="fc" id="L300">                .withName(name).get());</span>
+<span class="fc" id="L299">        final String key = kind + &quot;.&quot; + apiVersion.substring(0, apiVersion.indexOf(&quot;/&quot;));</span>
+<span class="fc" id="L300">        final String name = getCrdNameMap().getData().get(key);</span>
+<span class="fc" id="L301">        return CustomResourceDefinitionContext.fromCrd(client.apiextensions().v1beta1().customResourceDefinitions()</span>
+<span class="fc" id="L302">                .withName(name).get());</span>
     }
 
     protected ConfigMap getCrdNameMap() {
-<span class="fc" id="L304">        crdNameMap = Objects.requireNonNullElseGet(crdNameMap,</span>
-<span class="fc" id="L305">                () -&gt; Objects.requireNonNullElseGet(</span>
-<span class="fc" id="L306">                        client.configMaps().inNamespace(client.getNamespace()).withName(ENTANDO_CRD_NAMES_CONFIG_MAP).get(),</span>
-<span class="nc" id="L307">                        () -&gt; client.configMaps().inNamespace(client.getNamespace())</span>
-<span class="nc" id="L308">                                .create(new ConfigMapBuilder()</span>
-<span class="nc" id="L309">                                        .withNewMetadata()</span>
-<span class="nc" id="L310">                                        .withNamespace(client.getNamespace())</span>
-<span class="nc" id="L311">                                        .withName(ENTANDO_CRD_NAMES_CONFIG_MAP)</span>
-<span class="nc" id="L312">                                        .endMetadata()</span>
-<span class="nc" id="L313">                                        .addToData(client.apiextensions().v1beta1().customResourceDefinitions()</span>
-<span class="nc" id="L314">                                                .withLabel(LabelNames.CRD_OF_INTEREST.getName())</span>
-<span class="nc" id="L315">                                                .list()</span>
-<span class="nc" id="L316">                                                .getItems()</span>
-<span class="nc" id="L317">                                                .stream()</span>
-<span class="nc" id="L318">                                                .collect(Collectors</span>
-<span class="nc" id="L319">                                                        .toMap(crd -&gt; crd.getSpec().getNames().getKind() + &quot;.&quot; + crd.getSpec()</span>
-<span class="nc" id="L320">                                                                        .getGroup(),</span>
-<span class="nc" id="L321">                                                                crd -&gt; crd.getMetadata().getName())))</span>
-<span class="nc" id="L322">                                        .build())));</span>
+<span class="fc" id="L306">        crdNameMap = Objects.requireNonNullElseGet(crdNameMap,</span>
+<span class="fc" id="L307">                () -&gt; Objects.requireNonNullElseGet(</span>
+<span class="fc" id="L308">                        client.configMaps().inNamespace(client.getNamespace()).withName(ENTANDO_CRD_NAMES_CONFIG_MAP).get(),</span>
+<span class="nc" id="L309">                        () -&gt; client.configMaps().inNamespace(client.getNamespace())</span>
+<span class="nc" id="L310">                                .create(new ConfigMapBuilder()</span>
+<span class="nc" id="L311">                                        .withNewMetadata()</span>
+<span class="nc" id="L312">                                        .withNamespace(client.getNamespace())</span>
+<span class="nc" id="L313">                                        .withName(ENTANDO_CRD_NAMES_CONFIG_MAP)</span>
+<span class="nc" id="L314">                                        .endMetadata()</span>
+<span class="nc" id="L315">                                        .addToData(client.apiextensions().v1beta1().customResourceDefinitions()</span>
+<span class="nc" id="L316">                                                .withLabel(LabelNames.CRD_OF_INTEREST.getName())</span>
+<span class="nc" id="L317">                                                .list()</span>
+<span class="nc" id="L318">                                                .getItems()</span>
+<span class="nc" id="L319">                                                .stream()</span>
+<span class="nc" id="L320">                                                .collect(Collectors</span>
+<span class="nc" id="L321">                                                        .toMap(crd -&gt; crd.getSpec().getNames().getKind() + &quot;.&quot; + crd.getSpec()</span>
+<span class="nc" id="L322">                                                                        .getGroup(),</span>
+<span class="nc" id="L323">                                                                crd -&gt; crd.getMetadata().getName())))</span>
+<span class="nc" id="L324">                                        .build())));</span>
 
-<span class="fc" id="L324">        return crdNameMap;</span>
+<span class="fc" id="L326">        return crdNameMap;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
