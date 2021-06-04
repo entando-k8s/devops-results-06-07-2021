@@ -17,6 +17,7 @@
 package org.entando.kubernetes.controller.support.client.impl;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.Service;
@@ -39,14 +40,13 @@ public class DefaultCapabilityClient implements CapabilityClient, WaitingClient 
 
     private final KubernetesClient client;
 
-<span class="fc" id="L42">    public DefaultCapabilityClient(KubernetesClient client) {</span>
-<span class="fc" id="L43">        this.client = client;</span>
-<span class="fc" id="L44">    }</span>
+<span class="fc" id="L43">    public DefaultCapabilityClient(KubernetesClient client) {</span>
+<span class="fc" id="L44">        this.client = client;</span>
+<span class="fc" id="L45">    }</span>
 
     @Override
     public Optional&lt;ProvidedCapability&gt; providedCapabilityByName(String namespace, String name) {
-<span class="fc" id="L48">        return Optional</span>
-<span class="fc" id="L49">                .ofNullable(client.customResources(ProvidedCapability.class).inNamespace(namespace).withName(name).fromServer().get());</span>
+<span class="fc" id="L49">        return ofNullable(client.customResources(ProvidedCapability.class).inNamespace(namespace).withName(name).fromServer().get());</span>
     }
 
     @Override
@@ -94,17 +94,19 @@ public class DefaultCapabilityClient implements CapabilityClient, WaitingClient 
     public SerializedCapabilityProvisioningResult buildCapabilityProvisioningResult(ProvidedCapability providedCapability) {
 <span class="fc" id="L95">        final AbstractServerStatus serverStatus = providedCapability.getStatus().findCurrentServerStatus()</span>
 <span class="fc" id="L96">                .orElseThrow(IllegalStateException::new);</span>
-<span class="fc" id="L97">        Service service = client.services().inNamespace(providedCapability.getMetadata().getNamespace())</span>
-<span class="fc" id="L98">                .withName(serverStatus.getServiceName()).get();</span>
-<span class="fc" id="L99">        Secret adminSecret = serverStatus.getAdminSecretName()</span>
-<span class="fc" id="L100">                .map(s -&gt; client.secrets().inNamespace(providedCapability.getMetadata().getNamespace()).withName(s).get())</span>
-<span class="fc" id="L101">                .orElse(null);</span>
-<span class="fc" id="L102">        Ingress ingress = null;</span>
-<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (serverStatus instanceof ExposedServerStatus) {</span>
-<span class="fc" id="L104">            ingress = client.extensions().ingresses().inNamespace(providedCapability.getMetadata().getNamespace())</span>
-<span class="fc" id="L105">                    .withName(((ExposedServerStatus) serverStatus).getIngressName()).get();</span>
+<span class="fc" id="L97">        Service service = ofNullable(serverStatus.getServiceName())</span>
+<span class="fc" id="L98">                .map(s -&gt; client.services().inNamespace(providedCapability.getMetadata().getNamespace())</span>
+<span class="fc" id="L99">                        .withName(s).get()).orElse(null);</span>
+<span class="fc" id="L100">        Secret adminSecret = serverStatus.getAdminSecretName()</span>
+<span class="fc" id="L101">                .map(s -&gt; client.secrets().inNamespace(providedCapability.getMetadata().getNamespace()).withName(s).get())</span>
+<span class="fc" id="L102">                .orElse(null);</span>
+<span class="fc" id="L103">        Ingress ingress = null;</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (serverStatus instanceof ExposedServerStatus) {</span>
+<span class="fc" id="L105">            ingress = ofNullable(((ExposedServerStatus) serverStatus).getIngressName())</span>
+<span class="fc" id="L106">                    .map(s -&gt; client.extensions().ingresses().inNamespace(providedCapability.getMetadata().getNamespace())</span>
+<span class="fc" id="L107">                            .withName(s).get()).orElse(null);</span>
         }
-<span class="fc" id="L107">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
+<span class="fc" id="L109">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

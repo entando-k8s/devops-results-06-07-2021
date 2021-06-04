@@ -75,7 +75,7 @@ public class ProvideCapabilityCommand {
 
     private void validateCapabilityCriteria(CapabilityRequirement capabilityRequirement, List&lt;CapabilityScope&gt; requirementScope,
             ProvidedCapability c) {
-<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (!requirementScope.stream().anyMatch(s -&gt; s.getCamelCaseName()</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (requirementScope.stream().noneMatch(s -&gt; s.getCamelCaseName()</span>
 <span class="fc" id="L79">                .equals(c.getMetadata().getLabels().get(LabelNames.CAPABILITY_PROVISION_SCOPE.getName())))) {</span>
 <span class="fc" id="L80">            throw new IllegalArgumentException(</span>
 <span class="fc" id="L81">                    format(&quot;The capability %s was found, but its provision scope is %s instead of the requested %s scope&quot;,</span>

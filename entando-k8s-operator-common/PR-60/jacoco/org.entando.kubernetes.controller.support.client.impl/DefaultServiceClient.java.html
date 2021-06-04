@@ -16,12 +16,13 @@
 
 package org.entando.kubernetes.controller.support.client.impl;
 
+import static org.entando.kubernetes.controller.spi.common.ExceptionUtils.retry;
+
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import org.entando.kubernetes.controller.support.client.ServiceClient;
@@ -31,66 +32,60 @@ public class DefaultServiceClient implements ServiceClient {
 
     private final KubernetesClient client;
 
-<span class="fc" id="L34">    public DefaultServiceClient(KubernetesClient client) {</span>
-<span class="fc" id="L35">        this.client = client;</span>
-<span class="fc" id="L36">    }</span>
+<span class="fc" id="L35">    public DefaultServiceClient(KubernetesClient client) {</span>
+<span class="fc" id="L36">        this.client = client;</span>
+<span class="fc" id="L37">    }</span>
 
     @Override
     public Endpoints createOrReplaceEndpoints(EntandoCustomResource peerInNamespace, Endpoints endpoints) {
-<span class="fc" id="L40">        return createOrReplace(peerInNamespace, endpoints, client.endpoints());</span>
+<span class="fc" id="L41">        return createOrReplace(peerInNamespace, endpoints, client.endpoints());</span>
     }
 
     @Override
     public Endpoints createOrReplaceDelegateEndpoints(Endpoints endpoints) {
-<span class="fc" id="L45">        return createOrReplace(endpoints, client.endpoints());</span>
+<span class="fc" id="L46">        return createOrReplace(endpoints, client.endpoints());</span>
     }
 
     @Override
     public Endpoints loadEndpoints(EntandoCustomResource peerInNamespace, String endpointsName) {
-<span class="fc" id="L50">        return client.endpoints().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(endpointsName).fromServer().get();</span>
+<span class="fc" id="L51">        return client.endpoints().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(endpointsName).fromServer().get();</span>
     }
 
     @Override
     public Service createOrReplaceDelegateService(Service service) {
-<span class="fc" id="L55">        return createOrReplace(service, client.services());</span>
+<span class="fc" id="L56">        return createOrReplace(service, client.services());</span>
     }
 
     @Override
     public Service loadService(EntandoCustomResource peerInNamespace, String name) {
-<span class="fc" id="L60">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
+<span class="fc" id="L61">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
     }
 
     @Override
     public Service loadControllerService(String name) {
-<span class="nc" id="L65">        return client.services().inNamespace(client.getNamespace()).withName(name).fromServer().get();</span>
+<span class="nc" id="L66">        return client.services().inNamespace(client.getNamespace()).withName(name).fromServer().get();</span>
     }
 
     @Override
     public Service createOrReplaceService(EntandoCustomResource peerInNamespace, Service service) {
-<span class="fc" id="L70">        return createOrReplace(peerInNamespace, service, client.services());</span>
+<span class="fc" id="L71">        return createOrReplace(peerInNamespace, service, client.services());</span>
     }
 
     private &lt;T extends HasMetadata, L extends KubernetesResourceList&lt;T&gt;, R extends Resource&lt;T&gt;&gt; T createOrReplace(
             EntandoCustomResource peerInNamespace, T resource,
             MixedOperation&lt;T, L, R&gt; oper) {
-<span class="fc" id="L76">        resource.getMetadata().setNamespace(peerInNamespace.getMetadata().getNamespace());</span>
-<span class="fc" id="L77">        return createOrReplace(resource, oper);</span>
+<span class="fc" id="L77">        resource.getMetadata().setNamespace(peerInNamespace.getMetadata().getNamespace());</span>
+<span class="fc" id="L78">        return createOrReplace(resource, oper);</span>
     }
 
     private &lt;T extends HasMetadata, L extends KubernetesResourceList&lt;T&gt;, R extends Resource&lt;T&gt;&gt; T createOrReplace(T resource,
             MixedOperation&lt;T, L, R&gt; oper) {
-<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (oper.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).get() != null) {</span>
-<span class="fc" id="L83">            oper.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (oper.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).get() != null) {</span>
+<span class="fc" id="L84">            oper.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();</span>
         }
-<span class="fc" id="L85">        resource.getMetadata().setResourceVersion(null);</span>
-<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        for (int i = 0; i &lt; 10; i++) {</span>
-            try {
-<span class="fc" id="L88">                return oper.inNamespace(resource.getMetadata().getNamespace()).create(resource);</span>
-<span class="nc" id="L89">            } catch (KubernetesClientException e) {</span>
-                //Waiting for K8S to delete it.
-            }
-        }
-<span class="nc" id="L93">        throw new IllegalStateException(&quot;Could not create.&quot;);</span>
+<span class="fc" id="L86">        resource.getMetadata().setResourceVersion(null);</span>
+        //retry because it may still be in the process of being deleted
+<span class="fc" id="L88">        return retry(() -&gt; oper.inNamespace(resource.getMetadata().getNamespace()).create(resource), KubernetesClient.class::isInstance, 5);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

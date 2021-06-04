@@ -26,28 +26,26 @@ public class SerializingDeploymentProcessor implements DeploymentProcessor {
 
     private final KubernetesClientForControllers entandoResourceClient;
     private final CommandStream commandStream;
-    private Deployable&lt;?&gt; deployable;
 
-<span class="fc" id="L31">    public SerializingDeploymentProcessor(KubernetesClientForControllers entandoResourceClient, CommandStream commandStream) {</span>
-<span class="fc" id="L32">        this.entandoResourceClient = entandoResourceClient;</span>
-<span class="fc" id="L33">        this.commandStream = commandStream;</span>
-<span class="fc" id="L34">    }</span>
+<span class="fc" id="L30">    public SerializingDeploymentProcessor(KubernetesClientForControllers entandoResourceClient, CommandStream commandStream) {</span>
+<span class="fc" id="L31">        this.entandoResourceClient = entandoResourceClient;</span>
+<span class="fc" id="L32">        this.commandStream = commandStream;</span>
+<span class="fc" id="L33">    }</span>
 
     @Override
     public &lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; T processDeployable(Deployable&lt;T&gt; deployable, int timeoutSeconds)
             throws TimeoutException {
-<span class="fc" id="L39">        this.deployable = deployable;</span>
-<span class="fc" id="L40">        String result = commandStream.process(</span>
+<span class="fc" id="L38">        String result = commandStream.process(</span>
                 SupportedCommand.PROCESS_DEPLOYABLE,
-<span class="fc" id="L42">                SerializationHelper.serialize(deployable),</span>
+<span class="fc" id="L40">                SerializationHelper.serialize(deployable),</span>
                 timeoutSeconds);
-<span class="fc" id="L44">        SerializableDeploymentResult&lt;?&gt; serializedResult = DeserializationHelper.deserialize(entandoResourceClient, result);</span>
-<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (serializedResult.getStatus().hasFailed()) {</span>
-<span class="nc" id="L46">            throw new EntandoControllerException(&quot;Creation of Kubernetes resources has failed&quot;);</span>
+<span class="fc" id="L42">        SerializableDeploymentResult&lt;?&gt; serializedResult = DeserializationHelper.deserialize(entandoResourceClient, result);</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">        if (serializedResult.getStatus().hasFailed()) {</span>
+<span class="nc" id="L44">            throw new EntandoControllerException(&quot;Creation of Kubernetes resources has failed:&quot;);</span>
         }
-<span class="fc" id="L48">        return deployable.createResult(serializedResult.getDeployment(), serializedResult.getService(), serializedResult.getIngress(),</span>
-<span class="fc" id="L49">                serializedResult.getPod())</span>
-<span class="fc" id="L50">                .withStatus(serializedResult.getStatus());</span>
+<span class="fc" id="L46">        return deployable.createResult(serializedResult.getDeployment(), serializedResult.getService(), serializedResult.getIngress(),</span>
+<span class="fc" id="L47">                serializedResult.getPod())</span>
+<span class="fc" id="L48">                .withStatus(serializedResult.getStatus());</span>
     }
 
 }

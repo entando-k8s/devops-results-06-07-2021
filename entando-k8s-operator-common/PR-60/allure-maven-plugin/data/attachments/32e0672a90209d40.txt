@@ -1,0 +1,31 @@
+---
+memoryLimitMebibytes: 256
+dockerImageInfo:
+  organization: "test"
+  repository: "my-image"
+  tag: "6.3.2"
+namesOfSecretsToMount: []
+additionalPorts: []
+trustStoreVariables:
+- name: "JAVA_TOOL_OPTIONS"
+  valueFrom:
+    secretKeyRef:
+      key: "TRUSTSTORE_SETTINGS"
+      name: "entando-default-truststore"
+      optional: false
+primaryPort: 8081
+webContextPath: "/my-app"
+mixins:
+- "ServiceBackingContainer"
+- "HasWebContext"
+- "DeployableContainer"
+- "IngressingPathOnPort"
+- "TrustStoreAwareContainer"
+- "IngressingContainer"
+healthCheckPath: "/my-app/health"
+kubernetesPermissions: []
+environmentVariables: []
+nameQualifier: "server"
+secretsToMount: []
+cpuLimitMillicores: 500
+portForIngressPath: 8081

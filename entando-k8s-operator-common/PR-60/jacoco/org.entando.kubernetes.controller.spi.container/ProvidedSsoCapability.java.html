@@ -16,6 +16,7 @@
 
 package org.entando.kubernetes.controller.spi.container;
 
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 
 import io.fabric8.kubernetes.api.model.Secret;
@@ -34,47 +35,51 @@ public class ProvidedSsoCapability implements SsoConnectionInfo {
     private final ExposedService exposedService;
 
     public ProvidedSsoCapability(CapabilityProvisioningResult capabilityResult) {
-<span class="fc" id="L37">        super();</span>
-<span class="fc" id="L38">        this.capabilityResult = capabilityResult;</span>
-<span class="fc" id="L39">        this.exposedService = new ExposedService(capabilityResult.getService(), capabilityResult.getIngress().orElse(null));</span>
-<span class="fc" id="L40">    }</span>
+<span class="fc" id="L38">        super();</span>
+<span class="fc" id="L39">        this.capabilityResult = capabilityResult;</span>
+<span class="fc" id="L40">        this.exposedService = new ExposedService(capabilityResult.getService(), capabilityResult.getIngress().orElse(null));</span>
+<span class="fc" id="L41">    }</span>
 
     @Override
     public Secret getAdminSecret() {
-<span class="fc" id="L44">        return capabilityResult.getAdminSecret().orElseThrow(IllegalStateException::new);</span>
+<span class="fc" id="L45">        return capabilityResult.getAdminSecret().orElseThrow(IllegalStateException::new);</span>
     }
 
     @Override
-    public String determineBaseUrl() {
-<span class="nc bnc" id="L49" title="All 4 branches missed.">        if (useExternalService() || EntandoOperatorSpiConfig.forceExternalAccessToKeycloak()) {</span>
-<span class="nc" id="L50">            return getExternalBaseUrl();</span>
+    public String getBaseUrlToUse() {
+<span class="pc bpc" id="L50" title="2 of 4 branches missed.">        if (useExternalService() || EntandoOperatorSpiConfig.forceExternalAccessToKeycloak()) {</span>
+<span class="nc" id="L51">            return getExternalBaseUrl();</span>
         } else {
-<span class="nc" id="L52">            return exposedService.getInternalBaseUrl();</span>
+<span class="fc" id="L53">            return exposedService.getInternalBaseUrl();</span>
         }
     }
 
     private boolean useExternalService() {
-<span class="nc" id="L57">        return capabilityResult.getProvidedCapability().getSpec().getProvisioningStrategy()</span>
-<span class="nc" id="L58">                .map(CapabilityProvisioningStrategy.USE_EXTERNAL::equals)</span>
-<span class="nc" id="L59">                .orElse(false);</span>
+<span class="fc" id="L58">        return capabilityResult.getProvidedCapability().getSpec().getProvisioningStrategy()</span>
+<span class="fc" id="L59">                .map(CapabilityProvisioningStrategy.USE_EXTERNAL::equals)</span>
+<span class="fc" id="L60">                .orElse(false);</span>
     }
 
     @Override
     public String getExternalBaseUrl() {
-<span class="fc" id="L64">        return ((ExposedServerStatus) capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus()</span>
-<span class="fc" id="L65">                .orElseThrow(IllegalStateException::new)).getExternalBaseUrl();</span>
+<span class="fc" id="L65">        return ((ExposedServerStatus) capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus()</span>
+<span class="fc" id="L66">                .orElseThrow(IllegalStateException::new)).getExternalBaseUrl();</span>
     }
 
     @Override
     public Optional&lt;String&gt; getDefaultRealm() {
-<span class="fc" id="L70">        return ofNullable(</span>
-<span class="fc" id="L71">                capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus().orElseThrow(IllegalStateException::new)</span>
-<span class="fc" id="L72">                        .getDerivedDeploymentParameters()).flatMap(map -&gt; ofNullable(map.get(DEFAULT_REALM_PARAMETER)));</span>
+<span class="fc" id="L71">        return ofNullable(</span>
+<span class="fc" id="L72">                capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus().orElseThrow(IllegalStateException::new)</span>
+<span class="fc" id="L73">                        .getDerivedDeploymentParameters()).flatMap(map -&gt; ofNullable(map.get(DEFAULT_REALM_PARAMETER)));</span>
     }
 
     @Override
     public Optional&lt;String&gt; getInternalBaseUrl() {
-<span class="fc" id="L77">        return ofNullable(exposedService.getInternalBaseUrl());</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (exposedService.getService() == null) {</span>
+<span class="nc" id="L79">            return Optional.empty();</span>
+        } else {
+<span class="fc" id="L81">            return of(exposedService.getInternalBaseUrl());</span>
+        }
     }
 
 }
