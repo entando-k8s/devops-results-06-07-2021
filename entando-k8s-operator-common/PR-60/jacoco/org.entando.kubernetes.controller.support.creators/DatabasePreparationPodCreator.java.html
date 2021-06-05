@@ -159,11 +159,11 @@ public class DatabasePreparationPodCreator extends AbstractK8SResourceCreator {
 <span class="fc" id="L159">        result.add(new EnvVar(&quot;DATABASE_PASSWORD&quot;, null,</span>
 <span class="fc" id="L160">                SecretUtils.secretKeyRef(schemaConnectionInfo.getSchemaSecretName(), SecretUtils.PASSSWORD_KEY)));</span>
 <span class="pc" id="L161">        databaseDeployment.getTablespace().ifPresent(s -&gt; result.add(new EnvVar(&quot;TABLESPACE&quot;, s, null)));</span>
-<span class="pc bpc" id="L162" title="3 of 4 branches missed.">        if (Optional.ofNullable(databaseDeployment.getJdbcParameters()).map(params -&gt; !params.isEmpty()).orElse(false)) {</span>
-<span class="nc" id="L163">            result.add(new EnvVar(&quot;JDBC_PARAMETERS&quot;, databaseDeployment.getJdbcParameters().entrySet()</span>
-<span class="nc" id="L164">                    .stream()</span>
-<span class="nc" id="L165">                    .map(entry -&gt; entry.getKey() + &quot;=&quot; + entry.getValue())</span>
-<span class="nc" id="L166">                    .collect(Collectors.joining(&quot;,&quot;)), null));</span>
+<span class="fc bfc" id="L162" title="All 4 branches covered.">        if (Optional.ofNullable(databaseDeployment.getJdbcParameters()).map(params -&gt; !params.isEmpty()).orElse(false)) {</span>
+<span class="fc" id="L163">            result.add(new EnvVar(&quot;JDBC_PARAMETERS&quot;, databaseDeployment.getJdbcParameters().entrySet()</span>
+<span class="fc" id="L164">                    .stream()</span>
+<span class="fc" id="L165">                    .map(entry -&gt; entry.getKey() + &quot;=&quot; + entry.getValue())</span>
+<span class="fc" id="L166">                    .collect(Collectors.joining(&quot;,&quot;)), null));</span>
         }
 <span class="fc" id="L168">        return result;</span>
 

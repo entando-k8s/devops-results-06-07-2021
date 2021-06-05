@@ -16,14 +16,32 @@
 
 package org.entando.kubernetes.controller.spi.common;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import java.util.concurrent.TimeoutException;
+
 /*
  * Throw this exception to disrupt the current progression of objects being installed.
  */
 public class EntandoControllerException extends RuntimeException {
 
+    private HasMetadata resource;
+
     public EntandoControllerException(String message) {
-<span class="fc" id="L25">        super(message);</span>
-<span class="fc" id="L26">    }</span>
+<span class="fc" id="L30">        super(message);</span>
+<span class="fc" id="L31">    }</span>
+
+    public EntandoControllerException(TimeoutException timeoutException) {
+<span class="fc" id="L34">        super(timeoutException);</span>
+<span class="fc" id="L35">    }</span>
+
+    public EntandoControllerException(HasMetadata resource, String message) {
+<span class="fc" id="L38">        super(message);</span>
+<span class="fc" id="L39">        this.resource = resource;</span>
+<span class="fc" id="L40">    }</span>
+
+    public HasMetadata getKubernetesResource() {
+<span class="fc" id="L43">        return this.resource;</span>
+    }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -27,12 +27,10 @@ import org.entando.kubernetes.controller.spi.command.CommandStream;
 import org.entando.kubernetes.controller.spi.command.DeserializationHelper;
 import org.entando.kubernetes.controller.spi.command.SerializationHelper;
 import org.entando.kubernetes.controller.spi.command.SupportedCommand;
-import org.entando.kubernetes.controller.spi.common.EntandoControllerException;
 import org.entando.kubernetes.model.capability.CapabilityRequirement;
 import org.entando.kubernetes.model.capability.ProvidedCapability;
 import org.entando.kubernetes.model.common.AbstractServerStatus;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
-import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
 import org.entando.kubernetes.model.common.ExposedServerStatus;
 
 public class SerializingCapabilityProvider implements CapabilityProvider {
@@ -40,41 +38,37 @@ public class SerializingCapabilityProvider implements CapabilityProvider {
     final KubernetesClientForControllers kubernetesClient;
     final CommandStream commandStream;
 
-<span class="fc" id="L43">    public SerializingCapabilityProvider(KubernetesClientForControllers kubernetesClient, CommandStream commandStream) {</span>
-<span class="fc" id="L44">        this.kubernetesClient = kubernetesClient;</span>
-<span class="fc" id="L45">        this.commandStream = commandStream;</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L41">    public SerializingCapabilityProvider(KubernetesClientForControllers kubernetesClient, CommandStream commandStream) {</span>
+<span class="fc" id="L42">        this.kubernetesClient = kubernetesClient;</span>
+<span class="fc" id="L43">        this.commandStream = commandStream;</span>
+<span class="fc" id="L44">    }</span>
 
     @Override
     public CapabilityProvisioningResult provideCapability(EntandoCustomResource forResource, CapabilityRequirement capabilityRequirement,
             int timeoutSeconds) throws TimeoutException {
-<span class="fc" id="L51">        final String provisioningResult = commandStream.process(SupportedCommand.PROVIDE_CAPABILITY,</span>
-<span class="fc" id="L52">                SerializationHelper.serialize(new SerializableCapabilityForResource(forResource, capabilityRequirement)), timeoutSeconds);</span>
-<span class="fc" id="L53">        final CapabilityProvisioningResult result = DeserializationHelper.deserialize(kubernetesClient, provisioningResult);</span>
-<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        if (result.getProvidedCapability().getStatus().getPhase() == EntandoDeploymentPhase.FAILED) {</span>
-<span class="nc" id="L55">            throw new EntandoControllerException(&quot;Could not provide capability&quot;);</span>
-        }
-<span class="fc" id="L57">        return result;</span>
+<span class="fc" id="L49">        final String provisioningResult = commandStream.process(SupportedCommand.PROVIDE_CAPABILITY,</span>
+<span class="fc" id="L50">                SerializationHelper.serialize(new SerializableCapabilityForResource(forResource, capabilityRequirement)), timeoutSeconds);</span>
+<span class="fc" id="L51">        return DeserializationHelper.deserialize(kubernetesClient, provisioningResult);</span>
     }
 
     @Override
     public CapabilityProvisioningResult loadProvisioningResult(ProvidedCapability providedCapability) {
-<span class="fc" id="L62">        final AbstractServerStatus serverStatus = providedCapability.getStatus().findCurrentServerStatus()</span>
-<span class="fc" id="L63">                .orElseThrow(IllegalStateException::new);</span>
-<span class="fc" id="L64">        Service service = ofNullable(serverStatus.getServiceName()).map(s -&gt; (Service) kubernetesClient</span>
-<span class="fc" id="L65">                .loadStandardResource(&quot;Service&quot;, providedCapability.getMetadata().getNamespace(), s)).orElse(null);</span>
-<span class="fc" id="L66">        Secret adminSecret = serverStatus.getAdminSecretName()</span>
-<span class="fc" id="L67">                .map(s -&gt; (Secret) kubernetesClient.loadStandardResource(&quot;Secret&quot;, providedCapability.getMetadata().getNamespace(), s))</span>
-<span class="fc" id="L68">                .orElse(null);</span>
-<span class="fc" id="L69">        Ingress ingress = null;</span>
-<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (serverStatus instanceof ExposedServerStatus) {</span>
-<span class="fc" id="L71">            final ExposedServerStatus exposedServerStatus = (ExposedServerStatus) serverStatus;</span>
-<span class="fc" id="L72">            ingress = ofNullable(exposedServerStatus.getIngressName())</span>
-<span class="fc" id="L73">                    .map(i -&gt; (Ingress) kubernetesClient</span>
-<span class="fc" id="L74">                            .loadStandardResource(&quot;Ingress&quot;, providedCapability.getMetadata().getNamespace(), i))</span>
-<span class="fc" id="L75">                    .orElse(null);</span>
+<span class="fc" id="L56">        final AbstractServerStatus serverStatus = providedCapability.getStatus().findCurrentServerStatus()</span>
+<span class="fc" id="L57">                .orElseThrow(IllegalStateException::new);</span>
+<span class="fc" id="L58">        Service service = ofNullable(serverStatus.getServiceName()).map(s -&gt; (Service) kubernetesClient</span>
+<span class="fc" id="L59">                .loadStandardResource(&quot;Service&quot;, providedCapability.getMetadata().getNamespace(), s)).orElse(null);</span>
+<span class="fc" id="L60">        Secret adminSecret = serverStatus.getAdminSecretName()</span>
+<span class="fc" id="L61">                .map(s -&gt; (Secret) kubernetesClient.loadStandardResource(&quot;Secret&quot;, providedCapability.getMetadata().getNamespace(), s))</span>
+<span class="fc" id="L62">                .orElse(null);</span>
+<span class="fc" id="L63">        Ingress ingress = null;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (serverStatus instanceof ExposedServerStatus) {</span>
+<span class="fc" id="L65">            final ExposedServerStatus exposedServerStatus = (ExposedServerStatus) serverStatus;</span>
+<span class="fc" id="L66">            ingress = ofNullable(exposedServerStatus.getIngressName())</span>
+<span class="fc" id="L67">                    .map(i -&gt; (Ingress) kubernetesClient</span>
+<span class="fc" id="L68">                            .loadStandardResource(&quot;Ingress&quot;, providedCapability.getMetadata().getNamespace(), i))</span>
+<span class="fc" id="L69">                    .orElse(null);</span>
         }
-<span class="fc" id="L77">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
+<span class="fc" id="L71">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

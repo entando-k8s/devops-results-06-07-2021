@@ -91,69 +91,73 @@ public class DeserializationHelper implements InvocationHandler {
             }
         } else {
 <span class="fc bfc" id="L93" title="All 2 branches covered.">            if (method.getReturnType() == List.class) {</span>
-<span class="fc" id="L94">                Class&lt;?&gt; typeArgument = resolveFirstTypeArgument(method);</span>
+<span class="fc" id="L94">                Class&lt;?&gt; typeArgument = resolveTypeArgument(method, 0);</span>
 <span class="fc" id="L95">                return ((List&lt;?&gt;) result).stream()</span>
 <span class="fc" id="L96">                        .map(deserializedMap -&gt; resolveRawObjectOrMap(method, deserializedMap, typeArgument))</span>
 <span class="fc" id="L97">                        .collect(Collectors.toList());</span>
-<span class="fc bfc" id="L98" title="All 2 branches covered.">            } else if (method.getReturnType() == Optional.class) {</span>
-<span class="fc" id="L99">                final Class&lt;?&gt; type = resolveFirstTypeArgument(method);</span>
-<span class="fc" id="L100">                return Optional.of(resolveRawObjectOrMap(method, result, type));</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">            } else if (method.getReturnType() == Map.class) {</span>
+<span class="fc" id="L99">                final Class&lt;?&gt; type = resolveTypeArgument(method, 1);</span>
+<span class="fc" id="L100">                return ((Map&lt;String, ?&gt;) result).entrySet().stream()</span>
+<span class="fc" id="L101">                        .collect(Collectors.toMap(Map.Entry::getKey, entry -&gt; resolveRawObjectOrMap(method, entry.getValue(), type)));</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">            } else if (method.getReturnType() == Optional.class) {</span>
+<span class="fc" id="L103">                final Class&lt;?&gt; type = resolveTypeArgument(method, 0);</span>
+<span class="fc" id="L104">                return Optional.of(resolveRawObjectOrMap(method, result, type));</span>
             } else {
-<span class="fc" id="L102">                return resolveRawObjectOrMap(method, result, method.getReturnType());</span>
+<span class="fc" id="L106">                return resolveRawObjectOrMap(method, result, method.getReturnType());</span>
             }
         }
     }
 
     @SuppressWarnings(&quot;unchecked&quot;)
     private Object resolveRawObjectOrMap(Method method, Object rawObjectOrMap, Class&lt;?&gt; type) {
-<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (ReflectionUtil.getAnnotationFromInterfaces(getImplementedInterfaces(map), method.getName(), SerializeByReference.class)</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (ReflectionUtil.getAnnotationFromInterfaces(getImplementedInterfaces(map), method.getName(), SerializeByReference.class)</span>
                 != null) {
-<span class="fc" id="L111">            return resolveByReference(rawObjectOrMap);</span>
-<span class="fc bfc" id="L112" title="All 2 branches covered.">        } else if (type.getAnnotation(JsonDeserialize.class) != null) {</span>
-<span class="fc" id="L113">            return ioSafe(() -&gt; objectMapper.readValue(objectMapper.writeValueAsString(rawObjectOrMap), type));</span>
-<span class="fc bfc" id="L114" title="All 2 branches covered.">        } else if (ReflectionUtil.KNOWN_INTERFACES.contains(type)) {</span>
-<span class="fc" id="L115">            return fromMap(kubernetesClient, (Map&lt;String, Object&gt;) rawObjectOrMap, objectMapper);</span>
-<span class="fc bfc" id="L116" title="All 2 branches covered.">        } else if (type.isEnum()) {</span>
-<span class="fc" id="L117">            return Enum.valueOf((Class&lt;? extends Enum&gt;) type, rawObjectOrMap.toString().toUpperCase(Locale.ROOT));</span>
+<span class="fc" id="L115">            return resolveByReference(rawObjectOrMap);</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        } else if (type.getAnnotation(JsonDeserialize.class) != null) {</span>
+<span class="fc" id="L117">            return ioSafe(() -&gt; objectMapper.readValue(objectMapper.writeValueAsString(rawObjectOrMap), type));</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        } else if (ReflectionUtil.KNOWN_INTERFACES.contains(type)) {</span>
+<span class="fc" id="L119">            return fromMap(kubernetesClient, (Map&lt;String, Object&gt;) rawObjectOrMap, objectMapper);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        } else if (type.isEnum()) {</span>
+<span class="fc" id="L121">            return Enum.valueOf((Class&lt;? extends Enum&gt;) type, rawObjectOrMap.toString().toUpperCase(Locale.ROOT));</span>
         } else {
             //Could be a simple type. Look for String constructor
             try {
-<span class="fc" id="L121">                return type.getConstructor(String.class).newInstance(rawObjectOrMap.toString());</span>
-<span class="fc" id="L122">            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {</span>
-<span class="fc" id="L123">                return rawObjectOrMap;</span>
+<span class="fc" id="L125">                return type.getConstructor(String.class).newInstance(rawObjectOrMap.toString());</span>
+<span class="fc" id="L126">            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {</span>
+<span class="fc" id="L127">                return rawObjectOrMap;</span>
             }
         }
     }
 
-    private Class&lt;?&gt; resolveFirstTypeArgument(Method method) {
-<span class="fc" id="L129">        return (Class&lt;?&gt;) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];</span>
+    private Class&lt;?&gt; resolveTypeArgument(Method method, int i) {
+<span class="fc" id="L133">        return (Class&lt;?&gt;) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[i];</span>
     }
 
     private Object createResult(Object[] objects)
             throws InstantiationException, IllegalAccessException, InvocationTargetException {
-<span class="fc" id="L134">        Constructor&lt;?&gt; selectedConstructor = DefaultSerializableDeploymentResult.class.getConstructors()[0];</span>
-<span class="fc" id="L135">        final Object[] arguments = Arrays.stream(selectedConstructor.getParameterTypes())</span>
-<span class="fc" id="L136">                .map(type -&gt; Arrays.stream(objects).filter(type::isInstance).findFirst().orElse(null))</span>
-<span class="fc" id="L137">                .toArray(Object[]::new);</span>
-<span class="fc" id="L138">        return selectedConstructor.newInstance(arguments);</span>
+<span class="fc" id="L138">        Constructor&lt;?&gt; selectedConstructor = DefaultSerializableDeploymentResult.class.getConstructors()[0];</span>
+<span class="fc" id="L139">        final Object[] arguments = Arrays.stream(selectedConstructor.getParameterTypes())</span>
+<span class="fc" id="L140">                .map(type -&gt; Arrays.stream(objects).filter(type::isInstance).findFirst().orElse(null))</span>
+<span class="fc" id="L141">                .toArray(Object[]::new);</span>
+<span class="fc" id="L142">        return selectedConstructor.newInstance(arguments);</span>
     }
 
     private HasMetadata resolveByReference(Object result) {
-<span class="fc" id="L142">        return ioSafe(() -&gt; {</span>
-<span class="fc" id="L143">            final ResourceReference resourceReference = objectMapper.readValue(new StringReader(objectMapper.writeValueAsString(result)),</span>
+<span class="fc" id="L146">        return ioSafe(() -&gt; {</span>
+<span class="fc" id="L147">            final ResourceReference resourceReference = objectMapper.readValue(new StringReader(objectMapper.writeValueAsString(result)),</span>
                     ResourceReference.class);
-<span class="fc bfc" id="L145" title="All 2 branches covered.">            if (resourceReference.isCustomResource()) {</span>
-<span class="fc bfc" id="L146" title="All 2 branches covered.">                if (resourceReference.getKind().equals(ProvidedCapability.class.getSimpleName())) {</span>
-<span class="fc" id="L147">                    return kubernetesClient.load(ProvidedCapability.class, resourceReference.getMetadata().getNamespace(),</span>
-<span class="fc" id="L148">                            resourceReference.getMetadata().getName());</span>
-                } else {
-<span class="fc" id="L150">                    return kubernetesClient.loadCustomResource(resourceReference.getApiVersion(),</span>
-<span class="fc" id="L151">                            resourceReference.getKind(), resourceReference.getMetadata().getNamespace(),</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">            if (resourceReference.isCustomResource()) {</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">                if (resourceReference.getKind().equals(ProvidedCapability.class.getSimpleName())) {</span>
+<span class="fc" id="L151">                    return kubernetesClient.load(ProvidedCapability.class, resourceReference.getMetadata().getNamespace(),</span>
 <span class="fc" id="L152">                            resourceReference.getMetadata().getName());</span>
+                } else {
+<span class="fc" id="L154">                    return kubernetesClient.loadCustomResource(resourceReference.getApiVersion(),</span>
+<span class="fc" id="L155">                            resourceReference.getKind(), resourceReference.getMetadata().getNamespace(),</span>
+<span class="fc" id="L156">                            resourceReference.getMetadata().getName());</span>
                 }
             } else {
-<span class="fc" id="L155">                return kubernetesClient.loadStandardResource(resourceReference.getKind(), resourceReference.getMetadata().getNamespace(),</span>
-<span class="fc" id="L156">                        resourceReference.getMetadata().getName());</span>
+<span class="fc" id="L159">                return kubernetesClient.loadStandardResource(resourceReference.getKind(), resourceReference.getMetadata().getNamespace(),</span>
+<span class="fc" id="L160">                        resourceReference.getMetadata().getName());</span>
             }
         });
     }

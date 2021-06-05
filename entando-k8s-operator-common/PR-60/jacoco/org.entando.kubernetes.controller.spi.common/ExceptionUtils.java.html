@@ -16,6 +16,7 @@
 
 package org.entando.kubernetes.controller.spi.common;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -24,31 +25,38 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.entando.kubernetes.model.common.EntandoControllerFailure;
-import org.entando.kubernetes.model.common.EntandoCustomResource;
 
 public class ExceptionUtils {
 
-    public static EntandoControllerFailure failureOf(EntandoCustomResource r, Exception e) {
-<span class="nc" id="L32">        final StringWriter stringWriter = new StringWriter();</span>
-<span class="nc" id="L33">        e.printStackTrace(new PrintWriter(stringWriter));</span>
-<span class="nc" id="L34">        final String failedObjectName = r.getMetadata().getNamespace() + &quot;/&quot; + r.getMetadata().getName();</span>
-<span class="nc" id="L35">        return new EntandoControllerFailure(r.getKind(), failedObjectName, e.getMessage(), stringWriter.toString());</span>
+    public static EntandoControllerFailure failureOf(HasMetadata r, Exception e) {
+<span class="fc" id="L32">        final StringWriter stringWriter = new StringWriter();</span>
+<span class="fc" id="L33">        e.printStackTrace(new PrintWriter(stringWriter));</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (r == null) {</span>
+<span class="fc" id="L35">            return new EntandoControllerFailure(null, null, e.getMessage(), stringWriter.toString());</span>
+        } else {
+<span class="fc" id="L37">            final String failedObjectName = r.getMetadata().getNamespace() + &quot;/&quot; + r.getMetadata().getName();</span>
+<span class="fc" id="L38">            return new EntandoControllerFailure(r.getKind(), failedObjectName, e.getMessage(), stringWriter.toString());</span>
+        }
+    }
+
+    public static EntandoControllerFailure failureOf(EntandoControllerException e) {
+<span class="fc" id="L43">        return failureOf(e.getKubernetesResource(), e);</span>
     }
 
     public static &lt;T&gt; T retry(Supplier&lt;T&gt; supplier, Predicate&lt;RuntimeException&gt; ignoreExceptionWhen, int count) {
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        for (int i = 0; i &lt; count - 1; i++) {</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        for (int i = 0; i &lt; count - 1; i++) {</span>
             try {
-<span class="fc" id="L41">                return supplier.get();</span>
-<span class="fc" id="L42">            } catch (RuntimeException e) {</span>
-<span class="fc bfc" id="L43" title="All 2 branches covered.">                if (!ignoreExceptionWhen.test(e)) {</span>
-<span class="fc" id="L44">                    throw e;</span>
+<span class="fc" id="L49">                return supplier.get();</span>
+<span class="fc" id="L50">            } catch (RuntimeException e) {</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">                if (!ignoreExceptionWhen.test(e)) {</span>
+<span class="fc" id="L52">                    throw e;</span>
                 }
-<span class="fc" id="L46">                long actualCount = i + 1L;</span>
-<span class="fc" id="L47">                final long duration = actualCount * actualCount;</span>
-<span class="fc" id="L48">                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(duration));</span>
+<span class="fc" id="L54">                long actualCount = i + 1L;</span>
+<span class="fc" id="L55">                final long duration = actualCount * actualCount;</span>
+<span class="fc" id="L56">                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(duration));</span>
             }
         }
-<span class="nc" id="L51">        return supplier.get();</span>
+<span class="nc" id="L59">        return supplier.get();</span>
     }
 
     public interface IoVulnerable&lt;T&gt; {
@@ -61,9 +69,9 @@ public class ExceptionUtils {
 
     public static &lt;T&gt; T ioSafe(IoVulnerable&lt;T&gt; i) {
         try {
-<span class="fc" id="L64">            return i.invoke();</span>
-<span class="fc" id="L65">        } catch (IOException e) {</span>
-<span class="fc" id="L66">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L72">            return i.invoke();</span>
+<span class="fc" id="L73">        } catch (IOException e) {</span>
+<span class="fc" id="L74">            throw new IllegalStateException(e);</span>
         }
     }
 }
