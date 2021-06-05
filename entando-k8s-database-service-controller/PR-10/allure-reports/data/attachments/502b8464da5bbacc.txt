@@ -1,0 +1,32 @@
+---
+internalServiceHostname: "mysql-dbms-7163-service.my-namespace.svc.cluster.local"
+mixins:
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "mysql-dbms-7163-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "3306"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "mysql-dbms-7163-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+status:
+  qualifier: "main"
+  type: "InternalServerStatus"
+  started: "2021-06-05T12:56:05+0000"
+  finished: "2021-06-05T12:56:05+0000"
+  serviceName: "mysql-dbms-7163-service"
+  deploymentName: "mysql-dbms-7163-deployment"
+  podPhases:
+    mysql-dbms-7163-deployment: "Running"
+  persistentVolumeClaimPhases:
+    mysql-dbms-7163-db-pvc: "Pending"
