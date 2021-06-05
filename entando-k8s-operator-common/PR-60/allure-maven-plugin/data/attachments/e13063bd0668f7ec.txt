@@ -1,0 +1,32 @@
+---
+internalServiceHostname: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+mixins:
+- "ServiceDeploymentResult"
+- "SerializableDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "default-postgresql-dbms-in-namespace-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "5432"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "default-postgresql-dbms-in-namespace-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+status:
+  qualifier: "main"
+  type: "InternalServerStatus"
+  started: "2021-06-05T12:39:36+0000"
+  finished: "2021-06-05T12:39:36+0000"
+  serviceName: "default-postgresql-dbms-in-namespace-service"
+  deploymentName: "default-postgresql-dbms-in-namespace-deployment"
+  podPhases:
+    default-postgresql-dbms-in-namespace-deployment: "Running"
+  persistentVolumeClaimPhases:
+    default-postgresql-dbms-in-namespace-db-pvc: "Pending"
