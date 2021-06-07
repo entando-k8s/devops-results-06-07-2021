@@ -1,0 +1,41 @@
+---
+internalServiceHostname: "my-app-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-app-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "ServiceResult"
+- "ServiceDeploymentResult"
+- "SerializableDeploymentResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-app-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8081"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-app-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "https://myhost.com/my-app"
+internalBaseUrl: "http://my-app-service.my-namespace.svc.cluster.local:8081/my-app"
+externalHostUrl: "https://myhost.com"
+status:
+  qualifier: "main"
+  type: "ExposedServerStatus"
+  started: "2021-06-07T13:53:57+0000"
+  finished: "2021-06-07T13:53:57+0000"
+  serviceName: "my-app-service"
+  deploymentName: "my-app-deployment"
+  podPhases:
+    my-app-deployment: "Running"
+  ingressName: "my-app-ingress"
