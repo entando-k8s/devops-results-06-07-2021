@@ -1,0 +1,164 @@
+---
+publicClientIdToUse: "entando-web"
+fileSystemUserAndGroupId: 185
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoApp"
+  metadata:
+    name: "my-app"
+    namespace: "my-namespace"
+  isCustomResource: true
+ingressNamespace: "my-namespace"
+keycloakRealmToUse: "my-realm"
+mixins:
+- "DbAwareDeployable"
+- "IngressingDeployable"
+- "Deployable"
+- "PublicIngressingDeployable"
+defaultServiceAccountName: "default"
+ingressRequired: true
+ssoConnectionInfo:
+  defaultRealm: "my-realm"
+  baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  mixins:
+  - "SsoConnectionInfo"
+  password: "password123"
+  externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+  internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  adminSecret:
+    apiVersion: "v1"
+    kind: "Secret"
+    metadata:
+      name: "default-sso-in-namespace-admin-secret"
+      namespace: "my-namespace"
+    stringData:
+      username: "jon"
+      password: "password123"
+  username: "jon"
+ingressName: "my-app-ingress"
+expectingDatabaseSchemas: false
+qualifier: "cm"
+containers:
+- ssoVariables:
+  - name: "KEYCLOAK_ENABLED"
+    value: "true"
+  - name: "KEYCLOAK_REALM"
+    value: "my-realm"
+  - name: "KEYCLOAK_PUBLIC_CLIENT_ID"
+    value: "entando-web"
+  - name: "KEYCLOAK_AUTH_URL"
+    value: "https://mykeycloak.apps.serv.run/auth"
+  - name: "KEYCLOAK_CLIENT_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: "clientSecret"
+        name: "my-app-de-secret"
+        optional: false
+  - name: "KEYCLOAK_CLIENT_ID"
+    valueFrom:
+      secretKeyRef:
+        key: "clientId"
+        name: "my-app-de-secret"
+        optional: false
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI"
+    value: "https://mykeycloak.apps.serv.run/auth/realms/my-realm"
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: "clientSecret"
+        name: "my-app-de-secret"
+        optional: false
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID"
+    valueFrom:
+      secretKeyRef:
+        key: "clientId"
+        name: "my-app-de-secret"
+        optional: false
+  realmToUse: "my-realm"
+  additionalPorts: []
+  dbms: "EMBEDDED"
+  ssoClientConfig:
+    realm: "my-realm"
+    clientId: "my-app-de"
+    clientName: "my-app-de"
+    roles: []
+    permissions:
+    - clientId: "my-app"
+      role: "superuser"
+    redirectUri: []
+    webOrigins: []
+  webContextPath: "/digital-exchange"
+  mixins:
+  - "PersistentVolumeAwareContainer"
+  - "SsoAwareContainer"
+  - "TrustStoreAwareContainer"
+  - "HasWebContext"
+  - "ServiceBackingContainer"
+  - "ParameterizableContainer"
+  - "IngressingContainer"
+  - "DeployableContainer"
+  - "IngressingPathOnPort"
+  - "DbAwareContainer"
+  kubernetesPermissions: []
+  nameQualifier: "de"
+  portForIngressPath: 8083
+  publicClientIdToUse: "entando-web"
+  environmentVariableOverrides: []
+  memoryLimitMebibytes: 768
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-component-manager"
+  volumeMountPath: "/entando-data"
+  namesOfSecretsToMount: []
+  trustStoreVariables:
+  - name: "JAVA_TOOL_OPTIONS"
+    valueFrom:
+      secretKeyRef:
+        key: "TRUSTSTORE_SETTINGS"
+        name: "entando-default-truststore"
+        optional: false
+  primaryPort: 8083
+  storageLimitMebibytes: 2048
+  keycloakRealmToUse: "my-realm"
+  healthCheckPath: "/digital-exchange/actuator/health"
+  ssoConnectionInfo:
+    defaultRealm: "my-realm"
+    baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    mixins:
+    - "SsoConnectionInfo"
+    password: "password123"
+    externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+    internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    adminSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        name: "default-sso-in-namespace-admin-secret"
+        namespace: "my-namespace"
+      stringData:
+        username: "jon"
+        password: "password123"
+    username: "jon"
+  databaseConnectionVariables:
+  - name: "SPRING_JPA_DATABASE_PLATFORM"
+    value: "org.hibernate.dialect.H2Dialect"
+  - name: "SPRING_DATASOURCE_USERNAME"
+    value: "sa"
+  - name: "SPRING_DATASOURCE_PASSWORD"
+    value: ""
+  - name: "SPRING_DATASOURCE_URL"
+    value: "jdbc:h2:file:/entando-data/databases/de.db;DB_CLOSE_ON_EXIT=FALSE"
+  environmentVariables:
+  - name: "ENTANDO_APP_NAME"
+    value: "my-app"
+  - name: "ENTANDO_URL"
+    value: "http://my-app-service.my-namespace.svc.cluster.local:8080//entando-de-app"
+  - name: "SERVER_PORT"
+    value: "8083"
+  - name: "ENTANDO_K8S_SERVICE_URL"
+    value: "http://null/k8s"
+  schemaConnectionInfo: []
+  secretsToMount: []
+  cpuLimitMillicores: 750
+serviceAccountToUse: "default"

@@ -1,0 +1,167 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoApp"
+    jobKind: "db-preparation-job"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoApp: "my-app"
+    deploymentQualifier: "main"
+  name: "my-app-dbprep-1bb6"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "9f78b729-476b-4e6a-9823-2c001eec3dfb"
+spec:
+  containers:
+  - image: "docker.io/entando/busybox:latest"
+    name: "dummy"
+  initContainers:
+  - env:
+    - name: "DATABASE_SERVER_HOST"
+      value: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+    - name: "DATABASE_SERVER_PORT"
+      value: "5432"
+    - name: "DATABASE_ADMIN_USER"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "default-postgresql-dbms-in-namespace-admin-secret"
+          optional: false
+    - name: "DATABASE_ADMIN_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "default-postgresql-dbms-in-namespace-admin-secret"
+          optional: false
+    - name: "DATABASE_NAME"
+      value: "my_db"
+    - name: "DATABASE_VENDOR"
+      value: "postgresql"
+    - name: "DATABASE_SCHEMA_COMMAND"
+      value: "CREATE_SCHEMA"
+    - name: "DATABASE_USER"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "my-app-portdb-secret"
+          optional: false
+    - name: "DATABASE_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "my-app-portdb-secret"
+          optional: false
+    image: "docker.io/entando/entando-k8s-dbjob:latest"
+    imagePullPolicy: "IfNotPresent"
+    name: "my-app-portdb-schema-creation-job"
+  - env:
+    - name: "DATABASE_SERVER_HOST"
+      value: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+    - name: "DATABASE_SERVER_PORT"
+      value: "5432"
+    - name: "DATABASE_ADMIN_USER"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "default-postgresql-dbms-in-namespace-admin-secret"
+          optional: false
+    - name: "DATABASE_ADMIN_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "default-postgresql-dbms-in-namespace-admin-secret"
+          optional: false
+    - name: "DATABASE_NAME"
+      value: "my_db"
+    - name: "DATABASE_VENDOR"
+      value: "postgresql"
+    - name: "DATABASE_SCHEMA_COMMAND"
+      value: "CREATE_SCHEMA"
+    - name: "DATABASE_USER"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "my-app-servdb-secret"
+          optional: false
+    - name: "DATABASE_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "my-app-servdb-secret"
+          optional: false
+    image: "docker.io/entando/entando-k8s-dbjob:latest"
+    imagePullPolicy: "IfNotPresent"
+    name: "my-app-servdb-schema-creation-job"
+  - command:
+    - "/bin/bash"
+    - "-c"
+    - "/entando-common/init-db-from-deployment.sh"
+    env:
+    - name: "DB_STARTUP_CHECK"
+      value: "false"
+    - name: "PORTDB_URL"
+      value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    - name: "PORTDB_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "my-app-portdb-secret"
+          optional: false
+    - name: "PORTDB_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "my-app-portdb-secret"
+          optional: false
+    - name: "PORTDB_CONNECTION_CHECKER"
+      value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"
+    - name: "PORTDB_EXCEPTION_SORTER"
+      value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"
+    - name: "SERVDB_URL"
+      value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    - name: "SERVDB_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "my-app-servdb-secret"
+          optional: false
+    - name: "SERVDB_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "my-app-servdb-secret"
+          optional: false
+    - name: "SERVDB_CONNECTION_CHECKER"
+      value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"
+    - name: "SERVDB_EXCEPTION_SORTER"
+      value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"
+    image: "docker.io/entando/entando-de-app-eap:latest"
+    imagePullPolicy: "IfNotPresent"
+    name: "my-app-server-db-population-job"
+  restartPolicy: "Never"
+status:
+  containerStatuses:
+  - state:
+      terminated:
+        exitCode: 0
+        reason: "Complete"
+  initContainerStatuses:
+  - state:
+      terminated:
+        exitCode: 0
+        reason: "Complete"
+  - state:
+      terminated:
+        exitCode: 0
+        reason: "Complete"
+  - state:
+      terminated:
+        exitCode: 0
+        reason: "Complete"
+  phase: "Complete"

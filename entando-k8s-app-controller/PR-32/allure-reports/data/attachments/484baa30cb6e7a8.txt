@@ -1,0 +1,83 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoApp"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoApp: "my-app"
+    deployment: "my-app-ab"
+  name: "my-app-ab-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "9f78b729-476b-4e6a-9823-2c001eec3dfb"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoResourceKind: "EntandoApp"
+      EntandoResourceNamespace: "my-namespace"
+      EntandoApp: "my-app"
+      deployment: "my-app-ab"
+  template:
+    metadata:
+      labels:
+        EntandoResourceKind: "EntandoApp"
+        EntandoResourceNamespace: "my-namespace"
+        EntandoApp: "my-app"
+        deployment: "my-app-ab"
+      name: "my-app-ab-pod"
+    spec:
+      containers:
+      - env:
+        - name: "SERVER_SERVLET_CONTEXT_PATH"
+          value: "/app-builder/"
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        - name: "DOMAIN"
+          value: "/entando-de-app"
+        image: "docker.io/entando/app-builder:latest"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/app-builder/favicon-entando.png"
+            port: 8081
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: "appbuilder-container"
+        ports:
+        - containerPort: 8081
+          name: "appbuilder-port"
+          protocol: "TCP"
+        readinessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/app-builder/favicon-entando.png"
+            port: 8081
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "125m"
+        startupProbe:
+          failureThreshold: 11
+          httpGet:
+            path: "/app-builder/favicon-entando.png"
+            port: 8081
+          periodSeconds: 12
+          timeoutSeconds: 5
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      securityContext:
+        fsGroup: 185
+      serviceAccountName: "default"
