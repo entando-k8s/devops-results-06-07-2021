@@ -16,48 +16,46 @@
 
 package org.entando.kubernetes.controller.keycloakserver;
 
-import java.net.MalformedURLException;
+import static org.entando.kubernetes.controller.spi.common.ExceptionUtils.ioSafe;
+
 import java.net.URL;
 import org.entando.kubernetes.controller.spi.deployable.ExternalService;
 
 public class ExternalKeycloakService implements ExternalService {
 
     private Integer port;
-    private final String host;
-    private final String path;
+    private String host;
+    private String path;
 
-<span class="fc" id="L29">    public ExternalKeycloakService(String frontEndUrl) {</span>
-        try {
-<span class="fc" id="L31">            final URL url = new URL(frontEndUrl);</span>
-<span class="fc" id="L32">            this.port = url.getPort();</span>
-<span class="fc bfc" id="L33" title="All 2 branches covered.">            if (port == -1) {</span>
-<span class="fc" id="L34">                port = url.getDefaultPort();</span>
-            }
-<span class="fc" id="L36">            this.host = url.getHost();</span>
-<span class="fc" id="L37">            this.path = url.getPath();</span>
-<span class="nc" id="L38">        } catch (MalformedURLException e) {</span>
-<span class="nc" id="L39">            throw new IllegalStateException(e);</span>
-<span class="fc" id="L40">        }</span>
-<span class="fc" id="L41">    }</span>
+<span class="fc" id="L30">    public ExternalKeycloakService(String frontEndUrl) {</span>
+<span class="fc" id="L31">        URL url = ioSafe(() -&gt; new URL(frontEndUrl));</span>
+<span class="fc" id="L32">        this.port = url.getPort();</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (port == -1) {</span>
+<span class="fc" id="L34">            port = url.getDefaultPort();</span>
+        }
+<span class="fc" id="L36">        this.host = url.getHost();</span>
+<span class="fc" id="L37">        this.path = url.getPath();</span>
+
+<span class="fc" id="L39">    }</span>
 
     @Override
     public String getHost() {
-<span class="fc" id="L45">        return host;</span>
+<span class="fc" id="L43">        return host;</span>
     }
 
     @Override
     public int getPort() {
-<span class="fc" id="L50">        return port;</span>
+<span class="fc" id="L48">        return port;</span>
     }
 
     @Override
     public boolean getCreateDelegateService() {
         //A delegate service will be a problem for KC 9 out 10 times due to HTTPS and hostname based token validation
-<span class="fc" id="L56">        return false;</span>
+<span class="fc" id="L54">        return false;</span>
     }
 
     public String getPath() {
-<span class="fc" id="L60">        return path;</span>
+<span class="fc" id="L58">        return path;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

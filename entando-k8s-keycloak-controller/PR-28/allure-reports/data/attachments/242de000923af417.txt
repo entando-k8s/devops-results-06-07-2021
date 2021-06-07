@@ -1,0 +1,31 @@
+--- !<EntandoKeycloakServer>
+apiVersion: "entando.org/v1"
+kind: "EntandoKeycloakServer"
+metadata:
+  labels:
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Specified"
+  name: "specified-sso"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "ProvidedCapability"
+    blockOwnerDeletion: true
+    controller: true
+    name: "specified-sso"
+    uid: "0181ef3c-289f-492c-8b5b-ab3c605352e1"
+  resourceVersion: "3352768"
+  uid: "d1ad51f1-1f36-4ef8-b404-34a209e7c06a"
+spec:
+  standardImage: "keycloak"
+  frontEndUrl: "https://kc.apps.serv.run:8080/auth"
+  provisioningStrategy: "UseExternal"
+  adminSecretName: "my-existing-sso-admin-secret"
+  dbms: "embedded"
+  replicas: 1
+  isDefault: false
+  environmentVariables: []
+status:
+  serverStatuses: {}
+  phase: "successful"
+crdName: "entandokeycloakservers.entando.org"

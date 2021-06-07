@@ -1,0 +1,31 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Namespace"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoKeycloakServer: "default-sso-in-namespace"
+    deployment: "default-sso-in-namespace"
+  name: "default-sso-in-namespace-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "default-sso-in-namespace"
+    uid: "c1d272e7-b944-4ea5-971d-cb35367954bd"
+spec:
+  containers:
+  - {}
+status:
+  conditions:
+  - lastTransitionTime: "2021-06-07T12:21:50Z"
+    type: "Ready"
+  containerStatuses:
+  - state:
+      running: {}
+  phase: "Running"

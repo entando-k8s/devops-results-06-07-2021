@@ -1,0 +1,112 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Namespace"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoKeycloakServer: "default-sso-in-namespace"
+    deployment: "default-sso-in-namespace"
+  name: "default-sso-in-namespace-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "default-sso-in-namespace"
+    uid: "c1d272e7-b944-4ea5-971d-cb35367954bd"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoResourceKind: "EntandoKeycloakServer"
+      entando.org/capability: "Sso"
+      capabilityProvisionScope: "Namespace"
+      EntandoResourceNamespace: "my-namespace"
+      EntandoKeycloakServer: "default-sso-in-namespace"
+      deployment: "default-sso-in-namespace"
+  template:
+    metadata:
+      labels:
+        EntandoResourceKind: "EntandoKeycloakServer"
+        entando.org/capability: "Sso"
+        capabilityProvisionScope: "Namespace"
+        EntandoResourceNamespace: "my-namespace"
+        EntandoKeycloakServer: "default-sso-in-namespace"
+        deployment: "default-sso-in-namespace"
+      name: "default-sso-in-namespace-pod"
+    spec:
+      containers:
+      - env:
+        - name: "DB_VENDOR"
+          value: "h2"
+        - name: "SERVER_SERVLET_CONTEXT_PATH"
+          value: "/auth"
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        - name: "KEYCLOAK_USER"
+          valueFrom:
+            secretKeyRef:
+              key: "username"
+              name: "default-sso-in-namespace-admin-secret"
+              optional: false
+        - name: "KEYCLOAK_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "default-sso-in-namespace-admin-secret"
+              optional: false
+        - name: "PROXY_ADDRESS_FORWARDING"
+          value: "true"
+        image: "docker.io/entando/entando-keycloak:latest"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/auth"
+            port: 8080
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: "server-container"
+        ports:
+        - containerPort: 8080
+          name: "server-port"
+          protocol: "TCP"
+        readinessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/auth"
+            port: 8080
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "768Mi"
+            cpu: "1000m"
+          requests:
+            memory: "192Mi"
+            cpu: "250m"
+        startupProbe:
+          failureThreshold: 11
+          httpGet:
+            path: "/auth"
+            port: 8080
+          periodSeconds: 18
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: "/opt/jboss/keycloak/standalone/data"
+          name: "default-sso-in-namespace-server-volume"
+          readOnly: false
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      securityContext:
+        fsGroup: 1000
+      serviceAccountName: "default"
+      volumes:
+      - name: "default-sso-in-namespace-server-volume"
+        persistentVolumeClaim:
+          claimName: "default-sso-in-namespace-server-pvc"
+          readOnly: false

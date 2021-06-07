@@ -1,0 +1,40 @@
+--- !<EntandoKeycloakServer>
+apiVersion: "entando.org/v1"
+kind: "EntandoKeycloakServer"
+metadata:
+  labels:
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Namespace"
+  name: "default-sso-in-namespace"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "ProvidedCapability"
+    blockOwnerDeletion: true
+    controller: true
+    name: "default-sso-in-namespace"
+    uid: "095638ff-c3bb-44be-ab7a-c8b72aa3d226"
+  resourceVersion: "6201583"
+  uid: "c1d272e7-b944-4ea5-971d-cb35367954bd"
+spec:
+  standardImage: "keycloak"
+  provisioningStrategy: "DeployDirectly"
+  dbms: "embedded"
+  replicas: 1
+  isDefault: false
+  environmentVariables: []
+status:
+  serverStatuses:
+    main: !<ExposedServerStatus>
+      qualifier: "main"
+      type: "ExposedServerStatus"
+      started: "2021-06-07T12:21:50+0000"
+      serviceName: "default-sso-in-namespace-service"
+      deploymentName: "default-sso-in-namespace-deployment"
+      podPhases:
+        default-sso-in-namespace-deployment: "Running"
+      persistentVolumeClaimPhases:
+        default-sso-in-namespace-server-pvc: "Pending"
+      ingressName: "default-sso-in-namespace-ingress"
+  phase: "successful"
+crdName: "entandokeycloakservers.entando.org"

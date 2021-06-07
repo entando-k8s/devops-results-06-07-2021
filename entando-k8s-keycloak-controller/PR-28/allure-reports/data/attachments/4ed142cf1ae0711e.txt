@@ -1,0 +1,23 @@
+---
+apiVersion: "v1"
+kind: "Secret"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Dedicated"
+    EntandoResourceNamespace: "my-namespace"
+    entando.org/capability-implementation: "Keycloak"
+    EntandoKeycloakServer: "my-app-sso"
+  name: "my-app-sso-admin-secret"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app-sso"
+    uid: "f49ac97a-a45b-49ff-9e02-6fd7eed6a1f7"
+stringData:
+  username: "entando_keycloak_admin"
+  password: "09e6c523598e4d0f"
