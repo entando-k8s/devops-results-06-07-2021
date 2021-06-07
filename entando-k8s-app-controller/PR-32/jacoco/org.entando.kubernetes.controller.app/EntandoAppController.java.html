@@ -19,7 +19,6 @@ package org.entando.kubernetes.controller.app;
 import static java.lang.String.format;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,8 +29,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
 import org.entando.kubernetes.controller.spi.capability.CapabilityProvider;
+import org.entando.kubernetes.controller.spi.capability.CapabilityProvisioningResult;
 import org.entando.kubernetes.controller.spi.client.KubernetesClientForControllers;
 import org.entando.kubernetes.controller.spi.command.DeploymentProcessor;
+import org.entando.kubernetes.controller.spi.common.EntandoControllerException;
 import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.spi.container.ProvidedDatabaseCapability;
 import org.entando.kubernetes.controller.spi.container.ProvidedSsoCapability;
@@ -44,35 +45,34 @@ import org.entando.kubernetes.model.capability.CapabilityRequirementBuilder;
 import org.entando.kubernetes.model.capability.CapabilityScope;
 import org.entando.kubernetes.model.capability.StandardCapability;
 import org.entando.kubernetes.model.capability.StandardCapabilityImplementation;
-import org.entando.kubernetes.model.common.AbstractServerStatus;
 import org.entando.kubernetes.model.common.DbmsVendor;
-import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
 import picocli.CommandLine;
 
 @CommandLine.Command()
 public class EntandoAppController implements Runnable {
 
-<span class="fc" id="L55">    private static final Logger LOGGER = Logger.getLogger(EntandoAppController.class.getName());</span>
+<span class="fc" id="L54">    private static final Logger LOGGER = Logger.getLogger(EntandoAppController.class.getName());</span>
     public static final String ENTANDO_K8S_SERVICE = &quot;entando-k8s-service&quot;;
     private final KubernetesClientForControllers k8sClient;
     private final CapabilityProvider capabilityProvider;
     private final DeploymentProcessor deploymentProcessor;
-<span class="fc" id="L60">    private final AtomicReference&lt;EntandoApp&gt; entandoApp = new AtomicReference&lt;&gt;();</span>
-<span class="fc" id="L61">    private final ExecutorService executor = Executors.newFixedThreadPool(3);</span>
+<span class="fc" id="L59">    private final AtomicReference&lt;EntandoApp&gt; entandoApp = new AtomicReference&lt;&gt;();</span>
+<span class="fc" id="L60">    private final ExecutorService executor = Executors.newFixedThreadPool(3);</span>
 
     @Inject
     public EntandoAppController(KubernetesClientForControllers k8sClient, DeploymentProcessor deploymentProcessor,
-<span class="fc" id="L65">            CapabilityProvider capabilityProvider) {</span>
-<span class="fc" id="L66">        this.k8sClient = k8sClient;</span>
-<span class="fc" id="L67">        this.capabilityProvider = capabilityProvider;</span>
-<span class="fc" id="L68">        this.deploymentProcessor = deploymentProcessor;</span>
-<span class="fc" id="L69">    }</span>
+<span class="fc" id="L64">            CapabilityProvider capabilityProvider) {</span>
+<span class="fc" id="L65">        this.k8sClient = k8sClient;</span>
+<span class="fc" id="L66">        this.capabilityProvider = capabilityProvider;</span>
+<span class="fc" id="L67">        this.deploymentProcessor = deploymentProcessor;</span>
+<span class="fc" id="L68">    }</span>
 
     //There is no point re-interrupting the thread when the VM is about to exit.
     @SuppressWarnings(&quot;java:S2142&quot;)
     public void run() {
-<span class="fc" id="L74">        this.entandoApp.set((EntandoApp) k8sClient.resolveCustomResourceToProcess(Collections.singletonList(EntandoApp.class)));</span>
+<span class="fc" id="L73">        this.entandoApp.set((EntandoApp) k8sClient.resolveCustomResourceToProcess(Collections.singletonList(EntandoApp.class)));</span>
         try {
+<span class="fc" id="L75">            entandoApp.set(k8sClient.deploymentStarted(entandoApp.get()));</span>
 <span class="fc" id="L76">            final DatabaseConnectionInfo dbConnectionInfo = provideDatabaseIfRequired();</span>
 <span class="fc" id="L77">            final SsoConnectionInfo ssoConnectionInfo = provideSso();</span>
 <span class="fc" id="L78">            final long timeoutForDbAware = calculateDbAwareTimeout();</span>
@@ -88,90 +88,92 @@ public class EntandoAppController implements Runnable {
 <span class="fc bfc" id="L88" title="All 2 branches covered.">            if (!executor.awaitTermination(totalTimeout, TimeUnit.SECONDS)) {</span>
 <span class="fc" id="L89">                throw new TimeoutException(format(&quot;Could not complete deployment of EntandoApp in %s seconds&quot;, totalTimeout));</span>
             }
-<span class="fc bfc" id="L91" title="All 2 branches covered.">            if (!entandoApp.get().getStatus().hasFailed()) {</span>
-<span class="fc" id="L92">                entandoApp.updateAndGet(current -&gt; k8sClient.updatePhase(current, EntandoDeploymentPhase.SUCCESSFUL));</span>
-            }
-<span class="fc" id="L94">        } catch (Exception e) {</span>
-<span class="fc" id="L95">            attachControllerFailure(e, EntandoAppController.class, NameUtils.MAIN_QUALIFIER);</span>
-<span class="fc" id="L96">        }</span>
-<span class="fc" id="L97">        entandoApp.get().getStatus().findFailedServerStatus().ifPresent(s -&gt; {</span>
-<span class="fc" id="L98">            throw new CommandLine.ExecutionException(new CommandLine(this), s.getEntandoControllerFailure().getMessage());</span>
+<span class="fc" id="L91">        } catch (Exception e) {</span>
+<span class="fc" id="L92">            attachControllerFailure(e, EntandoAppController.class, NameUtils.MAIN_QUALIFIER);</span>
+<span class="fc" id="L93">        }</span>
+<span class="fc" id="L94">        entandoApp.updateAndGet(k8sClient::deploymentEnded);</span>
+<span class="fc" id="L95">        entandoApp.get().getStatus().findFailedServerStatus().ifPresent(s -&gt; {</span>
+<span class="fc" id="L96">            throw new CommandLine.ExecutionException(new CommandLine(this), s.getEntandoControllerFailure().getMessage());</span>
         });
-<span class="fc" id="L100">    }</span>
+<span class="fc" id="L98">    }</span>
 
     private long calculateDbAwareTimeout() {
         final long timeoutForDbAware;
-<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (requiresDbmsService(EntandoAppHelper.determineDbmsVendor(entandoApp.get()))) {</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (requiresDbmsService(EntandoAppHelper.determineDbmsVendor(entandoApp.get()))) {</span>
             timeoutForDbAware =
-<span class="fc" id="L106">                    EntandoOperatorConfig.getPodCompletionTimeoutSeconds() + EntandoOperatorConfig.getPodReadinessTimeoutSeconds();</span>
+<span class="fc" id="L104">                    EntandoOperatorConfig.getPodCompletionTimeoutSeconds() + EntandoOperatorConfig.getPodReadinessTimeoutSeconds();</span>
         } else {
-<span class="fc" id="L108">            timeoutForDbAware = EntandoOperatorConfig.getPodReadinessTimeoutSeconds();</span>
+<span class="fc" id="L106">            timeoutForDbAware = EntandoOperatorConfig.getPodReadinessTimeoutSeconds();</span>
         }
-<span class="fc" id="L110">        return timeoutForDbAware;</span>
+<span class="fc" id="L108">        return timeoutForDbAware;</span>
     }
 
     private void queueDeployable(PublicIngressingDeployable&lt;EntandoAppDeploymentResult&gt; deployable, long timeout) {
-<span class="fc" id="L114">        executor.submit(() -&gt; {</span>
+<span class="fc" id="L112">        executor.submit(() -&gt; {</span>
             try {
-<span class="fc" id="L116">                final EntandoAppDeploymentResult result = deploymentProcessor.processDeployable(deployable, (int) timeout);</span>
-<span class="fc" id="L117">                entandoApp.updateAndGet(current -&gt; k8sClient.updateStatus(current, result.getStatus()));</span>
-<span class="fc" id="L118">            } catch (Exception e) {</span>
-<span class="fc" id="L119">                attachControllerFailure(e, deployable.getClass(), deployable.getQualifier().orElse(NameUtils.MAIN_QUALIFIER));</span>
-<span class="fc" id="L120">            }</span>
-<span class="fc" id="L121">        });</span>
-<span class="fc" id="L122">    }</span>
+<span class="fc" id="L114">                deploymentProcessor.processDeployable(deployable, (int) timeout);</span>
+<span class="fc" id="L115">            } catch (Exception e) {</span>
+<span class="fc" id="L116">                attachControllerFailure(e, deployable.getClass(), deployable.getQualifier().orElse(NameUtils.MAIN_QUALIFIER));</span>
+<span class="fc" id="L117">            }</span>
+<span class="fc" id="L118">        });</span>
+<span class="fc" id="L119">    }</span>
 
     private void attachControllerFailure(Exception e, Class&lt;?&gt; theClass, String qualifier) {
-<span class="fc" id="L125">        final Optional&lt;AbstractServerStatus&gt; serverStatus = entandoApp</span>
-<span class="fc" id="L126">                .updateAndGet(</span>
-<span class="fc" id="L127">                        current -&gt; k8sClient.load(EntandoApp.class, current.getMetadata().getNamespace(), current.getMetadata().getName()))</span>
-<span class="fc" id="L128">                .getStatus()</span>
-<span class="fc" id="L129">                .getServerStatus(qualifier);</span>
-<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (serverStatus.map(AbstractServerStatus::hasFailed).orElse(false)) {</span>
-            //If the original failure has been attached to the entandoApp, leave it there and just log it
-<span class="fc" id="L132">            serverStatus.ifPresent(st -&gt; LOGGER.log(Level.SEVERE, st.getEntandoControllerFailure().getDetailMessage()));</span>
-        } else {
-            //If the failure has not been attached to the entandoApp yet, do it now and log it.
-<span class="fc" id="L135">            entandoApp.updateAndGet(current -&gt; k8sClient.deploymentFailed(current, e, qualifier));</span>
-<span class="fc" id="L136">            LOGGER.log(Level.SEVERE, e, () -&gt; format(&quot;Processing the class %s failed.&quot;, theClass.getSimpleName()));</span>
-        }
-<span class="fc" id="L138">    }</span>
+<span class="fc" id="L122">        entandoApp.updateAndGet(current -&gt; k8sClient.deploymentFailed(current, e, qualifier));</span>
+<span class="fc" id="L123">        LOGGER.log(Level.SEVERE, e, () -&gt; format(&quot;Processing the class %s failed.: \n%s&quot;, theClass.getSimpleName(),</span>
+<span class="fc" id="L124">                entandoApp.get().getStatus().getServerStatus(qualifier).orElseThrow(IllegalStateException::new)</span>
+<span class="fc" id="L125">                        .getEntandoControllerFailure().getDetailMessage()));</span>
+<span class="fc" id="L126">    }</span>
 
     private ProvidedDatabaseCapability provideDatabaseIfRequired() throws TimeoutException {
-<span class="fc" id="L141">        final DbmsVendor dbmsVendor = EntandoAppHelper.determineDbmsVendor(entandoApp.get());</span>
-<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (requiresDbmsService(dbmsVendor)) {</span>
-<span class="fc" id="L143">            return new ProvidedDatabaseCapability(capabilityProvider</span>
-<span class="fc" id="L144">                    .provideCapability(entandoApp.get(), new CapabilityRequirementBuilder()</span>
-<span class="fc" id="L145">                            .withCapability(StandardCapability.DBMS)</span>
-<span class="fc" id="L146">                            .withImplementation(StandardCapabilityImplementation.valueOf(dbmsVendor.name()))</span>
-<span class="fc" id="L147">                            .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.DEDICATED, CapabilityScope.CLUSTER)</span>
-<span class="fc" id="L148">                            .build(), 180));</span>
+<span class="fc" id="L129">        final DbmsVendor dbmsVendor = EntandoAppHelper.determineDbmsVendor(entandoApp.get());</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (requiresDbmsService(dbmsVendor)) {</span>
+<span class="fc" id="L131">            final CapabilityProvisioningResult capabilityResult = capabilityProvider</span>
+<span class="fc" id="L132">                    .provideCapability(entandoApp.get(), new CapabilityRequirementBuilder()</span>
+<span class="fc" id="L133">                            .withCapability(StandardCapability.DBMS)</span>
+<span class="fc" id="L134">                            .withImplementation(StandardCapabilityImplementation.valueOf(dbmsVendor.name()))</span>
+<span class="fc" id="L135">                            .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.DEDICATED, CapabilityScope.CLUSTER)</span>
+<span class="fc" id="L136">                            .build(), 180);</span>
+<span class="fc" id="L137">            capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
+<span class="fc" id="L138">                throw new EntandoControllerException(format(&quot;Could not prepare database for EntandoApp %s/%s\n%s&quot;, entandoApp.get()</span>
+<span class="fc" id="L139">                                .getMetadata().getNamespace(), entandoApp.get()</span>
+<span class="fc" id="L140">                                .getMetadata().getName(),</span>
+<span class="fc" id="L141">                        f.getDetailMessage()));</span>
+            });
+<span class="fc" id="L143">            return new ProvidedDatabaseCapability(capabilityResult);</span>
         } else {
-<span class="fc" id="L150">            return null;</span>
+<span class="fc" id="L145">            return null;</span>
         }
     }
 
     private boolean requiresDbmsService(DbmsVendor dbmsVendor) {
-<span class="fc bfc" id="L155" title="All 2 branches covered.">        return !Set.of(DbmsVendor.NONE, DbmsVendor.EMBEDDED).contains(dbmsVendor);</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        return !Set.of(DbmsVendor.NONE, DbmsVendor.EMBEDDED).contains(dbmsVendor);</span>
     }
 
     private ProvidedSsoCapability provideSso() throws TimeoutException {
-<span class="fc" id="L159">        return new ProvidedSsoCapability(capabilityProvider</span>
-<span class="fc" id="L160">                .provideCapability(entandoApp.get(), new CapabilityRequirementBuilder()</span>
-<span class="fc" id="L161">                        .withCapability(StandardCapability.SSO)</span>
-<span class="fc" id="L162">                        .withPreferredDbms(determineDbmsForSso())</span>
-<span class="fc" id="L163">                        .withPreferredIngressHostName(entandoApp.get().getSpec().getIngressHostName().orElse(null))</span>
-<span class="fc" id="L164">                        .withPreferredTlsSecretName(entandoApp.get().getSpec().getTlsSecretName().orElse(null))</span>
-<span class="fc" id="L165">                        .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.CLUSTER)</span>
-<span class="fc" id="L166">                        .build(), 240));</span>
+<span class="fc" id="L154">        final CapabilityProvisioningResult capabilityResult = capabilityProvider</span>
+<span class="fc" id="L155">                .provideCapability(entandoApp.get(), new CapabilityRequirementBuilder()</span>
+<span class="fc" id="L156">                        .withCapability(StandardCapability.SSO)</span>
+<span class="fc" id="L157">                        .withPreferredDbms(determineDbmsForSso())</span>
+<span class="fc" id="L158">                        .withPreferredIngressHostName(entandoApp.get().getSpec().getIngressHostName().orElse(null))</span>
+<span class="fc" id="L159">                        .withPreferredTlsSecretName(entandoApp.get().getSpec().getTlsSecretName().orElse(null))</span>
+<span class="fc" id="L160">                        .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.CLUSTER)</span>
+<span class="fc" id="L161">                        .build(), 240);</span>
+<span class="fc" id="L162">        capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
+<span class="fc" id="L163">            throw new EntandoControllerException(format(&quot;Could not prepare SSO for EntandoApp %s/%s\n%s&quot;, entandoApp.get()</span>
+<span class="fc" id="L164">                            .getMetadata().getNamespace(), entandoApp.get()</span>
+<span class="fc" id="L165">                            .getMetadata().getName(),</span>
+<span class="fc" id="L166">                    f.getDetailMessage()));</span>
+        });
+<span class="fc" id="L168">        return new ProvidedSsoCapability(capabilityResult);</span>
     }
 
     private DbmsVendor determineDbmsForSso() {
-<span class="fc" id="L170">        final DbmsVendor dbmsVendor = EntandoAppHelper.determineDbmsVendor(entandoApp.get());</span>
-<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if (dbmsVendor == DbmsVendor.NONE) {</span>
-<span class="nc" id="L172">            return null;</span>
+<span class="fc" id="L172">        final DbmsVendor dbmsVendor = EntandoAppHelper.determineDbmsVendor(entandoApp.get());</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">        if (dbmsVendor == DbmsVendor.NONE) {</span>
+<span class="nc" id="L174">            return null;</span>
         }
-<span class="fc" id="L174">        return dbmsVendor;</span>
+<span class="fc" id="L176">        return dbmsVendor;</span>
     }
 
 }
