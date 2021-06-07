@@ -1,0 +1,84 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    openshift.io/scc: "anyuid"
+  creationTimestamp: "2021-06-07T10:22:30Z"
+  labels:
+    pod-label: "123"
+  name: "my-pod"
+  namespace: "entando-k8s-operator-common-cmpr60"
+  resourceVersion: "201968822"
+  selfLink: "/api/v1/namespaces/entando-k8s-operator-common-cmpr60/pods/my-pod"
+  uid: "442362e8-c77a-11eb-9bde-fa163ea775ae"
+spec:
+  containers:
+  - command:
+    - "/usr/libexec/s2i/run"
+    image: "entando/test-nginx-container:latest"
+    imagePullPolicy: "Always"
+    name: "nginx"
+    ports:
+    - containerPort: 8080
+      protocol: "TCP"
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - "MKNOD"
+    terminationMessagePath: "/dev/termination-log"
+    terminationMessagePolicy: "File"
+    volumeMounts:
+    - mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      name: "default-token-h9vp6"
+      readOnly: true
+  dnsPolicy: "ClusterFirst"
+  imagePullSecrets:
+  - name: "default-dockercfg-chqwn"
+  nodeName: "openshift"
+  nodeSelector:
+    node-role.kubernetes.io/compute: "true"
+  priority: 0
+  restartPolicy: "Always"
+  schedulerName: "default-scheduler"
+  securityContext:
+    seLinuxOptions:
+      level: "s0:c22,c14"
+  serviceAccount: "default"
+  serviceAccountName: "default"
+  terminationGracePeriodSeconds: 30
+  volumes:
+  - name: "default-token-h9vp6"
+    secret:
+      defaultMode: 420
+      secretName: "default-token-h9vp6"
+status:
+  conditions:
+  - lastTransitionTime: "2021-06-07T10:22:30Z"
+    status: "True"
+    type: "Initialized"
+  - lastTransitionTime: "2021-06-07T10:22:36Z"
+    status: "True"
+    type: "Ready"
+  - status: "True"
+    type: "ContainersReady"
+  - lastTransitionTime: "2021-06-07T10:22:30Z"
+    status: "True"
+    type: "PodScheduled"
+  containerStatuses:
+  - containerID: "docker://74eef2d2b26ce348925e78b8773cc26f07470706b1b4f57a3f0f6e09d7549503"
+    image: "docker.io/entando/test-nginx-container:latest"
+    imageID: "docker-pullable://docker.io/entando/test-nginx-container@sha256:6aa6f522f5ff569c4e43e8c5d5f193eca213599f16fe0dfc7d0e357ccfc5701f"
+    lastState: {}
+    name: "nginx"
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: "2021-06-07T10:22:35Z"
+  hostIP: "54.36.53.206"
+  phase: "Running"
+  podIP: "10.128.1.42"
+  qosClass: "BestEffort"
+  startTime: "2021-06-07T10:22:30Z"

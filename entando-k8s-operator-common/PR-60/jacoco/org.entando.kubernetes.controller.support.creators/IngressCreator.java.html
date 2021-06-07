@@ -101,12 +101,12 @@ public class IngressCreator extends AbstractK8SResourceCreator {
                     ingressingDeployable);
 <span class="fc" id="L102">            this.ingress = ingressClient.createIngress(entandoCustomResource, newIngress);</span>
 <span class="fc" id="L103">        } else {</span>
-<span class="pc bpc" id="L104" title="1 of 2 branches missed.">            if (ResourceUtils.customResourceOwns(entandoCustomResource, ingress)) {</span>
-<span class="nc" id="L105">                final String host = determineIngressHost(ingressClient, ingressingDeployable);</span>
-<span class="nc" id="L106">                final List&lt;IngressTLS&gt; tls = maybeBuildTls(ingressClient, ingressingDeployable);</span>
-<span class="nc" id="L107">                this.ingress = ingressClient.editIngress(entandoCustomResource, ingressingDeployable.getIngressName())</span>
-<span class="nc" id="L108">                        .editSpec().editFirstRule().withHost(host).endRule()</span>
-<span class="nc" id="L109">                        .withTls(tls).endSpec().done();</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            if (ResourceUtils.customResourceOwns(entandoCustomResource, ingress)) {</span>
+<span class="fc" id="L105">                final String host = determineIngressHost(ingressClient, ingressingDeployable);</span>
+<span class="fc" id="L106">                final List&lt;IngressTLS&gt; tls = maybeBuildTls(ingressClient, ingressingDeployable);</span>
+<span class="fc" id="L107">                this.ingress = ingressClient.editIngress(entandoCustomResource, ingressingDeployable.getIngressName())</span>
+<span class="fc" id="L108">                        .editSpec().editFirstRule().withHost(host).endRule()</span>
+<span class="fc" id="L109">                        .withTls(tls).endSpec().done();</span>
             }
 <span class="fc" id="L111">            List&lt;IngressingPathOnPort&gt; ingressingContainers = ingressingDeployable.getContainers().stream()</span>
 <span class="fc" id="L112">                    .filter(IngressingContainer.class::isInstance).map(IngressingContainer.class::cast).collect(Collectors.toList());</span>

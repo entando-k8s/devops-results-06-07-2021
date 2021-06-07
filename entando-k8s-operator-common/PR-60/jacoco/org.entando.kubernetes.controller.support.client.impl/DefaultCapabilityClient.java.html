@@ -63,21 +63,21 @@ public class DefaultCapabilityClient implements CapabilityClient, WaitingClient 
 
     @Override
     public ProvidedCapability createCapability(ProvidedCapability capability) {
-<span class="nc" id="L66">        return client.customResources(ProvidedCapability.class).inNamespace(capability.getMetadata().getNamespace())</span>
-<span class="nc" id="L67">                .create(capability);</span>
+<span class="fc" id="L66">        return client.customResources(ProvidedCapability.class).inNamespace(capability.getMetadata().getNamespace())</span>
+<span class="fc" id="L67">                .create(capability);</span>
     }
 
     @Override
     public ProvidedCapability waitForCapabilityCompletion(ProvidedCapability capability, int timeoutSeconds) throws TimeoutException {
         try {
-<span class="pc" id="L73">            return interruptionSafe(() -&gt; client.customResources(ProvidedCapability.class)</span>
+<span class="fc" id="L73">            return interruptionSafe(() -&gt; client.customResources(ProvidedCapability.class)</span>
 <span class="fc" id="L74">                    .inNamespace(capability.getMetadata().getNamespace())</span>
 <span class="fc" id="L75">                    .withName(capability.getMetadata().getName())</span>
-<span class="pc bnc" id="L76" title="All 2 branches missed.">                    .waitUntilCondition(providedCapability -&gt; providedCapability.getStatus() != null</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">                                    &amp;&amp; providedCapability.getStatus().getPhase() != null</span>
-<span class="nc" id="L78">                                    &amp;&amp; Set.of(EntandoDeploymentPhase.IGNORED, EntandoDeploymentPhase.FAILED,</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">                    .waitUntilCondition(providedCapability -&gt; providedCapability.getStatus() != null</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">                                    &amp;&amp; providedCapability.getStatus().getPhase() != null</span>
+<span class="fc" id="L78">                                    &amp;&amp; Set.of(EntandoDeploymentPhase.IGNORED, EntandoDeploymentPhase.FAILED,</span>
                             EntandoDeploymentPhase.SUCCESSFUL)
-<span class="nc bnc" id="L80" title="All 2 branches missed.">                                    .contains(providedCapability.getStatus().getPhase()),</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">                                    .contains(providedCapability.getStatus().getPhase()),</span>
                             timeoutSeconds,
                             TimeUnit.SECONDS));
 <span class="fc" id="L83">        } catch (IllegalArgumentException e) {</span>
