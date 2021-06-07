@@ -35,8 +35,10 @@ import java.util.List;
 import java.util.Optional;
 import org.entando.kubernetes.model.common.DbmsVendor;
 import org.entando.kubernetes.model.common.EntandoResourceRequirements;
+import org.entando.kubernetes.model.common.ExpectedRole;
 import org.entando.kubernetes.model.common.KeycloakAwareSpec;
 import org.entando.kubernetes.model.common.KeycloakToUse;
+import org.entando.kubernetes.model.common.Permission;
 
 @JsonSerialize
 @JsonDeserialize
@@ -49,16 +51,16 @@ public class EntandoPluginSpec extends KeycloakAwareSpec {
 
     private String image;
     private PluginSecurityLevel securityLevel;
-<span class="pc" id="L52">    private List&lt;String&gt; connectionConfigNames = new ArrayList&lt;&gt;();</span>
-<span class="pc" id="L53">    private List&lt;ExpectedRole&gt; roles = new ArrayList&lt;&gt;();</span>
-<span class="pc" id="L54">    private List&lt;Permission&gt; permissions = new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L54">    private List&lt;String&gt; connectionConfigNames = new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L55">    private List&lt;ExpectedRole&gt; roles = new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L56">    private List&lt;Permission&gt; permissions = new ArrayList&lt;&gt;();</span>
     private String ingressPath;
     private String healthCheckPath;
-<span class="pc" id="L57">    private List&lt;String&gt; companionContainers = new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L59">    private List&lt;String&gt; companionContainers = new ArrayList&lt;&gt;();</span>
 
-<span class="nc" id="L59">    public EntandoPluginSpec() {</span>
+<span class="nc" id="L61">    public EntandoPluginSpec() {</span>
         //Needed for JSON Deserialization
-<span class="nc" id="L61">    }</span>
+<span class="nc" id="L63">    }</span>
 
     /**
      * Only for use from the builder.
@@ -84,54 +86,54 @@ public class EntandoPluginSpec extends KeycloakAwareSpec {
             @JsonProperty(&quot;resourceRequirements&quot;) EntandoResourceRequirements resourceRequirements,
             @JsonProperty(&quot;storageClass&quot;) String storageClass
     ) {
-<span class="fc" id="L87">        super(ingressHostName, tlsSecretName, replicas, dbms, serviceAccountToUse, environmentVariables, resourceRequirements,</span>
+<span class="fc" id="L89">        super(ingressHostName, tlsSecretName, replicas, dbms, serviceAccountToUse, environmentVariables, resourceRequirements,</span>
                 keycloakToUse, storageClass);
-<span class="fc" id="L89">        this.image = image;</span>
-<span class="fc" id="L90">        this.ingressPath = ingressPath;</span>
-<span class="fc" id="L91">        this.keycloakToUse = keycloakToUse;</span>
-<span class="fc" id="L92">        this.healthCheckPath = healthCheckPath;</span>
-<span class="fc" id="L93">        this.roles = coalesce(roles, this.roles);</span>
-<span class="fc" id="L94">        this.permissions = coalesce(permissions, this.permissions);</span>
-<span class="fc" id="L95">        this.connectionConfigNames = coalesce(connectionConfigNames, this.connectionConfigNames);</span>
-<span class="fc" id="L96">        this.securityLevel = securityLevel;</span>
-<span class="fc" id="L97">        this.companionContainers = coalesce(companionContainers, this.companionContainers);</span>
-<span class="fc" id="L98">    }</span>
+<span class="fc" id="L91">        this.image = image;</span>
+<span class="fc" id="L92">        this.ingressPath = ingressPath;</span>
+<span class="fc" id="L93">        this.keycloakToUse = keycloakToUse;</span>
+<span class="fc" id="L94">        this.healthCheckPath = healthCheckPath;</span>
+<span class="fc" id="L95">        this.roles = coalesce(roles, this.roles);</span>
+<span class="fc" id="L96">        this.permissions = coalesce(permissions, this.permissions);</span>
+<span class="fc" id="L97">        this.connectionConfigNames = coalesce(connectionConfigNames, this.connectionConfigNames);</span>
+<span class="fc" id="L98">        this.securityLevel = securityLevel;</span>
+<span class="fc" id="L99">        this.companionContainers = coalesce(companionContainers, this.companionContainers);</span>
+<span class="fc" id="L100">    }</span>
 
     public Optional&lt;PluginSecurityLevel&gt; getSecurityLevel() {
-<span class="fc" id="L101">        return ofNullable(securityLevel);</span>
+<span class="fc" id="L103">        return ofNullable(securityLevel);</span>
     }
 
     public String getImage() {
-<span class="fc" id="L105">        return image;</span>
+<span class="fc" id="L107">        return image;</span>
     }
 
     public List&lt;ExpectedRole&gt; getRoles() {
-<span class="fc" id="L109">        return roles;</span>
+<span class="fc" id="L111">        return roles;</span>
     }
 
     public List&lt;Permission&gt; getPermissions() {
-<span class="fc" id="L113">        return permissions;</span>
+<span class="fc" id="L115">        return permissions;</span>
     }
 
     public String getIngressPath() {
-<span class="fc" id="L117">        return ingressPath;</span>
+<span class="fc" id="L119">        return ingressPath;</span>
     }
 
     public String getHealthCheckPath() {
-<span class="fc" id="L121">        return healthCheckPath;</span>
+<span class="fc" id="L123">        return healthCheckPath;</span>
     }
 
     @Override
     public Optional&lt;KeycloakToUse&gt; getKeycloakToUse() {
-<span class="fc" id="L126">        return ofNullable(keycloakToUse);</span>
+<span class="fc" id="L128">        return ofNullable(keycloakToUse);</span>
     }
 
     public List&lt;String&gt; getConnectionConfigNames() {
-<span class="fc" id="L130">        return connectionConfigNames;</span>
+<span class="fc" id="L132">        return connectionConfigNames;</span>
     }
 
     public List&lt;String&gt; getCompanionContainers() {
-<span class="fc" id="L134">        return this.companionContainers;</span>
+<span class="fc" id="L136">        return this.companionContainers;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
