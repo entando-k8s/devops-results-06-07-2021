@@ -1,0 +1,48 @@
+--- !<EntandoApp>
+apiVersion: "entando.org/v1"
+kind: "EntandoApp"
+metadata:
+  name: "my-app"
+  namespace: "my-namespace"
+  resourceVersion: "9278572"
+  uid: "979dc3b8-55dd-4c31-93ce-6d873ae1a4e8"
+spec:
+  replicas: 1
+  environmentVariables: []
+status:
+  serverStatuses:
+    ab: !<ExposedServerStatus>
+      qualifier: "ab"
+      type: "ExposedServerStatus"
+      started: "2021-06-08T15:40:46+0000"
+      serviceName: "my-app-ab-service"
+      deploymentName: "my-app-ab-deployment"
+      podPhases:
+        my-app-ab-deployment: "Running"
+      ingressName: "my-app-ingress"
+    main: !<ExposedServerStatus>
+      qualifier: "main"
+      type: "ExposedServerStatus"
+      started: "2021-06-08T15:40:46+0000"
+      serviceName: "my-app-service"
+      deploymentName: "my-app-deployment"
+      podPhases:
+        my-app-dbprep-4e34: "Complete"
+        my-app-deployment: "Running"
+      persistentVolumeClaimPhases:
+        my-app-server-pvc: "Pending"
+      ingressName: "my-app-ingress"
+    cm: !<ExposedServerStatus>
+      qualifier: "cm"
+      type: "ExposedServerStatus"
+      started: "2021-06-08T15:40:46+0000"
+      serviceName: "my-app-cm-service"
+      deploymentName: "my-app-cm-deployment"
+      podPhases:
+        my-app-cm-deployment: "Running"
+        my-app-dbprep-a03d: "Complete"
+      persistentVolumeClaimPhases:
+        my-app-de-pvc: "Pending"
+      ingressName: "my-app-ingress"
+  phase: "successful"
+crdName: "entandoapps.entando.org"
