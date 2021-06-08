@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
+import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
 import java.util.Collection;
@@ -38,7 +39,7 @@ public interface SimpleKubernetesClient {
     Secret overwriteControllerSecret(Secret secret);
 
     default ConfigMap loadDockerImageInfoConfigMap() {
-<span class="fc" id="L41">        return findOrCreateControllerConfigMap(ControllerCoordinatorConfig.getEntandoDockerImageInfoConfigMap());</span>
+<span class="fc" id="L42">        return findOrCreateControllerConfigMap(ControllerCoordinatorConfig.getEntandoDockerImageInfoConfigMap());</span>
     }
 
     Pod startPod(Pod pod);
@@ -51,7 +52,7 @@ public interface SimpleKubernetesClient {
 
     void watchControllerConfigMap(String s, Watcher&lt;ConfigMap&gt; configMapWatcher);
 
-    void watchCustomResourceDefinitions(Watcher&lt;CustomResourceDefinition&gt; customResourceDefinitionWatcher);
+    Watch watchCustomResourceDefinitions(Watcher&lt;CustomResourceDefinition&gt; customResourceDefinitionWatcher);
 
     Collection&lt;CustomResourceDefinition&gt; loadCustomResourceDefinitionsOfInterest();
 

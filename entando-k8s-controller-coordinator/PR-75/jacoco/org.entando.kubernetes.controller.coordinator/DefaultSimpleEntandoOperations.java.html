@@ -20,10 +20,12 @@ import static java.lang.String.format;
 import static org.entando.kubernetes.controller.coordinator.CoordinatorUtils.callIoVulnerable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.model.ListOptions;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
 import io.fabric8.kubernetes.client.dsl.internal.RawCustomResourceOperationsImpl;
@@ -42,7 +44,7 @@ import org.entando.kubernetes.controller.spi.common.PodResult.State;
 
 public class DefaultSimpleEntandoOperations implements SimpleEntandoOperations {
 
-<span class="nc" id="L45">    private static final Logger LOGGER = Logger.getLogger(DefaultSimpleEntandoOperations.class.getName());</span>
+<span class="fc" id="L47">    private static final Logger LOGGER = Logger.getLogger(DefaultSimpleEntandoOperations.class.getName());</span>
 
     private final KubernetesClient client;
     private final RawCustomResourceOperationsImpl operations;
@@ -50,116 +52,118 @@ public class DefaultSimpleEntandoOperations implements SimpleEntandoOperations {
     private final CustomResourceDefinitionContext definitionContext;
 
     public DefaultSimpleEntandoOperations(KubernetesClient client, CustomResourceDefinitionContext definitionContext,
-<span class="nc" id="L53">            RawCustomResourceOperationsImpl operations, boolean anyNamespace) {</span>
-<span class="nc" id="L54">        this.client = client;</span>
-<span class="nc" id="L55">        this.definitionContext = definitionContext;</span>
-<span class="nc" id="L56">        this.operations = operations;</span>
-<span class="nc" id="L57">        this.anyNamespace = anyNamespace;</span>
-<span class="nc" id="L58">    }</span>
+<span class="fc" id="L55">            RawCustomResourceOperationsImpl operations, boolean anyNamespace) {</span>
+<span class="fc" id="L56">        this.client = client;</span>
+<span class="fc" id="L57">        this.definitionContext = definitionContext;</span>
+<span class="fc" id="L58">        this.operations = operations;</span>
+<span class="fc" id="L59">        this.anyNamespace = anyNamespace;</span>
+<span class="fc" id="L60">    }</span>
 
     @Override
     public SimpleEntandoOperations inNamespace(String namespace) {
-<span class="nc" id="L62">        return new DefaultSimpleEntandoOperations(client, definitionContext, operations.inNamespace(namespace), false);</span>
+<span class="fc" id="L64">        return new DefaultSimpleEntandoOperations(client, definitionContext, operations.inNamespace(namespace), false);</span>
     }
 
     @Override
     public SimpleEntandoOperations inAnyNamespace() {
-<span class="nc" id="L67">        return new DefaultSimpleEntandoOperations(client, definitionContext, operations.inAnyNamespace(), true);</span>
+<span class="fc" id="L69">        return new DefaultSimpleEntandoOperations(client, definitionContext, operations.inAnyNamespace(), true);</span>
     }
 
     @Override
-    public void watch(SerializedResourceWatcher observer) {
+    public Watch watch(SerializedResourceWatcher observer) {
         try {
-<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (anyNamespace) {</span>
-<span class="nc" id="L74">                operations.watch(new CustomResourceWatcher(this, observer));</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            if (anyNamespace) {</span>
+<span class="fc" id="L76">                return operations.watch((Map&lt;String, String&gt;) null, null, new CustomResourceWatcher(this, observer));</span>
             } else {
-<span class="nc" id="L76">                operations.watch(operations.getNamespace(), new CustomResourceWatcher(this, observer));</span>
+<span class="fc" id="L78">                return operations</span>
+<span class="fc" id="L79">                        .watch(operations.getNamespace(), null, null, (ListOptions) null, new CustomResourceWatcher(this, observer));</span>
             }
-<span class="nc" id="L78">        } catch (IOException e) {</span>
-<span class="nc" id="L79">            LOGGER.log(Level.SEVERE, e,</span>
-<span class="nc" id="L80">                    () -&gt; &quot;EntandoResourceObserver registration failed. Can't recover. The container should restart now.&quot;);</span>
-<span class="nc" id="L81">            Liveness.dead();</span>
-<span class="nc" id="L82">        }</span>
-<span class="nc" id="L83">    }</span>
+<span class="nc" id="L81">        } catch (IOException e) {</span>
+<span class="nc" id="L82">            LOGGER.log(Level.SEVERE, e,</span>
+<span class="nc" id="L83">                    () -&gt; &quot;EntandoResourceObserver registration failed. Can't recover. The container should restart now.&quot;);</span>
+<span class="nc" id="L84">            Liveness.dead();</span>
+        }
+<span class="nc" id="L86">        return null;</span>
+    }
 
     @Override
     @SuppressWarnings(&quot;unchecked&quot;)
     public List&lt;SerializedEntandoResource&gt; list() {
-<span class="nc" id="L88">        final List&lt;Map&lt;String, Object&gt;&gt; items = (List&lt;Map&lt;String, Object&gt;&gt;) operations.list().get(&quot;items&quot;);</span>
-<span class="nc" id="L89">        return items.stream().map(this::toResource).collect(Collectors.toList());</span>
+<span class="fc" id="L92">        final List&lt;Map&lt;String, Object&gt;&gt; items = (List&lt;Map&lt;String, Object&gt;&gt;) operations.list().get(&quot;items&quot;);</span>
+<span class="fc" id="L93">        return items.stream().map(this::toResource).collect(Collectors.toList());</span>
     }
 
     @Override
     public SerializedEntandoResource removeAnnotation(SerializedEntandoResource r, String name) {
-<span class="nc" id="L94">        return editAnnotations(r, a -&gt; a.remove(name));</span>
+<span class="fc" id="L98">        return editAnnotations(r, a -&gt; a.remove(name));</span>
     }
 
     @SuppressWarnings(&quot;unchecked&quot;)
     private SerializedEntandoResource editAnnotations(SerializedEntandoResource r, Consumer&lt;Map&lt;String, Object&gt;&gt; editAction) {
-<span class="nc" id="L99">        return callIoVulnerable(() -&gt; {</span>
-<span class="nc" id="L100">            final Map&lt;String, Object&gt; map = operations.get(r.getMetadata().getNamespace(), r.getMetadata().getName());</span>
-<span class="nc" id="L101">            final Map&lt;String, Object&gt; metadata = (Map&lt;String, Object&gt;) map.get(&quot;metadata&quot;);</span>
-<span class="nc" id="L102">            final Map&lt;String, Object&gt; annotations = (Map&lt;String, Object&gt;) metadata</span>
-<span class="nc" id="L103">                    .computeIfAbsent(&quot;annotations&quot;, key -&gt; new HashMap&lt;String, String&gt;());</span>
-<span class="nc" id="L104">            editAction.accept(annotations);</span>
-<span class="nc" id="L105">            operations.inNamespace(r.getMetadata().getNamespace()).withName(r.getMetadata().getName()).edit(map);</span>
-<span class="nc" id="L106">            return this.toResource(map);</span>
+<span class="fc" id="L103">        return callIoVulnerable(() -&gt; {</span>
+<span class="fc" id="L104">            final Map&lt;String, Object&gt; map = operations.get(r.getMetadata().getNamespace(), r.getMetadata().getName());</span>
+<span class="fc" id="L105">            final Map&lt;String, Object&gt; metadata = (Map&lt;String, Object&gt;) map.get(&quot;metadata&quot;);</span>
+<span class="fc" id="L106">            final Map&lt;String, Object&gt; annotations = (Map&lt;String, Object&gt;) metadata</span>
+<span class="fc" id="L107">                    .computeIfAbsent(&quot;annotations&quot;, key -&gt; new HashMap&lt;String, String&gt;());</span>
+<span class="fc" id="L108">            editAction.accept(annotations);</span>
+<span class="fc" id="L109">            operations.inNamespace(r.getMetadata().getNamespace()).withName(r.getMetadata().getName()).edit(map);</span>
+<span class="fc" id="L110">            return this.toResource(map);</span>
         });
     }
 
     private SerializedEntandoResource toResource(Map&lt;String, Object&gt; map) {
-<span class="nc" id="L111">        return callIoVulnerable(() -&gt; {</span>
-<span class="nc" id="L112">            ObjectMapper objectMapper = new ObjectMapper();</span>
-<span class="nc" id="L113">            return objectMapper.readValue(objectMapper.writeValueAsString(map), SerializedEntandoResource.class);</span>
+<span class="fc" id="L115">        return callIoVulnerable(() -&gt; {</span>
+<span class="fc" id="L116">            ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L117">            return objectMapper.readValue(objectMapper.writeValueAsString(map), SerializedEntandoResource.class);</span>
         });
     }
 
     @Override
     public SerializedEntandoResource putAnnotation(SerializedEntandoResource r, String name, String value) {
-<span class="nc" id="L119">        return editAnnotations(r, a -&gt; a.put(name, value));</span>
+<span class="fc" id="L123">        return editAnnotations(r, a -&gt; a.put(name, value));</span>
     }
 
     @Override
     public String getControllerNamespace() {
-<span class="nc" id="L124">        return client.getNamespace();</span>
+<span class="nc" id="L128">        return client.getNamespace();</span>
     }
 
     @Override
     public CustomResourceDefinitionContext getDefinitionContext() {
-<span class="nc" id="L129">        return this.definitionContext;</span>
+<span class="fc" id="L133">        return this.definitionContext;</span>
     }
 
     @Override
     public void removeSuccessfullyCompletedPods(SerializedEntandoResource resource) {
-<span class="nc" id="L134">        String namespace = client.getNamespace();</span>
-<span class="nc" id="L135">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(</span>
-<span class="nc" id="L136">                CoordinatorUtils.podLabelsFor(resource));</span>
+<span class="fc" id="L138">        String namespace = client.getNamespace();</span>
+<span class="fc" id="L139">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(</span>
+<span class="fc" id="L140">                CoordinatorUtils.podLabelsFor(resource));</span>
         try {
-<span class="nc" id="L138">            waitForCompletionOfPods(podResource);</span>
-<span class="nc" id="L139">            removePodsAndWait(podResource);</span>
-<span class="nc" id="L140">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L141">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L142">            throw new IllegalStateException(e);</span>
-<span class="nc" id="L143">        }</span>
-<span class="nc" id="L144">    }</span>
+<span class="fc" id="L142">            waitForCompletionOfPods(podResource);</span>
+<span class="fc" id="L143">            removePodsAndWait(podResource);</span>
+<span class="nc" id="L144">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L145">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L146">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L147">        }</span>
+<span class="fc" id="L148">    }</span>
 
     private void removePodsAndWait(FilterWatchListDeletable&lt;Pod, PodList&gt; podResource) throws InterruptedException {
-<span class="nc" id="L147">        podResource.delete();</span>
-<span class="nc" id="L148">        podResource.waitUntilCondition(ignore -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="nc" id="L149">                ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
-<span class="nc" id="L150">    }</span>
+<span class="fc" id="L151">        podResource.delete();</span>
+<span class="fc" id="L152">        podResource.waitUntilCondition(ignore -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="fc" id="L153">                ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
+<span class="fc" id="L154">    }</span>
 
     private void waitForCompletionOfPods(FilterWatchListDeletable&lt;Pod, PodList&gt; podResource) throws InterruptedException {
         try {
-<span class="nc" id="L154">            podResource.waitUntilCondition(</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">                    ignored -&gt; podResource.list().getItems().stream().allMatch(pod -&gt; PodResult.of(pod).getState() == State.COMPLETED),</span>
-<span class="nc" id="L156">                    ControllerCoordinatorConfig.getRemovalDelay(), TimeUnit.SECONDS);</span>
-<span class="nc" id="L157">        } catch (KubernetesClientException e) {</span>
-<span class="nc" id="L158">            LOGGER.log(Level.WARNING, () -&gt; format(</span>
+<span class="fc" id="L158">            podResource.waitUntilCondition(</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">                    ignored -&gt; podResource.list().getItems().stream().allMatch(pod -&gt; PodResult.of(pod).getState() == State.COMPLETED),</span>
+<span class="fc" id="L160">                    ControllerCoordinatorConfig.getRemovalDelay(), TimeUnit.SECONDS);</span>
+<span class="nc" id="L161">        } catch (KubernetesClientException e) {</span>
+<span class="nc" id="L162">            LOGGER.log(Level.WARNING, () -&gt; format(</span>
                     &quot;Some pods remained active after the removal delay period. You can consider increasing the setting %s &quot;,
-<span class="nc" id="L160">                    ControllerCoordinatorProperty.ENTANDO_K8S_CONTROLLER_REMOVAL_DELAY.getJvmSystemProperty()));</span>
-<span class="nc" id="L161">        }</span>
-<span class="nc" id="L162">    }</span>
+<span class="nc" id="L164">                    ControllerCoordinatorProperty.ENTANDO_K8S_CONTROLLER_REMOVAL_DELAY.getJvmSystemProperty()));</span>
+<span class="fc" id="L165">        }</span>
+<span class="fc" id="L166">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

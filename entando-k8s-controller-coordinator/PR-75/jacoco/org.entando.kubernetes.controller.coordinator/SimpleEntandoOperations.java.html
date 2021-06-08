@@ -19,12 +19,14 @@ package org.entando.kubernetes.controller.coordinator;
 import static org.entando.kubernetes.controller.coordinator.CoordinatorUtils.callIoVulnerable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.entando.kubernetes.controller.spi.client.SerializedEntandoResource;
 
 public interface SimpleEntandoOperations {
@@ -33,7 +35,7 @@ public interface SimpleEntandoOperations {
 
     SimpleEntandoOperations inAnyNamespace();
 
-    void watch(SerializedResourceWatcher rldEntandoResourceObserver);
+    Watch watch(SerializedResourceWatcher rldEntandoResourceObserver);
 
     List&lt;SerializedEntandoResource&gt; list();
 
@@ -49,36 +51,36 @@ public interface SimpleEntandoOperations {
 
     class CustomResourceWatcher implements Watcher&lt;String&gt; {
 
-<span class="fc" id="L52">        private static final LogDelegator LOGGER = new LogDelegator(CustomResourceWatcher.class);</span>
+<span class="fc" id="L54">        private static final Logger LOGGER = Logger.getLogger(CustomResourceWatcher.class.getName());</span>
         private final SimpleEntandoOperations operations;
         private final SerializedResourceWatcher observer;
 
-<span class="fc" id="L56">        public CustomResourceWatcher(SimpleEntandoOperations operations, SerializedResourceWatcher observer) {</span>
-<span class="fc" id="L57">            this.operations = operations;</span>
-<span class="fc" id="L58">            this.observer = observer;</span>
-<span class="fc" id="L59">        }</span>
+<span class="fc" id="L58">        public CustomResourceWatcher(SimpleEntandoOperations operations, SerializedResourceWatcher observer) {</span>
+<span class="fc" id="L59">            this.operations = operations;</span>
+<span class="fc" id="L60">            this.observer = observer;</span>
+<span class="fc" id="L61">        }</span>
 
         @Override
         public void eventReceived(Action action, String s) {
-<span class="fc" id="L63">            callIoVulnerable(() -&gt; {</span>
-<span class="fc" id="L64">                final SerializedEntandoResource r = new ObjectMapper().readValue(s, SerializedEntandoResource.class);</span>
-<span class="fc" id="L65">                r.setDefinition(operations.getDefinitionContext());</span>
-<span class="fc" id="L66">                observer.eventReceived(action, r);</span>
-<span class="fc" id="L67">                return null;</span>
+<span class="fc" id="L65">            callIoVulnerable(() -&gt; {</span>
+<span class="fc" id="L66">                final SerializedEntandoResource r = new ObjectMapper().readValue(s, SerializedEntandoResource.class);</span>
+<span class="fc" id="L67">                r.setDefinition(operations.getDefinitionContext());</span>
+<span class="fc" id="L68">                observer.eventReceived(action, r);</span>
+<span class="fc" id="L69">                return null;</span>
             });
 
-<span class="fc" id="L70">        }</span>
+<span class="fc" id="L72">        }</span>
 
         @Override
         public void onClose(WatcherException cause) {
-<span class="pc bpc" id="L74" title="3 of 4 branches missed.">            if (cause.getMessage().contains(&quot;resourceVersion&quot;) &amp;&amp; cause.getMessage().contains(&quot;too old&quot;)) {</span>
-<span class="nc" id="L75">                LOGGER.log(Level.WARNING, () -&gt; &quot;EntandoResourceObserver closed due to out of date resourceVersion. Reconnecting ... &quot;);</span>
-<span class="nc" id="L76">                operations.watch(observer);</span>
+<span class="pc bpc" id="L76" title="3 of 4 branches missed.">            if (cause.getMessage().contains(&quot;resourceVersion&quot;) &amp;&amp; cause.getMessage().contains(&quot;too old&quot;)) {</span>
+<span class="nc" id="L77">                LOGGER.log(Level.WARNING, () -&gt; &quot;EntandoResourceObserver closed due to out of date resourceVersion. Reconnecting ... &quot;);</span>
+<span class="nc" id="L78">                operations.watch(observer);</span>
             } else {
-<span class="fc" id="L78">                LOGGER.log(Level.SEVERE, cause, () -&gt; &quot;EntandoResourceObserver closed. Can't reconnect. The container should restart now.&quot;);</span>
-<span class="fc" id="L79">                Liveness.dead();</span>
+<span class="fc" id="L80">                LOGGER.log(Level.SEVERE, cause, () -&gt; &quot;EntandoResourceObserver closed. Can't reconnect. The container should restart now.&quot;);</span>
+<span class="fc" id="L81">                Liveness.dead();</span>
             }
-<span class="fc" id="L81">        }</span>
+<span class="fc" id="L83">        }</span>
 
     }
 

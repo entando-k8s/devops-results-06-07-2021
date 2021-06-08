@@ -100,16 +100,17 @@ public class ControllerExecutor {
 <span class="fc" id="L100">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAMESPACE.name(), resource.getMetadata().getNamespace(),</span>
                 null));
 <span class="fc" id="L102">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAME.name(), resource.getMetadata().getName(), null));</span>
-<span class="fc" id="L103">        return new ArrayList&lt;&gt;(result.values());</span>
+<span class="fc" id="L103">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_KIND.name(), resource.getKind(), null));</span>
+<span class="fc" id="L104">        return new ArrayList&lt;&gt;(result.values());</span>
     }
 
     private boolean matchesKnownEnvironmentVariable(Map.Entry&lt;String, String&gt; objectObjectEntry) {
-<span class="pc bpc" id="L107" title="1 of 4 branches missed.">        return objectObjectEntry.getKey().startsWith(&quot;RELATED_IMAGE&quot;) || objectObjectEntry.getKey().startsWith(&quot;ENTANDO_&quot;);</span>
+<span class="pc bpc" id="L108" title="1 of 4 branches missed.">        return objectObjectEntry.getKey().startsWith(&quot;RELATED_IMAGE&quot;) || objectObjectEntry.getKey().startsWith(&quot;ENTANDO_&quot;);</span>
     }
 
     private boolean matchesKnownSystemProperty(Map.Entry&lt;Object, Object&gt; objectObjectEntry) {
-<span class="fc" id="L111">        String propertyName = objectObjectEntry.getKey().toString().toLowerCase(Locale.ROOT).replace(&quot;_&quot;, &quot;.&quot;);</span>
-<span class="pc bpc" id="L112" title="1 of 4 branches missed.">        return propertyName.startsWith(&quot;related.image&quot;) || propertyName.startsWith(&quot;entando.&quot;);</span>
+<span class="fc" id="L112">        String propertyName = objectObjectEntry.getKey().toString().toLowerCase(Locale.ROOT).replace(&quot;_&quot;, &quot;.&quot;);</span>
+<span class="pc bpc" id="L113" title="1 of 4 branches missed.">        return propertyName.startsWith(&quot;related.image&quot;) || propertyName.startsWith(&quot;entando.&quot;);</span>
     }
 
 }
