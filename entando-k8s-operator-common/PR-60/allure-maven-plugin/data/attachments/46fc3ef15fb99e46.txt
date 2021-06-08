@@ -1,0 +1,37 @@
+---
+apiVersion: "v1"
+kind: "Event"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "my-namespace"
+    TestResource: "my-app"
+  name: "my-app-87700492"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "d80844d5-2122-4624-86db-2e130cf0238f"
+action: "FAILED"
+count: 1
+firstTimestamp: "2021-06-08T14:57:05Z"
+involvedObject:
+  apiVersion: "test.org/v1"
+  kind: "TestResource"
+  fieldPath: "status"
+  name: "my-app"
+  namespace: "my-namespace"
+  resourceVersion: "4954224"
+  uid: "d80844d5-2122-4624-86db-2e130cf0238f"
+lastTimestamp: "2021-06-08T14:57:05Z"
+message: "The deployment of TestResource my-namespace/my-app failed due to Database\
+  \ preparation failed. Please inspect the logs of the pod my-namespace/my-app-dbprep-0edb.\
+  \ Fix the root cause and then trigger a redeployment by adding the annotation 'entando.org/processing-instruction:\
+  \ force'"
+reason: "Failed"
+source:
+  component: "entando-k8s-ource-controller"
+type: "Error"

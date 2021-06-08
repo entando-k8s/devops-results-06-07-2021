@@ -172,67 +172,65 @@ public interface KubernetesClientForControllers {
 
     default &lt;T extends EntandoCustomResource&gt; T deploymentEnded(T customResource) {
 <span class="fc" id="L174">        return issueEventAndPerformStatusUpdate(customResource,</span>
-                t -&gt; {
-<span class="fc" id="L176">                    t.getStatus().updateDeploymentPhase(t.getStatus().calculateFinalPhase(), t.getMetadata().getGeneration());</span>
-<span class="fc" id="L177">                },</span>
-<span class="fc" id="L178">                e -&gt; e.withType(&quot;Normal&quot;)</span>
-<span class="fc" id="L179">                        .withReason(&quot;PhaseUpdated&quot;)</span>
-<span class="fc" id="L180">                        .withMessage(format(&quot;The deployment of %s  %s/%s was updated  to %s&quot;,</span>
-<span class="fc" id="L181">                                customResource.getKind(),</span>
-<span class="fc" id="L182">                                customResource.getMetadata().getNamespace(),</span>
-<span class="fc" id="L183">                                customResource.getMetadata().getName(),</span>
-<span class="fc" id="L184">                                customResource.getStatus().calculateFinalPhase().name()))</span>
-<span class="fc" id="L185">                        .withAction(&quot;PHASE_CHANGE&quot;)</span>
+<span class="fc" id="L175">                t -&gt; t.getStatus().updateDeploymentPhase(t.getStatus().calculateFinalPhase(), t.getMetadata().getGeneration()),</span>
+<span class="fc" id="L176">                e -&gt; e.withType(&quot;Normal&quot;)</span>
+<span class="fc" id="L177">                        .withReason(&quot;PhaseUpdated&quot;)</span>
+<span class="fc" id="L178">                        .withMessage(format(&quot;The deployment of %s  %s/%s was updated  to %s&quot;,</span>
+<span class="fc" id="L179">                                customResource.getKind(),</span>
+<span class="fc" id="L180">                                customResource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L181">                                customResource.getMetadata().getName(),</span>
+<span class="fc" id="L182">                                customResource.getStatus().calculateFinalPhase().name()))</span>
+<span class="fc" id="L183">                        .withAction(&quot;PHASE_CHANGE&quot;)</span>
         );
     }
 
     default &lt;T extends EntandoCustomResource&gt; T updatePhase(T customResource, EntandoDeploymentPhase phase) {
-<span class="fc" id="L190">        return issueEventAndPerformStatusUpdate(customResource,</span>
+<span class="fc" id="L188">        return issueEventAndPerformStatusUpdate(customResource,</span>
                 t -&gt; {
-<span class="fc" id="L192">                    t.getStatus().updateDeploymentPhase(phase, t.getMetadata().getGeneration());</span>
-<span class="pc bpc" id="L193" title="1 of 4 branches missed.">                    if (phase == EntandoDeploymentPhase.STARTED &amp;&amp; t.getStatus().hasFailed()) {</span>
-<span class="nc" id="L194">                        t.getStatus().getServerStatuses().forEach(s -&gt; s.setEntandoControllerFailure(null));</span>
+<span class="fc" id="L190">                    t.getStatus().updateDeploymentPhase(phase, t.getMetadata().getGeneration());</span>
+<span class="pc bpc" id="L191" title="1 of 4 branches missed.">                    if (phase == EntandoDeploymentPhase.STARTED &amp;&amp; t.getStatus().hasFailed()) {</span>
+<span class="nc" id="L192">                        t.getStatus().getServerStatuses().forEach(s -&gt; s.setEntandoControllerFailure(null));</span>
                     }
-<span class="fc" id="L196">                },</span>
-<span class="fc" id="L197">                e -&gt; e.withType(&quot;Normal&quot;)</span>
-<span class="fc" id="L198">                        .withReason(&quot;PhaseUpdated&quot;)</span>
-<span class="fc" id="L199">                        .withMessage(format(&quot;The deployment of %s  %s/%s was updated  to %s&quot;,</span>
-<span class="fc" id="L200">                                customResource.getKind(),</span>
-<span class="fc" id="L201">                                customResource.getMetadata().getNamespace(),</span>
-<span class="fc" id="L202">                                customResource.getMetadata().getName(),</span>
-<span class="fc" id="L203">                                phase.name()))</span>
-<span class="fc" id="L204">                        .withAction(&quot;PHASE_CHANGE&quot;)</span>
+<span class="fc" id="L194">                },</span>
+<span class="fc" id="L195">                e -&gt; e.withType(&quot;Normal&quot;)</span>
+<span class="fc" id="L196">                        .withReason(&quot;PhaseUpdated&quot;)</span>
+<span class="fc" id="L197">                        .withMessage(format(&quot;The deployment of %s  %s/%s was updated  to %s&quot;,</span>
+<span class="fc" id="L198">                                customResource.getKind(),</span>
+<span class="fc" id="L199">                                customResource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L200">                                customResource.getMetadata().getName(),</span>
+<span class="fc" id="L201">                                phase.name()))</span>
+<span class="fc" id="L202">                        .withAction(&quot;PHASE_CHANGE&quot;)</span>
         );
     }
 
     default &lt;T extends EntandoCustomResource&gt; T deploymentFailed(T customResource, Exception reason, String serverQualifier) {
-<span class="fc" id="L209">        return issueEventAndPerformStatusUpdate(customResource,</span>
+<span class="fc" id="L207">        return issueEventAndPerformStatusUpdate(customResource,</span>
                 t -&gt; {
-<span class="fc" id="L211">                    String qualifierToUse = ofNullable(serverQualifier).orElse(NameUtils.MAIN_QUALIFIER);</span>
-<span class="fc bfc" id="L212" title="All 2 branches covered.">                    if (t.getStatus().getServerStatus(qualifierToUse).isEmpty()) {</span>
-<span class="fc" id="L213">                        t.getStatus().putServerStatus(new InternalServerStatus(qualifierToUse));</span>
+<span class="fc" id="L209">                    String qualifierToUse = ofNullable(serverQualifier).orElse(NameUtils.MAIN_QUALIFIER);</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">                    if (t.getStatus().getServerStatus(qualifierToUse).isEmpty()) {</span>
+<span class="fc" id="L211">                        t.getStatus().putServerStatus(new InternalServerStatus(qualifierToUse));</span>
                     }
-<span class="pc bpc" id="L215" title="1 of 2 branches missed.">                    t.getStatus().getServerStatus(qualifierToUse).filter(status -&gt; !status.hasFailed())</span>
-<span class="fc" id="L216">                            .ifPresent(</span>
-<span class="fc" id="L217">                                    newStatus -&gt; newStatus.finishWith(new EntandoControllerFailureBuilder()</span>
-<span class="fc" id="L218">                                            .withException(reason)</span>
-<span class="fc" id="L219">                                            .withFailedObjectName(customResource.getMetadata().getNamespace(),</span>
-<span class="fc" id="L220">                                                    customResource.getMetadata().getName())</span>
-<span class="fc" id="L221">                                            .withFailedObjectType(customResource.getKind())</span>
-<span class="fc" id="L222">                                            .build()));</span>
-<span class="fc" id="L223">                    t.getStatus().updateDeploymentPhase(EntandoDeploymentPhase.FAILED, t.getMetadata().getGeneration());</span>
-<span class="fc" id="L224">                },</span>
-<span class="fc" id="L225">                e -&gt; e.withType(&quot;Error&quot;)</span>
-<span class="fc" id="L226">                        .withReason(&quot;Failed&quot;)</span>
-<span class="fc" id="L227">                        .withMessage(</span>
-<span class="fc" id="L228">                                format(&quot;The deployment of %s %s/%s failed due to %s. Fix the root cause and then trigger a &quot;</span>
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">                    t.getStatus().getServerStatus(qualifierToUse).filter(status -&gt; !status.hasFailed())</span>
+<span class="fc" id="L214">                            .ifPresent(</span>
+<span class="fc" id="L215">                                    newStatus -&gt; newStatus.finishWith(new EntandoControllerFailureBuilder()</span>
+<span class="fc" id="L216">                                            .withException(reason)</span>
+<span class="fc" id="L217">                                            .withFailedObjectName(customResource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L218">                                                    customResource.getMetadata().getName())</span>
+<span class="fc" id="L219">                                            .withFailedObjectType(customResource.getKind())</span>
+<span class="fc" id="L220">                                            .build()));</span>
+<span class="fc" id="L221">                    t.getStatus().updateDeploymentPhase(EntandoDeploymentPhase.FAILED, t.getMetadata().getGeneration());</span>
+<span class="fc" id="L222">                },</span>
+<span class="fc" id="L223">                e -&gt; e.withType(&quot;Error&quot;)</span>
+<span class="fc" id="L224">                        .withReason(&quot;Failed&quot;)</span>
+<span class="fc" id="L225">                        .withMessage(</span>
+<span class="fc" id="L226">                                format(&quot;The deployment of %s %s/%s failed due to %s. Fix the root cause and then trigger a &quot;</span>
                                                 + &quot;redeployment &quot;
                                                 + &quot;by adding the annotation 'entando.org/processing-instruction: force'&quot;,
-<span class="fc" id="L231">                                        customResource.getKind(),</span>
-<span class="fc" id="L232">                                        customResource.getMetadata().getNamespace(),</span>
-<span class="fc" id="L233">                                        customResource.getMetadata().getName(),</span>
-<span class="fc" id="L234">                                        reason.getMessage()))</span>
-<span class="fc" id="L235">                        .withAction(&quot;FAILED&quot;)</span>
+<span class="fc" id="L229">                                        customResource.getKind(),</span>
+<span class="fc" id="L230">                                        customResource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L231">                                        customResource.getMetadata().getName(),</span>
+<span class="fc" id="L232">                                        reason.getMessage()))</span>
+<span class="fc" id="L233">                        .withAction(&quot;FAILED&quot;)</span>
         );
     }
 
