@@ -100,21 +100,21 @@ public class DefaultCapabilityClient implements CapabilityClient, WaitingClient 
 
     @Override
     public SerializedCapabilityProvisioningResult buildCapabilityProvisioningResult(ProvidedCapability providedCapability) {
-<span class="nc" id="L103">        final AbstractServerStatus serverStatus = providedCapability.getStatus().findCurrentServerStatus()</span>
-<span class="nc" id="L104">                .orElseThrow(IllegalStateException::new);</span>
-<span class="nc" id="L105">        Service service = ofNullable(serverStatus.getServiceName())</span>
-<span class="nc" id="L106">                .map(s -&gt; client.services().inNamespace(providedCapability.getMetadata().getNamespace())</span>
-<span class="nc" id="L107">                        .withName(s).get()).orElse(null);</span>
-<span class="nc" id="L108">        Secret adminSecret = serverStatus.getAdminSecretName()</span>
-<span class="nc" id="L109">                .map(s -&gt; client.secrets().inNamespace(providedCapability.getMetadata().getNamespace()).withName(s).get())</span>
-<span class="nc" id="L110">                .orElse(null);</span>
-<span class="nc" id="L111">        Ingress ingress = null;</span>
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (serverStatus instanceof ExposedServerStatus) {</span>
-<span class="nc" id="L113">            ingress = ofNullable(((ExposedServerStatus) serverStatus).getIngressName())</span>
-<span class="nc" id="L114">                    .map(s -&gt; client.extensions().ingresses().inNamespace(providedCapability.getMetadata().getNamespace())</span>
-<span class="nc" id="L115">                            .withName(s).get()).orElse(null);</span>
+<span class="fc" id="L103">        final AbstractServerStatus serverStatus = providedCapability.getStatus().findCurrentServerStatus()</span>
+<span class="fc" id="L104">                .orElseThrow(IllegalStateException::new);</span>
+<span class="fc" id="L105">        Service service = ofNullable(serverStatus.getServiceName())</span>
+<span class="fc" id="L106">                .map(s -&gt; client.services().inNamespace(providedCapability.getMetadata().getNamespace())</span>
+<span class="fc" id="L107">                        .withName(s).get()).orElse(null);</span>
+<span class="fc" id="L108">        Secret adminSecret = serverStatus.getAdminSecretName()</span>
+<span class="fc" id="L109">                .map(s -&gt; client.secrets().inNamespace(providedCapability.getMetadata().getNamespace()).withName(s).get())</span>
+<span class="fc" id="L110">                .orElse(null);</span>
+<span class="fc" id="L111">        Ingress ingress = null;</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        if (serverStatus instanceof ExposedServerStatus) {</span>
+<span class="fc" id="L113">            ingress = ofNullable(((ExposedServerStatus) serverStatus).getIngressName())</span>
+<span class="fc" id="L114">                    .map(s -&gt; client.extensions().ingresses().inNamespace(providedCapability.getMetadata().getNamespace())</span>
+<span class="fc" id="L115">                            .withName(s).get()).orElse(null);</span>
         }
-<span class="nc" id="L117">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
+<span class="fc" id="L117">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
