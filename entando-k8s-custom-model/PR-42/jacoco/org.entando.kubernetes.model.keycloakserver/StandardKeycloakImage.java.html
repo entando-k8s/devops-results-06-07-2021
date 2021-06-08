@@ -18,24 +18,20 @@ package org.entando.kubernetes.model.keycloakserver;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.fabric8.zjsonpatch.internal.guava.Strings;
-import java.util.Locale;
+import org.entando.kubernetes.model.common.NamedEnum;
 
-<span class="fc" id="L24">public enum StandardKeycloakImage {</span>
-<span class="fc" id="L25">    KEYCLOAK,</span>
-<span class="fc" id="L26">    REDHAT_SSO;</span>
+<span class="fc" id="L23">public enum StandardKeycloakImage implements NamedEnum {</span>
+<span class="fc" id="L24">    KEYCLOAK,</span>
+<span class="fc" id="L25">    REDHAT_SSO;</span>
 
     @JsonValue
     public String toValue() {
-<span class="fc" id="L30">        return name().toLowerCase().replace(&quot;_&quot;, &quot;-&quot;);</span>
+<span class="fc" id="L29">        return name().toLowerCase().replace(&quot;_&quot;, &quot;-&quot;);</span>
     }
 
     @JsonCreator
     public StandardKeycloakImage fromValue(String value) {
-<span class="nc bnc" id="L35" title="All 2 branches missed.">        if (Strings.isNullOrEmpty(value)) {</span>
-<span class="nc" id="L36">            return null;</span>
-        }
-<span class="nc" id="L38">        return valueOf(value.toUpperCase(Locale.getDefault()).replace(&quot;-&quot;, &quot;_&quot;));</span>
+<span class="nc" id="L34">        return NamedEnum.resolve(values(), value);</span>
     }
 
 }

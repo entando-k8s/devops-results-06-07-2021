@@ -18,34 +18,28 @@ package org.entando.kubernetes.model.capability;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.base.Strings;
-import java.util.Arrays;
 import org.entando.kubernetes.model.common.NamedEnum;
 
-<span class="fc" id="L25">public enum CapabilityScope implements NamedEnum {</span>
+<span class="fc" id="L23">public enum CapabilityScope implements NamedEnum {</span>
     /*resolved using customResource.metadata.name + &quot;-&quot; + standardCapbility.getSuffix()*/
-<span class="fc" id="L27">    DEDICATED,</span>
+<span class="fc" id="L25">    DEDICATED,</span>
     /*resolved using requiredCapability.specifiedCapability*/
-<span class="fc" id="L29">    SPECIFIED,</span>
+<span class="fc" id="L27">    SPECIFIED,</span>
     /*resolved using the first capability found in the same namespace with a matching implementation*/
-<span class="fc" id="L31">    NAMESPACE,</span>
+<span class="fc" id="L29">    NAMESPACE,</span>
     /*resolved using the first capability found with the matching labels and a matching implementation*/
-<span class="fc" id="L33">    LABELED,</span>
+<span class="fc" id="L31">    LABELED,</span>
     /*resolved using the first capability found in the cluster with a matching implementation and operatorId*/
-<span class="fc" id="L35">    CLUSTER;</span>
+<span class="fc" id="L33">    CLUSTER;</span>
 
     @JsonValue
     public String toValue() {
-<span class="fc" id="L39">        return getCamelCaseName();</span>
+<span class="fc" id="L37">        return getCamelCaseName();</span>
     }
 
     @JsonCreator
     public static CapabilityScope forValue(String value) {
-<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if (Strings.isNullOrEmpty(value)) {</span>
-<span class="nc" id="L45">            return null;</span>
-        }
-<span class="fc" id="L47">        return Arrays.stream(values()).filter(c -&gt; c.getCamelCaseName().equals(value)).findFirst()</span>
-<span class="fc" id="L48">                .orElseThrow(IllegalArgumentException::new);</span>
+<span class="fc" id="L42">        return NamedEnum.resolve(values(), value);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

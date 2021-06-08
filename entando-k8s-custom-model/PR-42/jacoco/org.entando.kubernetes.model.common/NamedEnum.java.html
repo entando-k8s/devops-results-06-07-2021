@@ -17,17 +17,32 @@
 package org.entando.kubernetes.model.common;
 
 import com.google.common.base.CaseFormat;
+import java.util.Locale;
 
 public interface NamedEnum {
 
     String name();
 
     default String getCamelCaseName() {
-<span class="fc" id="L26">        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());</span>
+<span class="fc" id="L27">        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());</span>
     }
 
-    default String getHypenatedName() {
-<span class="nc" id="L30">        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN, name());</span>
+    default String getHyphenatedName() {
+<span class="nc" id="L31">        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN, name());</span>
     }
+
+    static &lt;T extends NamedEnum&gt; T resolve(T[] values, String name) {
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">        if (name == null) {</span>
+<span class="nc" id="L36">            return null;</span>
+        }
+<span class="fc" id="L38">        String nameToMatch = name.toLowerCase(Locale.ROOT).replaceAll(&quot;[^a-z\\d]&quot;, &quot;&quot;);</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        for (T value : values) {</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">            if (nameToMatch.equals(value.name().toLowerCase(Locale.ROOT).replaceAll(&quot;[^a-z\\d]&quot;, &quot;&quot;))) {</span>
+<span class="fc" id="L41">                return value;</span>
+            }
+        }
+<span class="nc" id="L44">        return null;</span>
+    }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -18,27 +18,21 @@ package org.entando.kubernetes.model.capability;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.base.Strings;
-import java.util.Arrays;
 import org.entando.kubernetes.model.common.NamedEnum;
 
-<span class="fc" id="L25">public enum CapabilityProvisioningStrategy implements NamedEnum {</span>
-<span class="fc" id="L26">    USE_EXTERNAL,</span>
-<span class="fc" id="L27">    DEPLOY_DIRECTLY,</span>
-<span class="fc" id="L28">    DELEGATE_TO_OPERATOR;</span>
+<span class="fc" id="L23">public enum CapabilityProvisioningStrategy implements NamedEnum {</span>
+<span class="fc" id="L24">    USE_EXTERNAL,</span>
+<span class="fc" id="L25">    DEPLOY_DIRECTLY,</span>
+<span class="fc" id="L26">    DELEGATE_TO_OPERATOR;</span>
 
     @JsonCreator
     public static CapabilityProvisioningStrategy forValue(String value) {
-<span class="pc bpc" id="L32" title="1 of 2 branches missed.">        if (Strings.isNullOrEmpty(value)) {</span>
-<span class="nc" id="L33">            return null;</span>
-        }
-<span class="fc" id="L35">        return Arrays.stream(values()).filter(c -&gt; c.getCamelCaseName().equals(value)).findFirst()</span>
-<span class="fc" id="L36">                .orElseThrow(IllegalArgumentException::new);</span>
+<span class="fc" id="L30">        return NamedEnum.resolve(values(), value);</span>
     }
 
     @JsonValue
     public String toValue() {
-<span class="fc" id="L41">        return getCamelCaseName();</span>
+<span class="fc" id="L35">        return getCamelCaseName();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -51,10 +51,11 @@ public class EntandoKeycloakServerSpec extends EntandoIngressingDeploymentSpec {
     private CapabilityProvisioningStrategy provisioningStrategy;
     private String adminSecretName;
     private CapabilityScope providedCapabilityScope;
+    private String defaultRealm;
 
     public EntandoKeycloakServerSpec() {
-<span class="nc" id="L56">        super();</span>
-<span class="nc" id="L57">    }</span>
+<span class="nc" id="L57">        super();</span>
+<span class="nc" id="L58">    }</span>
 
     @JsonCreator
     public EntandoKeycloakServerSpec(
@@ -72,44 +73,50 @@ public class EntandoKeycloakServerSpec extends EntandoIngressingDeploymentSpec {
             @JsonProperty(&quot;environmentVariables&quot;) List&lt;EnvVar&gt; environmentVariables,
             @JsonProperty(&quot;resourceRequirements&quot;) EntandoResourceRequirements resourceRequirements,
             @JsonProperty(&quot;storageClass&quot;) String storageClass,
-            @JsonProperty(&quot;providedCapabilityScope&quot;) CapabilityScope providedCapabilityScope) {
-<span class="fc" id="L76">        super(ingressHostName, tlsSecretName, replicas, dbms, serviceAccountToUse, environmentVariables, resourceRequirements,</span>
+            @JsonProperty(&quot;providedCapabilityScope&quot;) CapabilityScope providedCapabilityScope,
+            @JsonProperty(&quot;defaultRealm&quot;) String defaultRealm) {
+<span class="fc" id="L78">        super(ingressHostName, tlsSecretName, replicas, dbms, serviceAccountToUse, environmentVariables, resourceRequirements,</span>
                 storageClass);
-<span class="fc" id="L78">        this.customImage = customImage;</span>
-<span class="fc" id="L79">        this.standardImage = standardImage;</span>
-<span class="fc" id="L80">        this.frontEndUrl = frontEndUrl;</span>
-<span class="fc" id="L81">        this.provisioningStrategy = provisioningStrategy;</span>
-<span class="fc" id="L82">        this.adminSecretName = adminSecretName;</span>
-<span class="fc" id="L83">        this.isDefault = Boolean.TRUE.equals(isDefault);</span>
-<span class="fc" id="L84">        this.providedCapabilityScope = providedCapabilityScope;</span>
-<span class="fc" id="L85">    }</span>
+<span class="fc" id="L80">        this.customImage = customImage;</span>
+<span class="fc" id="L81">        this.standardImage = standardImage;</span>
+<span class="fc" id="L82">        this.frontEndUrl = frontEndUrl;</span>
+<span class="fc" id="L83">        this.provisioningStrategy = provisioningStrategy;</span>
+<span class="fc" id="L84">        this.adminSecretName = adminSecretName;</span>
+<span class="fc" id="L85">        this.isDefault = Boolean.TRUE.equals(isDefault);</span>
+<span class="fc" id="L86">        this.providedCapabilityScope = providedCapabilityScope;</span>
+<span class="fc" id="L87">        this.defaultRealm = defaultRealm;</span>
+<span class="fc" id="L88">    }</span>
 
     public Optional&lt;CapabilityScope&gt; getProvidedCapabilityScope() {
-<span class="fc" id="L88">        return Optional.ofNullable(providedCapabilityScope);</span>
+<span class="fc" id="L91">        return Optional.ofNullable(providedCapabilityScope);</span>
     }
 
     public Optional&lt;String&gt; getCustomImage() {
-<span class="fc" id="L92">        return Optional.ofNullable(customImage);</span>
+<span class="fc" id="L95">        return Optional.ofNullable(customImage);</span>
     }
 
     public Optional&lt;String&gt; getFrontEndUrl() {
-<span class="fc" id="L96">        return Optional.ofNullable(frontEndUrl);</span>
+<span class="fc" id="L99">        return Optional.ofNullable(frontEndUrl);</span>
     }
 
     public Optional&lt;StandardKeycloakImage&gt; getStandardImage() {
-<span class="fc" id="L100">        return Optional.ofNullable(standardImage);</span>
+<span class="fc" id="L103">        return Optional.ofNullable(standardImage);</span>
     }
 
     public Optional&lt;String&gt; getAdminSecretName() {
-<span class="fc" id="L104">        return Optional.ofNullable(adminSecretName);</span>
+<span class="fc" id="L107">        return Optional.ofNullable(adminSecretName);</span>
+    }
+
+    public Optional&lt;String&gt; getDefaultRealm() {
+<span class="fc" id="L111">        return Optional.ofNullable(defaultRealm);</span>
     }
 
     public Optional&lt;CapabilityProvisioningStrategy&gt; getProvisioningStrategy() {
-<span class="fc" id="L108">        return Optional.ofNullable(provisioningStrategy);</span>
+<span class="fc" id="L115">        return Optional.ofNullable(provisioningStrategy);</span>
     }
 
     public boolean isDefault() {
-<span class="fc" id="L112">        return isDefault;</span>
+<span class="fc" id="L119">        return isDefault;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

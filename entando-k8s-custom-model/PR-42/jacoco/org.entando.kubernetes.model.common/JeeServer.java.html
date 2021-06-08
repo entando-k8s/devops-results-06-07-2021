@@ -18,38 +18,34 @@ package org.entando.kubernetes.model.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.fabric8.zjsonpatch.internal.guava.Strings;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.Locale;
 
-<span class="fc" id="L25">@RegisterForReflection</span>
-public enum JeeServer {
-<span class="fc" id="L27">    WILDFLY(&quot;entando/entando-de-app-wildfly&quot;),</span>
-<span class="fc" id="L28">    EAP(&quot;entando/entando-de-app-eap&quot;),</span>
-<span class="fc" id="L29">    TOMCAT(&quot;entando/entando-de-app-tomcat&quot;),</span>
-<span class="fc" id="L30">    JETTY(&quot;entando/entando-de-app-jetty&quot;);</span>
+<span class="fc" id="L24">@RegisterForReflection</span>
+public enum JeeServer implements NamedEnum {
+<span class="fc" id="L26">    WILDFLY(&quot;entando/entando-de-app-wildfly&quot;),</span>
+<span class="fc" id="L27">    EAP(&quot;entando/entando-de-app-eap&quot;),</span>
+<span class="fc" id="L28">    TOMCAT(&quot;entando/entando-de-app-tomcat&quot;),</span>
+<span class="fc" id="L29">    JETTY(&quot;entando/entando-de-app-jetty&quot;);</span>
 
     private String imageName;
 
-<span class="fc" id="L34">    JeeServer(String imageName) {</span>
-<span class="fc" id="L35">        this.imageName = imageName;</span>
-<span class="fc" id="L36">    }</span>
+<span class="fc" id="L33">    JeeServer(String imageName) {</span>
+<span class="fc" id="L34">        this.imageName = imageName;</span>
+<span class="fc" id="L35">    }</span>
 
     @JsonCreator
     public static JeeServer forValue(String value) {
-<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (Strings.isNullOrEmpty(value)) {</span>
-<span class="nc" id="L41">            return null;</span>
-        }
-<span class="fc" id="L43">        return JeeServer.valueOf(value.toUpperCase(Locale.getDefault()));</span>
+<span class="fc" id="L39">        return NamedEnum.resolve(values(), value);</span>
     }
 
     @JsonValue
     public String toValue() {
-<span class="fc" id="L48">        return name().toLowerCase(Locale.getDefault());</span>
+<span class="fc" id="L44">        return name().toLowerCase(Locale.getDefault());</span>
     }
 
     public String getImageName() {
-<span class="nc" id="L52">        return imageName;</span>
+<span class="nc" id="L48">        return imageName;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

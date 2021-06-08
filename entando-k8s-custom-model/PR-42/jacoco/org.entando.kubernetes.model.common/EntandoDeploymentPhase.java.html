@@ -18,25 +18,21 @@ package org.entando.kubernetes.model.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.fabric8.zjsonpatch.internal.guava.Strings;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.Locale;
 
-<span class="fc" id="L25">@RegisterForReflection</span>
-public enum EntandoDeploymentPhase {
-<span class="fc" id="L27">    REQUESTED, STARTED, SUCCESSFUL, FAILED, IGNORED;</span>
+<span class="fc" id="L24">@RegisterForReflection</span>
+public enum EntandoDeploymentPhase implements NamedEnum {
+<span class="fc" id="L26">    REQUESTED, STARTED, SUCCESSFUL, FAILED, IGNORED;</span>
 
     @JsonCreator
     public static EntandoDeploymentPhase forValue(String value) {
-<span class="pc bpc" id="L31" title="1 of 2 branches missed.">        if (Strings.isNullOrEmpty(value)) {</span>
-<span class="nc" id="L32">            return null;</span>
-        }
-<span class="fc" id="L34">        return EntandoDeploymentPhase.valueOf(value.toUpperCase(Locale.getDefault()));</span>
+<span class="fc" id="L30">        return NamedEnum.resolve(values(), value);</span>
     }
 
     @JsonValue
     public String toValue() {
-<span class="fc" id="L39">        return name().toLowerCase(Locale.getDefault());</span>
+<span class="fc" id="L35">        return name().toLowerCase(Locale.getDefault());</span>
     }
 
 }

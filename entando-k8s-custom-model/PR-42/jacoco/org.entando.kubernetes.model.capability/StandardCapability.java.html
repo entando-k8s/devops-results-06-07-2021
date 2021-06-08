@@ -18,35 +18,29 @@ package org.entando.kubernetes.model.capability;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.base.Strings;
-import java.util.Arrays;
 import java.util.Locale;
 import org.entando.kubernetes.model.common.NamedEnum;
 
-<span class="fc" id="L26">public enum StandardCapability implements NamedEnum {</span>
-<span class="fc" id="L27">    SSO(&quot;sso&quot;), DBMS(&quot;db&quot;);</span>
+<span class="fc" id="L24">public enum StandardCapability implements NamedEnum {</span>
+<span class="fc" id="L25">    SSO(&quot;sso&quot;), DBMS(&quot;db&quot;);</span>
     private String suffix;
 
-<span class="fc" id="L30">    StandardCapability(String suffix) {</span>
-<span class="fc" id="L31">        this.suffix = suffix;</span>
-<span class="fc" id="L32">    }</span>
+<span class="fc" id="L28">    StandardCapability(String suffix) {</span>
+<span class="fc" id="L29">        this.suffix = suffix;</span>
+<span class="fc" id="L30">    }</span>
 
     public String getSuffix() {
-<span class="nc" id="L35">        return suffix;</span>
+<span class="nc" id="L33">        return suffix;</span>
     }
 
     @JsonValue
     public String toValue() {
-<span class="fc" id="L40">        return name().toLowerCase(Locale.ROOT);</span>
+<span class="fc" id="L38">        return name().toLowerCase(Locale.ROOT);</span>
     }
 
     @JsonCreator
     public static StandardCapability forValue(String value) {
-<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (Strings.isNullOrEmpty(value)) {</span>
-<span class="nc" id="L46">            return null;</span>
-        }
-<span class="fc" id="L48">        return Arrays.stream(values()).filter(c -&gt; c.name().toLowerCase(Locale.ROOT).equals(value)).findFirst()</span>
-<span class="fc" id="L49">                .orElseThrow(IllegalArgumentException::new);</span>
+<span class="fc" id="L43">        return NamedEnum.resolve(values(), value);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
