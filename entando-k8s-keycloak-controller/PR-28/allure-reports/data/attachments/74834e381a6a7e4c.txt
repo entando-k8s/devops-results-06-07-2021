@@ -1,0 +1,161 @@
+---
+ingressNamespace: "my-namespace"
+mixins:
+- "Secretive"
+- "IngressingDeployable"
+- "DbAwareDeployable"
+- "Deployable"
+fileSystemUserAndGroupId: 185
+defaultServiceAccountName: "default"
+ingressRequired: true
+replicas: 1
+ingressName: "default-sso-in-namespace-ingress"
+expectingDatabaseSchemas: true
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoKeycloakServer"
+  metadata:
+    name: "default-sso-in-namespace"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- environmentVariableOverrides: []
+  memoryLimitMebibytes: 768
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-redhat-sso"
+  volumeMountPath: "/opt/eap/standalone/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 8080
+  storageLimitMebibytes: 2048
+  webContextPath: "/auth"
+  mixins:
+  - "IngressingContainer"
+  - "HasWebContext"
+  - "PersistentVolumeAwareContainer"
+  - "DbAwareContainer"
+  - "ParameterizableContainer"
+  - "IngressingPathOnPort"
+  - "DeployableContainer"
+  - "ServiceBackingContainer"
+  - "ConfigurableResourceContainer"
+  maximumStartupTimeSeconds: 180
+  healthCheckPath: "/auth"
+  databaseConnectionVariables:
+  - name: "DB_POSTGRESQL_SERVICE_HOST"
+    value: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+  - name: "DB_POSTGRESQL_SERVICE_PORT"
+    value: "5432"
+  - name: "DB_SERVICE_PREFIX_MAPPING"
+    value: "db-postgresql=DB"
+  - name: "DB_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "default-sso-in-namespace-db-secret"
+        optional: false
+  - name: "DB_VENDOR"
+    value: "postgres"
+  - name: "DB_DATABASE"
+    value: "my_db"
+  - name: "DB_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "default-sso-in-namespace-db-secret"
+        optional: false
+  - name: "JDBC_PARAMS"
+    value: ""
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "SSO_ADMIN_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "default-sso-in-namespace-admin-secret"
+        optional: false
+  - name: "SSO_ADMIN_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "default-sso-in-namespace-admin-secret"
+        optional: false
+  - name: "PROXY_ADDRESS_FORWARDING"
+    value: "true"
+  schemaConnectionInfo:
+  - schemaSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        labels:
+          EntandoKeycloakServer: "default-sso-in-namespace"
+        name: "default-sso-in-namespace-db-secret"
+        ownerReferences:
+        - apiVersion: "entando.org/v1"
+          kind: "EntandoKeycloakServer"
+          blockOwnerDeletion: true
+          controller: true
+          name: "default-sso-in-namespace"
+          uid: "21e31c68-3306-4bcb-bd77-517a298ffcfd"
+      stringData:
+        username: "default_sso_in_namespace_db"
+        password: "4b8a177aaae74a1b"
+    mixins:
+    - "DatabaseSchemaConnectionInfo"
+    database: "my_db"
+    passwordRef:
+      secretKeyRef:
+        key: "password"
+        name: "default-sso-in-namespace-db-secret"
+        optional: false
+    usernameRef:
+      secretKeyRef:
+        key: "username"
+        name: "default-sso-in-namespace-db-secret"
+        optional: false
+    jdbcUrl: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    schemaName: "default_sso_in_namespace_db"
+    databaseServiceResult:
+      internalServiceHostname: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+      mixins:
+      - "ServiceResult"
+      - "DatabaseConnectionInfo"
+      databaseName: "my_db"
+      jdbcParameters: {}
+      port: "5432"
+      vendor: "POSTGRESQL"
+      adminSecretName: "default-postgresql-dbms-in-namespace-admin-secret"
+      service:
+        apiVersion: "v1"
+        kind: "Service"
+        metadata:
+          name: "default-postgresql-dbms-in-namespace-service"
+          namespace: "my-namespace"
+        spec:
+          clusterIP: "10.0.0.-71"
+          ports:
+          - port: 5432
+    schemaSecretName: "default-sso-in-namespace-db-secret"
+  nameQualifier: "server"
+  secretsToMount: []
+  cpuLimitMillicores: 1000
+  portForIngressPath: 8080
+secrets:
+- apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoKeycloakServer: "default-sso-in-namespace"
+    name: "default-sso-in-namespace-admin-secret"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoKeycloakServer"
+      blockOwnerDeletion: true
+      controller: true
+      name: "default-sso-in-namespace"
+      uid: "21e31c68-3306-4bcb-bd77-517a298ffcfd"
+  stringData:
+    username: "entando_keycloak_admin"
+    password: "406541a8b3114336"
+serviceAccountToUse: "default"

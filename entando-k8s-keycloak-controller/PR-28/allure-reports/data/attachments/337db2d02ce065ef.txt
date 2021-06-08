@@ -1,0 +1,43 @@
+---
+apiVersion: "entando.org/v1"
+kind: "ProvidedCapability"
+metadata:
+  name: "my-keycloak"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-keycloak"
+    uid: "350692b3-ebe8-4aa4-aebd-7708b3b5b791"
+  resourceVersion: "3143683"
+  uid: "77cb42c7-6986-4cf3-952d-6b22c05ab31f"
+spec:
+  capability: "sso"
+  implementation: "keycloak"
+  resolutionScopePreference:
+  - "Namespace"
+  provisioningStrategy: "DeployDirectly"
+  capabilityParameters:
+    preferredIngressHostName: "myhost.com"
+    preferredTlsSecretName: "my-tls-secret"
+status:
+  serverStatuses:
+    main: !<ExposedServerStatus>
+      qualifier: "main"
+      type: "ExposedServerStatus"
+      started: "2021-06-08T16:46:18+0000"
+      finished: "2021-06-08T16:46:19+0000"
+      serviceName: "my-keycloak-service"
+      deploymentName: "my-keycloak-deployment"
+      adminSecretName: "my-keycloak-admin-secret"
+      podPhases:
+        my-keycloak-deployment: "Running"
+        my-keycloak-dbprep-ae9d: "Complete"
+      persistentVolumeClaimPhases:
+        my-keycloak-server-pvc: "Pending"
+      ingressName: "my-keycloak-ingress"
+      externalBaseUrl: "https://myhost.com/auth"
+  phase: "successful"
+crdName: "providedcapabilities.entando.org"

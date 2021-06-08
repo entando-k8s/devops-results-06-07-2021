@@ -1,0 +1,44 @@
+--- !<EntandoKeycloakServer>
+apiVersion: "entando.org/v1"
+kind: "EntandoKeycloakServer"
+metadata:
+  labels:
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Namespace"
+  name: "default-sso-in-namespace"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "ProvidedCapability"
+    blockOwnerDeletion: true
+    controller: true
+    name: "default-sso-in-namespace"
+    uid: "4d23ad84-b2b6-4da2-8e96-07f456c0127c"
+  resourceVersion: "7024792"
+  uid: "21e31c68-3306-4bcb-bd77-517a298ffcfd"
+spec:
+  standardImage: "redhat-sso"
+  provisioningStrategy: "DeployDirectly"
+  dbms: "postgresql"
+  replicas: 1
+  isDefault: false
+  environmentVariables: []
+status:
+  serverStatuses:
+    main: !<ExposedServerStatus>
+      qualifier: "main"
+      type: "ExposedServerStatus"
+      started: "2021-06-08T16:46:14+0000"
+      finished: "2021-06-08T16:46:14+0000"
+      serviceName: "default-sso-in-namespace-service"
+      deploymentName: "default-sso-in-namespace-deployment"
+      adminSecretName: "default-sso-in-namespace-admin-secret"
+      podPhases:
+        default-sso-in-namespace-dbprep-a11d: "Complete"
+        default-sso-in-namespace-deployment: "Running"
+      persistentVolumeClaimPhases:
+        default-sso-in-namespace-server-pvc: "Pending"
+      ingressName: "default-sso-in-namespace-ingress"
+      externalBaseUrl: "https://default-sso-in-namespace-my-namespace.apps.serv.run/auth"
+  phase: "successful"
+crdName: "entandokeycloakservers.entando.org"
