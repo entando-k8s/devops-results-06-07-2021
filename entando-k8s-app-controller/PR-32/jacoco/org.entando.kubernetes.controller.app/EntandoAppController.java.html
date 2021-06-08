@@ -120,7 +120,7 @@ public class EntandoAppController implements Runnable {
 
     private void attachControllerFailure(Exception e, Class&lt;?&gt; theClass, String qualifier) {
 <span class="fc" id="L122">        entandoApp.updateAndGet(current -&gt; k8sClient.deploymentFailed(current, e, qualifier));</span>
-<span class="fc" id="L123">        LOGGER.log(Level.SEVERE, e, () -&gt; format(&quot;Processing the class %s failed.: \n%s&quot;, theClass.getSimpleName(),</span>
+<span class="fc" id="L123">        LOGGER.log(Level.SEVERE, e, () -&gt; format(&quot;Processing the class %s failed.: %n%s&quot;, theClass.getSimpleName(),</span>
 <span class="fc" id="L124">                entandoApp.get().getStatus().getServerStatus(qualifier).orElseThrow(IllegalStateException::new)</span>
 <span class="fc" id="L125">                        .getEntandoControllerFailure().getDetailMessage()));</span>
 <span class="fc" id="L126">    }</span>
@@ -135,7 +135,7 @@ public class EntandoAppController implements Runnable {
 <span class="fc" id="L135">                            .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.DEDICATED, CapabilityScope.CLUSTER)</span>
 <span class="fc" id="L136">                            .build(), 180);</span>
 <span class="fc" id="L137">            capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
-<span class="fc" id="L138">                throw new EntandoControllerException(format(&quot;Could not prepare database for EntandoApp %s/%s\n%s&quot;, entandoApp.get()</span>
+<span class="fc" id="L138">                throw new EntandoControllerException(format(&quot;Could not prepare database for EntandoApp %s/%%\n%s&quot;, entandoApp.get()</span>
 <span class="fc" id="L139">                                .getMetadata().getNamespace(), entandoApp.get()</span>
 <span class="fc" id="L140">                                .getMetadata().getName(),</span>
 <span class="fc" id="L141">                        f.getDetailMessage()));</span>
@@ -160,7 +160,7 @@ public class EntandoAppController implements Runnable {
 <span class="fc" id="L160">                        .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.CLUSTER)</span>
 <span class="fc" id="L161">                        .build(), 240);</span>
 <span class="fc" id="L162">        capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
-<span class="fc" id="L163">            throw new EntandoControllerException(format(&quot;Could not prepare SSO for EntandoApp %s/%s\n%s&quot;, entandoApp.get()</span>
+<span class="fc" id="L163">            throw new EntandoControllerException(format(&quot;Could not prepare SSO for EntandoApp %s/%s%n%s&quot;, entandoApp.get()</span>
 <span class="fc" id="L164">                            .getMetadata().getNamespace(), entandoApp.get()</span>
 <span class="fc" id="L165">                            .getMetadata().getName(),</span>
 <span class="fc" id="L166">                    f.getDetailMessage()));</span>
