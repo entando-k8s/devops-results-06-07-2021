@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorConfigBase;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfigProperty;
-import org.entando.kubernetes.controller.support.common.EntandoOperatorConfigProperty;
 
 public class ControllerCoordinatorConfig extends EntandoOperatorConfigBase {
 
@@ -30,50 +29,46 @@ public class ControllerCoordinatorConfig extends EntandoOperatorConfigBase {
     }
 
     public static boolean garbageCollectSuccessfullyCompletedPods() {
-<span class="fc" id="L33">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_OPERATOR_GC_CONTROLLER_PODS).map(Boolean::valueOf)</span>
-<span class="fc" id="L34">                .orElse(false);</span>
+<span class="fc" id="L32">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_OPERATOR_GC_CONTROLLER_PODS).map(Boolean::valueOf)</span>
+<span class="fc" id="L33">                .orElse(false);</span>
     }
 
     public static Optional&lt;String&gt; getOperatorServiceAccount() {
-<span class="fc" id="L38">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_OPERATOR_SERVICEACCOUNT);</span>
+<span class="fc" id="L37">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_OPERATOR_SERVICEACCOUNT);</span>
     }
 
     public static boolean isClusterScopedDeployment() {
-<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (getOperatorDeploymentType() == OperatorDeploymentType.OLM) {</span>
-<span class="fc" id="L43">            return getNamespacesToObserve().isEmpty();</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (getOperatorDeploymentType() == OperatorDeploymentType.OLM) {</span>
+<span class="fc" id="L42">            return getNamespacesToObserve().isEmpty();</span>
         } else {
-<span class="fc" id="L45">            return getNamespacesToObserve().stream().anyMatch(&quot;*&quot;::equals);</span>
+<span class="fc" id="L44">            return getNamespacesToObserve().stream().anyMatch(&quot;*&quot;::equals);</span>
         }
     }
 
-    public static boolean storeLogEntries() {
-<span class="nc" id="L50">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_STORE_LOG_ENTRIES).map(s -&gt; s.equals(&quot;true&quot;)).orElse(false);</span>
-    }
-
     public static long getPodShutdownTimeoutSeconds() {
-<span class="fc" id="L54">        return lookupProperty(EntandoOperatorSpiConfigProperty.ENTANDO_POD_SHUTDOWN_TIMEOUT_SECONDS).map(Long::valueOf).orElse(120L);</span>
+<span class="fc" id="L49">        return lookupProperty(EntandoOperatorSpiConfigProperty.ENTANDO_POD_SHUTDOWN_TIMEOUT_SECONDS).map(Long::valueOf).orElse(120L);</span>
     }
 
     public static OperatorDeploymentType getOperatorDeploymentType() {
-<span class="fc" id="L58">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_OPERATOR_DEPLOYMENT_TYPE)</span>
-<span class="fc" id="L59">                .map(OperatorDeploymentType::resolve)</span>
-<span class="fc" id="L60">                .orElse(OperatorDeploymentType.HELM);</span>
+<span class="fc" id="L53">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_OPERATOR_DEPLOYMENT_TYPE)</span>
+<span class="fc" id="L54">                .map(OperatorDeploymentType::resolve)</span>
+<span class="fc" id="L55">                .orElse(OperatorDeploymentType.HELM);</span>
     }
 
     public static List&lt;String&gt; getNamespacesToObserve() {
-<span class="fc" id="L64">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_NAMESPACES_TO_OBSERVE).map(s -&gt; s.split(SEPERATOR_PATTERN))</span>
-<span class="fc" id="L65">                .map(Arrays::asList)</span>
-<span class="fc" id="L66">                .orElse(new ArrayList&lt;&gt;());</span>
+<span class="fc" id="L59">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_NAMESPACES_TO_OBSERVE).map(s -&gt; s.split(SEPERATOR_PATTERN))</span>
+<span class="fc" id="L60">                .map(Arrays::asList)</span>
+<span class="fc" id="L61">                .orElse(new ArrayList&lt;&gt;());</span>
     }
 
     public static Integer getRemovalDelay() {
-<span class="fc" id="L70">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_CONTROLLER_REMOVAL_DELAY)</span>
-<span class="fc" id="L71">                .map(Integer::parseInt)</span>
-<span class="fc" id="L72">                .orElse(30);</span>
+<span class="fc" id="L65">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_CONTROLLER_REMOVAL_DELAY)</span>
+<span class="fc" id="L66">                .map(Integer::parseInt)</span>
+<span class="fc" id="L67">                .orElse(30);</span>
     }
 
     public static String getEntandoDockerImageInfoConfigMap() {
-<span class="fc" id="L76">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_DOCKER_IMAGE_INFO_CONFIGMAP).orElse(&quot;entando-docker-image-info&quot;);</span>
+<span class="fc" id="L71">        return lookupProperty(ControllerCoordinatorProperty.ENTANDO_DOCKER_IMAGE_INFO_CONFIGMAP).orElse(&quot;entando-docker-image-info&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

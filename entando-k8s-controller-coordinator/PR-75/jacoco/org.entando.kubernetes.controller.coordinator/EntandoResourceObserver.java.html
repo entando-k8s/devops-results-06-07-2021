@@ -17,6 +17,7 @@
 package org.entando.kubernetes.controller.coordinator;
 
 import static java.lang.String.format;
+import static org.entando.kubernetes.controller.spi.common.ExceptionUtils.interruptionSafe;
 
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher.Action;
@@ -40,32 +41,31 @@ import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
 
 public class EntandoResourceObserver implements SerializedResourceWatcher {
 
-<span class="fc" id="L43">    private static final Logger LOGGER = Logger.getLogger(EntandoResourceObserver.class.getName());</span>
+<span class="fc" id="L44">    private static final Logger LOGGER = Logger.getLogger(EntandoResourceObserver.class.getName());</span>
 
-<span class="fc" id="L45">    private final Map&lt;String, Deque&lt;String&gt;&gt; cache = new ConcurrentHashMap&lt;&gt;();</span>
-<span class="fc" id="L46">    private final Map&lt;String, SerializedEntandoResource&gt; resourcesBeingUpgraded = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L46">    private final Map&lt;String, Deque&lt;String&gt;&gt; cache = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L47">    private final Map&lt;String, SerializedEntandoResource&gt; resourcesBeingUpgraded = new ConcurrentHashMap&lt;&gt;();</span>
     private final BiConsumer&lt;Action, SerializedEntandoResource&gt; callback;
     private final SimpleEntandoOperations operations;
     //TODO make the pool size configurable. Need to think that through though. We would require different settings for cluster vs
     // namespace scoped deployments
-<span class="fc" id="L51">    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);</span>
+<span class="fc" id="L52">    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);</span>
     private final CrdNameMapSync crdNameMapSync;
     private final Long generation;
-<span class="fc" id="L54">    private final List&lt;Watch&gt; watchers = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L55">    private final List&lt;Watch&gt; watchers = new ArrayList&lt;&gt;();</span>
 
     public EntandoResourceObserver(SimpleEntandoOperations operations,
             BiConsumer&lt;Action, SerializedEntandoResource&gt; callback,
             CrdNameMapSync crdNameMapSync,
-<span class="fc" id="L59">            Long generation) {</span>
-<span class="fc" id="L60">        this.callback = callback;</span>
-<span class="fc" id="L61">        this.operations = operations;</span>
-<span class="fc" id="L62">        this.crdNameMapSync = crdNameMapSync;</span>
-<span class="fc" id="L63">        this.generation = generation;</span>
-<span class="fc" id="L64">        processOperationInScope(operations, simpleEntandoOperations -&gt; simpleEntandoOperations.list()</span>
-<span class="fc" id="L65">                .forEach(entandoCustomResource -&gt; eventReceived(Action.MODIFIED, entandoCustomResource)));</span>
-<span class="fc" id="L66">        processOperationInScope(operations, simpleEntandoOperations -&gt; watchers.add(simpleEntandoOperations.watch(this)));</span>
-<span class="fc" id="L67">        LOGGER.log(Level.INFO, &quot;Listening to CRD &quot; + operations.getDefinitionContext().getName());</span>
-
+<span class="fc" id="L60">            Long generation) {</span>
+<span class="fc" id="L61">        this.callback = callback;</span>
+<span class="fc" id="L62">        this.operations = operations;</span>
+<span class="fc" id="L63">        this.crdNameMapSync = crdNameMapSync;</span>
+<span class="fc" id="L64">        this.generation = generation;</span>
+<span class="fc" id="L65">        processOperationInScope(operations, simpleEntandoOperations -&gt; simpleEntandoOperations.list()</span>
+<span class="fc" id="L66">                .forEach(entandoCustomResource -&gt; eventReceived(Action.MODIFIED, entandoCustomResource)));</span>
+<span class="fc" id="L67">        processOperationInScope(operations, simpleEntandoOperations -&gt; watchers.add(simpleEntandoOperations.watch(this)));</span>
+<span class="fc" id="L68">        LOGGER.log(Level.INFO, () -&gt; format(&quot;Listening to CRD '%s'&quot;, operations.getDefinitionContext().getName()));</span>
 <span class="fc" id="L69">    }</span>
 
     private static void processOperationInScope(SimpleEntandoOperations operations, Consumer&lt;SimpleEntandoOperations&gt; consumer) {
@@ -117,143 +117,137 @@ public class EntandoResourceObserver implements SerializedResourceWatcher {
 <span class="fc" id="L117">                    removeSuccessfullyCompletedPods(resource);</span>
                 }
             }
-<span class="fc" id="L120">        } catch (Exception e) {</span>
-<span class="fc" id="L121">            logFailure(resource, e);</span>
-<span class="fc" id="L122">        }</span>
-<span class="fc" id="L123">    }</span>
+<span class="nc" id="L120">        } catch (Exception e) {</span>
+<span class="nc" id="L121">            LOGGER.log(Level.SEVERE, e, () -&gt; format(&quot;Could not process the %s %s/%s&quot;, resource.getKind(),</span>
+<span class="nc" id="L122">                    resource.getMetadata().getNamespace(), resource.getMetadata().getName()));</span>
+<span class="fc" id="L123">        }</span>
+<span class="fc" id="L124">    }</span>
 
     private void markAsUpgraded(SerializedEntandoResource resource) {
-<span class="fc" id="L126">        final Optional&lt;String&gt; currentOperatorVersion = EntandoOperatorConfigBase</span>
-<span class="fc" id="L127">                .lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_OPERATOR_VERSION);</span>
-<span class="fc" id="L128">        currentOperatorVersion.ifPresent(s -&gt; {</span>
-<span class="fc" id="L129">                    final Optional&lt;String&gt; processedByVersion = CoordinatorUtils</span>
-<span class="fc" id="L130">                            .resolveAnnotation(resource, AnnotationNames.PROCESSED_BY_OPERATOR_VERSION);</span>
-<span class="fc bfc" id="L131" title="All 2 branches covered.">                    if (!processedByVersion.map(s::equals).orElse(false)) {</span>
-<span class="fc" id="L132">                        operations.putAnnotation(resource, AnnotationNames.PROCESSED_BY_OPERATOR_VERSION.getName(), s);</span>
+<span class="fc" id="L127">        final Optional&lt;String&gt; currentOperatorVersion = EntandoOperatorConfigBase</span>
+<span class="fc" id="L128">                .lookupProperty(ControllerCoordinatorProperty.ENTANDO_K8S_OPERATOR_VERSION);</span>
+<span class="fc" id="L129">        currentOperatorVersion.ifPresent(s -&gt; {</span>
+<span class="fc" id="L130">                    final Optional&lt;String&gt; processedByVersion = CoordinatorUtils</span>
+<span class="fc" id="L131">                            .resolveAnnotation(resource, AnnotationNames.PROCESSED_BY_OPERATOR_VERSION);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">                    if (!processedByVersion.map(s::equals).orElse(false)) {</span>
+<span class="fc" id="L133">                        operations.putAnnotation(resource, AnnotationNames.PROCESSED_BY_OPERATOR_VERSION.getName(), s);</span>
                     }
-<span class="fc" id="L134">                }</span>
+<span class="fc" id="L135">                }</span>
         );
-<span class="fc" id="L136">        resourcesBeingUpgraded.remove(resource.getMetadata().getUid());</span>
-<span class="fc" id="L137">    }</span>
+<span class="fc" id="L137">        resourcesBeingUpgraded.remove(resource.getMetadata().getUid());</span>
+<span class="fc" id="L138">    }</span>
 
     private void removeSuccessfullyCompletedPods(SerializedEntandoResource resource) {
-<span class="fc" id="L140">        scheduler.execute(() -&gt; operations.removeSuccessfullyCompletedPods(resource));</span>
-<span class="fc" id="L141">    }</span>
+<span class="fc" id="L141">        scheduler.execute(() -&gt; operations.removeSuccessfullyCompletedPods(resource));</span>
+<span class="fc" id="L142">    }</span>
 
     private boolean needsToRemoveSuccessfullyCompletedPods(SerializedEntandoResource resource) {
-<span class="fc bfc" id="L144" title="All 2 branches covered.">        return ControllerCoordinatorConfig.garbageCollectSuccessfullyCompletedPods()</span>
-<span class="fc" id="L145">                &amp;&amp; Optional.ofNullable(resource.getMetadata().getGeneration())</span>
-<span class="fc" id="L146">                .map(aLong -&gt; aLong.equals(resource.getMetadata().getGeneration()))</span>
-<span class="pc bpc" id="L147" title="1 of 2 branches missed.">                .orElse(false)</span>
-<span class="pc bpc" id="L148" title="1 of 2 branches missed.">                &amp;&amp; resource.getStatus().getPhase() == EntandoDeploymentPhase.SUCCESSFUL;</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        return ControllerCoordinatorConfig.garbageCollectSuccessfullyCompletedPods()</span>
+<span class="fc" id="L146">                &amp;&amp; Optional.ofNullable(resource.getMetadata().getGeneration())</span>
+<span class="fc" id="L147">                .map(aLong -&gt; aLong.equals(resource.getMetadata().getGeneration()))</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">                .orElse(false)</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">                &amp;&amp; resource.getStatus().getPhase() == EntandoDeploymentPhase.SUCCESSFUL;</span>
     }
 
-    private void logFailure(SerializedEntandoResource resource, Exception e) {
-<span class="fc" id="L152">        LOGGER.log(Level.SEVERE, e, () -&gt; format(&quot;Could not process the %s %s/%s&quot;, resource.getKind(),</span>
-<span class="fc" id="L153">                resource.getMetadata().getNamespace(), resource.getMetadata().getName()));</span>
-<span class="fc" id="L154">    }</span>
-
     private boolean performCriteriaProcessing(SerializedEntandoResource resource) {
-<span class="fc bfc" id="L157" title="All 2 branches covered.">        return requiresUpgrade(resource)</span>
-<span class="fc bfc" id="L158" title="All 2 branches covered.">                || (hasNewResourceVersion(resource)</span>
-<span class="fc bfc" id="L159" title="All 2 branches covered.">                &amp;&amp; isNotOwnedByResourceOfInterest(resource)</span>
-<span class="pc bpc" id="L160" title="1 of 2 branches missed.">                &amp;&amp; EntandoOperatorMatcher.matchesThisOperator(resource)</span>
-<span class="fc bfc" id="L161" title="All 2 branches covered.">                &amp;&amp; processGenerationIncrement(resource));</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        return requiresUpgrade(resource)</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">                || (hasNewResourceVersion(resource)</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">                &amp;&amp; isNotOwnedByResourceOfInterest(resource)</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                &amp;&amp; EntandoOperatorMatcher.matchesThisOperator(resource)</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">                &amp;&amp; processGenerationIncrement(resource));</span>
     }
 
     private boolean isNotOwnedByResourceOfInterest(SerializedEntandoResource resource) {
-<span class="fc" id="L165">        final boolean topLevel = resource.getMetadata().getOwnerReferences().stream()</span>
-<span class="fc" id="L166">                .noneMatch(crdNameMapSync::isOfInterest);</span>
-<span class="fc bfc" id="L167" title="All 2 branches covered.">        if (topLevel) {</span>
-<span class="fc" id="L168">            logResource(Level.FINE, &quot;%s %s/%s is a top level resource&quot;, resource);</span>
+<span class="fc" id="L161">        final boolean topLevel = resource.getMetadata().getOwnerReferences().stream()</span>
+<span class="fc" id="L162">                .noneMatch(crdNameMapSync::isOfInterest);</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (topLevel) {</span>
+<span class="fc" id="L164">            logResource(Level.FINE, &quot;%s %s/%s is a top level resource&quot;, resource);</span>
         } else {
-<span class="fc" id="L170">            logResource(Level.FINE, &quot;%s %s/%s is ignored because it is not a top level resource&quot;, resource);</span>
+<span class="fc" id="L166">            logResource(Level.FINE, &quot;%s %s/%s is ignored because it is not a top level resource&quot;, resource);</span>
         }
-<span class="fc" id="L172">        return topLevel;</span>
+<span class="fc" id="L168">        return topLevel;</span>
     }
 
     protected void performCallback(Action action, SerializedEntandoResource resource) {
-<span class="fc" id="L176">        logResource(Level.INFO, &quot;Received &quot; + action.name() + &quot; for the %s %s/%s&quot;, resource);</span>
-<span class="pc bpc" id="L177" title="2 of 4 branches missed.">        if (action == Action.ADDED || action == Action.MODIFIED) {</span>
-<span class="fc" id="L178">            scheduler.execute(() -&gt; callback.accept(action, resource));</span>
-<span class="nc bnc" id="L179" title="All 2 branches missed.">        } else if (action == Action.DELETED) {</span>
-<span class="nc" id="L180">            cache.remove(resource.getMetadata().getUid());</span>
+<span class="fc" id="L172">        logResource(Level.INFO, &quot;Received &quot; + action.name() + &quot; for the %s %s/%s&quot;, resource);</span>
+<span class="pc bpc" id="L173" title="2 of 4 branches missed.">        if (action == Action.ADDED || action == Action.MODIFIED) {</span>
+<span class="fc" id="L174">            scheduler.execute(() -&gt; callback.accept(action, resource));</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        } else if (action == Action.DELETED) {</span>
+<span class="nc" id="L176">            cache.remove(resource.getMetadata().getUid());</span>
         } else {
-<span class="nc" id="L182">            logResource(Level.WARNING, &quot;EntandoResourceObserver could not process the action &quot; + action.name() + &quot; on the %s %s/%s&quot;,</span>
+<span class="nc" id="L178">            logResource(Level.WARNING, &quot;EntandoResourceObserver could not process the action &quot; + action.name() + &quot; on the %s %s/%s&quot;,</span>
                     resource);
         }
-<span class="fc" id="L185">    }</span>
+<span class="fc" id="L181">    }</span>
 
     private void logResource(Level info, String format, SerializedEntandoResource resource) {
-<span class="fc" id="L188">        LOGGER.log(info,</span>
-<span class="fc" id="L189">                () -&gt; format(format, resource.getKind(), resource.getMetadata().getNamespace(), resource.getMetadata().getName()));</span>
-<span class="fc" id="L190">    }</span>
+<span class="fc" id="L184">        LOGGER.log(info,</span>
+<span class="fc" id="L185">                () -&gt; format(format, resource.getKind(), resource.getMetadata().getNamespace(), resource.getMetadata().getName()));</span>
+<span class="fc" id="L186">    }</span>
 
     private boolean processGenerationIncrement(SerializedEntandoResource newResource) {
-<span class="fc" id="L193">        OperatorProcessingInstruction instruction = CoordinatorUtils.resolveProcessingInstruction(newResource);</span>
-<span class="fc bfc" id="L194" title="All 2 branches covered.">        if (instruction == OperatorProcessingInstruction.FORCE) {</span>
+<span class="fc" id="L189">        OperatorProcessingInstruction instruction = CoordinatorUtils.resolveProcessingInstruction(newResource);</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        if (instruction == OperatorProcessingInstruction.FORCE) {</span>
             //Remove to avoid recursive updates
-<span class="fc" id="L196">            final SerializedEntandoResource latestResource = operations</span>
-<span class="fc" id="L197">                    .removeAnnotation(newResource, AnnotationNames.PROCESSING_INSTRUCTION.getName());</span>
-<span class="fc" id="L198">            markResourceVersionProcessed(latestResource);</span>
-<span class="fc" id="L199">            logResource(Level.FINE, &quot;Processing of %s %s/%s has been forced using entando.org/processing-instruction.&quot;, latestResource);</span>
-<span class="fc" id="L200">            return true;</span>
-<span class="pc bpc" id="L201" title="1 of 4 branches missed.">        } else if (instruction == OperatorProcessingInstruction.DEFER || instruction == OperatorProcessingInstruction.IGNORE) {</span>
-<span class="fc" id="L202">            logResource(Level.FINE, &quot;Processing of %s %s/%s has been deferred or ignored using entando.org/processing-instruction.&quot;,</span>
+<span class="fc" id="L192">            final SerializedEntandoResource latestResource = operations</span>
+<span class="fc" id="L193">                    .removeAnnotation(newResource, AnnotationNames.PROCESSING_INSTRUCTION.getName());</span>
+<span class="fc" id="L194">            markResourceVersionProcessed(latestResource);</span>
+<span class="fc" id="L195">            logResource(Level.FINE, &quot;Processing of %s %s/%s has been forced using entando.org/processing-instruction.&quot;, latestResource);</span>
+<span class="fc" id="L196">            return true;</span>
+<span class="pc bpc" id="L197" title="1 of 4 branches missed.">        } else if (instruction == OperatorProcessingInstruction.DEFER || instruction == OperatorProcessingInstruction.IGNORE) {</span>
+<span class="fc" id="L198">            logResource(Level.FINE, &quot;Processing of %s %s/%s has been deferred or ignored using entando.org/processing-instruction.&quot;,</span>
                     newResource);
-<span class="fc" id="L204">            return false;</span>
+<span class="fc" id="L200">            return false;</span>
         } else {
-<span class="fc bfc" id="L206" title="All 2 branches covered.">            final boolean needsObservation = newResource.getStatus().getObservedGeneration() == null</span>
-<span class="pc bpc" id="L207" title="1 of 2 branches missed.">                    || newResource.getMetadata().getGeneration() == null</span>
-<span class="fc bfc" id="L208" title="All 2 branches covered.">                    || newResource.getStatus().getObservedGeneration() &lt; newResource.getMetadata().getGeneration();</span>
-<span class="fc bfc" id="L209" title="All 2 branches covered.">            if (needsObservation) {</span>
-<span class="fc" id="L210">                logResource(Level.FINE, &quot;%s %s/%s is processed after a metadata.generation increment.&quot;, newResource);</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            final boolean needsObservation = newResource.getStatus().getObservedGeneration() == null</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">                    || newResource.getMetadata().getGeneration() == null</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">                    || newResource.getStatus().getObservedGeneration() &lt; newResource.getMetadata().getGeneration();</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">            if (needsObservation) {</span>
+<span class="fc" id="L206">                logResource(Level.FINE, &quot;%s %s/%s is processed after a metadata.generation increment.&quot;, newResource);</span>
             } else {
-<span class="fc" id="L212">                logResource(Level.FINE,</span>
+<span class="fc" id="L208">                logResource(Level.FINE,</span>
                         &quot;%s %s/%s was ignored because its metadata.generation is still the same as the status.observedGeneration.&quot;,
                         newResource);
             }
-<span class="fc" id="L216">            return needsObservation;</span>
+<span class="fc" id="L212">            return needsObservation;</span>
         }
     }
 
     private boolean hasNewResourceVersion(SerializedEntandoResource newResource) {
-<span class="fc" id="L221">        Deque&lt;String&gt; queue = cache.computeIfAbsent(newResource.getMetadata().getUid(), key -&gt; new ConcurrentLinkedDeque&lt;&gt;());</span>
-<span class="fc bfc" id="L222" title="All 2 branches covered.">        if (queue.contains(newResource.getMetadata().getResourceVersion())) {</span>
+<span class="fc" id="L217">        Deque&lt;String&gt; queue = cache.computeIfAbsent(newResource.getMetadata().getUid(), key -&gt; new ConcurrentLinkedDeque&lt;&gt;());</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">        if (queue.contains(newResource.getMetadata().getResourceVersion())) {</span>
             //TODO observe logs to see if this actually still happens
-<span class="fc" id="L224">            logResource(Level.WARNING, &quot;Duplicate event for %s %s/%s. ResourceVersion=&quot; + newResource.getMetadata().getResourceVersion(),</span>
+<span class="fc" id="L220">            logResource(Level.WARNING, &quot;Duplicate event for %s %s/%s. ResourceVersion=&quot; + newResource.getMetadata().getResourceVersion(),</span>
                     newResource);
-<span class="fc" id="L226">            return false;</span>
+<span class="fc" id="L222">            return false;</span>
         }
-<span class="fc" id="L228">        markResourceVersionProcessed(newResource);</span>
-<span class="fc" id="L229">        logResource(Level.FINE, &quot;%s %s/%s has a new resource version: &quot; + newResource.getMetadata().getResourceVersion(), newResource);</span>
-<span class="fc" id="L230">        return true;</span>
+<span class="fc" id="L224">        markResourceVersionProcessed(newResource);</span>
+<span class="fc" id="L225">        logResource(Level.FINE, &quot;%s %s/%s has a new resource version: &quot; + newResource.getMetadata().getResourceVersion(), newResource);</span>
+<span class="fc" id="L226">        return true;</span>
     }
 
     private void markResourceVersionProcessed(SerializedEntandoResource newResource) {
-<span class="pc" id="L234">        Deque&lt;String&gt; queue = cache.computeIfAbsent(newResource.getMetadata().getUid(), key -&gt; new ConcurrentLinkedDeque&lt;&gt;());</span>
-<span class="fc" id="L235">        queue.offer(newResource.getMetadata().getResourceVersion());</span>
-<span class="fc bfc" id="L236" title="All 2 branches covered.">        while (queue.size() &gt; 10) {</span>
-<span class="fc" id="L237">            queue.poll();</span>
+<span class="pc" id="L230">        Deque&lt;String&gt; queue = cache.computeIfAbsent(newResource.getMetadata().getUid(), key -&gt; new ConcurrentLinkedDeque&lt;&gt;());</span>
+<span class="fc" id="L231">        queue.offer(newResource.getMetadata().getResourceVersion());</span>
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">        while (queue.size() &gt; 10) {</span>
+<span class="nc" id="L233">            queue.poll();</span>
         }
-<span class="fc" id="L239">    }</span>
+<span class="fc" id="L235">    }</span>
 
     public void shutDownAndWait(int i, TimeUnit timeUnit) {
-        try {
-<span class="fc" id="L243">            watchers.forEach(Watch::close);</span>
-<span class="fc" id="L244">            watchers.clear();</span>
-<span class="fc" id="L245">            scheduler.shutdown();</span>
-<span class="pc bpc" id="L246" title="1 of 2 branches missed.">            if (!scheduler.awaitTermination(i, timeUnit)) {</span>
-<span class="nc" id="L247">                LOGGER.log(Level.WARNING, () -&gt; &quot;Could not shut EntandoResourceObserver down.&quot;);</span>
+<span class="fc" id="L238">        interruptionSafe(() -&gt; {</span>
+<span class="fc" id="L239">            watchers.forEach(Watch::close);</span>
+<span class="fc" id="L240">            watchers.clear();</span>
+<span class="fc" id="L241">            scheduler.shutdown();</span>
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">            if (!scheduler.awaitTermination(i, timeUnit)) {</span>
+<span class="nc" id="L243">                LOGGER.log(Level.WARNING, () -&gt; &quot;Could not shut EntandoResourceObserver down.&quot;);</span>
             }
-<span class="nc" id="L249">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L250">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L251">            throw new IllegalStateException(e);</span>
-<span class="fc" id="L252">        }</span>
-<span class="fc" id="L253">    }</span>
+<span class="fc" id="L245">            return null;</span>
+        });
+<span class="fc" id="L247">    }</span>
 
     public Long getCrdGeneration() {
-<span class="fc" id="L256">        return generation;</span>
+<span class="fc" id="L250">        return generation;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
