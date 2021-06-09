@@ -156,12 +156,12 @@ public class DefaultSimpleKubernetesClient implements SimpleKubernetesClient {
 
     @Override
     public void removePodsAndWait(String namespace, Map&lt;String, String&gt; labels) {
-<span class="fc" id="L159">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(labels);</span>
-<span class="fc" id="L160">        podResource.delete();</span>
-<span class="fc" id="L161">        interruptionSafe(() -&gt;</span>
-<span class="fc" id="L162">                podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="fc" id="L163">                        ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS));</span>
-<span class="fc" id="L164">    }</span>
+<span class="nc" id="L159">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(labels);</span>
+<span class="nc" id="L160">        podResource.delete();</span>
+<span class="nc" id="L161">        interruptionSafe(() -&gt;</span>
+<span class="nc" id="L162">                podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="nc" id="L163">                        ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS));</span>
+<span class="nc" id="L164">    }</span>
 
     @Override
     public ConfigMap findOrCreateControllerConfigMap(String name) {
