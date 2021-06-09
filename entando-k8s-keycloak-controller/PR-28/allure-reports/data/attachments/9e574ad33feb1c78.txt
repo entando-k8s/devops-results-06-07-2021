@@ -1,0 +1,44 @@
+---
+internalServiceHostname: "my-keycloak-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-keycloak-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-keycloak-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8080"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-keycloak-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "https://myhost.com/auth"
+externalHostUrl: "https://myhost.com"
+internalBaseUrl: "http://my-keycloak-service.my-namespace.svc.cluster.local:8080/auth"
+status:
+  qualifier: "main"
+  type: "ExposedServerStatus"
+  started: "2021-06-09T15:28:15+0000"
+  finished: "2021-06-09T15:28:15+0000"
+  serviceName: "my-keycloak-service"
+  deploymentName: "my-keycloak-deployment"
+  podPhases:
+    my-keycloak-dbprep-1f11: "Complete"
+    my-keycloak-deployment: "Running"
+  persistentVolumeClaimPhases:
+    my-keycloak-server-pvc: "Pending"
+  ingressName: "my-keycloak-ingress"

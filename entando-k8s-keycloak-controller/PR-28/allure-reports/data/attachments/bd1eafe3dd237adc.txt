@@ -1,0 +1,19 @@
+---
+mixins:
+- "CapabilityForResource"
+capabilityRequirement:
+  capability: "sso"
+  resolutionScopePreference:
+  - "Namespace"
+  provisioningStrategy: "UseExternal"
+  externallyProvidedService:
+    port: 8080
+    adminSecretName: "my-existing-sso-admin-secret"
+    path: "/auth"
+resourceInNeed:
+  apiVersion: "test.org/v1"
+  kind: "TestResource"
+  metadata:
+    name: "my-app"
+    namespace: "my-namespace"
+  isCustomResource: true
