@@ -1,0 +1,30 @@
+---
+baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+mixins:
+- "SsoConnectionInfo"
+password: "3d59bb4daab44645"
+externalBaseUrl: "https://default-sso-in-namespace-my-namespace.apps.serv.run/auth"
+internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+adminSecret:
+  apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoResourceKind: "EntandoKeycloakServer"
+      entando.org/capability: "Sso"
+      capabilityProvisionScope: "Namespace"
+      EntandoResourceNamespace: "my-namespace"
+      EntandoKeycloakServer: "default-sso-in-namespace"
+    name: "default-sso-in-namespace-admin-secret"
+    namespace: "my-namespace"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoKeycloakServer"
+      blockOwnerDeletion: true
+      controller: true
+      name: "default-sso-in-namespace"
+      uid: "677e8c2a-c542-41f0-8432-6b3691acbf65"
+  stringData:
+    username: "entando_keycloak_admin"
+    password: "3d59bb4daab44645"
+username: "entando_keycloak_admin"

@@ -1,0 +1,31 @@
+--- !<EntandoKeycloakServer>
+apiVersion: "entando.org/v1"
+kind: "EntandoKeycloakServer"
+metadata:
+  name: "my-keycloak"
+  namespace: "my-namespace"
+  resourceVersion: "9353495"
+  uid: "0f7ef28d-6f9c-4f6e-844d-f41b18212725"
+spec:
+  replicas: 1
+  isDefault: false
+  environmentVariables: []
+status:
+  serverStatuses:
+    main: !<ExposedServerStatus>
+      qualifier: "main"
+      type: "ExposedServerStatus"
+      started: "2021-06-09T10:55:41+0000"
+      finished: "2021-06-09T10:55:41+0000"
+      serviceName: "my-keycloak-service"
+      deploymentName: "my-keycloak-deployment"
+      adminSecretName: "my-keycloak-admin-secret"
+      podPhases:
+        my-keycloak-dbprep-aa9d: "Complete"
+        my-keycloak-deployment: "Running"
+      persistentVolumeClaimPhases:
+        my-keycloak-server-pvc: "Pending"
+      ingressName: "my-keycloak-ingress"
+      externalBaseUrl: "https://my-keycloak-my-namespace.apps.serv.run/auth"
+  phase: "successful"
+crdName: "entandokeycloakservers.entando.org"

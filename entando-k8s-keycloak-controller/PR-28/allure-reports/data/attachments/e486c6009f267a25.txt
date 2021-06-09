@@ -1,0 +1,44 @@
+---
+internalServiceHostname: "default-sso-in-namespace-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "default-sso-in-namespace-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "SerializableDeploymentResult"
+- "ServiceResult"
+- "ServiceDeploymentResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "default-sso-in-namespace-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8080"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "default-sso-in-namespace-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "https://default-sso-in-namespace-my-namespace.apps.serv.run/auth"
+externalHostUrl: "https://default-sso-in-namespace-my-namespace.apps.serv.run"
+internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+status:
+  qualifier: "main"
+  type: "ExposedServerStatus"
+  started: "2021-06-09T10:55:34+0000"
+  finished: "2021-06-09T10:55:34+0000"
+  serviceName: "default-sso-in-namespace-service"
+  deploymentName: "default-sso-in-namespace-deployment"
+  podPhases:
+    default-sso-in-namespace-dbprep-4319: "Complete"
+    default-sso-in-namespace-deployment: "Running"
+  persistentVolumeClaimPhases:
+    default-sso-in-namespace-server-pvc: "Pending"
+  ingressName: "default-sso-in-namespace-ingress"

@@ -63,7 +63,7 @@ public class EntandoKeycloakHelper {
 <span class="fc" id="L63">                .orElseThrow(IllegalArgumentException::new);</span>
 <span class="fc" id="L64">        final Map&lt;String, String&gt; capabilityParameters = ofNullable(providedCapability.getSpec().getCapabilityParameters())</span>
 <span class="fc" id="L65">                .orElse(Collections.emptyMap());</span>
-<span class="fc" id="L66">        final String port = s.getPort().map(p -&gt; &quot;:&quot; + p).orElse(&quot;&quot;);</span>
+<span class="pc bpc" id="L66" title="1 of 4 branches missed.">        final String port = s.getPort().filter(p -&gt; !(p == 80 || p == 443)).map(p -&gt; &quot;:&quot; + p).orElse(&quot;&quot;);</span>
         String protocol;
 <span class="pc bpc" id="L68" title="2 of 4 branches missed.">        if (s.getPort().map(p -&gt; p == 80).orElse(false)) {</span>
 <span class="nc" id="L69">            protocol = &quot;http&quot;;</span>

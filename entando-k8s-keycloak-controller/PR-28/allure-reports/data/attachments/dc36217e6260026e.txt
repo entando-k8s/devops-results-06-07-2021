@@ -1,0 +1,86 @@
+---
+ingressNamespace: "my-namespace"
+mixins:
+- "IngressingDeployable"
+- "Secretive"
+- "Deployable"
+- "DbAwareDeployable"
+fileSystemUserAndGroupId: 1000
+defaultServiceAccountName: "default"
+ingressRequired: true
+replicas: 1
+ingressName: "my-keycloak-ingress"
+expectingDatabaseSchemas: false
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoKeycloakServer"
+  metadata:
+    name: "my-keycloak"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- environmentVariableOverrides: []
+  memoryLimitMebibytes: 768
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-keycloak"
+  volumeMountPath: "/opt/jboss/keycloak/standalone/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 8080
+  storageLimitMebibytes: 2048
+  webContextPath: "/auth"
+  mixins:
+  - "ParameterizableContainer"
+  - "IngressingContainer"
+  - "DbAwareContainer"
+  - "HasWebContext"
+  - "DeployableContainer"
+  - "IngressingPathOnPort"
+  - "PersistentVolumeAwareContainer"
+  - "ConfigurableResourceContainer"
+  - "ServiceBackingContainer"
+  healthCheckPath: "/auth"
+  maximumStartupTimeSeconds: 180
+  databaseConnectionVariables:
+  - name: "DB_VENDOR"
+    value: "h2"
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "KEYCLOAK_USER"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-keycloak-admin-secret"
+        optional: false
+  - name: "KEYCLOAK_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-keycloak-admin-secret"
+        optional: false
+  - name: "PROXY_ADDRESS_FORWARDING"
+    value: "true"
+  schemaConnectionInfo: []
+  nameQualifier: "server"
+  secretsToMount: []
+  cpuLimitMillicores: 1000
+  portForIngressPath: 8080
+secrets:
+- apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoKeycloakServer: "my-keycloak"
+    name: "my-keycloak-admin-secret"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoKeycloakServer"
+      blockOwnerDeletion: true
+      controller: true
+      name: "my-keycloak"
+      uid: "c428f7b5-a4b3-49ef-b436-5eadd8e6f81a"
+  stringData:
+    username: "entando_keycloak_admin"
+    password: "300320486c0e4a93"
+serviceAccountToUse: "default"
