@@ -62,71 +62,70 @@ public class KeycloakDeployable
 
     @Override
     public boolean isIngressRequired() {
-<span class="fc" id="L65">        return keycloakServer.getSpec().getProvisioningStrategy().map(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY::equals).orElse(true);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        return EntandoKeycloakHelper.provisioningStrategyOf(keycloakServer) == CapabilityProvisioningStrategy.DEPLOY_DIRECTLY;</span>
     }
 
     @Override
     public Optional&lt;ExternalService&gt; getExternalService() {
-<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (keycloakServer.getSpec().getProvisioningStrategy().orElse(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY)</span>
-                == CapabilityProvisioningStrategy.USE_EXTERNAL) {
-<span class="fc" id="L72">            final String frontEndUrl = keycloakServer.getSpec().getFrontEndUrl().orElseThrow(IllegalStateException::new);</span>
-<span class="fc" id="L73">            return Optional.of(new ExternalKeycloakService(frontEndUrl));</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (EntandoKeycloakHelper.provisioningStrategyOf(keycloakServer) == CapabilityProvisioningStrategy.USE_EXTERNAL) {</span>
+<span class="fc" id="L71">            final String frontEndUrl = keycloakServer.getSpec().getFrontEndUrl().orElseThrow(IllegalStateException::new);</span>
+<span class="fc" id="L72">            return Optional.of(new ExternalKeycloakService(frontEndUrl));</span>
         }
-<span class="fc" id="L75">        return IngressingDeployableBase.super.getExternalService();</span>
+<span class="fc" id="L74">        return IngressingDeployableBase.super.getExternalService();</span>
     }
 
     @Override
     public Optional&lt;Long&gt; getFileSystemUserAndGroupId() {
-<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (EntandoKeycloakHelper.determineStandardImage(keycloakServer) == StandardKeycloakImage.KEYCLOAK) {</span>
-<span class="fc" id="L81">            return Optional.of(KEYCLOAK_IMAGE_DEFAULT_USERID);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (EntandoKeycloakHelper.determineStandardImage(keycloakServer) == StandardKeycloakImage.KEYCLOAK) {</span>
+<span class="fc" id="L80">            return Optional.of(KEYCLOAK_IMAGE_DEFAULT_USERID);</span>
         } else {
-<span class="fc" id="L83">            return Optional.of(REDHAT_SSO_IMAGE_DEFAULT_USERID);</span>
+<span class="fc" id="L82">            return Optional.of(REDHAT_SSO_IMAGE_DEFAULT_USERID);</span>
         }
     }
 
     @Override
     public List&lt;DeployableContainer&gt; getContainers() {
-<span class="fc" id="L89">        return containers;</span>
+<span class="fc" id="L88">        return containers;</span>
     }
 
     @Override
     public Optional&lt;String&gt; getQualifier() {
-<span class="fc" id="L94">        return Optional.empty();</span>
+<span class="fc" id="L93">        return Optional.empty();</span>
     }
 
     @Override
     public EntandoKeycloakServer getCustomResource() {
-<span class="fc" id="L99">        return keycloakServer;</span>
+<span class="fc" id="L98">        return keycloakServer;</span>
     }
 
     @Override
     public KeycloakDeploymentResult createResult(Deployment deployment, Service service, Ingress ingress, Pod pod) {
-<span class="fc" id="L104">        return new KeycloakDeploymentResult(pod, service, ingress, KeycloakDeployableContainer.secretName(keycloakServer), keycloakServer);</span>
+<span class="fc" id="L103">        return new KeycloakDeploymentResult(pod, service, ingress, KeycloakDeployableContainer.secretName(keycloakServer), keycloakServer);</span>
     }
 
     @Override
     public String getServiceAccountToUse() {
-<span class="fc" id="L109">        return keycloakServer.getSpec().getServiceAccountToUse().orElse(getDefaultServiceAccountName());</span>
+<span class="fc" id="L108">        return keycloakServer.getSpec().getServiceAccountToUse().orElse(getDefaultServiceAccountName());</span>
     }
 
     @Override
     public int getReplicas() {
-<span class="fc" id="L114">        return keycloakServer.getSpec().getReplicas().orElse(1);</span>
+<span class="fc" id="L113">        return keycloakServer.getSpec().getReplicas().orElse(1);</span>
     }
 
     @Override
     public String getIngressName() {
-<span class="fc" id="L119">        return NameUtils.standardIngressName(keycloakServer);</span>
+<span class="fc" id="L118">        return NameUtils.standardIngressName(keycloakServer);</span>
     }
 
     @Override
     public String getIngressNamespace() {
-<span class="fc" id="L124">        return keycloakServer.getMetadata().getNamespace();</span>
+<span class="fc" id="L123">        return keycloakServer.getMetadata().getNamespace();</span>
     }
 
     @Override
     public List&lt;Secret&gt; getSecrets() {
-<span class="fc" id="L129">        return ofNullable(keycloakAdminSecret).stream().collect(Collectors.toList());</span>
+<span class="fc" id="L128">        return ofNullable(keycloakAdminSecret).stream().collect(Collectors.toList());</span>
     }
 
 }

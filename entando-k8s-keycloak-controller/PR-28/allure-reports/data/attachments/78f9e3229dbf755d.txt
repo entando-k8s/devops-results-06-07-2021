@@ -1,0 +1,31 @@
+---
+baseUrlToUse: "http://my-app-sso-service.my-namespace.svc.cluster.local:8080/auth"
+mixins:
+- "SsoConnectionInfo"
+password: "6615826f1e6c4ed1"
+externalBaseUrl: "https://myhost.com/auth"
+internalBaseUrl: "http://my-app-sso-service.my-namespace.svc.cluster.local:8080/auth"
+adminSecret:
+  apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoResourceKind: "EntandoKeycloakServer"
+      entando.org/capability: "Sso"
+      capabilityProvisionScope: "Dedicated"
+      EntandoResourceNamespace: "my-namespace"
+      entando.org/capability-implementation: "Keycloak"
+      EntandoKeycloakServer: "my-app-sso"
+    name: "my-app-sso-admin-secret"
+    namespace: "my-namespace"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoKeycloakServer"
+      blockOwnerDeletion: true
+      controller: true
+      name: "my-app-sso"
+      uid: "8bfff268-fd0a-4426-9ed5-22ee7210d91a"
+  stringData:
+    username: "entando_keycloak_admin"
+    password: "6615826f1e6c4ed1"
+username: "entando_keycloak_admin"

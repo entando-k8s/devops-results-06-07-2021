@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorComplianceMode;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
+import org.entando.kubernetes.model.capability.CapabilityProvisioningStrategy;
 import org.entando.kubernetes.model.capability.ExternallyProvidedService;
 import org.entando.kubernetes.model.capability.ProvidedCapability;
 import org.entando.kubernetes.model.common.DbmsVendor;
@@ -36,41 +37,49 @@ public class EntandoKeycloakHelper {
 
     public static StandardKeycloakImage determineStandardImage(EntandoKeycloakServer entandoKeycloakServer) {
         StandardKeycloakImage standardKeycloakImage;
-<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (EntandoOperatorSpiConfig.getComplianceMode() == EntandoOperatorComplianceMode.REDHAT) {</span>
-<span class="fc" id="L40">            standardKeycloakImage = StandardKeycloakImage.REDHAT_SSO;</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (EntandoOperatorSpiConfig.getComplianceMode() == EntandoOperatorComplianceMode.REDHAT) {</span>
+<span class="fc" id="L41">            standardKeycloakImage = StandardKeycloakImage.REDHAT_SSO;</span>
         } else {
-<span class="fc" id="L42">            standardKeycloakImage = entandoKeycloakServer.getSpec().getStandardImage().orElse(StandardKeycloakImage.KEYCLOAK);</span>
+<span class="fc" id="L43">            standardKeycloakImage = entandoKeycloakServer.getSpec().getStandardImage().orElse(StandardKeycloakImage.KEYCLOAK);</span>
         }
-<span class="fc" id="L44">        return standardKeycloakImage;</span>
+<span class="fc" id="L45">        return standardKeycloakImage;</span>
 
     }
 
     public static DbmsVendor determineDbmsVendor(EntandoKeycloakServer entandoKeycloakServer) {
         DbmsVendor dbmsVendor;
-<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (EntandoOperatorSpiConfig.getComplianceMode() == EntandoOperatorComplianceMode.REDHAT) {</span>
-<span class="fc" id="L51">            dbmsVendor = entandoKeycloakServer.getSpec().getDbms().orElse(DbmsVendor.POSTGRESQL);</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (EntandoOperatorSpiConfig.getComplianceMode() == EntandoOperatorComplianceMode.REDHAT) {</span>
+<span class="fc" id="L52">            dbmsVendor = entandoKeycloakServer.getSpec().getDbms().orElse(DbmsVendor.POSTGRESQL);</span>
         } else {
-<span class="fc" id="L53">            dbmsVendor = entandoKeycloakServer.getSpec().getDbms().orElse(DbmsVendor.EMBEDDED);</span>
+<span class="fc" id="L54">            dbmsVendor = entandoKeycloakServer.getSpec().getDbms().orElse(DbmsVendor.EMBEDDED);</span>
         }
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (dbmsVendor == DbmsVendor.NONE) {</span>
-<span class="nc" id="L56">            dbmsVendor = DbmsVendor.EMBEDDED;</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (dbmsVendor == DbmsVendor.NONE) {</span>
+<span class="nc" id="L57">            dbmsVendor = DbmsVendor.EMBEDDED;</span>
         }
-<span class="fc" id="L58">        return dbmsVendor;</span>
+<span class="fc" id="L59">        return dbmsVendor;</span>
     }
 
     public static String deriveFrontEndUrl(ProvidedCapability providedCapability) {
-<span class="fc" id="L62">        ExternallyProvidedService s = providedCapability.getSpec().getExternallyProvisionedService()</span>
-<span class="fc" id="L63">                .orElseThrow(IllegalArgumentException::new);</span>
-<span class="fc" id="L64">        final Map&lt;String, String&gt; capabilityParameters = ofNullable(providedCapability.getSpec().getCapabilityParameters())</span>
-<span class="fc" id="L65">                .orElse(Collections.emptyMap());</span>
-<span class="pc bpc" id="L66" title="1 of 4 branches missed.">        final String port = s.getPort().filter(p -&gt; !(p == 80 || p == 443)).map(p -&gt; &quot;:&quot; + p).orElse(&quot;&quot;);</span>
+<span class="fc" id="L63">        ExternallyProvidedService s = providedCapability.getSpec().getExternallyProvisionedService()</span>
+<span class="fc" id="L64">                .orElseThrow(IllegalArgumentException::new);</span>
+<span class="fc" id="L65">        final Map&lt;String, String&gt; capabilityParameters = ofNullable(providedCapability.getSpec().getCapabilityParameters())</span>
+<span class="fc" id="L66">                .orElse(Collections.emptyMap());</span>
+<span class="pc bpc" id="L67" title="1 of 4 branches missed.">        final String port = s.getPort().filter(p -&gt; !(p == 80 || p == 443)).map(p -&gt; &quot;:&quot; + p).orElse(&quot;&quot;);</span>
         String protocol;
-<span class="pc bpc" id="L68" title="2 of 4 branches missed.">        if (s.getPort().map(p -&gt; p == 80).orElse(false)) {</span>
-<span class="nc" id="L69">            protocol = &quot;http&quot;;</span>
+<span class="pc bpc" id="L69" title="2 of 4 branches missed.">        if (s.getPort().map(p -&gt; p == 80).orElse(false)) {</span>
+<span class="nc" id="L70">            protocol = &quot;http&quot;;</span>
         } else {
-<span class="fc" id="L71">            protocol = &quot;https&quot;;</span>
+<span class="fc" id="L72">            protocol = &quot;https&quot;;</span>
         }
-<span class="fc" id="L73">        return ofNullable(capabilityParameters.get(&quot;frontEndUrl&quot;)).orElse(protocol + &quot;://&quot; + s.getHost() + port + &quot;/auth&quot;);</span>
+<span class="fc" id="L74">        return ofNullable(capabilityParameters.get(&quot;frontEndUrl&quot;)).orElse(protocol + &quot;://&quot; + s.getHost() + port + &quot;/auth&quot;);</span>
+    }
+
+    public static CapabilityProvisioningStrategy provisioningStrategyOf(EntandoKeycloakServer e) {
+<span class="fc" id="L78">        return e.getSpec().getProvisioningStrategy().orElse(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY);</span>
+    }
+
+    public static CapabilityProvisioningStrategy provisioningStrategyOf(ProvidedCapability e) {
+<span class="fc" id="L82">        return e.getSpec().getProvisioningStrategy().orElse(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY);</span>
     }
 }
 
