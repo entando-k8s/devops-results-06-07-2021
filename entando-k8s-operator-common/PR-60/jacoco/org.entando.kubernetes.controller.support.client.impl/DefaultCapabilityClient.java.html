@@ -30,14 +30,14 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.entando.kubernetes.controller.spi.capability.SerializedCapabilityProvisioningResult;
+import org.entando.kubernetes.controller.spi.common.ExceptionUtils;
 import org.entando.kubernetes.controller.support.client.CapabilityClient;
-import org.entando.kubernetes.controller.support.client.WaitingClient;
 import org.entando.kubernetes.model.capability.ProvidedCapability;
 import org.entando.kubernetes.model.common.AbstractServerStatus;
 import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
 import org.entando.kubernetes.model.common.ExposedServerStatus;
 
-public class DefaultCapabilityClient implements CapabilityClient, WaitingClient {
+public class DefaultCapabilityClient implements CapabilityClient {
 
     private final KubernetesClient client;
 
@@ -70,14 +70,14 @@ public class DefaultCapabilityClient implements CapabilityClient, WaitingClient 
     @Override
     public ProvidedCapability waitForCapabilityCompletion(ProvidedCapability capability, int timeoutSeconds) throws TimeoutException {
         try {
-<span class="fc" id="L73">            return interruptionSafe(() -&gt; client.customResources(ProvidedCapability.class)</span>
+<span class="fc" id="L73">            return ExceptionUtils.interruptionSafe(() -&gt; client.customResources(ProvidedCapability.class)</span>
 <span class="fc" id="L74">                    .inNamespace(capability.getMetadata().getNamespace())</span>
 <span class="fc" id="L75">                    .withName(capability.getMetadata().getName())</span>
 <span class="pc bpc" id="L76" title="1 of 2 branches missed.">                    .waitUntilCondition(providedCapability -&gt; providedCapability.getStatus() != null</span>
-<span class="pc bpc" id="L77" title="1 of 2 branches missed.">                                    &amp;&amp; providedCapability.getStatus().getPhase() != null</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">                                    &amp;&amp; providedCapability.getStatus().getPhase() != null</span>
 <span class="fc" id="L78">                                    &amp;&amp; Set.of(EntandoDeploymentPhase.IGNORED, EntandoDeploymentPhase.FAILED,</span>
                             EntandoDeploymentPhase.SUCCESSFUL)
-<span class="fc bfc" id="L80" title="All 2 branches covered.">                                    .contains(providedCapability.getStatus().getPhase()),</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">                                    .contains(providedCapability.getStatus().getPhase()),</span>
                             timeoutSeconds,
                             TimeUnit.SECONDS));
 <span class="fc" id="L83">        } catch (IllegalArgumentException e) {</span>

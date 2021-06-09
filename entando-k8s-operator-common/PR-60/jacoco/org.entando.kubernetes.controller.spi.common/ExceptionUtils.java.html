@@ -59,6 +59,15 @@ public class ExceptionUtils {
 <span class="nc" id="L59">        return supplier.get();</span>
     }
 
+    public static &lt;T&gt; T interruptionSafe(Interruptable&lt;T&gt; i) {
+        try {
+<span class="fc" id="L64">            return i.run();</span>
+<span class="nc" id="L65">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L66">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L67">            throw new IllegalStateException(e);</span>
+        }
+    }
+
     public interface IoVulnerable&lt;T&gt; {
 
         T invoke() throws IOException;
@@ -69,10 +78,15 @@ public class ExceptionUtils {
 
     public static &lt;T&gt; T ioSafe(IoVulnerable&lt;T&gt; i) {
         try {
-<span class="fc" id="L72">            return i.invoke();</span>
-<span class="fc" id="L73">        } catch (IOException e) {</span>
-<span class="fc" id="L74">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L81">            return i.invoke();</span>
+<span class="fc" id="L82">        } catch (IOException e) {</span>
+<span class="fc" id="L83">            throw new IllegalStateException(e);</span>
         }
+    }
+
+    public interface Interruptable&lt;T&gt; {
+
+        T run() throws InterruptedException;
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
