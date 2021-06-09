@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Profile;
 
     @Value(&quot;${entando.k8s.service.url}&quot;)
     private String k8sServiceUrl;
+    @Value(&quot;${entando.k8s.service.url.normalize:true}&quot;)
+    private boolean normalizeK8sServiceUrl;
     @Value(&quot;${spring.security.oauth2.client.registration.oidc.client-id}&quot;)
     private String clientId;
     @Value(&quot;${spring.security.oauth2.client.registration.oidc.client-secret}&quot;)
@@ -32,20 +34,20 @@ import org.springframework.context.annotation.Profile;
 
     @Bean
     public KubernetesClient client() {
-<span class="nc" id="L35">        final Config config = new ConfigBuilder().build();</span>
-<span class="nc" id="L36">        return new DefaultKubernetesClient(config);</span>
+<span class="nc" id="L37">        final Config config = new ConfigBuilder().build();</span>
+<span class="nc" id="L38">        return new DefaultKubernetesClient(config);</span>
     }
 
     @Bean
     public K8SServiceClient k8SServiceClient() {
-<span class="nc" id="L41">        return new DefaultK8SServiceClient(k8sServiceUrl, clientId, clientSecret, tokenUri);</span>
+<span class="nc" id="L43">        return new DefaultK8SServiceClient(k8sServiceUrl, normalizeK8sServiceUrl, clientId, clientSecret, tokenUri);</span>
     }
 
     @Bean
     public ConditionFactory k8SServiceWaitingConditionFactory() {
-<span class="nc" id="L46">        return await().atMost(Duration.ofMinutes(pluginReadinessTimeoutInMinutes))</span>
-<span class="nc" id="L47">                .pollDelay(Duration.ZERO)</span>
-<span class="nc" id="L48">                .pollInterval(Duration.ofSeconds(10));</span>
+<span class="nc" id="L48">        return await().atMost(Duration.ofMinutes(pluginReadinessTimeoutInMinutes))</span>
+<span class="nc" id="L49">                .pollDelay(Duration.ZERO)</span>
+<span class="nc" id="L50">                .pollInterval(Duration.ofSeconds(10));</span>
     }
 
 }

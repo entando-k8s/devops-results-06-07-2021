@@ -69,74 +69,80 @@ import org.springframework.web.util.UriComponentsBuilder;
     private RestTemplate noAuthRestTemplate;
     private Traverson traverson;
 
-<span class="fc" id="L72">    public DefaultK8SServiceClient(String k8sServiceUrl, String clientId, String clientSecret, String tokenUri) {</span>
+<span class="fc" id="L72">    public DefaultK8SServiceClient(String k8sServiceUrl, boolean normalizeK8sServiceUrl, String clientId, String clientSecret, String tokenUri) {</span>
 <span class="fc" id="L73">        this.clientId = clientId;</span>
 <span class="fc" id="L74">        this.clientSecret = clientSecret;</span>
 <span class="fc" id="L75">        this.tokenUri = tokenUri;</span>
-<span class="fc" id="L76">        this.k8sServiceUrl = k8sServiceUrl;</span>
-<span class="fc" id="L77">        this.restTemplate = newRestTemplate();</span>
-<span class="fc" id="L78">        this.traverson = newTraverson();</span>
-<span class="fc" id="L79">        this.noAuthRestTemplate = newNoAuthRestTemplate();</span>
-<span class="fc" id="L80">    }</span>
+<span class="fc" id="L76">        this.restTemplate = newRestTemplate();</span>
+
+<span class="pc bpc" id="L78" title="2 of 4 branches missed.">        if (normalizeK8sServiceUrl &amp;&amp; ! k8sServiceUrl.endsWith(&quot;/&quot;)) {</span>
+<span class="fc" id="L79">            k8sServiceUrl += &quot;/&quot;;</span>
+        }
+<span class="fc" id="L81">        this.k8sServiceUrl = k8sServiceUrl;</span>
+
+<span class="fc" id="L83">        this.traverson = newTraverson();</span>
+<span class="fc" id="L84">        this.noAuthRestTemplate = newNoAuthRestTemplate();</span>
+
+<span class="fc" id="L86">    }</span>
 
     public Traverson newTraverson() {
-<span class="fc" id="L83">        return new Traverson(URI.create(k8sServiceUrl), MediaTypes.HAL_JSON, MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L84">                .setRestOperations(getRestTemplate());</span>
+<span class="fc" id="L89">        return new Traverson(URI.create(k8sServiceUrl), MediaTypes.HAL_JSON, MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L90">                .setRestOperations(getRestTemplate());</span>
     }
 
     public RestTemplate getRestTemplate() {
-<span class="fc" id="L88">        return restTemplate;</span>
+<span class="fc" id="L94">        return restTemplate;</span>
     }
 
     public void setRestTemplate(RestTemplate restTemplate) {
-<span class="fc" id="L92">        this.restTemplate = restTemplate;</span>
-<span class="fc" id="L93">        this.traverson = newTraverson();</span>
-<span class="fc" id="L94">    }</span>
+<span class="fc" id="L98">        this.restTemplate = restTemplate;</span>
+<span class="fc" id="L99">        this.traverson = newTraverson();</span>
+<span class="fc" id="L100">    }</span>
 
     public void setNoAuthRestTemplate(RestTemplate restTemplate) {
-<span class="fc" id="L97">        this.noAuthRestTemplate = restTemplate;</span>
-<span class="fc" id="L98">    }</span>
+<span class="fc" id="L103">        this.noAuthRestTemplate = restTemplate;</span>
+<span class="fc" id="L104">    }</span>
 
     @Override
     public List&lt;EntandoAppPluginLink&gt; getAppLinks(String entandoAppName) {
-<span class="fc" id="L102">        return tryOrThrow(() -&gt; {</span>
-<span class="fc" id="L103">            CollectionModel&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt; links = traverson</span>
-<span class="fc" id="L104">                    .follow(APP_PLUGIN_LINKS_ENDPOINT)</span>
-<span class="fc" id="L105">                    .follow(Hop.rel(&quot;app-links&quot;).withParameter(&quot;app&quot;, entandoAppName))</span>
-<span class="fc" id="L106">                    .toObject(new ParameterizedTypeReference&lt;CollectionModel&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt;&gt;() {</span>
+<span class="fc" id="L108">        return tryOrThrow(() -&gt; {</span>
+<span class="fc" id="L109">            CollectionModel&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt; links = traverson</span>
+<span class="fc" id="L110">                    .follow(APP_PLUGIN_LINKS_ENDPOINT)</span>
+<span class="fc" id="L111">                    .follow(Hop.rel(&quot;app-links&quot;).withParameter(&quot;app&quot;, entandoAppName))</span>
+<span class="fc" id="L112">                    .toObject(new ParameterizedTypeReference&lt;CollectionModel&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt;&gt;() {</span>
                     });
-<span class="pc bpc" id="L108" title="2 of 4 branches missed.">            assert links != null;</span>
-<span class="fc" id="L109">            return links.getContent().stream()</span>
-<span class="fc" id="L110">                    .map(EntityModel::getContent)</span>
-<span class="fc" id="L111">                    .collect(Collectors.toList());</span>
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">            assert links != null;</span>
+<span class="fc" id="L115">            return links.getContent().stream()</span>
+<span class="fc" id="L116">                    .map(EntityModel::getContent)</span>
+<span class="fc" id="L117">                    .collect(Collectors.toList());</span>
         });
     }
 
     @Override
     public EntandoPlugin getPluginForLink(EntandoAppPluginLink el) {
-<span class="fc" id="L117">        return tryOrThrow(() -&gt; traverson.follow(APP_PLUGIN_LINKS_ENDPOINT)</span>
-<span class="fc" id="L118">                .follow(Hop.rel(&quot;app-plugin-link&quot;).withParameter(&quot;name&quot;, el.getMetadata().getName()))</span>
-<span class="fc" id="L119">                .follow(&quot;plugin&quot;)</span>
-<span class="fc" id="L120">                .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;EntandoPlugin&gt;&gt;() {</span>
+<span class="fc" id="L123">        return tryOrThrow(() -&gt; traverson.follow(APP_PLUGIN_LINKS_ENDPOINT)</span>
+<span class="fc" id="L124">                .follow(Hop.rel(&quot;app-plugin-link&quot;).withParameter(&quot;name&quot;, el.getMetadata().getName()))</span>
+<span class="fc" id="L125">                .follow(&quot;plugin&quot;)</span>
+<span class="fc" id="L126">                .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;EntandoPlugin&gt;&gt;() {</span>
                 })
-<span class="fc" id="L122">                .getContent(), &quot;get plugin associated with link &quot; + el.getMetadata().getName());</span>
+<span class="fc" id="L128">                .getContent(), &quot;get plugin associated with link &quot; + el.getMetadata().getName());</span>
     }
 
     @Override
     public Optional&lt;EntandoPlugin&gt; getPluginByName(String name) {
-<span class="fc" id="L127">        EntandoPlugin plugin = null;</span>
+<span class="fc" id="L133">        EntandoPlugin plugin = null;</span>
         try {
-<span class="fc" id="L129">            plugin = traverson.follow(PLUGINS_ENDPOINT)</span>
-<span class="fc" id="L130">                    .follow(Hop.rel(&quot;plugin&quot;).withParameter(&quot;name&quot;, name))</span>
-<span class="fc" id="L131">                    .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;EntandoPlugin&gt;&gt;() {</span>
+<span class="fc" id="L135">            plugin = traverson.follow(PLUGINS_ENDPOINT)</span>
+<span class="fc" id="L136">                    .follow(Hop.rel(&quot;plugin&quot;).withParameter(&quot;name&quot;, name))</span>
+<span class="fc" id="L137">                    .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;EntandoPlugin&gt;&gt;() {</span>
                     })
-<span class="fc" id="L133">                    .getContent();</span>
-<span class="fc" id="L134">        } catch (RestClientResponseException ex) {</span>
-<span class="pc bpc" id="L135" title="1 of 2 branches missed.">            if (ex.getRawStatusCode() != 404) {</span>
-<span class="nc" id="L136">                throw new KubernetesClientException(&quot;An error occurred while retrieving plugin with name &quot; + name, ex);</span>
+<span class="fc" id="L139">                    .getContent();</span>
+<span class="fc" id="L140">        } catch (RestClientResponseException ex) {</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">            if (ex.getRawStatusCode() != 404) {</span>
+<span class="nc" id="L142">                throw new KubernetesClientException(&quot;An error occurred while retrieving plugin with name &quot; + name, ex);</span>
             }
-<span class="fc" id="L138">        }</span>
-<span class="fc" id="L139">        return Optional.ofNullable(plugin);</span>
+<span class="fc" id="L144">        }</span>
+<span class="fc" id="L145">        return Optional.ofNullable(plugin);</span>
     }
 
     /**
@@ -147,191 +153,191 @@ import org.springframework.web.util.UriComponentsBuilder;
      */
     @Override
     public EntandoPlugin updatePlugin(EntandoPlugin plugin) {
-<span class="nc" id="L150">        String pluginName = plugin.getMetadata().getName();</span>
-<span class="nc" id="L151">        URI updateURI = traverson.follow(PLUGINS_ENDPOINT)</span>
-<span class="nc" id="L152">                .follow(Hop.rel(&quot;create-or-replace-plugin&quot;).withParameter(&quot;name&quot;, pluginName))</span>
-<span class="nc" id="L153">                .asLink().toUri();</span>
+<span class="nc" id="L156">        String pluginName = plugin.getMetadata().getName();</span>
+<span class="nc" id="L157">        URI updateURI = traverson.follow(PLUGINS_ENDPOINT)</span>
+<span class="nc" id="L158">                .follow(Hop.rel(&quot;create-or-replace-plugin&quot;).withParameter(&quot;name&quot;, pluginName))</span>
+<span class="nc" id="L159">                .asLink().toUri();</span>
 
-<span class="nc" id="L155">        return tryOrThrow(() -&gt; {</span>
-<span class="nc" id="L156">            RequestEntity&lt;EntandoPlugin&gt; request = RequestEntity</span>
-<span class="nc" id="L157">                    .put(updateURI)</span>
-<span class="nc" id="L158">                    .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="nc" id="L159">                    .body(plugin);</span>
+<span class="nc" id="L161">        return tryOrThrow(() -&gt; {</span>
+<span class="nc" id="L162">            RequestEntity&lt;EntandoPlugin&gt; request = RequestEntity</span>
+<span class="nc" id="L163">                    .put(updateURI)</span>
+<span class="nc" id="L164">                    .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="nc" id="L165">                    .body(plugin);</span>
 
-<span class="nc" id="L161">            ResponseEntity&lt;EntityModel&lt;EntandoPlugin&gt;&gt; response = restTemplate</span>
-<span class="nc" id="L162">                    .exchange(request, new ParameterizedTypeReference&lt;EntityModel&lt;EntandoPlugin&gt;&gt;() {</span>
+<span class="nc" id="L167">            ResponseEntity&lt;EntityModel&lt;EntandoPlugin&gt;&gt; response = restTemplate</span>
+<span class="nc" id="L168">                    .exchange(request, new ParameterizedTypeReference&lt;EntityModel&lt;EntandoPlugin&gt;&gt;() {</span>
                     });
 
-<span class="nc bnc" id="L165" title="All 4 branches missed.">            if (response.getStatusCode().is2xxSuccessful() &amp;&amp; response.getBody() != null) {</span>
-<span class="nc" id="L166">                return response.getBody().getContent();</span>
+<span class="nc bnc" id="L171" title="All 4 branches missed.">            if (response.getStatusCode().is2xxSuccessful() &amp;&amp; response.getBody() != null) {</span>
+<span class="nc" id="L172">                return response.getBody().getContent();</span>
             } else {
-<span class="nc" id="L168">                throw new RestClientResponseException(&quot;Update process failed&quot;,</span>
-<span class="nc" id="L169">                        response.getStatusCodeValue(), response.getStatusCode().getReasonPhrase(),</span>
+<span class="nc" id="L174">                throw new RestClientResponseException(&quot;Update process failed&quot;,</span>
+<span class="nc" id="L175">                        response.getStatusCodeValue(), response.getStatusCode().getReasonPhrase(),</span>
                         null, null, null);
             }
-<span class="nc" id="L172">        }, String.format(&quot;while updating plugin %s&quot;, pluginName));</span>
+<span class="nc" id="L178">        }, String.format(&quot;while updating plugin %s&quot;, pluginName));</span>
 
     }
 
     @Override
     public void unlink(EntandoAppPluginLink el) {
-<span class="fc" id="L178">        String linkName = el.getMetadata().getName();</span>
-<span class="fc" id="L179">        String appName = el.getSpec().getEntandoAppName();</span>
-<span class="fc" id="L180">        String pluginName = el.getSpec().getEntandoAppNamespace().orElse(el.getMetadata().getNamespace());</span>
-<span class="fc" id="L181">        Link unlinkHref = traverson.follow(APP_PLUGIN_LINKS_ENDPOINT)</span>
-<span class="fc" id="L182">                .follow(Hop.rel(&quot;app-plugin-link&quot;).withParameter(&quot;name&quot;, linkName))</span>
-<span class="fc" id="L183">                .asLink();</span>
-<span class="fc" id="L184">        tryOrThrow(() -&gt; restTemplate.delete(unlinkHref.toUri()),</span>
-<span class="fc" id="L185">                String.format(&quot;unlink app %s and plugin %s&quot;, appName, pluginName));</span>
-<span class="fc" id="L186">    }</span>
+<span class="fc" id="L184">        String linkName = el.getMetadata().getName();</span>
+<span class="fc" id="L185">        String appName = el.getSpec().getEntandoAppName();</span>
+<span class="fc" id="L186">        String pluginName = el.getSpec().getEntandoAppNamespace().orElse(el.getMetadata().getNamespace());</span>
+<span class="fc" id="L187">        Link unlinkHref = traverson.follow(APP_PLUGIN_LINKS_ENDPOINT)</span>
+<span class="fc" id="L188">                .follow(Hop.rel(&quot;app-plugin-link&quot;).withParameter(&quot;name&quot;, linkName))</span>
+<span class="fc" id="L189">                .asLink();</span>
+<span class="fc" id="L190">        tryOrThrow(() -&gt; restTemplate.delete(unlinkHref.toUri()),</span>
+<span class="fc" id="L191">                String.format(&quot;unlink app %s and plugin %s&quot;, appName, pluginName));</span>
+<span class="fc" id="L192">    }</span>
 
     @Override
     public EntandoAppPluginLink linkAppWithPlugin(String name, String namespace, EntandoPlugin plugin) {
-<span class="fc" id="L190">        URI linkToCall = tryOrThrow(() -&gt; {</span>
-<span class="fc" id="L191">            Link linkToApp = traverson.follow(&quot;apps&quot;)</span>
-<span class="fc" id="L192">                    .follow(Hop.rel(&quot;app&quot;).withParameter(&quot;name&quot;, name))</span>
-<span class="fc" id="L193">                    .asLink();</span>
-<span class="fc" id="L194">            return UriComponentsBuilder.fromUri(linkToApp.toUri()).pathSegment(&quot;links&quot;).build(Collections.emptyMap());</span>
+<span class="fc" id="L196">        URI linkToCall = tryOrThrow(() -&gt; {</span>
+<span class="fc" id="L197">            Link linkToApp = traverson.follow(&quot;apps&quot;)</span>
+<span class="fc" id="L198">                    .follow(Hop.rel(&quot;app&quot;).withParameter(&quot;name&quot;, name))</span>
+<span class="fc" id="L199">                    .asLink();</span>
+<span class="fc" id="L200">            return UriComponentsBuilder.fromUri(linkToApp.toUri()).pathSegment(&quot;links&quot;).build(Collections.emptyMap());</span>
         });
 
-<span class="fc" id="L197">        return tryOrThrow(() -&gt; {</span>
-<span class="fc" id="L198">                    RequestEntity&lt;EntandoPlugin&gt; request = RequestEntity</span>
-<span class="fc" id="L199">                            .post(linkToCall)</span>
-<span class="fc" id="L200">                            .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L201">                            .body(plugin);</span>
-<span class="fc" id="L202">                    ResponseEntity&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt; resp = restTemplate</span>
-<span class="fc" id="L203">                            .exchange(request, new ParameterizedTypeReference&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt;() {</span>
+<span class="fc" id="L203">        return tryOrThrow(() -&gt; {</span>
+<span class="fc" id="L204">                    RequestEntity&lt;EntandoPlugin&gt; request = RequestEntity</span>
+<span class="fc" id="L205">                            .post(linkToCall)</span>
+<span class="fc" id="L206">                            .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L207">                            .body(plugin);</span>
+<span class="fc" id="L208">                    ResponseEntity&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt; resp = restTemplate</span>
+<span class="fc" id="L209">                            .exchange(request, new ParameterizedTypeReference&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt;() {</span>
                             });
-<span class="pc bpc" id="L205" title="2 of 4 branches missed.">                    if (resp.getStatusCode().is2xxSuccessful() &amp;&amp; resp.getBody() != null) {</span>
-<span class="fc" id="L206">                        return resp.getBody().getContent();</span>
+<span class="pc bpc" id="L211" title="2 of 4 branches missed.">                    if (resp.getStatusCode().is2xxSuccessful() &amp;&amp; resp.getBody() != null) {</span>
+<span class="fc" id="L212">                        return resp.getBody().getContent();</span>
                     }
-<span class="nc" id="L208">                    throw new RestClientResponseException(&quot;Linking process failed&quot;,</span>
-<span class="nc" id="L209">                            resp.getStatusCodeValue(), resp.getStatusCode().getReasonPhrase(),</span>
+<span class="nc" id="L214">                    throw new RestClientResponseException(&quot;Linking process failed&quot;,</span>
+<span class="nc" id="L215">                            resp.getStatusCodeValue(), resp.getStatusCode().getReasonPhrase(),</span>
                             null, null, null);
                 },
-<span class="fc" id="L212">                String.format(&quot;linking app %s to plugin %s&quot;, name, plugin.getMetadata().getName())</span>
+<span class="fc" id="L218">                String.format(&quot;linking app %s to plugin %s&quot;, name, plugin.getMetadata().getName())</span>
         );
     }
 
     @Override
     public Optional&lt;EntandoAppPluginLink&gt; getLinkByName(String linkName) {
-<span class="fc" id="L218">        EntandoAppPluginLink link = null;</span>
+<span class="fc" id="L224">        EntandoAppPluginLink link = null;</span>
         try {
-<span class="fc" id="L220">            link = traverson.follow(APP_PLUGIN_LINKS_ENDPOINT)</span>
-<span class="fc" id="L221">                    .follow(Hop.rel(&quot;app-plugin-link&quot;).withParameter(&quot;name&quot;, linkName))</span>
-<span class="fc" id="L222">                    .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt;() {</span>
+<span class="fc" id="L226">            link = traverson.follow(APP_PLUGIN_LINKS_ENDPOINT)</span>
+<span class="fc" id="L227">                    .follow(Hop.rel(&quot;app-plugin-link&quot;).withParameter(&quot;name&quot;, linkName))</span>
+<span class="fc" id="L228">                    .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;EntandoAppPluginLink&gt;&gt;() {</span>
                     })
-<span class="fc" id="L224">                    .getContent();</span>
-<span class="nc" id="L225">        } catch (RestClientResponseException ex) {</span>
-<span class="nc bnc" id="L226" title="All 2 branches missed.">            if (ex.getRawStatusCode() != 404) {</span>
-<span class="nc" id="L227">                throw new KubernetesClientException(</span>
+<span class="fc" id="L230">                    .getContent();</span>
+<span class="nc" id="L231">        } catch (RestClientResponseException ex) {</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">            if (ex.getRawStatusCode() != 404) {</span>
+<span class="nc" id="L233">                throw new KubernetesClientException(</span>
                         &quot;An error occurred while retrieving entando-app-plugin-link with name &quot; + linkName, ex);
             }
-<span class="fc" id="L230">        }</span>
-<span class="fc" id="L231">        return Optional.ofNullable(link);</span>
+<span class="fc" id="L236">        }</span>
+<span class="fc" id="L237">        return Optional.ofNullable(link);</span>
     }
 
     @Override
     public List&lt;EntandoDeBundle&gt; getBundlesInObservedNamespaces() {
-<span class="fc" id="L236">        return tryOrThrow(() -&gt; traverson.follow(BUNDLES_ENDPOINT)</span>
-<span class="fc" id="L237">                .toObject(new ParameterizedTypeReference&lt;CollectionModel&lt;EntityModel&lt;EntandoDeBundle&gt;&gt;&gt;() {</span>
+<span class="fc" id="L242">        return tryOrThrow(() -&gt; traverson.follow(BUNDLES_ENDPOINT)</span>
+<span class="fc" id="L243">                .toObject(new ParameterizedTypeReference&lt;CollectionModel&lt;EntityModel&lt;EntandoDeBundle&gt;&gt;&gt;() {</span>
                 })
-<span class="fc" id="L239">                .getContent()</span>
-<span class="fc" id="L240">                .stream().map(EntityModel::getContent)</span>
-<span class="fc" id="L241">                .collect(Collectors.toList()));</span>
+<span class="fc" id="L245">                .getContent()</span>
+<span class="fc" id="L246">                .stream().map(EntityModel::getContent)</span>
+<span class="fc" id="L247">                .collect(Collectors.toList()));</span>
     }
 
     @Override
     public List&lt;EntandoDeBundle&gt; getBundlesInNamespace(String namespace) {
-<span class="fc" id="L246">        return tryOrThrow(() -&gt; traverson.follow(BUNDLES_ENDPOINT)</span>
-<span class="fc" id="L247">                .follow(Hop.rel(&quot;bundles-in-namespace&quot;).withParameter(&quot;namespace&quot;, namespace))</span>
-<span class="fc" id="L248">                .toObject(new ParameterizedTypeReference&lt;CollectionModel&lt;EntityModel&lt;EntandoDeBundle&gt;&gt;&gt;() {</span>
+<span class="fc" id="L252">        return tryOrThrow(() -&gt; traverson.follow(BUNDLES_ENDPOINT)</span>
+<span class="fc" id="L253">                .follow(Hop.rel(&quot;bundles-in-namespace&quot;).withParameter(&quot;namespace&quot;, namespace))</span>
+<span class="fc" id="L254">                .toObject(new ParameterizedTypeReference&lt;CollectionModel&lt;EntityModel&lt;EntandoDeBundle&gt;&gt;&gt;() {</span>
                 })
-<span class="fc" id="L250">                .getContent()</span>
-<span class="fc" id="L251">                .stream().map(EntityModel::getContent)</span>
-<span class="fc" id="L252">                .collect(Collectors.toList()));</span>
+<span class="fc" id="L256">                .getContent()</span>
+<span class="fc" id="L257">                .stream().map(EntityModel::getContent)</span>
+<span class="fc" id="L258">                .collect(Collectors.toList()));</span>
     }
 
     @Override
     public List&lt;EntandoDeBundle&gt; getBundlesInNamespaces(List&lt;String&gt; namespaces) {
         @SuppressWarnings(&quot;unchecked&quot;)
-<span class="fc" id="L258">        CompletableFuture&lt;List&lt;EntandoDeBundle&gt;&gt;[] futures = namespaces.stream()</span>
-<span class="pc" id="L259">                .map(n -&gt; CompletableFuture.supplyAsync(() -&gt; getBundlesInNamespace(n))</span>
-<span class="fc" id="L260">                        .exceptionally(ex -&gt; {</span>
-<span class="fc" id="L261">                            LOGGER.log(Level.SEVERE, &quot;An error occurred while retrieving bundle from a namespace&quot;, ex);</span>
-<span class="fc" id="L262">                            return Collections.emptyList();</span>
+<span class="fc" id="L264">        CompletableFuture&lt;List&lt;EntandoDeBundle&gt;&gt;[] futures = namespaces.stream()</span>
+<span class="pc" id="L265">                .map(n -&gt; CompletableFuture.supplyAsync(() -&gt; getBundlesInNamespace(n))</span>
+<span class="fc" id="L266">                        .exceptionally(ex -&gt; {</span>
+<span class="fc" id="L267">                            LOGGER.log(Level.SEVERE, &quot;An error occurred while retrieving bundle from a namespace&quot;, ex);</span>
+<span class="fc" id="L268">                            return Collections.emptyList();</span>
                         }))
-<span class="fc" id="L264">                .toArray(CompletableFuture[]::new);</span>
+<span class="fc" id="L270">                .toArray(CompletableFuture[]::new);</span>
 
-<span class="fc" id="L266">        return CompletableFuture.allOf(futures).thenApply(v -&gt; Arrays.stream(futures)</span>
-<span class="fc" id="L267">                .map(CompletableFuture::join)</span>
-<span class="fc" id="L268">                .flatMap(Collection::stream)</span>
-<span class="fc" id="L269">                .collect(Collectors.toList())</span>
-<span class="fc" id="L270">        ).join();</span>
+<span class="fc" id="L272">        return CompletableFuture.allOf(futures).thenApply(v -&gt; Arrays.stream(futures)</span>
+<span class="fc" id="L273">                .map(CompletableFuture::join)</span>
+<span class="fc" id="L274">                .flatMap(Collection::stream)</span>
+<span class="fc" id="L275">                .collect(Collectors.toList())</span>
+<span class="fc" id="L276">        ).join();</span>
     }
 
     @Override
     public Optional&lt;EntandoDeBundle&gt; getBundleWithName(String name) {
-<span class="fc" id="L275">        EntandoDeBundle bundle = null;</span>
+<span class="fc" id="L281">        EntandoDeBundle bundle = null;</span>
         try {
-<span class="fc" id="L277">            bundle = traverson.follow(BUNDLES_ENDPOINT)</span>
-<span class="fc" id="L278">                    .follow(Hop.rel(&quot;bundle&quot;).withParameter(&quot;name&quot;, name))</span>
-<span class="fc" id="L279">                    .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;EntandoDeBundle&gt;&gt;() {</span>
+<span class="fc" id="L283">            bundle = traverson.follow(BUNDLES_ENDPOINT)</span>
+<span class="fc" id="L284">                    .follow(Hop.rel(&quot;bundle&quot;).withParameter(&quot;name&quot;, name))</span>
+<span class="fc" id="L285">                    .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;EntandoDeBundle&gt;&gt;() {</span>
                     })
-<span class="fc" id="L281">                    .getContent();</span>
+<span class="fc" id="L287">                    .getContent();</span>
 
-<span class="fc" id="L283">        } catch (RestClientResponseException ex) {</span>
-<span class="pc bpc" id="L284" title="1 of 2 branches missed.">            if (ex.getRawStatusCode() != 404) {</span>
-<span class="nc" id="L285">                throw new KubernetesClientException(&quot;An error occurred while retrieving bundle with name &quot; + name, ex);</span>
+<span class="fc" id="L289">        } catch (RestClientResponseException ex) {</span>
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">            if (ex.getRawStatusCode() != 404) {</span>
+<span class="nc" id="L291">                throw new KubernetesClientException(&quot;An error occurred while retrieving bundle with name &quot; + name, ex);</span>
             }
-<span class="nc" id="L287">        } catch (Exception ex) {</span>
-<span class="nc" id="L288">            throw new KubernetesClientException(&quot;An error occurred while retrieving bundle with name &quot; + name, ex);</span>
-<span class="fc" id="L289">        }</span>
+<span class="nc" id="L293">        } catch (Exception ex) {</span>
+<span class="nc" id="L294">            throw new KubernetesClientException(&quot;An error occurred while retrieving bundle with name &quot; + name, ex);</span>
+<span class="fc" id="L295">        }</span>
 
-<span class="fc" id="L291">        return Optional.ofNullable(bundle);</span>
+<span class="fc" id="L297">        return Optional.ofNullable(bundle);</span>
     }
 
     @Override
     public Optional&lt;EntandoDeBundle&gt; getBundleWithNameAndNamespace(String name, String namespace) {
-<span class="fc" id="L296">        return getBundlesInNamespace(namespace).stream()</span>
-<span class="fc" id="L297">                .filter(b -&gt; b.getMetadata().getName().equals(name))</span>
-<span class="fc" id="L298">                .findFirst();</span>
+<span class="fc" id="L302">        return getBundlesInNamespace(namespace).stream()</span>
+<span class="fc" id="L303">                .filter(b -&gt; b.getMetadata().getName().equals(name))</span>
+<span class="fc" id="L304">                .findFirst();</span>
     }
 
     @Override
     public boolean isPluginReadyToServeApp(EntandoPlugin plugin, String appName) {
-<span class="fc bfc" id="L303" title="All 2 branches covered.">        if (plugin.getSpec().getIngressPath() == null) {</span>
-<span class="fc" id="L304">            return false;</span>
+<span class="fc bfc" id="L309" title="All 2 branches covered.">        if (plugin.getSpec().getIngressPath() == null) {</span>
+<span class="fc" id="L310">            return false;</span>
         }
-<span class="fc" id="L306">        Ingress appIngress = getAppIngress(appName);</span>
-<span class="fc" id="L307">        IngressRule ingressRule = appIngress.getSpec().getRules().stream().findFirst().&lt;RuntimeException&gt;orElseThrow(</span>
+<span class="fc" id="L312">        Ingress appIngress = getAppIngress(appName);</span>
+<span class="fc" id="L313">        IngressRule ingressRule = appIngress.getSpec().getRules().stream().findFirst().&lt;RuntimeException&gt;orElseThrow(</span>
                 () -&gt; {
-<span class="nc" id="L309">                    throw new K8SServiceClientException(</span>
-<span class="nc" id="L310">                            &quot;EntandoApp ingress &quot; + appIngress.getMetadata().getName() + &quot; does not have an host&quot;);</span>
+<span class="nc" id="L315">                    throw new K8SServiceClientException(</span>
+<span class="nc" id="L316">                            &quot;EntandoApp ingress &quot; + appIngress.getMetadata().getName() + &quot; does not have an host&quot;);</span>
                 });
 
-<span class="fc" id="L313">        String appHost = ingressRule.getHost();</span>
-<span class="fc" id="L314">        UriComponents pluginHealthCheck = UriComponentsBuilder.newInstance()</span>
-<span class="pc bpc" id="L315" title="1 of 2 branches missed.">                .scheme(appIngress.getSpec().getTls().isEmpty() ? &quot;http&quot; : &quot;https&quot;)</span>
-<span class="fc" id="L316">                .host(appHost)</span>
-<span class="fc" id="L317">                .path(plugin.getSpec().getIngressPath())</span>
-<span class="fc" id="L318">                .path(plugin.getSpec().getHealthCheckPath())</span>
-<span class="fc" id="L319">                .build();</span>
-<span class="fc" id="L320">        RequestEntity&lt;?&gt; request = RequestEntity</span>
-<span class="fc" id="L321">                .get(URI.create(pluginHealthCheck.toUriString()))</span>
-<span class="fc" id="L322">                .accept(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L323">                .build();</span>
+<span class="fc" id="L319">        String appHost = ingressRule.getHost();</span>
+<span class="fc" id="L320">        UriComponents pluginHealthCheck = UriComponentsBuilder.newInstance()</span>
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">                .scheme(appIngress.getSpec().getTls().isEmpty() ? &quot;http&quot; : &quot;https&quot;)</span>
+<span class="fc" id="L322">                .host(appHost)</span>
+<span class="fc" id="L323">                .path(plugin.getSpec().getIngressPath())</span>
+<span class="fc" id="L324">                .path(plugin.getSpec().getHealthCheckPath())</span>
+<span class="fc" id="L325">                .build();</span>
+<span class="fc" id="L326">        RequestEntity&lt;?&gt; request = RequestEntity</span>
+<span class="fc" id="L327">                .get(URI.create(pluginHealthCheck.toUriString()))</span>
+<span class="fc" id="L328">                .accept(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L329">                .build();</span>
         try {
-<span class="fc" id="L325">            ResponseEntity&lt;Object&gt; response = this.noAuthRestTemplate.exchange(request, Object.class);</span>
-<span class="fc" id="L326">            return response.getStatusCode().is2xxSuccessful();</span>
-<span class="nc" id="L327">        } catch (RestClientResponseException e) {</span>
-<span class="nc" id="L328">            HttpStatus status = HttpStatus.valueOf(e.getRawStatusCode());</span>
-<span class="nc bnc" id="L329" title="All 4 branches missed.">            if (status.equals(HttpStatus.NOT_FOUND) || status.equals(HttpStatus.SERVICE_UNAVAILABLE)) {</span>
-<span class="nc" id="L330">                return false;</span>
+<span class="fc" id="L331">            ResponseEntity&lt;Object&gt; response = this.noAuthRestTemplate.exchange(request, Object.class);</span>
+<span class="fc" id="L332">            return response.getStatusCode().is2xxSuccessful();</span>
+<span class="nc" id="L333">        } catch (RestClientResponseException e) {</span>
+<span class="nc" id="L334">            HttpStatus status = HttpStatus.valueOf(e.getRawStatusCode());</span>
+<span class="nc bnc" id="L335" title="All 4 branches missed.">            if (status.equals(HttpStatus.NOT_FOUND) || status.equals(HttpStatus.SERVICE_UNAVAILABLE)) {</span>
+<span class="nc" id="L336">                return false;</span>
             }
-<span class="nc" id="L332">            throw e;</span>
-<span class="nc" id="L333">        } catch (RestClientException e) {</span>
-<span class="nc" id="L334">            throw e;</span>
+<span class="nc" id="L338">            throw e;</span>
+<span class="nc" id="L339">        } catch (RestClientException e) {</span>
+<span class="nc" id="L340">            throw e;</span>
         }
 
     }
@@ -339,132 +345,132 @@ import org.springframework.web.util.UriComponentsBuilder;
     @Override
     public AnalysisReport getAnalysisReport(List&lt;Reportable&gt; reportableList) {
 
-<span class="fc" id="L342">        Map&lt;String, Status&gt; pluginStatusMap = reportableList.stream()</span>
-<span class="fc bfc" id="L343" title="All 2 branches covered.">                .filter(reportable -&gt; reportable.getComponentType() == ComponentType.PLUGIN)</span>
-<span class="fc" id="L344">                .flatMap(reportable -&gt; reportable.getCodes().stream())</span>
-<span class="fc" id="L345">                .map(name -&gt;</span>
-<span class="fc" id="L346">                        getPluginByName(name)</span>
-<span class="pc" id="L347">                                .map(plugin -&gt; new SimpleEntry&lt;&gt;(name, Status.DIFF))</span>
-<span class="fc" id="L348">                                .orElseGet(() -&gt; new SimpleEntry&lt;&gt;(name, Status.NEW)))</span>
-<span class="fc" id="L349">                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));</span>
+<span class="fc" id="L348">        Map&lt;String, Status&gt; pluginStatusMap = reportableList.stream()</span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">                .filter(reportable -&gt; reportable.getComponentType() == ComponentType.PLUGIN)</span>
+<span class="fc" id="L350">                .flatMap(reportable -&gt; reportable.getCodes().stream())</span>
+<span class="fc" id="L351">                .map(name -&gt;</span>
+<span class="fc" id="L352">                        getPluginByName(name)</span>
+<span class="pc" id="L353">                                .map(plugin -&gt; new SimpleEntry&lt;&gt;(name, Status.DIFF))</span>
+<span class="fc" id="L354">                                .orElseGet(() -&gt; new SimpleEntry&lt;&gt;(name, Status.NEW)))</span>
+<span class="fc" id="L355">                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));</span>
 
-<span class="fc" id="L351">        return new AnalysisReport().setPlugins(pluginStatusMap);</span>
+<span class="fc" id="L357">        return new AnalysisReport().setPlugins(pluginStatusMap);</span>
     }
 
     private Ingress getAppIngress(String appName) {
-<span class="fc" id="L355">        return tryOrThrow(() -&gt; traverson.follow(APPS_ENDPOINT)</span>
-<span class="fc" id="L356">                .follow(Hop.rel(&quot;app&quot;).withParameter(&quot;name&quot;, appName))</span>
-<span class="fc" id="L357">                .follow(&quot;app-ingress&quot;)</span>
-<span class="fc" id="L358">                .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;Ingress&gt;&gt;() {</span>
+<span class="fc" id="L361">        return tryOrThrow(() -&gt; traverson.follow(APPS_ENDPOINT)</span>
+<span class="fc" id="L362">                .follow(Hop.rel(&quot;app&quot;).withParameter(&quot;name&quot;, appName))</span>
+<span class="fc" id="L363">                .follow(&quot;app-ingress&quot;)</span>
+<span class="fc" id="L364">                .toObject(new ParameterizedTypeReference&lt;EntityModel&lt;Ingress&gt;&gt;() {</span>
                 })
-<span class="fc" id="L360">                .getContent());</span>
+<span class="fc" id="L366">                .getContent());</span>
     }
 
 
     private RestTemplate newRestTemplate() {
-<span class="fc" id="L365">        OAuth2ProtectedResourceDetails resourceDetails = getResourceDetails();</span>
-<span class="pc bpc" id="L366" title="1 of 2 branches missed.">        if (resourceDetails == null) {</span>
-<span class="nc" id="L367">            return null;</span>
+<span class="fc" id="L371">        OAuth2ProtectedResourceDetails resourceDetails = getResourceDetails();</span>
+<span class="pc bpc" id="L372" title="1 of 2 branches missed.">        if (resourceDetails == null) {</span>
+<span class="nc" id="L373">            return null;</span>
         }
-<span class="fc" id="L369">        final OAuth2RestTemplate template = new OAuth2RestTemplate(resourceDetails);</span>
-<span class="fc" id="L370">        template.setRequestFactory(getRequestFactory());</span>
-<span class="fc" id="L371">        template.setAccessTokenProvider(new ClientCredentialsAccessTokenProvider());</span>
+<span class="fc" id="L375">        final OAuth2RestTemplate template = new OAuth2RestTemplate(resourceDetails);</span>
+<span class="fc" id="L376">        template.setRequestFactory(getRequestFactory());</span>
+<span class="fc" id="L377">        template.setAccessTokenProvider(new ClientCredentialsAccessTokenProvider());</span>
 
-<span class="fc" id="L373">        return setMessageConverters(template);</span>
+<span class="fc" id="L379">        return setMessageConverters(template);</span>
     }
 
     private RestTemplate newNoAuthRestTemplate() {
 
-<span class="fc" id="L378">        final RestTemplate template = new RestTemplate();</span>
-<span class="fc" id="L379">        template.setRequestFactory(getRequestFactory());</span>
+<span class="fc" id="L384">        final RestTemplate template = new RestTemplate();</span>
+<span class="fc" id="L385">        template.setRequestFactory(getRequestFactory());</span>
 
-<span class="fc" id="L381">        return setMessageConverters(template);</span>
+<span class="fc" id="L387">        return setMessageConverters(template);</span>
     }
 
     private RestTemplate setMessageConverters(RestTemplate restTemplate) {
-<span class="fc" id="L385">        List&lt;HttpMessageConverter&lt;?&gt;&gt; messageConverters = Traverson</span>
-<span class="fc" id="L386">                .getDefaultMessageConverters(MediaType.APPLICATION_JSON, MediaTypes.HAL_JSON);</span>
-<span class="fc" id="L387">        if (messageConverters.stream()</span>
-<span class="pc bpc" id="L388" title="1 of 2 branches missed.">                .noneMatch(mc -&gt; mc.getSupportedMediaTypes().contains(MediaType.APPLICATION_JSON))) {</span>
-<span class="fc" id="L389">            messageConverters.add(0, getJsonConverter());</span>
+<span class="fc" id="L391">        List&lt;HttpMessageConverter&lt;?&gt;&gt; messageConverters = Traverson</span>
+<span class="fc" id="L392">                .getDefaultMessageConverters(MediaType.APPLICATION_JSON, MediaTypes.HAL_JSON);</span>
+<span class="fc" id="L393">        if (messageConverters.stream()</span>
+<span class="pc bpc" id="L394" title="1 of 2 branches missed.">                .noneMatch(mc -&gt; mc.getSupportedMediaTypes().contains(MediaType.APPLICATION_JSON))) {</span>
+<span class="fc" id="L395">            messageConverters.add(0, getJsonConverter());</span>
         }
-<span class="fc" id="L391">        restTemplate.setMessageConverters(messageConverters);</span>
+<span class="fc" id="L397">        restTemplate.setMessageConverters(messageConverters);</span>
 
-<span class="fc" id="L393">        return restTemplate;</span>
+<span class="fc" id="L399">        return restTemplate;</span>
     }
 
     private HttpMessageConverter&lt;?&gt; getJsonConverter() {
-<span class="fc" id="L397">        final List&lt;MediaType&gt; supportedMediatypes = Arrays.asList(MediaType.APPLICATION_JSON);</span>
-<span class="fc" id="L398">        ObjectMapper mapper = new ObjectMapper();</span>
-<span class="fc" id="L399">        mapper.registerModule(new Jackson2HalModule());</span>
-<span class="fc" id="L400">        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
+<span class="fc" id="L403">        final List&lt;MediaType&gt; supportedMediatypes = Arrays.asList(MediaType.APPLICATION_JSON);</span>
+<span class="fc" id="L404">        ObjectMapper mapper = new ObjectMapper();</span>
+<span class="fc" id="L405">        mapper.registerModule(new Jackson2HalModule());</span>
+<span class="fc" id="L406">        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
 
-<span class="fc" id="L402">        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();</span>
+<span class="fc" id="L408">        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();</span>
 
-<span class="fc" id="L404">        converter.setObjectMapper(mapper);</span>
-<span class="fc" id="L405">        converter.setSupportedMediaTypes(supportedMediatypes);</span>
+<span class="fc" id="L410">        converter.setObjectMapper(mapper);</span>
+<span class="fc" id="L411">        converter.setSupportedMediaTypes(supportedMediatypes);</span>
 
-<span class="fc" id="L407">        return converter;</span>
+<span class="fc" id="L413">        return converter;</span>
     }
 
 
     private OAuth2ProtectedResourceDetails getResourceDetails() {
-<span class="fc" id="L412">        final ClientCredentialsResourceDetails resourceDetails = new ClientCredentialsResourceDetails();</span>
-<span class="fc" id="L413">        resourceDetails.setAuthenticationScheme(AuthenticationScheme.header);</span>
-<span class="fc" id="L414">        resourceDetails.setClientId(clientId);</span>
-<span class="fc" id="L415">        resourceDetails.setClientSecret(clientSecret);</span>
-<span class="fc" id="L416">        resourceDetails.setClientAuthenticationScheme(AuthenticationScheme.form);</span>
+<span class="fc" id="L418">        final ClientCredentialsResourceDetails resourceDetails = new ClientCredentialsResourceDetails();</span>
+<span class="fc" id="L419">        resourceDetails.setAuthenticationScheme(AuthenticationScheme.header);</span>
+<span class="fc" id="L420">        resourceDetails.setClientId(clientId);</span>
+<span class="fc" id="L421">        resourceDetails.setClientSecret(clientSecret);</span>
+<span class="fc" id="L422">        resourceDetails.setClientAuthenticationScheme(AuthenticationScheme.form);</span>
         try {
-<span class="fc" id="L418">            resourceDetails.setAccessTokenUri(UriComponentsBuilder.fromUriString(tokenUri).toUriString());</span>
-<span class="nc" id="L419">        } catch (IllegalArgumentException ex) {</span>
-<span class="nc" id="L420">            LOGGER.log(Level.SEVERE, ex, () -&gt; String.format(&quot;Issues when using %s as token uri&quot;, tokenUri));</span>
-<span class="nc" id="L421">            return null;</span>
-<span class="fc" id="L422">        }</span>
-<span class="fc" id="L423">        return resourceDetails;</span>
+<span class="fc" id="L424">            resourceDetails.setAccessTokenUri(UriComponentsBuilder.fromUriString(tokenUri).toUriString());</span>
+<span class="nc" id="L425">        } catch (IllegalArgumentException ex) {</span>
+<span class="nc" id="L426">            LOGGER.log(Level.SEVERE, ex, () -&gt; String.format(&quot;Issues when using %s as token uri&quot;, tokenUri));</span>
+<span class="nc" id="L427">            return null;</span>
+<span class="fc" id="L428">        }</span>
+<span class="fc" id="L429">        return resourceDetails;</span>
     }
 
     private ClientHttpRequestFactory getRequestFactory() {
-<span class="fc" id="L427">        final HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();</span>
-<span class="fc" id="L428">        final int timeout = 10000;</span>
+<span class="fc" id="L433">        final HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();</span>
+<span class="fc" id="L434">        final int timeout = 10000;</span>
 
-<span class="fc" id="L430">        requestFactory.setConnectionRequestTimeout(timeout);</span>
-<span class="fc" id="L431">        requestFactory.setConnectTimeout(timeout);</span>
-<span class="fc" id="L432">        requestFactory.setReadTimeout(timeout);</span>
-<span class="fc" id="L433">        return requestFactory;</span>
+<span class="fc" id="L436">        requestFactory.setConnectionRequestTimeout(timeout);</span>
+<span class="fc" id="L437">        requestFactory.setConnectTimeout(timeout);</span>
+<span class="fc" id="L438">        requestFactory.setReadTimeout(timeout);</span>
+<span class="fc" id="L439">        return requestFactory;</span>
     }
 
     public void tryOrThrow(Runnable runnable, String actionDescription) {
         try {
-<span class="fc" id="L438">            runnable.run();</span>
-<span class="fc" id="L439">        } catch (RestClientResponseException ex) {</span>
-<span class="fc" id="L440">            throw new KubernetesClientException(</span>
-<span class="fc" id="L441">                    String.format(&quot;An error occurred while %s: %d - %s&quot;,</span>
+<span class="fc" id="L444">            runnable.run();</span>
+<span class="fc" id="L445">        } catch (RestClientResponseException ex) {</span>
+<span class="fc" id="L446">            throw new KubernetesClientException(</span>
+<span class="fc" id="L447">                    String.format(&quot;An error occurred while %s: %d - %s&quot;,</span>
                             actionDescription,
-<span class="fc" id="L443">                            ex.getRawStatusCode(),</span>
-<span class="fc" id="L444">                            ex.getResponseBodyAsString()),</span>
+<span class="fc" id="L449">                            ex.getRawStatusCode(),</span>
+<span class="fc" id="L450">                            ex.getResponseBodyAsString()),</span>
                     ex);
-<span class="nc" id="L446">        } catch (Exception ex) {</span>
-<span class="nc" id="L447">            throw new KubernetesClientException(&quot;A generic error occurred while &quot; + actionDescription, ex);</span>
-<span class="fc" id="L448">        }</span>
-<span class="fc" id="L449">    }</span>
+<span class="nc" id="L452">        } catch (Exception ex) {</span>
+<span class="nc" id="L453">            throw new KubernetesClientException(&quot;A generic error occurred while &quot; + actionDescription, ex);</span>
+<span class="fc" id="L454">        }</span>
+<span class="fc" id="L455">    }</span>
 
     public &lt;T&gt; T tryOrThrow(Supplier&lt;T&gt; supplier) {
-<span class="fc" id="L452">        return tryOrThrow(supplier, &quot;talking with k8s-service&quot;);</span>
+<span class="fc" id="L458">        return tryOrThrow(supplier, &quot;talking with k8s-service&quot;);</span>
     }
 
 
     public &lt;T&gt; T tryOrThrow(Supplier&lt;T&gt; supplier, String action) {
         try {
-<span class="fc" id="L458">            return supplier.get();</span>
-<span class="fc" id="L459">        } catch (RestClientResponseException ex) {</span>
-<span class="fc" id="L460">            throw new KubernetesClientException(</span>
-<span class="fc" id="L461">                    String.format(&quot;An error occurred while %s: %d - %s&quot;,</span>
+<span class="fc" id="L464">            return supplier.get();</span>
+<span class="fc" id="L465">        } catch (RestClientResponseException ex) {</span>
+<span class="fc" id="L466">            throw new KubernetesClientException(</span>
+<span class="fc" id="L467">                    String.format(&quot;An error occurred while %s: %d - %s&quot;,</span>
                             action,
-<span class="fc" id="L463">                            ex.getRawStatusCode(),</span>
-<span class="fc" id="L464">                            ex.getResponseBodyAsString()),</span>
+<span class="fc" id="L469">                            ex.getRawStatusCode(),</span>
+<span class="fc" id="L470">                            ex.getResponseBodyAsString()),</span>
                     ex);
-<span class="nc" id="L466">        } catch (Exception ex) {</span>
-<span class="nc" id="L467">            throw new KubernetesClientException(&quot;A generic error occurred while &quot; + action, ex);</span>
+<span class="nc" id="L472">        } catch (Exception ex) {</span>
+<span class="nc" id="L473">            throw new KubernetesClientException(&quot;A generic error occurred while &quot; + action, ex);</span>
         }
     }
 
