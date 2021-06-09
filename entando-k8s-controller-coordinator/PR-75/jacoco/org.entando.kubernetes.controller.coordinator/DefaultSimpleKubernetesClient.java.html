@@ -156,23 +156,23 @@ public class DefaultSimpleKubernetesClient implements SimpleKubernetesClient {
 
     @Override
     public void removePodsAndWait(String namespace, Map&lt;String, String&gt; labels) {
-<span class="nc" id="L159">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(labels);</span>
-<span class="nc" id="L160">        podResource.delete();</span>
-<span class="nc" id="L161">        interruptionSafe(() -&gt;</span>
-<span class="nc" id="L162">                podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="nc" id="L163">                        ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS));</span>
-<span class="nc" id="L164">    }</span>
+<span class="fc" id="L159">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(labels);</span>
+<span class="fc" id="L160">        podResource.delete();</span>
+<span class="fc" id="L161">        interruptionSafe(() -&gt;</span>
+<span class="fc" id="L162">                podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="fc" id="L163">                        ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS));</span>
+<span class="fc" id="L164">    }</span>
 
     @Override
     public ConfigMap findOrCreateControllerConfigMap(String name) {
 <span class="fc" id="L168">        return Objects.requireNonNullElseGet(this.client.configMaps().inNamespace(getControllerNamespace()).withName(name).get(), () -&gt;</span>
-<span class="nc" id="L169">                this.client.configMaps().inNamespace(getControllerNamespace())</span>
-<span class="nc" id="L170">                        .create(new ConfigMapBuilder()</span>
-<span class="nc" id="L171">                                .withNewMetadata()</span>
-<span class="nc" id="L172">                                .withNamespace(getControllerNamespace())</span>
-<span class="nc" id="L173">                                .withName(name)</span>
-<span class="nc" id="L174">                                .endMetadata()</span>
-<span class="nc" id="L175">                                .build()));</span>
+<span class="fc" id="L169">                this.client.configMaps().inNamespace(getControllerNamespace())</span>
+<span class="fc" id="L170">                        .create(new ConfigMapBuilder()</span>
+<span class="fc" id="L171">                                .withNewMetadata()</span>
+<span class="fc" id="L172">                                .withNamespace(getControllerNamespace())</span>
+<span class="fc" id="L173">                                .withName(name)</span>
+<span class="fc" id="L174">                                .endMetadata()</span>
+<span class="fc" id="L175">                                .build()));</span>
     }
 
     @Override

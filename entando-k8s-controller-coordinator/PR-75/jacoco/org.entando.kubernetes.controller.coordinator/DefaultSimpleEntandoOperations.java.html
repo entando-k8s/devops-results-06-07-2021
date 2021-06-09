@@ -140,33 +140,33 @@ public class DefaultSimpleEntandoOperations implements SimpleEntandoOperations {
 
     @Override
     public void removeSuccessfullyCompletedPods(SerializedEntandoResource resource) {
-<span class="nc" id="L143">        String namespace = client.getNamespace();</span>
-<span class="nc" id="L144">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(</span>
-<span class="nc" id="L145">                CoordinatorUtils.podLabelsFor(resource));</span>
-<span class="nc" id="L146">        interruptionSafe(() -&gt; {</span>
-<span class="nc" id="L147">            waitForCompletionOfPods(podResource);</span>
-<span class="nc" id="L148">            removePodsAndWait(podResource);</span>
-<span class="nc" id="L149">            return null;</span>
+<span class="fc" id="L143">        String namespace = client.getNamespace();</span>
+<span class="fc" id="L144">        FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(</span>
+<span class="fc" id="L145">                CoordinatorUtils.podLabelsFor(resource));</span>
+<span class="fc" id="L146">        interruptionSafe(() -&gt; {</span>
+<span class="fc" id="L147">            waitForCompletionOfPods(podResource);</span>
+<span class="fc" id="L148">            removePodsAndWait(podResource);</span>
+<span class="fc" id="L149">            return null;</span>
         });
-<span class="nc" id="L151">    }</span>
+<span class="fc" id="L151">    }</span>
 
     private void removePodsAndWait(FilterWatchListDeletable&lt;Pod, PodList&gt; podResource) throws InterruptedException {
-<span class="nc" id="L154">        podResource.delete();</span>
-<span class="nc" id="L155">        podResource.waitUntilCondition(ignore -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="nc" id="L156">                ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
-<span class="nc" id="L157">    }</span>
+<span class="fc" id="L154">        podResource.delete();</span>
+<span class="fc" id="L155">        podResource.waitUntilCondition(ignore -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="fc" id="L156">                ControllerCoordinatorConfig.getPodShutdownTimeoutSeconds(), TimeUnit.SECONDS);</span>
+<span class="fc" id="L157">    }</span>
 
     private void waitForCompletionOfPods(FilterWatchListDeletable&lt;Pod, PodList&gt; podResource) throws InterruptedException {
         try {
-<span class="nc" id="L161">            podResource.waitUntilCondition(</span>
-<span class="nc bnc" id="L162" title="All 2 branches missed.">                    ignored -&gt; podResource.list().getItems().stream().allMatch(pod -&gt; PodResult.of(pod).getState() == State.COMPLETED),</span>
-<span class="nc" id="L163">                    ControllerCoordinatorConfig.getRemovalDelay(), TimeUnit.SECONDS);</span>
+<span class="fc" id="L161">            podResource.waitUntilCondition(</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">                    ignored -&gt; podResource.list().getItems().stream().allMatch(pod -&gt; PodResult.of(pod).getState() == State.COMPLETED),</span>
+<span class="fc" id="L163">                    ControllerCoordinatorConfig.getRemovalDelay(), TimeUnit.SECONDS);</span>
 <span class="nc" id="L164">        } catch (KubernetesClientException e) {</span>
 <span class="nc" id="L165">            LOGGER.log(Level.WARNING, e, () -&gt; format(</span>
                     &quot;Some pods remained active after the removal delay period. You can consider increasing the setting %s &quot;,
 <span class="nc" id="L167">                    ControllerCoordinatorProperty.ENTANDO_K8S_CONTROLLER_REMOVAL_DELAY.getJvmSystemProperty()));</span>
-<span class="nc" id="L168">        }</span>
-<span class="nc" id="L169">    }</span>
+<span class="fc" id="L168">        }</span>
+<span class="fc" id="L169">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
