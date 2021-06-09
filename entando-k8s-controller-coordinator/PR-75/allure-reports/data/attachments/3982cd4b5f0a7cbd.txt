@@ -1,0 +1,82 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    openshift.io/scc: "anyuid"
+  creationTimestamp: "2021-06-09T15:53:21Z"
+  labels:
+    pod-label: "123"
+  name: "my-pod"
+  namespace: "entando-k8s-controller-coordinator-carcpr75"
+  resourceVersion: "202515971"
+  selfLink: "/api/v1/namespaces/entando-k8s-controller-coordinator-carcpr75/pods/my-pod"
+  uid: "d10c78e5-c93a-11eb-ad14-fa163ea775ae"
+spec:
+  containers:
+  - command:
+    - "/usr/libexec/s2i/run"
+    image: "centos/nginx-116-centos7"
+    imagePullPolicy: "Always"
+    name: "nginx"
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - "MKNOD"
+    terminationMessagePath: "/dev/termination-log"
+    terminationMessagePolicy: "File"
+    volumeMounts:
+    - mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      name: "default-token-vxmvh"
+      readOnly: true
+  dnsPolicy: "ClusterFirst"
+  imagePullSecrets:
+  - name: "default-dockercfg-jkq5f"
+  - name: "redhat-registry"
+  nodeName: "openshift"
+  nodeSelector:
+    node-role.kubernetes.io/compute: "true"
+  priority: 0
+  restartPolicy: "Always"
+  schedulerName: "default-scheduler"
+  securityContext:
+    seLinuxOptions:
+      level: "s0:c11,c0"
+  serviceAccount: "default"
+  serviceAccountName: "default"
+  terminationGracePeriodSeconds: 30
+  volumes:
+  - name: "default-token-vxmvh"
+    secret:
+      defaultMode: 420
+      secretName: "default-token-vxmvh"
+status:
+  conditions:
+  - lastTransitionTime: "2021-06-09T15:53:21Z"
+    status: "True"
+    type: "Initialized"
+  - lastTransitionTime: "2021-06-09T15:53:29Z"
+    status: "True"
+    type: "Ready"
+  - status: "True"
+    type: "ContainersReady"
+  - lastTransitionTime: "2021-06-09T15:53:21Z"
+    status: "True"
+    type: "PodScheduled"
+  containerStatuses:
+  - containerID: "docker://3bd0ae32b676801e4ac83777cadb442331f21f0d10515b7e1f770c1b31ce187c"
+    image: "docker.io/centos/nginx-116-centos7:latest"
+    imageID: "docker-pullable://docker.io/centos/nginx-116-centos7@sha256:ead6fa1ed7af33bd6c26e4bd234da68fac531d919511053ea81e180118f5168a"
+    lastState: {}
+    name: "nginx"
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: "2021-06-09T15:53:29Z"
+  hostIP: "54.36.53.206"
+  phase: "Running"
+  podIP: "10.128.0.88"
+  qosClass: "BestEffort"
+  startTime: "2021-06-09T15:53:21Z"
