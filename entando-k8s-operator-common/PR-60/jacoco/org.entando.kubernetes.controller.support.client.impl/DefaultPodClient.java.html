@@ -48,14 +48,14 @@ public class DefaultPodClient implements PodClient {
 
     @Override
     public void removeAndWait(String namespace, Map&lt;String, String&gt; labels) {
-<span class="fc" id="L51">        ExceptionUtils.interruptionSafe(() -&gt; {</span>
-<span class="fc" id="L52">            FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(labels);</span>
-<span class="fc" id="L53">            podResource.delete();</span>
-<span class="fc" id="L54">            return podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="fc" id="L55">                    EntandoOperatorSpiConfig.getPodShutdownTimeoutSeconds(),</span>
+<span class="nc" id="L51">        ExceptionUtils.interruptionSafe(() -&gt; {</span>
+<span class="nc" id="L52">            FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods().inNamespace(namespace).withLabels(labels);</span>
+<span class="nc" id="L53">            podResource.delete();</span>
+<span class="nc" id="L54">            return podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
+<span class="nc" id="L55">                    EntandoOperatorSpiConfig.getPodShutdownTimeoutSeconds(),</span>
                     TimeUnit.SECONDS);
         });
-<span class="fc" id="L58">    }</span>
+<span class="nc" id="L58">    }</span>
 
     @Override
     public Pod runToCompletion(Pod pod) {

@@ -1,0 +1,24 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "my-namespace2"
+    TestResource: "my-app2"
+    deployment: "my-app2"
+  name: "my-app-ingress-to-my-app2-service"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app2"
+    uid: "9b4514aa-19b8-4809-817b-a4acd3c0cfc0"
+spec:
+  ports:
+  - name: "server-port"
+    port: 8081
+    protocol: "TCP"
+    targetPort: 8081
