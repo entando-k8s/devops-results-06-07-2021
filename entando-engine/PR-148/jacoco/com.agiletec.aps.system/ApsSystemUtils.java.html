@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApsSystemUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Core: Engine</a> &gt; <a href="index.source.html" class="el_package">com.agiletec.aps.system</a> &gt; <span class="el_source">ApsSystemUtils.java</span></div><h1>ApsSystemUtils.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package com.agiletec.aps.system;
+
+import org.entando.entando.ent.util.EntLogging.EntLogger;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+
+/**
+ * Utility class for system logger
+ *
+ * @author E.Santoboni
+ */
+public class ApsSystemUtils {
+
+<span class="fc" id="L26">    private static final EntLogger logger = EntLogFactory.getSanitizedLogger(ApsSystemUtils.class);</span>
+
+<span class="fc" id="L28">    private static final boolean ENABLE_DIRECT_STDOUT_TRACE =</span>
+<span class="fc" id="L29">            (&quot;&quot; + System.getProperty(&quot;org.entando.enableDirectStdoutTrace&quot;)).equals(&quot;true&quot;);</span>
+    
+<span class="nc" id="L31">    private ApsSystemUtils() {</span>
+<span class="nc" id="L32">        throw new IllegalStateException(&quot;Utility class&quot;);</span>
+    }
+
+    public static org.slf4j.Logger getLogger() {
+<span class="nc" id="L36">        return logger;</span>
+    }
+
+    /**
+     * Draw an exception on the context logger.
+     *
+     * @param t The exception to trace
+     * @param caller The caller class
+     * @param methodName The method in which the error occurred.
+     * @param message The message to include
+     */
+    public static void logThrowable(Throwable t, Object caller,
+            String methodName, String message) {
+<span class="fc" id="L49">        String className = null;</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (caller != null) {</span>
+<span class="fc" id="L51">            className = caller.getClass().getName();</span>
+        }
+<span class="fc" id="L53">        logger.error(&quot;{} in {}.{}&quot;, message, className, methodName, t);</span>
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Draw an exception on the context logger.
+     *
+     * @param t The exception to trace
+     * @param caller The caller class
+     * @param methodName The method in which the error occurred.
+     */
+    public static void logThrowable(Throwable t, Object caller, String methodName) {
+<span class="fc" id="L64">        logThrowable(t, caller, methodName, &quot;Exception&quot;);</span>
+<span class="fc" id="L65">    }</span>
+
+    public static boolean directStdoutTrace(String str) {
+<span class="fc" id="L68">        return directStdoutTrace(str, false);</span>
+    }
+
+    public static boolean directStdoutTrace(String str, boolean force) {
+<span class="pc bpc" id="L72" title="2 of 4 branches missed.">        if (ENABLE_DIRECT_STDOUT_TRACE || force) {</span>
+<span class="nc" id="L73">            System.out.println(str);    //NOSONAR</span>
+<span class="nc" id="L74">            return true;</span>
+        } else {
+<span class="fc" id="L76">            return false;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
