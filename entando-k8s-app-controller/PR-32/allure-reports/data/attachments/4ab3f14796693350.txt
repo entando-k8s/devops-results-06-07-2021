@@ -1,0 +1,43 @@
+---
+internalServiceHostname: "my-app-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-app-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-app-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8080"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-app-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "http://my-app-my-namespace.apps.serv.run/entando-de-app"
+externalHostUrl: "http://my-app-my-namespace.apps.serv.run"
+internalBaseUrl: "http://my-app-service.my-namespace.svc.cluster.local:8080/entando-de-app"
+status:
+  qualifier: "main"
+  type: "ExposedServerStatus"
+  started: "2021-06-10T17:13:59+0000"
+  finished: "2021-06-10T17:13:59+0000"
+  serviceName: "my-app-service"
+  deploymentName: "my-app-deployment"
+  podPhases:
+    my-app-deployment: "Running"
+  persistentVolumeClaimPhases:
+    my-app-server-pvc: "Pending"
+  ingressName: "my-app-ingress"
