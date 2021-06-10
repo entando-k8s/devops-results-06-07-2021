@@ -1,0 +1,40 @@
+---
+internalServiceHostname: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+mixins:
+- "ServiceResult"
+- "DatabaseConnectionInfo"
+databaseName: "default_postgresql_dbms_in_namespace"
+jdbcParameters: {}
+port: "5432"
+vendor: "POSTGRESQL"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    labels:
+      EntandoResourceKind: "TestResource"
+      EntandoResourceNamespace: "my-namespace"
+      TestResource: "default-postgresql-dbms-in-namespace"
+      deployment: "default-postgresql-dbms-in-namespace"
+    name: "default-postgresql-dbms-in-namespace-service"
+    namespace: "my-namespace"
+    ownerReferences:
+    - apiVersion: "test.org/v1"
+      kind: "TestResource"
+      blockOwnerDeletion: true
+      controller: true
+      name: "default-postgresql-dbms-in-namespace"
+      uid: "70c1d833-8857-4088-87bc-246a4d899dff"
+  spec:
+    clusterIP: "10.0.0.22"
+    ports:
+    - name: "db-port"
+      port: 5432
+      protocol: "TCP"
+      targetPort: 5432
+    selector:
+      EntandoResourceKind: "TestResource"
+      EntandoResourceNamespace: "my-namespace"
+      TestResource: "default-postgresql-dbms-in-namespace"
+      deployment: "default-postgresql-dbms-in-namespace"
+    type: "ClusterIP"
