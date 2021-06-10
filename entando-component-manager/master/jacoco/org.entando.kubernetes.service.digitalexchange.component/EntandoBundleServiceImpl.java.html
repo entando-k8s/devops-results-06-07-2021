@@ -223,21 +223,21 @@ public class EntandoBundleServiceImpl implements EntandoBundleService {
     }
 
     @Override
-    public EntandoBundle convertToBundleFromEcr(EntandoDeBundle bundle) {
+    public EntandoBundle convertToBundleFromEcr(EntandoDeBundle deBundle) {
 <span class="fc" id="L227">        Set&lt;String&gt; bundleComponentTypes = Sets.newHashSet(&quot;bundle&quot;);</span>
 <span class="fc" id="L228">        BundleType bundleType = BundleType.STANDARD_BUNDLE;</span>
-<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (bundle.getMetadata().getLabels() != null) {</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (deBundle.getMetadata().getLabels() != null) {</span>
 
-<span class="fc" id="L231">            bundle.getMetadata().getLabels()</span>
+<span class="fc" id="L231">            deBundle.getMetadata().getLabels()</span>
 <span class="fc" id="L232">                    .keySet().stream()</span>
 <span class="fc" id="L233">                    .filter(ComponentType::isValidType)</span>
 <span class="fc" id="L234">                    .forEach(bundleComponentTypes::add);</span>
 
-<span class="fc" id="L236">            bundleType = BundleUtilities.extractBundleTypeFromBundle(bundle);</span>
+<span class="fc" id="L236">            bundleType = BundleUtilities.extractBundleTypeFromBundle(deBundle);</span>
         }
 
-<span class="fc" id="L239">        EntandoDeBundleDetails details = bundle.getSpec().getDetails();</span>
-<span class="fc" id="L240">        String code = bundle.getMetadata().getName();</span>
+<span class="fc" id="L239">        EntandoDeBundleDetails details = deBundle.getSpec().getDetails();</span>
+<span class="fc" id="L240">        String code = deBundle.getMetadata().getName();</span>
 
 <span class="fc" id="L242">        EntandoBundleJob installedJob = null;</span>
 <span class="fc" id="L243">        EntandoBundleJob lastJob = jobRepository.findFirstByComponentIdOrderByStartedAtDesc(code)</span>
@@ -251,7 +251,7 @@ public class EntandoBundleServiceImpl implements EntandoBundleService {
 <span class="fc" id="L251">                    .orElse(null);</span>
         }
 
-<span class="fc" id="L254">        return EntandoBundle.builder()</span>
+<span class="fc" id="L254">        EntandoBundle bundle = EntandoBundle.builder()</span>
 <span class="fc" id="L255">                .code(code)</span>
 <span class="fc" id="L256">                .title(details.getName())</span>
 <span class="fc" id="L257">                .description(details.getDescription())</span>
@@ -260,10 +260,24 @@ public class EntandoBundleServiceImpl implements EntandoBundleService {
 <span class="fc" id="L260">                .thumbnail(details.getThumbnail())</span>
 <span class="fc" id="L261">                .installedJob(installedJob)</span>
 <span class="fc" id="L262">                .lastJob(lastJob)</span>
-<span class="fc" id="L263">                .versions(bundle.getSpec().getTags().stream()</span>
+<span class="fc" id="L263">                .versions(deBundle.getSpec().getTags().stream()</span>
 <span class="fc" id="L264">                        .map(EntandoBundleVersion::fromEntity) //TODO how to read timestamp from k8s custom model?</span>
 <span class="fc" id="L265">                        .collect(Collectors.toList()))</span>
 <span class="fc" id="L266">                .build();</span>
+
+        EntandoBundleVersion latest;
+<span class="pc bpc" id="L269" title="2 of 4 branches missed.">        if (deBundle.getSpec().getDetails() != null &amp;&amp; deBundle.getSpec().getDetails().getDistTags() != null &amp;&amp; deBundle</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">                .getSpec().getDetails().getDistTags().containsKey(BundleUtilities.LATEST_VERSION)) {</span>
+
+<span class="fc" id="L272">            latest = new EntandoBundleVersion()</span>
+<span class="fc" id="L273">                    .setVersion(deBundle.getSpec().getDetails().getDistTags().get(&quot;latest&quot;).toString());</span>
+        } else {
+<span class="fc" id="L275">            latest = BundleUtilities.composeLatestVersion(deBundle).orElse(null);</span>
+        }
+
+<span class="fc" id="L278">        bundle.setLatestVersion(latest);</span>
+
+<span class="fc" id="L280">        return bundle;</span>
     }
 
 }
