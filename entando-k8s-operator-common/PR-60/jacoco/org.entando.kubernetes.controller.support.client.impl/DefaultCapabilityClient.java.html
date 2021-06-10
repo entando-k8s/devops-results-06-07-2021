@@ -55,28 +55,28 @@ public class DefaultCapabilityClient implements CapabilityClient {
 
     @Override
     public Optional&lt;ProvidedCapability&gt; providedCapabilityByLabels(Map&lt;String, String&gt; labels) {
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (EntandoOperatorConfig.isClusterScopedDeployment()) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (EntandoOperatorConfig.isClusterScopedDeployment()) {</span>
 <span class="fc" id="L59">            return client.customResources(ProvidedCapability.class).inAnyNamespace().withLabels(labels).list().getItems().stream()</span>
 <span class="fc" id="L60">                    .findFirst();</span>
         } else {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            for (String namespace : EntandoOperatorConfig.getAllAccessibleNamespaces()) {</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">            for (String namespace : EntandoOperatorConfig.getAllAccessibleNamespaces()) {</span>
                 try {
-<span class="nc" id="L64">                    final Optional&lt;ProvidedCapability&gt; providedCapability = client.customResources(ProvidedCapability.class)</span>
-<span class="nc" id="L65">                            .inNamespace(namespace)</span>
-<span class="nc" id="L66">                            .withLabels(labels).list().getItems().stream()</span>
-<span class="nc" id="L67">                            .findFirst();</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">                    if (providedCapability.isPresent()) {</span>
-<span class="nc" id="L69">                        return providedCapability;</span>
+<span class="fc" id="L64">                    final Optional&lt;ProvidedCapability&gt; providedCapability = client.customResources(ProvidedCapability.class)</span>
+<span class="fc" id="L65">                            .inNamespace(namespace)</span>
+<span class="fc" id="L66">                            .withLabels(labels).list().getItems().stream()</span>
+<span class="fc" id="L67">                            .findFirst();</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">                    if (providedCapability.isPresent()) {</span>
+<span class="fc" id="L69">                        return providedCapability;</span>
                     }
-<span class="nc" id="L71">                } catch (KubernetesClientException e) {</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">                    if (e.getCode() != HttpURLConnection.HTTP_FORBIDDEN) {</span>
+<span class="fc" id="L71">                } catch (KubernetesClientException e) {</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">                    if (e.getCode() != HttpURLConnection.HTTP_FORBIDDEN) {</span>
 <span class="nc" id="L73">                        throw e;</span>
                     }
-<span class="nc" id="L75">                }</span>
-<span class="nc" id="L76">            }</span>
+<span class="fc" id="L75">                }</span>
+<span class="fc" id="L76">            }</span>
 
         }
-<span class="nc" id="L79">        return Optional.empty();</span>
+<span class="fc" id="L79">        return Optional.empty();</span>
     }
 
     @Override

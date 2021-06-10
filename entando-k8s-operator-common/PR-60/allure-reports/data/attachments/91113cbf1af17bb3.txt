@@ -1,0 +1,37 @@
+---
+apiVersion: "test.org/v1"
+kind: "TestResource"
+metadata:
+  generation: 1
+  name: "my-app"
+  namespace: "my-namespace"
+  resourceVersion: "6758256"
+  uid: "6d6669ff-c76a-487c-857c-1749f25fdd2d"
+spec:
+  replicas: 1
+status:
+  serverStatuses:
+    main: !<InternalServerStatus>
+      qualifier: "main"
+      type: "InternalServerStatus"
+      started: "2021-06-10T16:47:27+0000"
+      finished: "2021-06-10T16:47:27+0000"
+      deploymentName: "my-app-deployment"
+      podPhases:
+        my-app-deployment: "Failed"
+      entandoControllerFailure:
+        failedObjectType: "TestResource"
+        failedObjectName: "my-namespace/my-app"
+        message: "Deployment failed. Please inspect the logs of the pod my-namespace/my-app-deployment"
+        detailMessage: "org.entando.kubernetes.controller.spi.common.EntandoControllerException:\
+          \ Deployment failed. Please inspect the logs of the pod my-namespace/my-app-deployment\n\
+          \tat org.entando.kubernetes.controller.support.command.DeployCommand.waitForPod(DeployCommand.java:177)\n\
+          \tat org.entando.kubernetes.controller.support.command.DeployCommand.deployServiceInternally(DeployCommand.java:148)\n\
+          \tat org.entando.kubernetes.controller.support.command.DeployCommand.lambda$execute$0(DeployCommand.java:103)\n\
+          \tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\
+          \tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\
+          \tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\
+          \tat java.base/java.lang.Thread.run(Thread.java:834)\n"
+  observedGeneration: 1
+  phase: "failed"
+crdName: "testresources.test.org"

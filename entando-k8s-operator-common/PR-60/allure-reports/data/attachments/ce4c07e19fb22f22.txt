@@ -1,0 +1,27 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "my-namespace"
+    TestResource: "my-app"
+    deployment: "my-app"
+  name: "my-app-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "6d6669ff-c76a-487c-857c-1749f25fdd2d"
+spec:
+  containers:
+  - {}
+status:
+  containerStatuses:
+  - state:
+      terminated:
+        exitCode: 0
+  phase: "Failed"
