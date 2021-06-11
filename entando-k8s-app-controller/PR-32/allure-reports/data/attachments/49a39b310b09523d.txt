@@ -1,0 +1,44 @@
+---
+internalServiceHostname: "my-app-cm-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-app-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "ServiceResult"
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-app-cm-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8083"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-app-cm-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "https://my-app-my-namespace.apps.serv.run/digital-exchange"
+externalHostUrl: "https://my-app-my-namespace.apps.serv.run"
+internalBaseUrl: "http://my-app-cm-service.my-namespace.svc.cluster.local:8083/digital-exchange"
+status:
+  qualifier: "cm"
+  type: "ExposedServerStatus"
+  started: "2021-06-11T14:22:05+0000"
+  finished: "2021-06-11T14:22:06+0000"
+  serviceName: "my-app-cm-service"
+  deploymentName: "my-app-cm-deployment"
+  podPhases:
+    my-app-cm-deployment: "Running"
+    my-app-dbprep-1578: "Complete"
+  persistentVolumeClaimPhases:
+    my-app-de-pvc: "Pending"
+  ingressName: "my-app-ingress"
