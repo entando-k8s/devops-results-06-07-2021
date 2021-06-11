@@ -78,8 +78,8 @@ public class DefaultSimpleEntandoOperations implements SimpleEntandoOperations {
 <span class="fc bfc" id="L78" title="All 2 branches covered.">                if (anyNamespace) {</span>
 <span class="fc" id="L79">                    return operations.watch((Map&lt;String, String&gt;) null, null, customResourceWatcher);</span>
                 } else {
-<span class="fc" id="L81">                    return operations</span>
-<span class="fc" id="L82">                            .watch(operations.getNamespace(), null, null, (ListOptions) null, customResourceWatcher);</span>
+<span class="pc" id="L81">                    return operations</span>
+<span class="nc" id="L82">                            .watch(operations.getNamespace(), null, null, (ListOptions) null, customResourceWatcher);</span>
                 }
 <span class="nc" id="L84">            } catch (IOException e) {</span>
 <span class="nc" id="L85">                LOGGER.log(Level.SEVERE, e,</span>
@@ -94,38 +94,38 @@ public class DefaultSimpleEntandoOperations implements SimpleEntandoOperations {
     @Override
     @SuppressWarnings(&quot;unchecked&quot;)
     public List&lt;SerializedEntandoResource&gt; list() {
-<span class="fc" id="L97">        final List&lt;Map&lt;String, Object&gt;&gt; items = (List&lt;Map&lt;String, Object&gt;&gt;) operations.list().get(&quot;items&quot;);</span>
-<span class="fc" id="L98">        return items.stream().map(this::toResource).collect(Collectors.toList());</span>
+<span class="nc" id="L97">        final List&lt;Map&lt;String, Object&gt;&gt; items = (List&lt;Map&lt;String, Object&gt;&gt;) operations.list().get(&quot;items&quot;);</span>
+<span class="nc" id="L98">        return items.stream().map(this::toResource).collect(Collectors.toList());</span>
     }
 
     @Override
     public SerializedEntandoResource removeAnnotation(SerializedEntandoResource r, String name) {
-<span class="fc" id="L103">        return editAnnotations(r, a -&gt; a.remove(name));</span>
+<span class="nc" id="L103">        return editAnnotations(r, a -&gt; a.remove(name));</span>
     }
 
     @SuppressWarnings(&quot;unchecked&quot;)
     private SerializedEntandoResource editAnnotations(SerializedEntandoResource r, Consumer&lt;Map&lt;String, Object&gt;&gt; editAction) {
-<span class="fc" id="L108">        return ioSafe(() -&gt; {</span>
-<span class="fc" id="L109">            final Map&lt;String, Object&gt; map = operations.get(r.getMetadata().getNamespace(), r.getMetadata().getName());</span>
-<span class="fc" id="L110">            final Map&lt;String, Object&gt; metadata = (Map&lt;String, Object&gt;) map.get(&quot;metadata&quot;);</span>
-<span class="fc" id="L111">            final Map&lt;String, Object&gt; annotations = (Map&lt;String, Object&gt;) metadata</span>
-<span class="fc" id="L112">                    .computeIfAbsent(&quot;annotations&quot;, key -&gt; new HashMap&lt;String, String&gt;());</span>
-<span class="fc" id="L113">            editAction.accept(annotations);</span>
-<span class="fc" id="L114">            operations.inNamespace(r.getMetadata().getNamespace()).withName(r.getMetadata().getName()).edit(map);</span>
-<span class="fc" id="L115">            return this.toResource(map);</span>
+<span class="nc" id="L108">        return ioSafe(() -&gt; {</span>
+<span class="nc" id="L109">            final Map&lt;String, Object&gt; map = operations.get(r.getMetadata().getNamespace(), r.getMetadata().getName());</span>
+<span class="nc" id="L110">            final Map&lt;String, Object&gt; metadata = (Map&lt;String, Object&gt;) map.get(&quot;metadata&quot;);</span>
+<span class="nc" id="L111">            final Map&lt;String, Object&gt; annotations = (Map&lt;String, Object&gt;) metadata</span>
+<span class="nc" id="L112">                    .computeIfAbsent(&quot;annotations&quot;, key -&gt; new HashMap&lt;String, String&gt;());</span>
+<span class="nc" id="L113">            editAction.accept(annotations);</span>
+<span class="nc" id="L114">            operations.inNamespace(r.getMetadata().getNamespace()).withName(r.getMetadata().getName()).edit(map);</span>
+<span class="nc" id="L115">            return this.toResource(map);</span>
         });
     }
 
     private SerializedEntandoResource toResource(Map&lt;String, Object&gt; map) {
-<span class="fc" id="L120">        return ioSafe(() -&gt; {</span>
-<span class="fc" id="L121">            ObjectMapper objectMapper = new ObjectMapper();</span>
-<span class="fc" id="L122">            return objectMapper.readValue(objectMapper.writeValueAsString(map), SerializedEntandoResource.class);</span>
+<span class="nc" id="L120">        return ioSafe(() -&gt; {</span>
+<span class="nc" id="L121">            ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="nc" id="L122">            return objectMapper.readValue(objectMapper.writeValueAsString(map), SerializedEntandoResource.class);</span>
         });
     }
 
     @Override
     public SerializedEntandoResource putAnnotation(SerializedEntandoResource r, String name, String value) {
-<span class="fc" id="L128">        return editAnnotations(r, a -&gt; a.put(name, value));</span>
+<span class="nc" id="L128">        return editAnnotations(r, a -&gt; a.put(name, value));</span>
     }
 
     @Override
