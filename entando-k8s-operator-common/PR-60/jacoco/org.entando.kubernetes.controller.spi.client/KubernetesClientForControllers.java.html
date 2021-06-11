@@ -88,24 +88,24 @@ public interface KubernetesClientForControllers {
     @SuppressWarnings({&quot;java:S106&quot;})
     default ExecutionResult executeAndWait(PodResource&lt;Pod&gt; podResource, String containerName, int timeoutSeconds,
             String... script) throws TimeoutException {
-<span class="fc" id="L91">        StringBuilder sb = new StringBuilder();</span>
-<span class="fc bfc" id="L92" title="All 2 branches covered.">        for (String s : script) {</span>
-<span class="fc" id="L93">            sb.append(s);</span>
-<span class="fc" id="L94">            sb.append(&quot; || exit $?\n&quot;);</span>
+<span class="nc" id="L91">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        for (String s : script) {</span>
+<span class="nc" id="L93">            sb.append(s);</span>
+<span class="nc" id="L94">            sb.append(&quot; || exit $?\n&quot;);</span>
         }
-<span class="fc" id="L96">        sb.append(&quot;exit $?\n&quot;);</span>
-<span class="fc" id="L97">        ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes());</span>
+<span class="nc" id="L96">        sb.append(&quot;exit $?\n&quot;);</span>
+<span class="nc" id="L97">        ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes());</span>
         try {
-<span class="fc" id="L99">            final CompletableFuture&lt;ExecutionResult&gt; future = new CompletableFuture&lt;&gt;();</span>
-<span class="fc" id="L100">            ExecutionResult listener = new ExecutionResult(future);</span>
-<span class="fc" id="L101">            podResource.inContainer(containerName)</span>
-<span class="fc" id="L102">                    .readingInput(in)</span>
-<span class="fc" id="L103">                    .writingOutput(listener.getOutput())</span>
-<span class="fc" id="L104">                    .writingError(listener.getOutput())</span>
-<span class="fc" id="L105">                    .writingErrorChannel(listener.getErrorChannel())</span>
-<span class="fc" id="L106">                    .withTTY()</span>
-<span class="fc" id="L107">                    .usingListener(listener).exec();</span>
-<span class="fc" id="L108">            return future.get(timeoutSeconds, TimeUnit.SECONDS);</span>
+<span class="nc" id="L99">            final CompletableFuture&lt;ExecutionResult&gt; future = new CompletableFuture&lt;&gt;();</span>
+<span class="nc" id="L100">            ExecutionResult listener = new ExecutionResult(future);</span>
+<span class="nc" id="L101">            podResource.inContainer(containerName)</span>
+<span class="nc" id="L102">                    .readingInput(in)</span>
+<span class="nc" id="L103">                    .writingOutput(listener.getOutput())</span>
+<span class="nc" id="L104">                    .writingError(listener.getOutput())</span>
+<span class="nc" id="L105">                    .writingErrorChannel(listener.getErrorChannel())</span>
+<span class="nc" id="L106">                    .withTTY()</span>
+<span class="nc" id="L107">                    .usingListener(listener).exec();</span>
+<span class="nc" id="L108">            return future.get(timeoutSeconds, TimeUnit.SECONDS);</span>
 <span class="nc" id="L109">        } catch (InterruptedException e) {</span>
 <span class="nc" id="L110">            Thread.currentThread().interrupt();</span>
 <span class="nc" id="L111">            throw new IllegalStateException(e);</span>
@@ -207,8 +207,8 @@ public interface KubernetesClientForControllers {
 <span class="fc" id="L207">        return issueEventAndPerformStatusUpdate(customResource,</span>
                 t -&gt; {
 <span class="fc" id="L209">                    String qualifierToUse = ofNullable(serverQualifier).orElse(NameUtils.MAIN_QUALIFIER);</span>
-<span class="fc bfc" id="L210" title="All 2 branches covered.">                    if (t.getStatus().getServerStatus(qualifierToUse).isEmpty()) {</span>
-<span class="fc" id="L211">                        t.getStatus().putServerStatus(new InternalServerStatus(qualifierToUse));</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">                    if (t.getStatus().getServerStatus(qualifierToUse).isEmpty()) {</span>
+<span class="nc" id="L211">                        t.getStatus().putServerStatus(new InternalServerStatus(qualifierToUse));</span>
                     }
 <span class="pc bpc" id="L213" title="1 of 2 branches missed.">                    t.getStatus().getServerStatus(qualifierToUse).filter(status -&gt; !status.hasFailed())</span>
 <span class="fc" id="L214">                            .ifPresent(</span>

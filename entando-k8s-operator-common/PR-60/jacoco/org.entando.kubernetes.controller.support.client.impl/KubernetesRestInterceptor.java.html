@@ -47,12 +47,12 @@ public class KubernetesRestInterceptor implements InvocationHandler {
 <span class="fc" id="L47">        logger.logp(Level.INFO, method.getDeclaringClass().getName(), method.getName(), () -&gt; buildEnterMessage(method, args));</span>
         try {
 <span class="fc" id="L49">            return method.invoke(delegate, args);</span>
-<span class="fc" id="L50">        } catch (InvocationTargetException e) {</span>
-<span class="fc" id="L51">            logger.logp(Level.SEVERE, method.getDeclaringClass().getName(), method.getName(), e.getTargetException(),</span>
-<span class="fc" id="L52">                    () -&gt; String.format(&quot;Failure executing method %s in class %s&quot;,</span>
-<span class="fc" id="L53">                            method.getName(),</span>
-<span class="fc" id="L54">                            method.getDeclaringClass().getName()));</span>
-<span class="fc" id="L55">            throw e.getTargetException();</span>
+<span class="nc" id="L50">        } catch (InvocationTargetException e) {</span>
+<span class="nc" id="L51">            logger.logp(Level.SEVERE, method.getDeclaringClass().getName(), method.getName(), e.getTargetException(),</span>
+<span class="nc" id="L52">                    () -&gt; String.format(&quot;Failure executing method %s in class %s&quot;,</span>
+<span class="nc" id="L53">                            method.getName(),</span>
+<span class="nc" id="L54">                            method.getDeclaringClass().getName()));</span>
+<span class="nc" id="L55">            throw e.getTargetException();</span>
 <span class="nc" id="L56">        } catch (Exception e) {</span>
 <span class="nc" id="L57">            logger.logp(Level.SEVERE, method.getDeclaringClass().getName(), method.getName(), e,</span>
 <span class="nc" id="L58">                    () -&gt; String.format(&quot;Failure executing method %s in class %s&quot;,</span>
