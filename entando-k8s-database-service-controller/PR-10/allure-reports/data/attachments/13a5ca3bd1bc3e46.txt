@@ -1,0 +1,52 @@
+---
+apiVersion: "entando.org/v1"
+kind: "ProvidedCapability"
+metadata:
+  generation: 1
+  labels:
+    my-label: "my-label-value"
+  name: "my-labelled-mysql-dbms"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoDatabaseService"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-labelled-mysql-dbms"
+    uid: "e3847425-3299-4172-a242-e63a0221e478"
+  resourceVersion: "6490833"
+  uid: "3e92b860-2f0d-4fa2-8f11-2728f117b904"
+spec:
+  capability: "dbms"
+  implementation: "mysql"
+  resolutionScopePreference:
+  - "Labeled"
+  provisioningStrategy: "DeployDirectly"
+  selector:
+    my-label: "my-label-value"
+  capabilityParameters:
+    databaseName: "my_db"
+    jdbc-disconnectOnExpiredPasswords: "true"
+status:
+  serverStatuses:
+    main: !<InternalServerStatus>
+      qualifier: "main"
+      type: "InternalServerStatus"
+      started: "2021-06-14T16:07:12+0000"
+      finished: "2021-06-14T16:07:12+0000"
+      serviceName: "my-labelled-mysql-dbms-service"
+      deploymentName: "my-labelled-mysql-dbms-deployment"
+      adminSecretName: "my-labelled-mysql-dbms-admin-secret"
+      podPhases:
+        my-labelled-mysql-dbms-deployment: "Running"
+      persistentVolumeClaimPhases:
+        my-labelled-mysql-dbms-db-pvc: "Pending"
+      derivedDeploymentParameters:
+        databaseName: "my_db"
+        dbmsVendor: "mysql"
+      providedCapability:
+        namespace: "my-namespace"
+        name: "my-labelled-mysql-dbms"
+  observedGeneration: 1
+  phase: "successful"
+crdName: "providedcapabilities.entando.org"
