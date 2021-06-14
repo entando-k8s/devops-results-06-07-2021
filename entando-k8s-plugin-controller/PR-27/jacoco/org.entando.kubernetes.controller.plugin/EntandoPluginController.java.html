@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EntandoPluginController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller for Entando Plugin Deployments</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.plugin</a> &gt; <span class="el_source">EntandoPluginController.java</span></div><h1>EntandoPluginController.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.plugin;
+
+import static java.lang.String.format;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
+import org.entando.kubernetes.controller.spi.capability.CapabilityProvider;
+import org.entando.kubernetes.controller.spi.capability.CapabilityProvisioningResult;
+import org.entando.kubernetes.controller.spi.client.KubernetesClientForControllers;
+import org.entando.kubernetes.controller.spi.command.DeploymentProcessor;
+import org.entando.kubernetes.controller.spi.common.EntandoControllerException;
+import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.controller.spi.container.ProvidedDatabaseCapability;
+import org.entando.kubernetes.controller.spi.container.ProvidedSsoCapability;
+import org.entando.kubernetes.controller.spi.container.SsoConnectionInfo;
+import org.entando.kubernetes.controller.spi.result.DatabaseConnectionInfo;
+import org.entando.kubernetes.model.capability.CapabilityRequirementBuilder;
+import org.entando.kubernetes.model.capability.CapabilityScope;
+import org.entando.kubernetes.model.capability.StandardCapability;
+import org.entando.kubernetes.model.capability.StandardCapabilityImplementation;
+import org.entando.kubernetes.model.common.DbmsVendor;
+import org.entando.kubernetes.model.plugin.EntandoPlugin;
+import picocli.CommandLine;
+
+@CommandLine.Command()
+public class EntandoPluginController implements Runnable {
+
+<span class="fc" id="L49">    private static final Logger LOGGER = Logger.getLogger(EntandoPluginController.class.getName());</span>
+    private final KubernetesClientForControllers k8sClient;
+    private final CapabilityProvider capabilityProvider;
+    private final DeploymentProcessor deploymentProcessor;
+    private EntandoPlugin entandoPlugin;
+
+    @Inject
+    public EntandoPluginController(KubernetesClientForControllers k8sClient, DeploymentProcessor deploymentProcessor,
+<span class="fc" id="L57">            CapabilityProvider capabilityProvider) {</span>
+<span class="fc" id="L58">        this.k8sClient = k8sClient;</span>
+<span class="fc" id="L59">        this.capabilityProvider = capabilityProvider;</span>
+<span class="fc" id="L60">        this.deploymentProcessor = deploymentProcessor;</span>
+<span class="fc" id="L61">    }</span>
+
+    @Override
+    public void run() {
+<span class="fc" id="L65">        this.entandoPlugin = (EntandoPlugin) k8sClient.resolveCustomResourceToProcess(Collections.singletonList(EntandoPlugin.class));</span>
+        try {
+<span class="fc" id="L67">            final DatabaseConnectionInfo dbConnectionInfo = provideDatabaseIfRequired();</span>
+<span class="fc" id="L68">            final SsoConnectionInfo ssoConnectionInfo = provideSso();</span>
+<span class="fc" id="L69">            final EntandoPluginServerDeployable deployable = new EntandoPluginServerDeployable(dbConnectionInfo,</span>
+                    ssoConnectionInfo, entandoPlugin);
+<span class="fc" id="L71">            EntandoPluginDeploymentResult result = this.deploymentProcessor.processDeployable(deployable, calculateDbAwareTimeout());</span>
+<span class="fc" id="L72">            entandoPlugin = k8sClient.updateStatus(entandoPlugin, result.getStatus());</span>
+<span class="fc" id="L73">        } catch (Exception e) {</span>
+<span class="fc" id="L74">            entandoPlugin = k8sClient.deploymentFailed(entandoPlugin, e, NameUtils.MAIN_QUALIFIER);</span>
+<span class="fc" id="L75">            LOGGER.log(Level.SEVERE, e, () -&gt; format(&quot;EntandoPluginController failed:%n%s&quot;,</span>
+<span class="fc" id="L76">                    entandoPlugin.getStatus().findFailedServerStatus().orElseThrow(IllegalStateException::new)</span>
+<span class="fc" id="L77">                            .getEntandoControllerFailure().getDetailMessage()));</span>
+<span class="fc" id="L78">        }</span>
+<span class="fc" id="L79">        entandoPlugin = k8sClient.deploymentEnded(entandoPlugin);</span>
+<span class="fc" id="L80">        entandoPlugin.getStatus().findFailedServerStatus().ifPresent(s -&gt; {</span>
+<span class="fc" id="L81">            throw new CommandLine.ExecutionException(new CommandLine(this), s.getEntandoControllerFailure().getDetailMessage());</span>
+        });
+<span class="fc" id="L83">    }</span>
+
+    private int calculateDbAwareTimeout() {
+        final long timeoutForDbAware;
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (requiresDbmsService(entandoPlugin.getSpec().getDbms().orElse(DbmsVendor.NONE))) {</span>
+            timeoutForDbAware =
+<span class="fc" id="L89">                    EntandoOperatorSpiConfig.getPodCompletionTimeoutSeconds() + EntandoOperatorSpiConfig.getPodReadinessTimeoutSeconds();</span>
+        } else {
+<span class="fc" id="L91">            timeoutForDbAware = EntandoOperatorSpiConfig.getPodReadinessTimeoutSeconds();</span>
+        }
+<span class="fc" id="L93">        return (int) timeoutForDbAware;</span>
+    }
+
+    private ProvidedDatabaseCapability provideDatabaseIfRequired() throws TimeoutException {
+<span class="fc" id="L97">        final DbmsVendor dbmsVendor = entandoPlugin.getSpec().getDbms().orElse(DbmsVendor.NONE);</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (requiresDbmsService(dbmsVendor)) {</span>
+<span class="fc" id="L99">            final CapabilityProvisioningResult capabilityResult = capabilityProvider</span>
+<span class="fc" id="L100">                    .provideCapability(entandoPlugin, new CapabilityRequirementBuilder()</span>
+<span class="fc" id="L101">                            .withCapability(StandardCapability.DBMS)</span>
+<span class="fc" id="L102">                            .withImplementation(StandardCapabilityImplementation.valueOf(dbmsVendor.name()))</span>
+<span class="fc" id="L103">                            .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.DEDICATED, CapabilityScope.CLUSTER)</span>
+<span class="fc" id="L104">                            .build(), 180);</span>
+<span class="fc" id="L105">            capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
+<span class="fc" id="L106">                throw new EntandoControllerException(format(&quot;Could not prepare database for EntandoPlugin %s/%s%n%s&quot;, entandoPlugin</span>
+<span class="fc" id="L107">                                .getMetadata().getNamespace(), entandoPlugin</span>
+<span class="fc" id="L108">                                .getMetadata().getName(),</span>
+<span class="fc" id="L109">                        f.getDetailMessage()));</span>
+            });
+<span class="fc" id="L111">            return new ProvidedDatabaseCapability(capabilityResult);</span>
+        } else {
+<span class="fc" id="L113">            return null;</span>
+        }
+    }
+
+    private boolean requiresDbmsService(DbmsVendor dbmsVendor) {
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        return !Set.of(DbmsVendor.NONE, DbmsVendor.EMBEDDED).contains(dbmsVendor);</span>
+    }
+
+    private ProvidedSsoCapability provideSso() throws TimeoutException {
+<span class="fc" id="L122">        final CapabilityProvisioningResult capabilityResult = capabilityProvider</span>
+<span class="fc" id="L123">                .provideCapability(entandoPlugin, new CapabilityRequirementBuilder()</span>
+<span class="fc" id="L124">                        .withCapability(StandardCapability.SSO)</span>
+<span class="fc" id="L125">                        .withPreferredDbms(determineDbmsForSso())</span>
+<span class="fc" id="L126">                        .withPreferredIngressHostName(entandoPlugin.getSpec().getIngressHostName().orElse(null))</span>
+<span class="fc" id="L127">                        .withPreferredTlsSecretName(entandoPlugin.getSpec().getTlsSecretName().orElse(null))</span>
+<span class="fc" id="L128">                        .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.CLUSTER)</span>
+<span class="fc" id="L129">                        .build(), 240);</span>
+<span class="fc" id="L130">        capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
+<span class="fc" id="L131">            throw new EntandoControllerException(format(&quot;Could not prepare SSO for EntandoPlugin %s/%s%n%s&quot;, entandoPlugin</span>
+<span class="fc" id="L132">                            .getMetadata().getNamespace(), entandoPlugin</span>
+<span class="fc" id="L133">                            .getMetadata().getName(),</span>
+<span class="fc" id="L134">                    f.getDetailMessage()));</span>
+        });
+<span class="fc" id="L136">        return new ProvidedSsoCapability(capabilityResult);</span>
+    }
+
+    private DbmsVendor determineDbmsForSso() {
+<span class="fc" id="L140">        final DbmsVendor dbmsVendor = entandoPlugin.getSpec().getDbms().orElse(DbmsVendor.NONE);</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (dbmsVendor == DbmsVendor.NONE) {</span>
+<span class="nc" id="L142">            return null;</span>
+        }
+<span class="fc" id="L144">        return dbmsVendor;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

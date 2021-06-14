@@ -1,0 +1,26 @@
+---
+apiVersion: "v1"
+kind: "PersistentVolumeClaim"
+metadata:
+  labels:
+    EntandoPlugin: "my-plugin"
+    EntandoResourceKind: "EntandoPlugin"
+    EntandoResourceNamespace: "my-namespace"
+    deployment: "my-plugin"
+  name: "my-plugin-server-pvc"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoPlugin"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-plugin"
+    uid: "27cdb7fc-c518-4f39-93c1-8407fbf319ee"
+spec:
+  accessModes:
+  - "ReadWriteOnce"
+  resources:
+    limits:
+      storage: "2048Mi"
+    requests:
+      storage: "512Mi"
