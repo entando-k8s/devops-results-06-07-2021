@@ -52,23 +52,24 @@ public class SerializingCapabilityProvider implements CapabilityProvider {
     }
 
     @Override
-    public CapabilityProvisioningResult loadProvisioningResult(ProvidedCapability providedCapability) {
-<span class="fc" id="L56">        final AbstractServerStatus serverStatus = providedCapability.getStatus().findCurrentServerStatus()</span>
-<span class="fc" id="L57">                .orElseThrow(IllegalStateException::new);</span>
-<span class="fc" id="L58">        Service service = ofNullable(serverStatus.getServiceName()).map(s -&gt; (Service) kubernetesClient</span>
-<span class="fc" id="L59">                .loadStandardResource(&quot;Service&quot;, providedCapability.getMetadata().getNamespace(), s)).orElse(null);</span>
-<span class="fc" id="L60">        Secret adminSecret = serverStatus.getAdminSecretName()</span>
-<span class="fc" id="L61">                .map(s -&gt; (Secret) kubernetesClient.loadStandardResource(&quot;Secret&quot;, providedCapability.getMetadata().getNamespace(), s))</span>
-<span class="fc" id="L62">                .orElse(null);</span>
-<span class="fc" id="L63">        Ingress ingress = null;</span>
-<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (serverStatus instanceof ExposedServerStatus) {</span>
-<span class="fc" id="L65">            final ExposedServerStatus exposedServerStatus = (ExposedServerStatus) serverStatus;</span>
-<span class="fc" id="L66">            ingress = ofNullable(exposedServerStatus.getIngressName())</span>
-<span class="fc" id="L67">                    .map(i -&gt; (Ingress) kubernetesClient</span>
-<span class="fc" id="L68">                            .loadStandardResource(&quot;Ingress&quot;, providedCapability.getMetadata().getNamespace(), i))</span>
-<span class="fc" id="L69">                    .orElse(null);</span>
+    public CapabilityProvisioningResult loadProvisioningResult(AbstractServerStatus serverStatus) {
+<span class="fc" id="L56">        final String capabilityNamespace = serverStatus.getProvidedCapability().getNamespace().orElseThrow(IllegalArgumentException::new);</span>
+<span class="fc" id="L57">        Service service = ofNullable(serverStatus.getServiceName()).map(s -&gt; (Service) kubernetesClient</span>
+<span class="fc" id="L58">                .loadStandardResource(&quot;Service&quot;, capabilityNamespace, s)).orElse(null);</span>
+<span class="fc" id="L59">        Secret adminSecret = serverStatus.getAdminSecretName()</span>
+<span class="fc" id="L60">                .map(s -&gt; (Secret) kubernetesClient.loadStandardResource(&quot;Secret&quot;, capabilityNamespace, s))</span>
+<span class="fc" id="L61">                .orElse(null);</span>
+<span class="fc" id="L62">        Ingress ingress = null;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (serverStatus instanceof ExposedServerStatus) {</span>
+<span class="fc" id="L64">            final ExposedServerStatus exposedServerStatus = (ExposedServerStatus) serverStatus;</span>
+<span class="fc" id="L65">            ingress = ofNullable(exposedServerStatus.getIngressName())</span>
+<span class="fc" id="L66">                    .map(i -&gt; (Ingress) kubernetesClient</span>
+<span class="fc" id="L67">                            .loadStandardResource(&quot;Ingress&quot;, capabilityNamespace, i))</span>
+<span class="fc" id="L68">                    .orElse(null);</span>
         }
-<span class="fc" id="L71">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
+<span class="fc" id="L70">        ProvidedCapability providedCapability = kubernetesClient</span>
+<span class="fc" id="L71">                .load(ProvidedCapability.class, capabilityNamespace, serverStatus.getProvidedCapability().getName());</span>
+<span class="fc" id="L72">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

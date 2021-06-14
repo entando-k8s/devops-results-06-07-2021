@@ -1,0 +1,33 @@
+---
+apiVersion: "test.org/v1"
+kind: "TestResource"
+metadata:
+  generation: 1
+  name: "specified-dbms"
+  namespace: "my-namespace"
+  resourceVersion: "8901168"
+  uid: "eb30db88-856b-44d1-a17f-c7e6bbfef188"
+spec:
+  replicas: 1
+  provisioningStrategy: "UseExternal"
+  dbms: "mysql"
+  externalHostName: "10.0.0.234"
+  adminSecretName: "my-existing-dbms-admin-secret"
+status:
+  serverStatuses:
+    main: !<InternalServerStatus>
+      qualifier: "main"
+      type: "InternalServerStatus"
+      started: "2021-06-14T15:47:59+0000"
+      finished: "2021-06-14T15:47:59+0000"
+      serviceName: "specified-dbms-service"
+      adminSecretName: "my-existing-dbms-admin-secret"
+      derivedDeploymentParameters:
+        databaseName: "specified_dbms"
+        dbmsVendor: "mysql"
+      providedCapability:
+        namespace: "my-namespace"
+        name: "specified-dbms"
+  observedGeneration: 1
+  phase: "successful"
+crdName: "testresources.test.org"
