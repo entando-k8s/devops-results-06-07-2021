@@ -1,0 +1,44 @@
+---
+internalServiceHostname: "my-plugin-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-plugin-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "ServiceDeploymentResult"
+- "SerializableDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-plugin-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8081"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-plugin-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "https://my-plugin-my-namespace.apps.serv.run/my-plugin"
+externalHostUrl: "https://my-plugin-my-namespace.apps.serv.run"
+internalBaseUrl: "http://my-plugin-service.my-namespace.svc.cluster.local:8081/my-plugin"
+status:
+  qualifier: "main"
+  type: "ExposedServerStatus"
+  started: "2021-06-14T14:28:44+0000"
+  finished: "2021-06-14T14:28:45+0000"
+  serviceName: "my-plugin-service"
+  deploymentName: "my-plugin-deployment"
+  podPhases:
+    my-plugin-deployment: "Running"
+    my-plugin-dbprep-5d39: "Complete"
+  persistentVolumeClaimPhases:
+    my-plugin-server-pvc: "Pending"
+  ingressName: "my-plugin-ingress"

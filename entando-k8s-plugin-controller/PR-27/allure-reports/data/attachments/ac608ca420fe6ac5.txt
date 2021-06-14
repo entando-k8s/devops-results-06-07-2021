@@ -1,0 +1,152 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoPlugin: "my-plugin"
+    EntandoResourceKind: "EntandoPlugin"
+    EntandoResourceNamespace: "my-namespace"
+    deployment: "my-plugin"
+  name: "my-plugin-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoPlugin"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-plugin"
+    uid: "7082b7e5-8e8d-48a6-b1ec-e77c3facc342"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoPlugin: "my-plugin"
+      EntandoResourceKind: "EntandoPlugin"
+      EntandoResourceNamespace: "my-namespace"
+      deployment: "my-plugin"
+  template:
+    metadata:
+      labels:
+        EntandoPlugin: "my-plugin"
+        EntandoResourceKind: "EntandoPlugin"
+        EntandoResourceNamespace: "my-namespace"
+        deployment: "my-plugin"
+      name: "my-plugin-pod"
+    spec:
+      containers:
+      - env:
+        - name: "KEYCLOAK_ENABLED"
+          value: "true"
+        - name: "KEYCLOAK_REALM"
+          value: "my-realm"
+        - name: "KEYCLOAK_PUBLIC_CLIENT_ID"
+          value: "entando-web"
+        - name: "KEYCLOAK_AUTH_URL"
+          value: "https://mykeycloak.apps.serv.run/auth"
+        - name: "KEYCLOAK_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "clientSecret"
+              name: "my-plugin-server-secret"
+              optional: false
+        - name: "KEYCLOAK_CLIENT_ID"
+          valueFrom:
+            secretKeyRef:
+              key: "clientId"
+              name: "my-plugin-server-secret"
+              optional: false
+        - name: "SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI"
+          value: "https://mykeycloak.apps.serv.run/auth/realms/my-realm"
+        - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "clientSecret"
+              name: "my-plugin-server-secret"
+              optional: false
+        - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID"
+          valueFrom:
+            secretKeyRef:
+              key: "clientId"
+              name: "my-plugin-server-secret"
+              optional: false
+        - name: "SPRING_DATASOURCE_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              key: "username"
+              name: "my-plugin-plugindb-secret"
+              optional: false
+        - name: "SPRING_DATASOURCE_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "my-plugin-plugindb-secret"
+              optional: false
+        - name: "SPRING_DATASOURCE_URL"
+          value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+        - name: "SPRING_JPA_DATABASE_PLATFORM"
+          value: "org.hibernate.dialect.PostgreSQLDialect"
+        - name: "SERVER_SERVLET_CONTEXT_PATH"
+          value: "/my-plugin"
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        - name: "PORT"
+          value: "8081"
+        - name: "SPRING_PROFILES_ACTIVE"
+          value: "default,prod"
+        - name: "ENTANDO_WIDGETS_FOLDER"
+          value: "/app/resources/widgets"
+        - name: "ENTANDO_CONNECTIONS_ROOT"
+          value: "/etc/entando/secrets"
+        - name: "ENTANDO_PLUGIN_SECURITY_LEVEL"
+          value: "STRICT"
+        - name: "PLUGIN_SIDECAR_PORT"
+          value: "8084"
+        image: "docker.io/entando/my-plugin:6.2.1"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/my-pluginnull"
+            port: 8081
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: "server-container"
+        ports:
+        - containerPort: 8081
+          name: "server-port"
+          protocol: "TCP"
+        readinessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/my-pluginnull"
+            port: 8081
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "1000m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+        startupProbe:
+          failureThreshold: 11
+          httpGet:
+            path: "/my-pluginnull"
+            port: 8081
+          periodSeconds: 12
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: "/entando-data"
+          name: "my-plugin-server-volume"
+          readOnly: false
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      securityContext:
+        fsGroup: 185
+      serviceAccountName: "entando-plugin"
+      volumes:
+      - name: "my-plugin-server-volume"
+        persistentVolumeClaim:
+          claimName: "my-plugin-server-pvc"
+          readOnly: false
