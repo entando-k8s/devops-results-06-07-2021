@@ -173,93 +173,94 @@ public class RestListRequest {
     private FieldSearchFilter buildSortFilter() {
 <span class="pc bpc" id="L174" title="1 of 2 branches missed.">        if (StringUtils.isNotBlank(this.escapeSql(this.getSort()))) {</span>
 <span class="fc" id="L175">            FieldSearchFilter sort = new FieldSearchFilter(this.getSort());</span>
-<span class="pc bpc" id="L176" title="1 of 2 branches missed.">            if (StringUtils.isNotBlank(this.getDirection())) {</span>
-<span class="fc bfc" id="L177" title="All 4 branches covered.">                if (!this.getDirection().equalsIgnoreCase(FieldSearchFilter.ASC_ORDER) &amp;&amp; !this.getDirection().equalsIgnoreCase(FieldSearchFilter.DESC_ORDER)) {</span>
-<span class="fc" id="L178">                    this.setDirection(DIRECTION_VALUE_DEFAULT);</span>
+<span class="fc" id="L176">            sort.setSortOnly(true);</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">            if (StringUtils.isNotBlank(this.getDirection())) {</span>
+<span class="fc bfc" id="L178" title="All 4 branches covered.">                if (!this.getDirection().equalsIgnoreCase(FieldSearchFilter.ASC_ORDER) &amp;&amp; !this.getDirection().equalsIgnoreCase(FieldSearchFilter.DESC_ORDER)) {</span>
+<span class="fc" id="L179">                    this.setDirection(DIRECTION_VALUE_DEFAULT);</span>
                 }
-<span class="fc" id="L180">                sort.setOrder(FieldSearchFilter.Order.valueOf(this.escapeSql(this.getDirection())));</span>
+<span class="fc" id="L181">                sort.setOrder(FieldSearchFilter.Order.valueOf(this.escapeSql(this.getDirection())));</span>
             }
-<span class="fc" id="L182">            return sort;</span>
+<span class="fc" id="L183">            return sort;</span>
         }
-<span class="nc" id="L184">        return null;</span>
+<span class="nc" id="L185">        return null;</span>
     }
     
     protected String escapeSql(String str) {
-<span class="pc bpc" id="L188" title="1 of 2 branches missed.">        if (str == null) {</span>
-<span class="nc" id="L189">            return null;</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">        if (str == null) {</span>
+<span class="nc" id="L190">            return null;</span>
         }
-<span class="fc" id="L191">        return StringUtils.replace(str, &quot;'&quot;, &quot;''&quot;);</span>
+<span class="fc" id="L192">        return StringUtils.replace(str, &quot;'&quot;, &quot;''&quot;);</span>
     }
     
     private Integer getOffset() {
-<span class="fc" id="L195">        int page = this.getPage() - 1;</span>
-<span class="pc bpc" id="L196" title="1 of 4 branches missed.">        if (null == this.getPage() || this.getPage() == 0) {</span>
-<span class="fc" id="L197">            return 0;</span>
+<span class="fc" id="L196">        int page = this.getPage() - 1;</span>
+<span class="pc bpc" id="L197" title="1 of 4 branches missed.">        if (null == this.getPage() || this.getPage() == 0) {</span>
+<span class="fc" id="L198">            return 0;</span>
         }
-<span class="fc" id="L199">        return this.getPageSize() * page;</span>
+<span class="fc" id="L200">        return this.getPageSize() * page;</span>
     }
 
     @Override
     public int hashCode() {
-<span class="nc" id="L204">        final int prime = 31;</span>
-<span class="nc" id="L205">        int result = 1;</span>
-<span class="nc bnc" id="L206" title="All 2 branches missed.">        result = prime * result + ((direction == null) ? 0 : direction.hashCode());</span>
-<span class="nc" id="L207">        result = prime * result + Arrays.hashCode(filters);</span>
-<span class="nc bnc" id="L208" title="All 2 branches missed.">        result = prime * result + ((page == null) ? 0 : page.hashCode());</span>
-<span class="nc bnc" id="L209" title="All 2 branches missed.">        result = prime * result + ((pageSize == null) ? 0 : pageSize.hashCode());</span>
-<span class="nc bnc" id="L210" title="All 2 branches missed.">        result = prime * result + ((sort == null) ? 0 : sort.hashCode());</span>
-<span class="nc" id="L211">        return result;</span>
+<span class="nc" id="L205">        final int prime = 31;</span>
+<span class="nc" id="L206">        int result = 1;</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        result = prime * result + ((direction == null) ? 0 : direction.hashCode());</span>
+<span class="nc" id="L208">        result = prime * result + Arrays.hashCode(filters);</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">        result = prime * result + ((page == null) ? 0 : page.hashCode());</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        result = prime * result + ((pageSize == null) ? 0 : pageSize.hashCode());</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        result = prime * result + ((sort == null) ? 0 : sort.hashCode());</span>
+<span class="nc" id="L212">        return result;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        if (this == obj) {</span>
-<span class="nc" id="L217">            return true;</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">        if (this == obj) {</span>
+<span class="nc" id="L218">            return true;</span>
         }
-<span class="pc bpc" id="L219" title="1 of 2 branches missed.">        if (obj == null) {</span>
-<span class="nc" id="L220">            return false;</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        if (obj == null) {</span>
+<span class="nc" id="L221">            return false;</span>
         }
-<span class="pc bpc" id="L222" title="1 of 2 branches missed.">        if (getClass() != obj.getClass()) {</span>
-<span class="nc" id="L223">            return false;</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">        if (getClass() != obj.getClass()) {</span>
+<span class="nc" id="L224">            return false;</span>
         }
-<span class="fc" id="L225">        RestListRequest other = (RestListRequest) obj;</span>
-<span class="pc bpc" id="L226" title="1 of 2 branches missed.">        if (direction == null) {</span>
-<span class="nc bnc" id="L227" title="All 2 branches missed.">            if (other.direction != null) {</span>
-<span class="nc" id="L228">                return false;</span>
+<span class="fc" id="L226">        RestListRequest other = (RestListRequest) obj;</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">        if (direction == null) {</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">            if (other.direction != null) {</span>
+<span class="nc" id="L229">                return false;</span>
             }
-<span class="pc bpc" id="L230" title="1 of 2 branches missed.">        } else if (!direction.equals(other.direction)) {</span>
-<span class="nc" id="L231">            return false;</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        } else if (!direction.equals(other.direction)) {</span>
+<span class="nc" id="L232">            return false;</span>
         }
-<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        if (!Arrays.equals(filters, other.filters)) {</span>
-<span class="nc" id="L234">            return false;</span>
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        if (!Arrays.equals(filters, other.filters)) {</span>
+<span class="nc" id="L235">            return false;</span>
         }
-<span class="pc bpc" id="L236" title="1 of 2 branches missed.">        if (page == null) {</span>
-<span class="nc bnc" id="L237" title="All 2 branches missed.">            if (other.page != null) {</span>
-<span class="nc" id="L238">                return false;</span>
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">        if (page == null) {</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">            if (other.page != null) {</span>
+<span class="nc" id="L239">                return false;</span>
             }
-<span class="pc bpc" id="L240" title="1 of 2 branches missed.">        } else if (!page.equals(other.page)) {</span>
-<span class="nc" id="L241">            return false;</span>
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">        } else if (!page.equals(other.page)) {</span>
+<span class="nc" id="L242">            return false;</span>
         }
-<span class="pc bpc" id="L243" title="1 of 2 branches missed.">        if (pageSize == null) {</span>
-<span class="nc bnc" id="L244" title="All 2 branches missed.">            if (other.pageSize != null) {</span>
-<span class="nc" id="L245">                return false;</span>
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">        if (pageSize == null) {</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">            if (other.pageSize != null) {</span>
+<span class="nc" id="L246">                return false;</span>
             }
-<span class="pc bpc" id="L247" title="1 of 2 branches missed.">        } else if (!pageSize.equals(other.pageSize)) {</span>
-<span class="nc" id="L248">            return false;</span>
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">        } else if (!pageSize.equals(other.pageSize)) {</span>
+<span class="nc" id="L249">            return false;</span>
         }
-<span class="pc bpc" id="L250" title="1 of 2 branches missed.">        if (sort == null) {</span>
-<span class="nc bnc" id="L251" title="All 2 branches missed.">            if (other.sort != null) {</span>
-<span class="nc" id="L252">                return false;</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">        if (sort == null) {</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">            if (other.sort != null) {</span>
+<span class="nc" id="L253">                return false;</span>
             }
-<span class="pc bpc" id="L254" title="1 of 2 branches missed.">        } else if (!sort.equals(other.sort)) {</span>
-<span class="nc" id="L255">            return false;</span>
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">        } else if (!sort.equals(other.sort)) {</span>
+<span class="nc" id="L256">            return false;</span>
         }
-<span class="fc" id="L257">        return true;</span>
+<span class="fc" id="L258">        return true;</span>
     }
 
     @Override
     public String toString() {
-<span class="fc" id="L262">        return &quot;RestListRequest{&quot; + &quot;sort=&quot; + sort + &quot;, direction=&quot; + direction + &quot;, page=&quot; + page + &quot;, pageSize=&quot; + pageSize + &quot;, filter=&quot; + Arrays.toString(filters) + '}';</span>
+<span class="fc" id="L263">        return &quot;RestListRequest{&quot; + &quot;sort=&quot; + sort + &quot;, direction=&quot; + direction + &quot;, page=&quot; + page + &quot;, pageSize=&quot; + pageSize + &quot;, filter=&quot; + Arrays.toString(filters) + '}';</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
