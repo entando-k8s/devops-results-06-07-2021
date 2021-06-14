@@ -68,117 +68,126 @@ public abstract class AbstractServerStatus implements Serializable {
     private Map&lt;String, String&gt; persistentVolumeClaimPhases;
     private Map&lt;String, String&gt; derivedDeploymentParameters;
     private EntandoControllerFailure entandoControllerFailure;
+    private ResourceReference providedCapability;
 
-<span class="fc" id="L72">    protected AbstractServerStatus() {</span>
+<span class="fc" id="L73">    protected AbstractServerStatus() {</span>
         //For json deserialization
-<span class="fc" id="L74">    }</span>
+<span class="fc" id="L75">    }</span>
 
-<span class="fc" id="L76">    protected AbstractServerStatus(String qualifier) {</span>
-<span class="fc" id="L77">        this.qualifier = qualifier;</span>
-<span class="fc" id="L78">    }</span>
+<span class="fc" id="L77">    protected AbstractServerStatus(String qualifier) {</span>
+<span class="fc" id="L78">        this.qualifier = qualifier;</span>
+<span class="fc" id="L79">    }</span>
 
     public void finish() {
-<span class="fc" id="L81">        this.finished = new Date();</span>
-<span class="fc" id="L82">    }</span>
+<span class="fc" id="L82">        this.finished = new Date();</span>
+<span class="fc" id="L83">    }</span>
 
     public Date getStarted() {
-<span class="fc" id="L85">        return started;</span>
+<span class="fc" id="L86">        return started;</span>
     }
 
     public Date getFinished() {
-<span class="fc" id="L89">        return finished;</span>
+<span class="fc" id="L90">        return finished;</span>
     }
 
     public EntandoControllerFailure getEntandoControllerFailure() {
-<span class="fc" id="L93">        return entandoControllerFailure;</span>
+<span class="fc" id="L94">        return entandoControllerFailure;</span>
     }
 
     public void setEntandoControllerFailure(EntandoControllerFailure entandoControllerFailure) {
-<span class="fc" id="L97">        this.entandoControllerFailure = entandoControllerFailure;</span>
-<span class="fc" id="L98">    }</span>
+<span class="fc" id="L98">        this.entandoControllerFailure = entandoControllerFailure;</span>
+<span class="fc" id="L99">    }</span>
 
     public boolean hasFailed() {
-<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        return entandoControllerFailure != null;</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        return entandoControllerFailure != null;</span>
         //TODO incorporate pod status here
         //Requires PodResult class from entando-k8s-operator
     }
 
     public String getQualifier() {
-<span class="fc" id="L107">        return qualifier;</span>
+<span class="fc" id="L108">        return qualifier;</span>
     }
 
     public void setQualifier(String qualifier) {
-<span class="fc" id="L111">        this.qualifier = qualifier;</span>
-<span class="fc" id="L112">    }</span>
+<span class="fc" id="L112">        this.qualifier = qualifier;</span>
+<span class="fc" id="L113">    }</span>
 
     public String getType() {
-<span class="nc" id="L115">        return type;</span>
+<span class="nc" id="L116">        return type;</span>
     }
 
     public void setType(String type) {
-<span class="nc" id="L119">        this.type = type;</span>
-<span class="nc" id="L120">    }</span>
+<span class="nc" id="L120">        this.type = type;</span>
+<span class="nc" id="L121">    }</span>
 
     public String getServiceName() {
-<span class="fc" id="L123">        return serviceName;</span>
+<span class="fc" id="L124">        return serviceName;</span>
     }
 
     public void setServiceName(String serviceName) {
-<span class="fc" id="L127">        this.serviceName = serviceName;</span>
-<span class="fc" id="L128">    }</span>
+<span class="fc" id="L128">        this.serviceName = serviceName;</span>
+<span class="fc" id="L129">    }</span>
 
     public String getDeploymentName() {
-<span class="fc" id="L131">        return deploymentName;</span>
+<span class="fc" id="L132">        return deploymentName;</span>
     }
 
     public void setDeploymentName(String deploymentName) {
-<span class="fc" id="L135">        this.deploymentName = deploymentName;</span>
-<span class="fc" id="L136">    }</span>
+<span class="fc" id="L136">        this.deploymentName = deploymentName;</span>
+<span class="fc" id="L137">    }</span>
 
     public Map&lt;String, String&gt; getDerivedDeploymentParameters() {
-<span class="fc" id="L139">        return derivedDeploymentParameters;</span>
+<span class="fc" id="L140">        return derivedDeploymentParameters;</span>
     }
 
     public void putDerivedDeploymentParameter(String parameterName, String parameterValue) {
-<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if (derivedDeploymentParameters == null) {</span>
-<span class="fc" id="L144">            derivedDeploymentParameters = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (derivedDeploymentParameters == null) {</span>
+<span class="fc" id="L145">            derivedDeploymentParameters = new HashMap&lt;&gt;();</span>
         }
-<span class="fc" id="L146">        derivedDeploymentParameters.put(parameterName, parameterValue);</span>
-<span class="fc" id="L147">    }</span>
+<span class="fc" id="L147">        derivedDeploymentParameters.put(parameterName, parameterValue);</span>
+<span class="fc" id="L148">    }</span>
 
     public Map&lt;String, String&gt; getPersistentVolumeClaimPhases() {
-<span class="fc" id="L150">        return persistentVolumeClaimPhases;</span>
+<span class="fc" id="L151">        return persistentVolumeClaimPhases;</span>
     }
 
     public void putPersistentVolumeClaimPhase(String pvcName, String pvcPhase) {
-<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (persistentVolumeClaimPhases == null) {</span>
-<span class="fc" id="L155">            persistentVolumeClaimPhases = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">        if (persistentVolumeClaimPhases == null) {</span>
+<span class="fc" id="L156">            persistentVolumeClaimPhases = new HashMap&lt;&gt;();</span>
         }
-<span class="fc" id="L157">        persistentVolumeClaimPhases.put(pvcName, pvcPhase);</span>
-<span class="fc" id="L158">    }</span>
+<span class="fc" id="L158">        persistentVolumeClaimPhases.put(pvcName, pvcPhase);</span>
+<span class="fc" id="L159">    }</span>
 
     public Map&lt;String, String&gt; getPodPhases() {
-<span class="fc" id="L161">        return podPhases;</span>
+<span class="fc" id="L162">        return podPhases;</span>
     }
 
     public void putPodPhase(String podName, String podPhase) {
-<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (podPhases == null) {</span>
-<span class="fc" id="L166">            podPhases = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (podPhases == null) {</span>
+<span class="fc" id="L167">            podPhases = new HashMap&lt;&gt;();</span>
         }
-<span class="fc" id="L168">        podPhases.put(podName, podPhase);</span>
-<span class="fc" id="L169">    }</span>
+<span class="fc" id="L169">        podPhases.put(podName, podPhase);</span>
+<span class="fc" id="L170">    }</span>
 
     public void finishWith(EntandoControllerFailure failure) {
-<span class="fc" id="L172">        finish();</span>
-<span class="fc" id="L173">        setEntandoControllerFailure(failure);</span>
-<span class="fc" id="L174">    }</span>
+<span class="fc" id="L173">        finish();</span>
+<span class="fc" id="L174">        setEntandoControllerFailure(failure);</span>
+<span class="fc" id="L175">    }</span>
 
     public Optional&lt;String&gt; getAdminSecretName() {
-<span class="fc" id="L177">        return Optional.ofNullable(adminSecretName);</span>
+<span class="fc" id="L178">        return Optional.ofNullable(adminSecretName);</span>
     }
 
     public void setAdminSecretName(String adminSecretName) {
-<span class="fc" id="L181">        this.adminSecretName = adminSecretName;</span>
-<span class="fc" id="L182">    }</span>
+<span class="fc" id="L182">        this.adminSecretName = adminSecretName;</span>
+<span class="fc" id="L183">    }</span>
+
+    public ResourceReference getProvidedCapability() {
+<span class="fc" id="L186">        return providedCapability;</span>
+    }
+
+    public void setProvidedCapability(ResourceReference providedCapability) {
+<span class="fc" id="L190">        this.providedCapability = providedCapability;</span>
+<span class="fc" id="L191">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
