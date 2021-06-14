@@ -1,0 +1,39 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    EntandoDatabaseService: "mysql-dbms-3362"
+    EntandoResourceKind: "EntandoDatabaseService"
+    entando.org/capability: "Dbms"
+    capabilityProvisionScope: "Labeled"
+    my-label: "my-label-value"
+    EntandoResourceNamespace: "my-namespace"
+    entando.org/capability-implementation: "Mysql"
+    deployment: "mysql-dbms-3362"
+  name: "mysql-dbms-3362-service"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoDatabaseService"
+    blockOwnerDeletion: true
+    controller: true
+    name: "mysql-dbms-3362"
+    uid: "f61e4272-246c-47c6-8d46-fa5e3b735294"
+spec:
+  clusterIP: "10.0.0.-94"
+  ports:
+  - name: "db-port"
+    port: 3306
+    protocol: "TCP"
+    targetPort: 3306
+  selector:
+    EntandoDatabaseService: "mysql-dbms-3362"
+    EntandoResourceKind: "EntandoDatabaseService"
+    entando.org/capability: "Dbms"
+    capabilityProvisionScope: "Labeled"
+    my-label: "my-label-value"
+    EntandoResourceNamespace: "my-namespace"
+    entando.org/capability-implementation: "Mysql"
+    deployment: "mysql-dbms-3362"
+  type: "ClusterIP"
