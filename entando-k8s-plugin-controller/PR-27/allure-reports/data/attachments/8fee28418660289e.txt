@@ -1,0 +1,31 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    entando.org/my-plugin-server-path: "/my-plugin"
+  labels:
+    EntandoPlugin: "my-plugin"
+  name: "my-plugin-ingress"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoPlugin"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-plugin"
+    uid: "235b3900-fa03-4450-937d-04cdf1233c43"
+spec:
+  rules:
+  - host: "my-plugin-my-namespace.apps.serv.run"
+    http:
+      paths:
+      - backend:
+          serviceName: "my-plugin-service"
+          servicePort: 8081
+        path: "/my-plugin"
+  tls:
+  - hosts:
+    - "my-plugin-my-namespace.apps.serv.run"
+    secretName: "default-tls-secret"
