@@ -61,7 +61,7 @@ public class DefaultKubernetesClientForControllers implements KubernetesClientFo
 
     @Override
     public String getNamespace() {
-<span class="nc" id="L64">        return client.getNamespace();</span>
+<span class="fc" id="L64">        return client.getNamespace();</span>
     }
 
     @Override
@@ -85,9 +85,9 @@ public class DefaultKubernetesClientForControllers implements KubernetesClientFo
 
     @Override
     public ExecutionResult executeOnPod(Pod pod, String containerName, int timeoutSeconds, String... commands) throws TimeoutException {
-<span class="fc" id="L88">        PodResource&lt;Pod&gt; podResource = this.client.pods().inNamespace(pod.getMetadata().getNamespace())</span>
-<span class="fc" id="L89">                .withName(pod.getMetadata().getName());</span>
-<span class="fc" id="L90">        return executeAndWait(podResource, containerName, timeoutSeconds, commands);</span>
+<span class="nc" id="L88">        PodResource&lt;Pod&gt; podResource = this.client.pods().inNamespace(pod.getMetadata().getNamespace())</span>
+<span class="nc" id="L89">                .withName(pod.getMetadata().getName());</span>
+<span class="nc" id="L90">        return executeAndWait(podResource, containerName, timeoutSeconds, commands);</span>
     }
 
     @Override
@@ -115,13 +115,13 @@ public class DefaultKubernetesClientForControllers implements KubernetesClientFo
 
     @Override
     public HasMetadata loadStandardResource(String kind, String namespace, String name) {
-<span class="fc" id="L118">        return SupportedStandardResourceKind.resolveFromKind(kind)</span>
-<span class="fc" id="L119">                .map(k -&gt; k.getOperation(client)</span>
-<span class="fc" id="L120">                        .inNamespace(namespace)</span>
-<span class="fc" id="L121">                        .withName(name)</span>
-<span class="fc" id="L122">                        .fromServer()</span>
-<span class="fc" id="L123">                        .get())</span>
-<span class="pc" id="L124">                .orElseThrow(() -&gt; new IllegalStateException(</span>
+<span class="nc" id="L118">        return SupportedStandardResourceKind.resolveFromKind(kind)</span>
+<span class="nc" id="L119">                .map(k -&gt; k.getOperation(client)</span>
+<span class="nc" id="L120">                        .inNamespace(namespace)</span>
+<span class="nc" id="L121">                        .withName(name)</span>
+<span class="nc" id="L122">                        .fromServer()</span>
+<span class="nc" id="L123">                        .get())</span>
+<span class="nc" id="L124">                .orElseThrow(() -&gt; new IllegalStateException(</span>
                         &quot;Resource kind '&quot; + kind + &quot;' not supported.&quot;));
     }
 

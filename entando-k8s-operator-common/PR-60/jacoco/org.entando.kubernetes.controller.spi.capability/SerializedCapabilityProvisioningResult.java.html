@@ -21,8 +21,8 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import java.util.Optional;
 import org.entando.kubernetes.model.capability.ProvidedCapability;
-import org.entando.kubernetes.model.common.AbstractServerStatus;
 import org.entando.kubernetes.model.common.EntandoControllerFailure;
+import org.entando.kubernetes.model.common.ServerStatus;
 
 public class SerializedCapabilityProvisioningResult implements CapabilityProvisioningResult {
 
@@ -40,39 +40,34 @@ public class SerializedCapabilityProvisioningResult implements CapabilityProvisi
 <span class="fc" id="L40">        this.adminSecret = adminSecret;</span>
 <span class="fc" id="L41">    }</span>
 
-<span class="fc" id="L43">    public SerializedCapabilityProvisioningResult(ProvidedCapability providedCapability, EntandoControllerFailure controllerFailure) {</span>
-<span class="fc" id="L44">        this.providedCapability = providedCapability;</span>
-<span class="fc" id="L45">        this.controllerFailure = controllerFailure;</span>
-<span class="fc" id="L46">    }</span>
-
-<span class="fc" id="L48">    public SerializedCapabilityProvisioningResult(EntandoControllerFailure controllerFailure) {</span>
-<span class="fc" id="L49">        this.controllerFailure = controllerFailure;</span>
-<span class="fc" id="L50">    }</span>
+<span class="fc" id="L43">    public SerializedCapabilityProvisioningResult(EntandoControllerFailure controllerFailure) {</span>
+<span class="fc" id="L44">        this.controllerFailure = controllerFailure;</span>
+<span class="fc" id="L45">    }</span>
 
     @Override
     public ProvidedCapability getProvidedCapability() {
-<span class="fc" id="L54">        return providedCapability;</span>
+<span class="fc" id="L49">        return providedCapability;</span>
     }
 
     @Override
     public Service getService() {
-<span class="fc" id="L59">        return service;</span>
+<span class="fc" id="L54">        return service;</span>
     }
 
     @Override
     public Optional&lt;Ingress&gt; getIngress() {
-<span class="fc" id="L64">        return Optional.ofNullable(ingress);</span>
+<span class="fc" id="L59">        return Optional.ofNullable(ingress);</span>
     }
 
     @Override
     public Optional&lt;Secret&gt; getAdminSecret() {
-<span class="fc" id="L69">        return Optional.ofNullable(adminSecret);</span>
+<span class="fc" id="L64">        return Optional.ofNullable(adminSecret);</span>
     }
 
     @Override
     public Optional&lt;EntandoControllerFailure&gt; getControllerFailure() {
-<span class="fc" id="L74">        return Optional.ofNullable(controllerFailure)</span>
-<span class="fc" id="L75">                .or(() -&gt; providedCapability.getStatus().findFailedServerStatus().map(AbstractServerStatus::getEntandoControllerFailure));</span>
+<span class="fc" id="L69">        return Optional.ofNullable(controllerFailure)</span>
+<span class="fc" id="L70">                .or(() -&gt; providedCapability.getStatus().findFailedServerStatus().flatMap(ServerStatus::getEntandoControllerFailure));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

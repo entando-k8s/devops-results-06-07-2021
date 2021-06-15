@@ -23,9 +23,10 @@ import io.fabric8.kubernetes.api.model.Secret;
 import java.util.Optional;
 import org.entando.kubernetes.controller.spi.capability.CapabilityProvisioningResult;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.spi.result.ExposedService;
 import org.entando.kubernetes.model.capability.CapabilityProvisioningStrategy;
-import org.entando.kubernetes.model.common.ExposedServerStatus;
+import org.entando.kubernetes.model.common.ServerStatus;
 
 public class ProvidedSsoCapability implements SsoConnectionInfo {
 
@@ -35,50 +36,51 @@ public class ProvidedSsoCapability implements SsoConnectionInfo {
     private final ExposedService exposedService;
 
     public ProvidedSsoCapability(CapabilityProvisioningResult capabilityResult) {
-<span class="fc" id="L38">        super();</span>
-<span class="fc" id="L39">        this.capabilityResult = capabilityResult;</span>
-<span class="fc" id="L40">        this.exposedService = new ExposedService(capabilityResult.getService(), capabilityResult.getIngress().orElse(null));</span>
-<span class="fc" id="L41">    }</span>
+<span class="fc" id="L39">        super();</span>
+<span class="fc" id="L40">        this.capabilityResult = capabilityResult;</span>
+<span class="fc" id="L41">        this.exposedService = new ExposedService(capabilityResult.getService(), capabilityResult.getIngress().orElse(null));</span>
+<span class="fc" id="L42">    }</span>
 
     @Override
     public Secret getAdminSecret() {
-<span class="fc" id="L45">        return capabilityResult.getAdminSecret().orElseThrow(IllegalStateException::new);</span>
+<span class="fc" id="L46">        return capabilityResult.getAdminSecret().orElseThrow(IllegalStateException::new);</span>
     }
 
     @Override
     public String getBaseUrlToUse() {
-<span class="pc bpc" id="L50" title="2 of 4 branches missed.">        if (useExternalService() || EntandoOperatorSpiConfig.forceExternalAccessToKeycloak()) {</span>
-<span class="nc" id="L51">            return getExternalBaseUrl();</span>
+<span class="pc bpc" id="L51" title="2 of 4 branches missed.">        if (useExternalService() || EntandoOperatorSpiConfig.forceExternalAccessToKeycloak()) {</span>
+<span class="nc" id="L52">            return getExternalBaseUrl();</span>
         } else {
-<span class="fc" id="L53">            return exposedService.getInternalBaseUrl();</span>
+<span class="fc" id="L54">            return exposedService.getInternalBaseUrl();</span>
         }
     }
 
     private boolean useExternalService() {
-<span class="fc" id="L58">        return capabilityResult.getProvidedCapability().getSpec().getProvisioningStrategy()</span>
-<span class="fc" id="L59">                .map(CapabilityProvisioningStrategy.USE_EXTERNAL::equals)</span>
-<span class="fc" id="L60">                .orElse(false);</span>
+<span class="fc" id="L59">        return capabilityResult.getProvidedCapability().getSpec().getProvisioningStrategy()</span>
+<span class="fc" id="L60">                .map(CapabilityProvisioningStrategy.USE_EXTERNAL::equals)</span>
+<span class="fc" id="L61">                .orElse(false);</span>
     }
 
     @Override
     public String getExternalBaseUrl() {
-<span class="fc" id="L65">        return ((ExposedServerStatus) capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus()</span>
-<span class="fc" id="L66">                .orElseThrow(IllegalStateException::new)).getExternalBaseUrl();</span>
+<span class="fc" id="L66">        return capabilityResult.getProvidedCapability().getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER)</span>
+<span class="fc" id="L67">                .flatMap(ServerStatus::getExternalBaseUrl).orElseThrow(IllegalStateException::new);</span>
     }
 
     @Override
     public Optional&lt;String&gt; getDefaultRealm() {
-<span class="fc" id="L71">        return ofNullable(</span>
-<span class="fc" id="L72">                capabilityResult.getProvidedCapability().getStatus().findCurrentServerStatus().orElseThrow(IllegalStateException::new)</span>
-<span class="fc" id="L73">                        .getDerivedDeploymentParameters()).flatMap(map -&gt; ofNullable(map.get(DEFAULT_REALM_PARAMETER)));</span>
+<span class="fc" id="L72">        return ofNullable(</span>
+<span class="fc" id="L73">                capabilityResult.getProvidedCapability().getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER)</span>
+<span class="fc" id="L74">                        .orElseThrow(IllegalStateException::new)</span>
+<span class="fc" id="L75">                        .getDerivedDeploymentParameters()).flatMap(map -&gt; ofNullable(map.get(DEFAULT_REALM_PARAMETER)));</span>
     }
 
     @Override
     public Optional&lt;String&gt; getInternalBaseUrl() {
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (exposedService.getService() == null) {</span>
-<span class="nc" id="L79">            return Optional.empty();</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (exposedService.getService() == null) {</span>
+<span class="nc" id="L81">            return Optional.empty();</span>
         } else {
-<span class="fc" id="L81">            return of(exposedService.getInternalBaseUrl());</span>
+<span class="fc" id="L83">            return of(exposedService.getInternalBaseUrl());</span>
         }
     }
 

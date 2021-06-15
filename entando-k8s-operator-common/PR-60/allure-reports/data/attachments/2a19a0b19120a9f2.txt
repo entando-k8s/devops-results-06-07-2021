@@ -1,0 +1,27 @@
+---
+apiVersion: "v1"
+kind: "PersistentVolumeClaim"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "my-namespace"
+    TestResource: "my-app"
+    deployment: "my-app"
+  name: "my-app-server-pvc"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "12ce0b35-8452-4bdc-9eef-4f75904f6916"
+spec:
+  accessModes:
+  - "ReadWriteMany"
+  resources:
+    limits:
+      storage: "500Mi"
+    requests:
+      storage: "125Mi"
+  storageClassName: "gluster"

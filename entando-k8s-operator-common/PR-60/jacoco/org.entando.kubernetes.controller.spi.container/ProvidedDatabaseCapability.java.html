@@ -26,9 +26,10 @@ import java.util.Map;
 import java.util.Optional;
 import org.entando.kubernetes.controller.spi.capability.CapabilityProvisioningResult;
 import org.entando.kubernetes.controller.spi.common.DbmsVendorConfig;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.spi.result.AbstractServiceResult;
 import org.entando.kubernetes.controller.spi.result.DatabaseConnectionInfo;
-import org.entando.kubernetes.model.common.AbstractServerStatus;
+import org.entando.kubernetes.model.common.ServerStatus;
 
 public class ProvidedDatabaseCapability extends AbstractServiceResult implements DatabaseConnectionInfo {
 
@@ -36,50 +37,50 @@ public class ProvidedDatabaseCapability extends AbstractServiceResult implements
     public static final String JDBC_PARAMETER_PREFIX = &quot;jdbc-&quot;;
     public static final String DBMS_VENDOR_PARAMETER = &quot;dbmsVendor&quot;;
     public static final String TABLESPACE_PARAMETER = &quot;tablespace&quot;;
-    private final AbstractServerStatus status;
+    private final ServerStatus status;
     private final Map&lt;String, String&gt; capabilityParameters;
 
     public ProvidedDatabaseCapability(CapabilityProvisioningResult serializedCapabilityProvisioningResult) {
-<span class="fc" id="L43">        this(serializedCapabilityProvisioningResult.getService(),</span>
-<span class="fc" id="L44">                serializedCapabilityProvisioningResult.getProvidedCapability().getStatus().findCurrentServerStatus()</span>
-<span class="fc" id="L45">                        .orElseThrow(IllegalStateException::new),</span>
-<span class="fc" id="L46">                serializedCapabilityProvisioningResult.getProvidedCapability().getSpec().getCapabilityParameters());</span>
-<span class="fc" id="L47">    }</span>
+<span class="fc" id="L44">        this(serializedCapabilityProvisioningResult.getService(),</span>
+<span class="fc" id="L45">                serializedCapabilityProvisioningResult.getProvidedCapability().getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER)</span>
+<span class="fc" id="L46">                        .orElseThrow(IllegalStateException::new),</span>
+<span class="fc" id="L47">                serializedCapabilityProvisioningResult.getProvidedCapability().getSpec().getCapabilityParameters());</span>
+<span class="fc" id="L48">    }</span>
 
-    public ProvidedDatabaseCapability(Service service, AbstractServerStatus status, Map&lt;String, String&gt; capabilityParameters) {
-<span class="fc" id="L50">        super(service, status.getAdminSecretName().orElse(null));</span>
-<span class="fc" id="L51">        this.status = status;</span>
-<span class="fc" id="L52">        this.capabilityParameters = ofNullable(capabilityParameters).orElse(Collections.emptyMap());</span>
-<span class="fc" id="L53">    }</span>
+    public ProvidedDatabaseCapability(Service service, ServerStatus status, Map&lt;String, String&gt; capabilityParameters) {
+<span class="fc" id="L51">        super(service, status.getAdminSecretName().orElse(null));</span>
+<span class="fc" id="L52">        this.status = status;</span>
+<span class="fc" id="L53">        this.capabilityParameters = ofNullable(capabilityParameters).orElse(Collections.emptyMap());</span>
+<span class="fc" id="L54">    }</span>
 
     @Override
     public Map&lt;String, String&gt; getJdbcParameters() {
-<span class="fc" id="L57">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L58">        capabilityParameters.forEach((key, value) -&gt; {</span>
-<span class="fc bfc" id="L59" title="All 2 branches covered.">            if (key.startsWith(JDBC_PARAMETER_PREFIX)) {</span>
-<span class="fc" id="L60">                result.put(key.substring(JDBC_PARAMETER_PREFIX.length()), value);</span>
+<span class="fc" id="L58">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L59">        capabilityParameters.forEach((key, value) -&gt; {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            if (key.startsWith(JDBC_PARAMETER_PREFIX)) {</span>
+<span class="fc" id="L61">                result.put(key.substring(JDBC_PARAMETER_PREFIX.length()), value);</span>
             }
-<span class="fc" id="L62">        });</span>
-<span class="fc" id="L63">        return result;</span>
+<span class="fc" id="L63">        });</span>
+<span class="fc" id="L64">        return result;</span>
     }
 
     @Override
     public String getDatabaseName() {
-<span class="fc" id="L68">        return ofNullable(findStatus().getDerivedDeploymentParameters()).map(m -&gt; m.get(DATABASE_NAME_PARAMETER)).orElse(null);</span>
+<span class="fc" id="L69">        return ofNullable(findStatus().getDerivedDeploymentParameters()).map(m -&gt; m.get(DATABASE_NAME_PARAMETER)).orElse(null);</span>
     }
 
     @Override
     public DbmsVendorConfig getVendor() {
-<span class="fc" id="L73">        return DbmsVendorConfig.valueOf(findStatus().getDerivedDeploymentParameters().get(DBMS_VENDOR_PARAMETER).toUpperCase(Locale.ROOT));</span>
+<span class="fc" id="L74">        return DbmsVendorConfig.valueOf(findStatus().getDerivedDeploymentParameters().get(DBMS_VENDOR_PARAMETER).toUpperCase(Locale.ROOT));</span>
     }
 
-    private AbstractServerStatus findStatus() {
-<span class="fc" id="L77">        return status;</span>
+    private ServerStatus findStatus() {
+<span class="fc" id="L78">        return status;</span>
     }
 
     @Override
     public Optional&lt;String&gt; getTablespace() {
-<span class="fc" id="L82">        return ofNullable(capabilityParameters.get(TABLESPACE_PARAMETER));</span>
+<span class="fc" id="L83">        return ofNullable(capabilityParameters.get(TABLESPACE_PARAMETER));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

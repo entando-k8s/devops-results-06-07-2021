@@ -33,12 +33,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.entando.kubernetes.controller.spi.capability.SerializedCapabilityProvisioningResult;
 import org.entando.kubernetes.controller.spi.common.ExceptionUtils;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.support.client.CapabilityClient;
 import org.entando.kubernetes.controller.support.common.EntandoOperatorConfig;
 import org.entando.kubernetes.model.capability.ProvidedCapability;
-import org.entando.kubernetes.model.common.AbstractServerStatus;
 import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
-import org.entando.kubernetes.model.common.ExposedServerStatus;
+import org.entando.kubernetes.model.common.ServerStatus;
 
 public class DefaultCapabilityClient implements CapabilityClient {
 
@@ -94,14 +94,14 @@ public class DefaultCapabilityClient implements CapabilityClient {
     @Override
     public ProvidedCapability waitForCapabilityCompletion(ProvidedCapability capability, int timeoutSeconds) throws TimeoutException {
         try {
-<span class="fc" id="L97">            return ExceptionUtils.interruptionSafe(() -&gt; client.customResources(ProvidedCapability.class)</span>
+<span class="pc" id="L97">            return ExceptionUtils.interruptionSafe(() -&gt; client.customResources(ProvidedCapability.class)</span>
 <span class="fc" id="L98">                    .inNamespace(capability.getMetadata().getNamespace())</span>
 <span class="fc" id="L99">                    .withName(capability.getMetadata().getName())</span>
 <span class="pc bpc" id="L100" title="1 of 2 branches missed.">                    .waitUntilCondition(providedCapability -&gt; providedCapability.getStatus() != null</span>
-<span class="fc bfc" id="L101" title="All 2 branches covered.">                                    &amp;&amp; providedCapability.getStatus().getPhase() != null</span>
-<span class="fc" id="L102">                                    &amp;&amp; Set.of(EntandoDeploymentPhase.IGNORED, EntandoDeploymentPhase.FAILED,</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">                                    &amp;&amp; providedCapability.getStatus().getPhase() != null</span>
+<span class="nc" id="L102">                                    &amp;&amp; Set.of(EntandoDeploymentPhase.IGNORED, EntandoDeploymentPhase.FAILED,</span>
                             EntandoDeploymentPhase.SUCCESSFUL)
-<span class="pc bpc" id="L104" title="1 of 2 branches missed.">                                    .contains(providedCapability.getStatus().getPhase()),</span>
+<span class="pc bnc" id="L104" title="All 2 branches missed.">                                    .contains(providedCapability.getStatus().getPhase()),</span>
                             timeoutSeconds,
                             TimeUnit.SECONDS));
 <span class="fc" id="L107">        } catch (IllegalArgumentException e) {</span>
@@ -124,21 +124,19 @@ public class DefaultCapabilityClient implements CapabilityClient {
 
     @Override
     public SerializedCapabilityProvisioningResult buildCapabilityProvisioningResult(ProvidedCapability providedCapability) {
-<span class="fc" id="L127">        final AbstractServerStatus serverStatus = providedCapability.getStatus().findCurrentServerStatus()</span>
+<span class="fc" id="L127">        final ServerStatus serverStatus = providedCapability.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER)</span>
 <span class="fc" id="L128">                .orElseThrow(IllegalStateException::new);</span>
-<span class="fc" id="L129">        Service service = ofNullable(serverStatus.getServiceName())</span>
+<span class="fc" id="L129">        Service service = serverStatus.getServiceName()</span>
 <span class="fc" id="L130">                .map(s -&gt; client.services().inNamespace(providedCapability.getMetadata().getNamespace())</span>
 <span class="fc" id="L131">                        .withName(s).get()).orElse(null);</span>
 <span class="fc" id="L132">        Secret adminSecret = serverStatus.getAdminSecretName()</span>
 <span class="fc" id="L133">                .map(s -&gt; client.secrets().inNamespace(providedCapability.getMetadata().getNamespace()).withName(s).get())</span>
 <span class="fc" id="L134">                .orElse(null);</span>
 <span class="fc" id="L135">        Ingress ingress = null;</span>
-<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (serverStatus instanceof ExposedServerStatus) {</span>
-<span class="fc" id="L137">            ingress = ofNullable(((ExposedServerStatus) serverStatus).getIngressName())</span>
-<span class="fc" id="L138">                    .map(s -&gt; client.extensions().ingresses().inNamespace(providedCapability.getMetadata().getNamespace())</span>
-<span class="fc" id="L139">                            .withName(s).get()).orElse(null);</span>
-        }
-<span class="fc" id="L141">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
+<span class="fc" id="L136">        ingress = serverStatus.getIngressName()</span>
+<span class="fc" id="L137">                .map(s -&gt; client.extensions().ingresses().inNamespace(providedCapability.getMetadata().getNamespace())</span>
+<span class="fc" id="L138">                        .withName(s).get()).orElse(null);</span>
+<span class="fc" id="L139">        return new SerializedCapabilityProvisioningResult(providedCapability, service, ingress, adminSecret);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
