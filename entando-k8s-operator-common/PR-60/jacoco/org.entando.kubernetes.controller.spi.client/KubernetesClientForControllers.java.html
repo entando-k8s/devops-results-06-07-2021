@@ -94,24 +94,24 @@ public interface KubernetesClientForControllers {
     @SuppressWarnings({&quot;java:S106&quot;})
     default ExecutionResult executeAndWait(PodResource&lt;Pod&gt; podResource, String containerName, int timeoutSeconds,
             String... script) throws TimeoutException {
-<span class="nc" id="L97">        StringBuilder sb = new StringBuilder();</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">        for (String s : script) {</span>
-<span class="nc" id="L99">            sb.append(s);</span>
-<span class="nc" id="L100">            sb.append(&quot; || exit $?\n&quot;);</span>
+<span class="fc" id="L97">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        for (String s : script) {</span>
+<span class="fc" id="L99">            sb.append(s);</span>
+<span class="fc" id="L100">            sb.append(&quot; || exit $?\n&quot;);</span>
         }
-<span class="nc" id="L102">        sb.append(&quot;exit $?\n&quot;);</span>
-<span class="nc" id="L103">        ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes());</span>
+<span class="fc" id="L102">        sb.append(&quot;exit $?\n&quot;);</span>
+<span class="fc" id="L103">        ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes());</span>
         try {
-<span class="nc" id="L105">            final CompletableFuture&lt;ExecutionResult&gt; future = new CompletableFuture&lt;&gt;();</span>
-<span class="nc" id="L106">            ExecutionResult listener = new ExecutionResult(future);</span>
-<span class="nc" id="L107">            podResource.inContainer(containerName)</span>
-<span class="nc" id="L108">                    .readingInput(in)</span>
-<span class="nc" id="L109">                    .writingOutput(listener.getOutput())</span>
-<span class="nc" id="L110">                    .writingError(listener.getOutput())</span>
-<span class="nc" id="L111">                    .writingErrorChannel(listener.getErrorChannel())</span>
-<span class="nc" id="L112">                    .withTTY()</span>
-<span class="nc" id="L113">                    .usingListener(listener).exec();</span>
-<span class="nc" id="L114">            return future.get(timeoutSeconds, TimeUnit.SECONDS);</span>
+<span class="fc" id="L105">            final CompletableFuture&lt;ExecutionResult&gt; future = new CompletableFuture&lt;&gt;();</span>
+<span class="fc" id="L106">            ExecutionResult listener = new ExecutionResult(future);</span>
+<span class="fc" id="L107">            podResource.inContainer(containerName)</span>
+<span class="fc" id="L108">                    .readingInput(in)</span>
+<span class="fc" id="L109">                    .writingOutput(listener.getOutput())</span>
+<span class="fc" id="L110">                    .writingError(listener.getOutput())</span>
+<span class="fc" id="L111">                    .writingErrorChannel(listener.getErrorChannel())</span>
+<span class="fc" id="L112">                    .withTTY()</span>
+<span class="fc" id="L113">                    .usingListener(listener).exec();</span>
+<span class="fc" id="L114">            return future.get(timeoutSeconds, TimeUnit.SECONDS);</span>
 <span class="nc" id="L115">        } catch (InterruptedException e) {</span>
 <span class="nc" id="L116">            Thread.currentThread().interrupt();</span>
 <span class="nc" id="L117">            throw new IllegalStateException(e);</span>

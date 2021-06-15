@@ -1,0 +1,113 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "my-namespace"
+    TestResource: "my-app"
+    deployment: "my-app"
+  name: "my-app-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "edc970a6-b1ce-4161-bef1-8446815664f5"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoResourceKind: "TestResource"
+      EntandoResourceNamespace: "my-namespace"
+      TestResource: "my-app"
+      deployment: "my-app"
+  template:
+    metadata:
+      labels:
+        EntandoResourceKind: "TestResource"
+        EntandoResourceNamespace: "my-namespace"
+        TestResource: "my-app"
+        deployment: "my-app"
+      name: "my-app-pod"
+    spec:
+      containers:
+      - env:
+        - name: "KEYCLOAK_ENABLED"
+          value: "true"
+        - name: "KEYCLOAK_REALM"
+          value: "my-realm"
+        - name: "KEYCLOAK_PUBLIC_CLIENT_ID"
+          value: "entando-web"
+        - name: "KEYCLOAK_AUTH_URL"
+          value: "https://mykeycloak.com/auth"
+        - name: "KEYCLOAK_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "clientSecret"
+              name: "my-client-secret"
+              optional: false
+        - name: "KEYCLOAK_CLIENT_ID"
+          valueFrom:
+            secretKeyRef:
+              key: "clientId"
+              name: "my-client-secret"
+              optional: false
+        - name: "SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI"
+          value: "https://mykeycloak.com/auth/realms/my-realm"
+        - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "clientSecret"
+              name: "my-client-secret"
+              optional: false
+        - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID"
+          valueFrom:
+            secretKeyRef:
+              key: "clientId"
+              name: "my-client-secret"
+              optional: false
+        - name: "SERVER_SERVLET_CONTEXT_PATH"
+          value: "/my-app"
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        image: "docker.io/test/my-spring-boot-image:6.3.2"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/my-app/health"
+            port: 8081
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: "server-container"
+        ports:
+        - containerPort: 8081
+          name: "server-port"
+          protocol: "TCP"
+        readinessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/my-app/health"
+            port: 8081
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+        startupProbe:
+          failureThreshold: 11
+          httpGet:
+            path: "/my-app/health"
+            port: 8081
+          periodSeconds: 12
+          timeoutSeconds: 5
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      serviceAccountName: "default"
