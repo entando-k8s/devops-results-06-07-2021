@@ -21,8 +21,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import org.entando.kubernetes.controller.spi.container.ProvidedSsoCapability;
 import org.entando.kubernetes.controller.spi.result.ExposedDeploymentResult;
-import org.entando.kubernetes.model.common.AbstractServerStatus;
-import org.entando.kubernetes.model.common.ExposedServerStatus;
+import org.entando.kubernetes.model.common.ServerStatus;
 import org.entando.kubernetes.model.keycloakserver.EntandoKeycloakServer;
 
 public class KeycloakDeploymentResult extends ExposedDeploymentResult&lt;KeycloakDeploymentResult&gt; {
@@ -31,20 +30,19 @@ public class KeycloakDeploymentResult extends ExposedDeploymentResult&lt;Keycloa
 
     public KeycloakDeploymentResult(Pod pod, Service service, Ingress ingress, String adminSecretName,
             EntandoKeycloakServer entandoKeycloakServer) {
-<span class="fc" id="L34">        super(pod, service, ingress);</span>
-<span class="fc" id="L35">        super.adminSecretName = adminSecretName;</span>
-<span class="fc" id="L36">        this.entandoKeycloakServer = entandoKeycloakServer;</span>
-<span class="fc" id="L37">    }</span>
+<span class="fc" id="L33">        super(pod, service, ingress);</span>
+<span class="fc" id="L34">        super.adminSecretName = adminSecretName;</span>
+<span class="fc" id="L35">        this.entandoKeycloakServer = entandoKeycloakServer;</span>
+<span class="fc" id="L36">    }</span>
 
     @Override
-    public KeycloakDeploymentResult withStatus(AbstractServerStatus status) {
-<span class="fc" id="L41">        final ExposedServerStatus exposedServerStatus = (ExposedServerStatus) status;</span>
-<span class="fc" id="L42">        exposedServerStatus.setAdminSecretName(adminSecretName);</span>
+    public KeycloakDeploymentResult withStatus(ServerStatus serverStatus) {
+<span class="fc" id="L40">        serverStatus.setAdminSecretName(adminSecretName);</span>
         //orElseGet avoids a NPE
-<span class="fc" id="L44">        exposedServerStatus.setExternalBaseUrl(entandoKeycloakServer.getSpec().getFrontEndUrl().orElseGet(this::getExternalBaseUrl));</span>
-<span class="fc" id="L45">        entandoKeycloakServer.getSpec().getDefaultRealm().ifPresent(r -&gt;</span>
-<span class="fc" id="L46">                exposedServerStatus.putDerivedDeploymentParameter(ProvidedSsoCapability.DEFAULT_REALM_PARAMETER, r));</span>
-<span class="fc" id="L47">        return super.withStatus(status);</span>
+<span class="fc" id="L42">        serverStatus.setExternalBaseUrl(entandoKeycloakServer.getSpec().getFrontEndUrl().orElseGet(this::getExternalBaseUrl));</span>
+<span class="fc" id="L43">        entandoKeycloakServer.getSpec().getDefaultRealm().ifPresent(r -&gt;</span>
+<span class="fc" id="L44">                serverStatus.putDerivedDeploymentParameter(ProvidedSsoCapability.DEFAULT_REALM_PARAMETER, r));</span>
+<span class="fc" id="L45">        return super.withStatus(serverStatus);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
