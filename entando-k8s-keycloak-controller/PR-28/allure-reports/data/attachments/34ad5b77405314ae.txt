@@ -1,0 +1,128 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoKeycloakServer: "my-keycloak"
+    deployment: "my-keycloak"
+  name: "my-keycloak-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-keycloak"
+    uid: "d1d77356-4557-4311-b96e-4e44b40c8e17"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoResourceKind: "EntandoKeycloakServer"
+      EntandoResourceNamespace: "my-namespace"
+      EntandoKeycloakServer: "my-keycloak"
+      deployment: "my-keycloak"
+  template:
+    metadata:
+      labels:
+        EntandoResourceKind: "EntandoKeycloakServer"
+        EntandoResourceNamespace: "my-namespace"
+        EntandoKeycloakServer: "my-keycloak"
+        deployment: "my-keycloak"
+      name: "my-keycloak-pod"
+    spec:
+      containers:
+      - env:
+        - name: "DB_POSTGRESQL_SERVICE_HOST"
+          value: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+        - name: "DB_POSTGRESQL_SERVICE_PORT"
+          value: "5432"
+        - name: "DB_SERVICE_PREFIX_MAPPING"
+          value: "db-postgresql=DB"
+        - name: "DB_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              key: "username"
+              name: "my-keycloak-db-secret"
+              optional: false
+        - name: "DB_VENDOR"
+          value: "postgres"
+        - name: "DB_DATABASE"
+          value: "my_db"
+        - name: "DB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "my-keycloak-db-secret"
+              optional: false
+        - name: "JDBC_PARAMS"
+          value: ""
+        - name: "SERVER_SERVLET_CONTEXT_PATH"
+          value: "/auth"
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        - name: "SSO_ADMIN_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              key: "username"
+              name: "my-keycloak-admin-secret"
+              optional: false
+        - name: "SSO_ADMIN_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "my-keycloak-admin-secret"
+              optional: false
+        - name: "PROXY_ADDRESS_FORWARDING"
+          value: "true"
+        image: "entando/entando-redhat-sso@sha256:a67ca13039479dbc13cd68380e4e33fa316397df20e96375c9b77e6022bd442e"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/auth"
+            port: 8080
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: "server-container"
+        ports:
+        - containerPort: 8080
+          name: "server-port"
+          protocol: "TCP"
+        readinessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/auth"
+            port: 8080
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "768Mi"
+            cpu: "1000m"
+          requests:
+            memory: "192Mi"
+            cpu: "250m"
+        startupProbe:
+          failureThreshold: 11
+          httpGet:
+            path: "/auth"
+            port: 8080
+          periodSeconds: 18
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: "/opt/eap/standalone/data"
+          name: "my-keycloak-server-volume"
+          readOnly: false
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      securityContext:
+        fsGroup: 185
+      serviceAccountName: "default"
+      volumes:
+      - name: "my-keycloak-server-volume"
+        persistentVolumeClaim:
+          claimName: "my-keycloak-server-pvc"
+          readOnly: false

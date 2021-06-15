@@ -1,0 +1,42 @@
+---
+apiVersion: "v1"
+kind: "Event"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoKeycloakServer: "my-keycloak"
+  name: "my-keycloak-42914989"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-keycloak"
+    uid: "94137026-7aa6-47fc-9125-05d137a5d3e5"
+action: "FAILED"
+count: 1
+firstTimestamp: "2021-06-15T16:13:08Z"
+involvedObject:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoKeycloakServer"
+  fieldPath: "status"
+  name: "my-keycloak"
+  namespace: "my-namespace"
+  resourceVersion: "3775970"
+  uid: "94137026-7aa6-47fc-9125-05d137a5d3e5"
+lastTimestamp: "2021-06-15T16:13:08Z"
+message: "The deployment of EntandoKeycloakServer my-namespace/my-keycloak failed\
+  \ due to Could not disable Keycloak HTTPS requirement:Execution failed!. Fix the\
+  \ root cause and then trigger a redeployment by adding the annotation 'entando.org/processing-instruction:\
+  \ force'"
+reason: "Failed"
+related:
+  apiVersion: "v1"
+  kind: "Pod"
+  name: "test-controller-pod"
+  namespace: "controller-namespace"
+source:
+  component: "entando-k8s-keycloak-server-controller"
+type: "Error"
