@@ -28,11 +28,8 @@ import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.model.annotation.Group;
 import io.fabric8.kubernetes.model.annotation.Version;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import java.util.Optional;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
 import org.entando.kubernetes.model.common.EntandoCustomResourceStatus;
-import org.entando.kubernetes.model.common.ExposedServerStatus;
-import org.entando.kubernetes.model.common.ResourceReference;
 
 @JsonSerialize
 @JsonDeserialize
@@ -54,33 +51,22 @@ public class ProvidedCapability extends CustomResource&lt;CapabilityRequirement,
 
     public static final String CRD_NAME = &quot;providedcapabilities.entando.org&quot;;
 
-<span class="fc" id="L57">    public ProvidedCapability() {</span>
-<span class="fc" id="L58">    }</span>
+<span class="fc" id="L54">    public ProvidedCapability() {</span>
+<span class="fc" id="L55">    }</span>
 
-<span class="fc" id="L60">    public ProvidedCapability(ObjectMeta meta, CapabilityRequirement capabilityRequirement) {</span>
-<span class="fc" id="L61">        super.setMetadata(meta);</span>
-<span class="fc" id="L62">        this.spec = capabilityRequirement;</span>
-<span class="fc" id="L63">    }</span>
+<span class="fc" id="L57">    public ProvidedCapability(ObjectMeta meta, CapabilityRequirement capabilityRequirement) {</span>
+<span class="fc" id="L58">        super.setMetadata(meta);</span>
+<span class="fc" id="L59">        this.spec = capabilityRequirement;</span>
+<span class="fc" id="L60">    }</span>
 
     @Override
     protected EntandoCustomResourceStatus initStatus() {
-<span class="fc" id="L67">        return new EntandoCustomResourceStatus();</span>
-    }
-
-    public Optional&lt;ResourceReference&gt; getIngressReference() {
-<span class="nc" id="L71">        return getStatus().findCurrentServerStatus()</span>
-<span class="nc" id="L72">                .filter(ExposedServerStatus.class::isInstance)</span>
-<span class="nc" id="L73">                .flatMap(s -&gt; Optional.of(new ResourceReference(getMetadata().getNamespace(), ((ExposedServerStatus) s).getIngressName())));</span>
-    }
-
-    public ResourceReference getServiceReference() {
-<span class="nc" id="L77">        return getStatus().findCurrentServerStatus().map(s -&gt; new ResourceReference(getMetadata().getNamespace(), s.getServiceName()))</span>
-<span class="nc" id="L78">                .orElse(null);</span>
+<span class="fc" id="L64">        return new EntandoCustomResourceStatus();</span>
     }
 
     @Override
     public String getDefinitionName() {
-<span class="nc" id="L83">        return CRD_NAME;</span>
+<span class="nc" id="L69">        return CRD_NAME;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

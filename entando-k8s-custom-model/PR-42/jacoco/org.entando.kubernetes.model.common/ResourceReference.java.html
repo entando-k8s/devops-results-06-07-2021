@@ -20,6 +20,7 @@ import static java.util.Optional.ofNullable;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -38,22 +39,23 @@ public class ResourceReference implements Serializable {
     protected String namespace;
     protected String name;
 
+    @JsonCreator
     public ResourceReference(
             @JsonProperty(&quot;namespace&quot;) String namespace,
-<span class="fc" id="L43">            @JsonProperty(&quot;name&quot;) String name) {</span>
-<span class="fc" id="L44">        this.namespace = namespace;</span>
-<span class="fc" id="L45">        this.name = name;</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L45">            @JsonProperty(&quot;name&quot;) String name) {</span>
+<span class="fc" id="L46">        this.namespace = namespace;</span>
+<span class="fc" id="L47">        this.name = name;</span>
+<span class="fc" id="L48">    }</span>
 
-<span class="nc" id="L48">    public ResourceReference() {</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L50">    public ResourceReference() {</span>
+<span class="nc" id="L51">    }</span>
 
     public String getName() {
-<span class="fc" id="L52">        return name;</span>
+<span class="fc" id="L54">        return name;</span>
     }
 
     public Optional&lt;String&gt; getNamespace() {
-<span class="fc" id="L56">        return ofNullable(namespace);</span>
+<span class="fc" id="L58">        return ofNullable(namespace);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

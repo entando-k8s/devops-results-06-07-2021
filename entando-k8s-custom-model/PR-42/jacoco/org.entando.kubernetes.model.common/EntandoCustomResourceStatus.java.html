@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @JsonIgnoreProperties(ignoreUnknown = true)
 <span class="fc" id="L41">public class EntandoCustomResourceStatus implements Serializable {</span>
 
-<span class="fc" id="L43">    private Map&lt;String, AbstractServerStatus&gt; serverStatuses = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L43">    private Map&lt;String, ServerStatus&gt; serverStatuses = new ConcurrentHashMap&lt;&gt;();</span>
 
     private Long observedGeneration;
 
@@ -59,38 +59,28 @@ import java.util.concurrent.ConcurrentHashMap;
 <span class="fc" id="L59">        return findFailedServerStatus().isPresent();</span>
     }
 
-    public Optional&lt;AbstractServerStatus&gt; findFailedServerStatus() {
-<span class="fc" id="L63">        return serverStatuses.values().stream().filter(AbstractServerStatus::hasFailed).findFirst();</span>
+    public Optional&lt;ServerStatus&gt; findFailedServerStatus() {
+<span class="fc" id="L63">        return serverStatuses.values().stream().filter(ServerStatus::hasFailed).findFirst();</span>
     }
 
-    public Collection&lt;AbstractServerStatus&gt; getServerStatuses() {
+    public Collection&lt;ServerStatus&gt; getServerStatuses() {
 <span class="fc" id="L67">        return Collections.unmodifiableCollection(this.serverStatuses.values());</span>
     }
 
-    public void putServerStatus(AbstractServerStatus status) {
+    public void putServerStatus(ServerStatus status) {
 <span class="fc" id="L71">        serverStatuses.put(status.getQualifier(), status);</span>
 <span class="fc" id="L72">    }</span>
 
-    public Optional&lt;AbstractServerStatus&gt; getServerStatus(String qualifier) {
+    public Optional&lt;ServerStatus&gt; getServerStatus(String qualifier) {
 <span class="fc" id="L75">        return Optional.ofNullable(serverStatuses.get(qualifier));</span>
     }
 
-    public Optional&lt;AbstractServerStatus&gt; findCurrentServerStatus() {
-<span class="fc" id="L79">        return this.serverStatuses.values().stream().reduce((abstractServerStatus, abstractServerStatus2) -&gt; {</span>
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            if (abstractServerStatus.getStarted().before(abstractServerStatus2.getStarted())) {</span>
-<span class="nc" id="L81">                return abstractServerStatus2;</span>
-            } else {
-<span class="fc" id="L83">                return abstractServerStatus;</span>
-            }
-        });
-    }
-
     public EntandoDeploymentPhase calculateFinalPhase() {
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        return hasFailed() ? EntandoDeploymentPhase.FAILED : EntandoDeploymentPhase.SUCCESSFUL;</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        return hasFailed() ? EntandoDeploymentPhase.FAILED : EntandoDeploymentPhase.SUCCESSFUL;</span>
     }
 
     public Long getObservedGeneration() {
-<span class="fc" id="L93">        return observedGeneration;</span>
+<span class="fc" id="L83">        return observedGeneration;</span>
     }
 
 }
