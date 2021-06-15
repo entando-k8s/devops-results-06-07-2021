@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SMTPServerConfigurationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: Email Sender</a> &gt; <a href="index.source.html" class="el_package">org.entando.entando.plugins.jpmail.ent.system.services</a> &gt; <span class="el_source">SMTPServerConfigurationService.java</span></div><h1>SMTPServerConfigurationService.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021-Present Entando S.r.l. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package org.entando.entando.plugins.jpmail.ent.system.services;
+
+import com.agiletec.aps.system.services.user.UserDetails;
+import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
+import com.agiletec.plugins.jpmail.aps.services.mail.MailConfig;
+import org.apache.commons.lang3.StringUtils;
+import org.entando.entando.aps.system.exception.RestServerError;
+import org.entando.entando.aps.system.services.userprofile.UserProfileManager;
+import org.entando.entando.aps.system.services.userprofile.model.UserProfile;
+import org.entando.entando.ent.exception.EntException;
+import org.entando.entando.ent.exception.EntRuntimeException;
+import org.entando.entando.ent.util.EntLogging;
+import org.entando.entando.plugins.jpmail.ent.system.services.model.SMTPServerConfigurationDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@Service
+<span class="fc" id="L35">public class SMTPServerConfigurationService {</span>
+<span class="fc" id="L36">    private final EntLogging.EntLogger logger = EntLogging.EntLogFactory.getSanitizedLogger(this.getClass());</span>
+
+    @Autowired
+    private IMailManager emailManager;
+
+    @Autowired
+    private UserProfileManager userProfileManager;
+
+<span class="fc" id="L44">    private String emailSubject = &quot;Test email configuration&quot;;</span>
+
+<span class="fc" id="L46">    private String emailText = &quot;This is an automatic email sent by Entando&quot;;</span>
+
+    /**
+     *
+     * @param smtpServerConfigurationDto
+     * @return true if the configuration is correct
+     */
+    public boolean testSMTPConfiguration(SMTPServerConfigurationDto smtpServerConfigurationDto) {
+        MailConfig config;
+        try {
+<span class="fc" id="L56">            config = getMailConfigFromDto(smtpServerConfigurationDto);</span>
+<span class="fc" id="L57">            return emailManager.smtpServerTest(config);</span>
+<span class="nc" id="L58">        } catch (EntException | EntRuntimeException t) {</span>
+<span class="nc" id="L59">            logger.warn(&quot;Error testing the SMTP configuration&quot;);</span>
+<span class="nc" id="L60">            return false;</span>
+        }
+    }
+
+    /**
+     *
+     * @param user The UserDetails Object
+     * @return true if test email is sent
+     */
+    public boolean sendEmailTest(UserDetails user) {
+        final UserProfile userProfile;
+        String userEmail;
+        try {
+<span class="fc" id="L73">            userProfile = (UserProfile) userProfileManager.getProfile(user.getUsername());</span>
+<span class="fc" id="L74">            final String mailAttributeName = userProfile.getMailAttributeName();</span>
+<span class="fc" id="L75">            userEmail = userProfile.getValue(mailAttributeName).toString();</span>
+<span class="nc" id="L76">        } catch (EntException | EntRuntimeException e) {</span>
+<span class="nc" id="L77">            throw new RestServerError(&quot;Error reading the user Profile &quot;, e);</span>
+<span class="fc" id="L78">        }</span>
+
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (this.hasEmailCurrentUser(userProfile)) {</span>
+<span class="fc" id="L81">            String[] emailAddresses = {userEmail};</span>
+            try {
+<span class="fc" id="L83">                String sender = null;</span>
+<span class="fc" id="L84">                Map&lt;String, String&gt; senders = emailManager.getMailConfig().getSenders();</span>
+<span class="pc bpc" id="L85" title="2 of 4 branches missed.">                if (null != senders &amp;&amp; !senders.isEmpty()) {</span>
+<span class="fc" id="L86">                    List&lt;String&gt; codes = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L87">                    codes.addAll(senders.keySet());</span>
+<span class="fc" id="L88">                    sender = codes.get(0);</span>
+                }
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">				if (null == sender) {</span>
+<span class="nc" id="L91">                    logger.warn(&quot;Error sending the test email to the user, the sender is null&quot;);</span>
+<span class="nc" id="L92">                    return false;</span>
+				}
+<span class="fc" id="L94">                return emailManager.sendMailForTest(emailText, emailSubject, emailAddresses, sender);</span>
+<span class="nc" id="L95">            } catch (EntException | EntRuntimeException t) {</span>
+<span class="nc" id="L96">                throw new RestServerError(&quot;Error sending the test email &quot;, t);</span>
+            }
+        } else {
+<span class="nc" id="L99">            logger.warn(&quot;Error sending the test email to the user, the email destination address is not valid&quot;);</span>
+<span class="nc" id="L100">            return false;</span>
+        }
+    }
+
+    /**
+     *
+     * @param smtpServerConfigurationDto
+     * @return The MailConfig Object from the param dto
+     * @throws EntException
+     */
+    public MailConfig getMailConfigFromDto(SMTPServerConfigurationDto smtpServerConfigurationDto) throws EntException {
+<span class="fc" id="L111">        MailConfig config = emailManager.getMailConfig();</span>
+<span class="fc" id="L112">        config.setActive(smtpServerConfigurationDto.isActive());</span>
+<span class="fc" id="L113">        config.setDebug(smtpServerConfigurationDto.isDebugMode());</span>
+<span class="fc" id="L114">        config.setSmtpHost(smtpServerConfigurationDto.getHost());</span>
+<span class="fc" id="L115">        config.setSmtpPort(smtpServerConfigurationDto.getPort());</span>
+<span class="fc" id="L116">        config.setSmtpTimeout(smtpServerConfigurationDto.getTimeout());</span>
+<span class="fc bfc" id="L117" title="All 3 branches covered.">        switch (smtpServerConfigurationDto.getProtocol()) {</span>
+            case &quot;SSL&quot;:
+<span class="fc" id="L119">                config.setSmtpProtocol(1);</span>
+<span class="fc" id="L120">                break;</span>
+            case &quot;TLS&quot;:
+<span class="fc" id="L122">                config.setSmtpProtocol(2);</span>
+<span class="fc" id="L123">                break;</span>
+            default:
+<span class="fc" id="L125">                config.setSmtpProtocol(0);</span>
+        }
+<span class="fc" id="L127">        config.setCheckServerIdentity(smtpServerConfigurationDto.isCheckServerIdentity());</span>
+<span class="fc" id="L128">        config.setSmtpUserName(smtpServerConfigurationDto.getUsername());</span>
+<span class="fc" id="L129">        config.setSmtpPassword(smtpServerConfigurationDto.getPassword());</span>
+<span class="fc" id="L130">        return config;</span>
+    }
+
+    /**
+     *
+     * @return The SMTPServerConfigurationDto Object
+     */
+    public SMTPServerConfigurationDto getSMTPServerConfiguration() {
+<span class="fc" id="L138">        MailConfig config = null;</span>
+        try {
+<span class="fc" id="L140">            config = emailManager.getMailConfig();</span>
+<span class="nc" id="L141">        } catch (EntException e) {</span>
+<span class="nc" id="L142">            throw new RestServerError(&quot;Error reading the configuration &quot;, e);</span>
+<span class="fc" id="L143">        }</span>
+
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if (null == config) {</span>
+<span class="nc" id="L146">            config = new MailConfig();</span>
+        }
+<span class="fc" id="L148">        SMTPServerConfigurationDto smtpServerConfigurationDto = new SMTPServerConfigurationDto();</span>
+
+<span class="fc" id="L150">        smtpServerConfigurationDto.setActive(config.isActive());</span>
+<span class="fc" id="L151">        smtpServerConfigurationDto.setDebugMode(config.isDebug());</span>
+<span class="fc" id="L152">        smtpServerConfigurationDto.setHost(config.getSmtpHost());</span>
+<span class="fc" id="L153">        smtpServerConfigurationDto.setPort(config.getSmtpPort());</span>
+<span class="fc" id="L154">        smtpServerConfigurationDto.setTimeout(config.getSmtpTimeout());</span>
+<span class="pc bpc" id="L155" title="1 of 3 branches missed.">        switch (config.getSmtpProtocol()) {</span>
+            case 1:
+<span class="fc" id="L157">                smtpServerConfigurationDto.setProtocol(&quot;SSL&quot;);</span>
+<span class="fc" id="L158">                break;</span>
+            case 2:
+<span class="nc" id="L160">                smtpServerConfigurationDto.setProtocol(&quot;TLS&quot;);</span>
+<span class="nc" id="L161">                break;</span>
+            default:
+<span class="fc" id="L163">                smtpServerConfigurationDto.setProtocol(&quot;STD&quot;);</span>
+        }
+<span class="fc" id="L165">        smtpServerConfigurationDto.setCheckServerIdentity(config.isCheckServerIdentity());</span>
+<span class="fc" id="L166">        smtpServerConfigurationDto.setUsername(config.getSmtpUserName());</span>
+<span class="fc" id="L167">        smtpServerConfigurationDto.setPassword(config.getSmtpPassword());</span>
+
+<span class="fc" id="L169">        return smtpServerConfigurationDto;</span>
+    }
+
+    /**
+     *
+     * @param smtpServerConfiguration The SMTPServerConfigurationDto to update
+     * @return The SMTPServerConfigurationDto updated
+     */
+    public SMTPServerConfigurationDto updateSMTPServerConfiguration(SMTPServerConfigurationDto smtpServerConfiguration) {
+<span class="fc" id="L178">        MailConfig config = null;</span>
+        try {
+<span class="fc" id="L180">            config = getMailConfigFromDto(smtpServerConfiguration);</span>
+<span class="fc" id="L181">            emailManager.updateMailConfig(config);</span>
+<span class="fc" id="L182">            return getSMTPServerConfiguration();</span>
+<span class="nc" id="L183">        } catch (EntException | EntRuntimeException e) {</span>
+<span class="nc" id="L184">            throw new RestServerError(&quot;Error reading the configuration &quot;, e);</span>
+        }
+    }
+
+    /**
+     *
+     * @param userProfile The UserProfile Object
+     * @return true if the email of the user is set
+     */
+    public boolean hasEmailCurrentUser(UserProfile userProfile) {
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        if (null != userProfile) {</span>
+<span class="fc" id="L195">            Object mailAttribute = userProfile.getValue(userProfile.getMailAttributeName());</span>
+<span class="pc bpc" id="L196" title="1 of 4 branches missed.">            if (null != mailAttribute &amp;&amp; StringUtils.isNotBlank(mailAttribute.toString())) {</span>
+<span class="fc" id="L197">                return true;</span>
+            }
+        }
+<span class="fc" id="L200">        return false;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
