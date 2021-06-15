@@ -35,51 +35,56 @@ public class AppBuilderDeployableContainer implements DeployableContainer, Ingre
 <span class="fc" id="L35">    }</span>
 
     @Override
+    public Optional&lt;Integer&gt; getMaximumStartupTimeSeconds() {
+<span class="fc" id="L39">        return Optional.of(120);</span>
+    }
+
+    @Override
     public int getMemoryLimitMebibytes() {
-<span class="fc" id="L39">        return 512;</span>
+<span class="fc" id="L44">        return 512;</span>
     }
 
     @Override
     public int getCpuLimitMillicores() {
-<span class="fc" id="L44">        return 500;</span>
+<span class="fc" id="L49">        return 500;</span>
     }
 
     @Override
     public String determineImageToUse() {
-<span class="fc" id="L49">        return ENTANDO_APP_BUILDER_IMAGE_NAME;</span>
+<span class="fc" id="L54">        return ENTANDO_APP_BUILDER_IMAGE_NAME;</span>
     }
 
     @Override
     public String getNameQualifier() {
-<span class="fc" id="L54">        return &quot;appbuilder&quot;;</span>
+<span class="fc" id="L59">        return &quot;appbuilder&quot;;</span>
     }
 
     @Override
     public int getPrimaryPort() {
-<span class="fc" id="L59">        return 8081;</span>
+<span class="fc" id="L64">        return 8081;</span>
     }
 
     @Override
     public String getWebContextPath() {
-<span class="fc" id="L64">        return &quot;/app-builder/&quot;;</span>
+<span class="fc" id="L69">        return &quot;/app-builder/&quot;;</span>
     }
 
     @Override
     public Optional&lt;String&gt; getHealthCheckPath() {
-<span class="fc" id="L69">        return Optional.of(&quot;/app-builder/favicon-entando.png&quot;);</span>
+<span class="fc" id="L74">        return Optional.of(&quot;/app-builder/favicon-entando.png&quot;);</span>
     }
 
     @Override
     public List&lt;EnvVar&gt; getEnvironmentVariables() {
-<span class="fc" id="L74">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L75">        vars.add(new EnvVar(&quot;DOMAIN&quot;, entandoApp.getSpec().getIngressPath().orElse(EntandoAppDeployableContainer.INGRESS_WEB_CONTEXT),</span>
+<span class="fc" id="L79">        List&lt;EnvVar&gt; vars = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L80">        vars.add(new EnvVar(&quot;DOMAIN&quot;, entandoApp.getSpec().getIngressPath().orElse(EntandoAppDeployableContainer.INGRESS_WEB_CONTEXT),</span>
                 null));
-<span class="fc" id="L77">        return vars;</span>
+<span class="fc" id="L82">        return vars;</span>
     }
 
     @Override
     public List&lt;EnvVar&gt; getEnvironmentVariableOverrides() {
-<span class="fc" id="L82">        return entandoApp.getSpec().getEnvironmentVariables();</span>
+<span class="fc" id="L87">        return entandoApp.getSpec().getEnvironmentVariables();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
