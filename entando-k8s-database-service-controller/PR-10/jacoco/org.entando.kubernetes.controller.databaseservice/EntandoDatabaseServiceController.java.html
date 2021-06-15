@@ -33,6 +33,7 @@ import org.entando.kubernetes.controller.spi.client.KubernetesClientForControlle
 import org.entando.kubernetes.controller.spi.command.DeploymentProcessor;
 import org.entando.kubernetes.controller.spi.common.DbmsVendorConfig;
 import org.entando.kubernetes.controller.spi.common.EntandoControllerException;
+import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
 import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.spi.common.ResourceUtils;
 import org.entando.kubernetes.controller.spi.container.ProvidedDatabaseCapability;
@@ -47,7 +48,7 @@ import org.entando.kubernetes.model.capability.StandardCapability;
 import org.entando.kubernetes.model.capability.StandardCapabilityImplementation;
 import org.entando.kubernetes.model.common.DbmsVendor;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
-import org.entando.kubernetes.model.common.ResourceReference;
+import org.entando.kubernetes.model.common.ServerStatus;
 import org.entando.kubernetes.model.externaldatabase.EntandoDatabaseService;
 import org.entando.kubernetes.model.externaldatabase.EntandoDatabaseServiceBuilder;
 import org.entando.kubernetes.model.externaldatabase.EntandoDatabaseServiceSpec;
@@ -57,58 +58,57 @@ import picocli.CommandLine;
 public class EntandoDatabaseServiceController implements Runnable {
 
     private static final String SECRET_KIND = &quot;Secret&quot;;
-    public static final int DATABASE_DEPLOYMENT_TIME = 180;
+<span class="fc" id="L61">    public static final int DATABASE_DEPLOYMENT_TIME = EntandoOperatorSpiConfig.getPodCompletionTimeoutSeconds();</span>
     private final KubernetesClientForControllers k8sClient;
     private final DeploymentProcessor deploymentProcessor;
-<span class="fc" id="L63">    private static final Collection&lt;Class&lt;? extends EntandoCustomResource&gt;&gt; SUPPORTED_RESOURCE_KINDS = Arrays</span>
-<span class="fc" id="L64">            .asList(EntandoDatabaseService.class, ProvidedCapability.class);</span>
+<span class="fc" id="L64">    private static final Collection&lt;Class&lt;? extends EntandoCustomResource&gt;&gt; SUPPORTED_RESOURCE_KINDS = Arrays</span>
+<span class="fc" id="L65">            .asList(EntandoDatabaseService.class, ProvidedCapability.class);</span>
     private EntandoDatabaseService entandoDatabaseService;
     private ProvidedCapability providedCapability;
 
     @Inject
-<span class="fc" id="L69">    public EntandoDatabaseServiceController(KubernetesClientForControllers k8sClient, DeploymentProcessor deploymentProcessor) {</span>
-<span class="fc" id="L70">        this.k8sClient = k8sClient;</span>
-<span class="fc" id="L71">        this.deploymentProcessor = deploymentProcessor;</span>
-<span class="fc" id="L72">    }</span>
+<span class="fc" id="L70">    public EntandoDatabaseServiceController(KubernetesClientForControllers k8sClient, DeploymentProcessor deploymentProcessor) {</span>
+<span class="fc" id="L71">        this.k8sClient = k8sClient;</span>
+<span class="fc" id="L72">        this.deploymentProcessor = deploymentProcessor;</span>
+<span class="fc" id="L73">    }</span>
 
     @Override
     public void run() {
-<span class="fc" id="L76">        k8sClient.prepareConfig();</span>
-<span class="fc" id="L77">        EntandoCustomResource resourceToProcess = k8sClient.resolveCustomResourceToProcess(SUPPORTED_RESOURCE_KINDS);</span>
-<span class="fc" id="L78">        k8sClient.deploymentStarted(resourceToProcess);</span>
+<span class="fc" id="L77">        k8sClient.prepareConfig();</span>
+<span class="fc" id="L78">        EntandoCustomResource resourceToProcess = k8sClient.resolveCustomResourceToProcess(SUPPORTED_RESOURCE_KINDS);</span>
+<span class="fc" id="L79">        k8sClient.deploymentStarted(resourceToProcess);</span>
         //No need to update the resource being synced to. It will be ignored by ControllerCoordinator
         try {
-<span class="fc bfc" id="L81" title="All 2 branches covered.">            if (resourceToProcess instanceof EntandoDatabaseService) {</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (resourceToProcess instanceof EntandoDatabaseService) {</span>
                 //This event originated from the original EntandoDatabaseService, NOT a capability requirement expressed by means of a
                 // ProvidedCapability
                 //The ProvidedCapability is to be owned by the implementing CustomResource and will therefore be ignored by
                 // ControllerCoordinator
-<span class="fc" id="L86">                this.entandoDatabaseService = (EntandoDatabaseService) resourceToProcess;</span>
-<span class="fc" id="L87">                this.providedCapability = syncFromImplementingResourceToCapability(this.entandoDatabaseService);</span>
-<span class="fc" id="L88">                this.providedCapability = this.k8sClient.createOrPatchEntandoResource(this.providedCapability);</span>
-<span class="fc" id="L89">                validateExternalServiceRequirements(this.entandoDatabaseService);</span>
+<span class="fc" id="L87">                this.entandoDatabaseService = (EntandoDatabaseService) resourceToProcess;</span>
+<span class="fc" id="L88">                this.providedCapability = syncFromImplementingResourceToCapability(this.entandoDatabaseService);</span>
+<span class="fc" id="L89">                this.providedCapability = this.k8sClient.createOrPatchEntandoResource(this.providedCapability);</span>
+<span class="fc" id="L90">                validateExternalServiceRequirements(this.entandoDatabaseService);</span>
             } else {
                 //This event originated from the capability requirement, and we need to keep the implementing CustomResource in sync
                 //The implementing CustomResource is to be owned by the ProvidedCapability and will therefore be ignored by
                 // ControllerCoordinator
-<span class="fc" id="L94">                this.providedCapability = (ProvidedCapability) resourceToProcess;</span>
-<span class="fc" id="L95">                this.entandoDatabaseService = syncFromCapabilityToImplementingCustomResource(this.providedCapability);</span>
-<span class="fc" id="L96">                this.entandoDatabaseService = this.k8sClient.createOrPatchEntandoResource(this.entandoDatabaseService);</span>
-<span class="fc" id="L97">                validateExternalServiceRequirements(this.providedCapability);</span>
+<span class="fc" id="L95">                this.providedCapability = (ProvidedCapability) resourceToProcess;</span>
+<span class="fc" id="L96">                this.entandoDatabaseService = syncFromCapabilityToImplementingCustomResource(this.providedCapability);</span>
+<span class="fc" id="L97">                this.entandoDatabaseService = this.k8sClient.createOrPatchEntandoResource(this.entandoDatabaseService);</span>
+<span class="fc" id="L98">                validateExternalServiceRequirements(this.providedCapability);</span>
             }
-<span class="fc" id="L99">            DatabaseServiceDeployable deployable = new DatabaseServiceDeployable(entandoDatabaseService);</span>
-<span class="fc" id="L100">            DatabaseDeploymentResult result = deploymentProcessor.processDeployable(deployable, DATABASE_DEPLOYMENT_TIME);</span>
-<span class="fc" id="L101">            result.getStatus().setProvidedCapability(new ResourceReference(this.providedCapability.getMetadata().getNamespace(),</span>
-<span class="fc" id="L102">                    this.providedCapability.getMetadata().getName()));</span>
-<span class="fc" id="L103">            providedCapability = k8sClient.updateStatus(providedCapability, result.getStatus());</span>
+<span class="fc" id="L100">            DatabaseServiceDeployable deployable = new DatabaseServiceDeployable(entandoDatabaseService);</span>
+<span class="fc" id="L101">            DatabaseDeploymentResult result = deploymentProcessor.processDeployable(deployable, DATABASE_DEPLOYMENT_TIME);</span>
+<span class="fc" id="L102">            providedCapability = k8sClient.updateStatus(providedCapability,</span>
+<span class="fc" id="L103">                    result.getStatus().withOriginatingCustomResource(providedCapability));</span>
 <span class="fc" id="L104">            entandoDatabaseService = k8sClient.deploymentEnded(entandoDatabaseService);</span>
 <span class="fc" id="L105">            providedCapability = k8sClient.deploymentEnded(providedCapability);</span>
 <span class="fc" id="L106">        } catch (Exception e) {</span>
 <span class="fc" id="L107">            entandoDatabaseService = k8sClient.deploymentFailed(entandoDatabaseService, e, NameUtils.MAIN_QUALIFIER);</span>
 <span class="fc" id="L108">            providedCapability = k8sClient.deploymentFailed(providedCapability, e, NameUtils.MAIN_QUALIFIER);</span>
 <span class="fc" id="L109">        }</span>
-<span class="fc" id="L110">        entandoDatabaseService.getStatus().findFailedServerStatus().ifPresent(ss -&gt; {</span>
-<span class="fc" id="L111">            throw new CommandLine.ExecutionException(new CommandLine(this), ss.getEntandoControllerFailure().getDetailMessage());</span>
+<span class="fc" id="L110">        entandoDatabaseService.getStatus().findFailedServerStatus().flatMap(ServerStatus::getEntandoControllerFailure).ifPresent(f -&gt; {</span>
+<span class="fc" id="L111">            throw new CommandLine.ExecutionException(new CommandLine(this), f.getDetailMessage());</span>
         });
 <span class="fc" id="L113">    }</span>
 

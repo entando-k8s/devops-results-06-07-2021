@@ -1,0 +1,74 @@
+---
+mixins:
+- "Deployable"
+- "Secretive"
+fileSystemUserAndGroupId: 26
+defaultServiceAccountName: "default"
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoDatabaseService"
+  metadata:
+    name: "default-dbms-in-namespace"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- memoryLimitMebibytes: 256
+  dockerImageInfo:
+    registryHost: "registry.redhat.io"
+    organization: "rhel8"
+    repository: "postgresql-12"
+    tag: "latest"
+  volumeMountPath: "/var/lib/pgsql/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 5432
+  storageLimitMebibytes: 2048
+  accessMode: "ReadWriteOnce"
+  mixins:
+  - "HasHealthCommand"
+  - "DeployableContainer"
+  - "ConfigurableResourceContainer"
+  - "ServiceBackingContainer"
+  - "PersistentVolumeAwareContainer"
+  maximumStartupTimeSeconds: 90
+  healthCheckCommand: "/usr/libexec/check-container"
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "POSTGRESQL_DATABASE"
+    value: "default_dbms_in_namespace_db"
+  - name: "POSTGRESQL_USER"
+    value: "default_dbms_in_namespace_db_user"
+  - name: "POSTGRESQL_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "default-dbms-in-namespace-admin-secret"
+        optional: false
+  - name: "POSTGRESQL_ADMIN_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "default-dbms-in-namespace-admin-secret"
+        optional: false
+  nameQualifier: "db"
+  secretsToMount: []
+  cpuLimitMillicores: 500
+secrets:
+- apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoDatabaseService: "default-dbms-in-namespace"
+    name: "default-dbms-in-namespace-admin-secret"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoDatabaseService"
+      blockOwnerDeletion: true
+      controller: true
+      name: "default-dbms-in-namespace"
+      uid: "e3d4d8ab-d7f3-4cf7-b58d-c798fa8091ad"
+  stringData:
+    username: "postgres"
+    password: "fe2bc15747d34b4f"
+serviceAccountToUse: "default"

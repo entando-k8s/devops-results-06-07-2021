@@ -23,7 +23,7 @@ import org.entando.kubernetes.controller.spi.common.DbmsVendorConfig;
 import org.entando.kubernetes.controller.spi.container.ProvidedDatabaseCapability;
 import org.entando.kubernetes.controller.spi.result.AbstractServiceResult;
 import org.entando.kubernetes.controller.spi.result.ServiceDeploymentResult;
-import org.entando.kubernetes.model.common.AbstractServerStatus;
+import org.entando.kubernetes.model.common.ServerStatus;
 
 //TODO move to org.entando.kubernetes.controller.support
 public class DatabaseDeploymentResult extends AbstractServiceResult implements ServiceDeploymentResult&lt;DatabaseDeploymentResult&gt; {
@@ -33,7 +33,7 @@ public class DatabaseDeploymentResult extends AbstractServiceResult implements S
     private final String databaseName;
     private final String databaseSecretName;
     private final Pod pod;
-    private AbstractServerStatus status;
+    private ServerStatus status;
 
     public DatabaseDeploymentResult(Service service, DbmsVendorConfig vendor, String databaseName, String databaseSecretName, Pod pod) {
 <span class="fc" id="L39">        super(service);</span>
@@ -44,7 +44,7 @@ public class DatabaseDeploymentResult extends AbstractServiceResult implements S
 <span class="fc" id="L44">    }</span>
 
     @Override
-    public DatabaseDeploymentResult withStatus(AbstractServerStatus status) {
+    public DatabaseDeploymentResult withStatus(ServerStatus status) {
 <span class="fc" id="L48">        this.status = status;</span>
 <span class="fc" id="L49">        this.status.setAdminSecretName(databaseSecretName);</span>
 <span class="fc" id="L50">        this.status.putDerivedDeploymentParameter(ProvidedDatabaseCapability.DATABASE_NAME_PARAMETER, databaseName);</span>
@@ -52,7 +52,7 @@ public class DatabaseDeploymentResult extends AbstractServiceResult implements S
 <span class="fc" id="L52">        return this;</span>
     }
 
-    public AbstractServerStatus getStatus() {
+    public ServerStatus getStatus() {
 <span class="fc" id="L56">        return status;</span>
     }
 
