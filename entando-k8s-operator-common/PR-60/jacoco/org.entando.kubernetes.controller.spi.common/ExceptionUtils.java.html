@@ -68,34 +68,33 @@ public class ExceptionUtils {
     private static EntandoControllerFailureBuilder builderFrom(Exception e) {
 <span class="fc" id="L69">        final StringWriter stringWriter = new StringWriter();</span>
 <span class="fc" id="L70">        e.printStackTrace(new PrintWriter(stringWriter));</span>
-<span class="fc" id="L71">        final EntandoControllerFailureBuilder exceptionBuilder = new EntandoControllerFailureBuilder()</span>
+<span class="fc" id="L71">        return new EntandoControllerFailureBuilder()</span>
 <span class="fc" id="L72">                .withMessage(e.getMessage())</span>
 <span class="fc" id="L73">                .withDetailMessage(stringWriter.toString());</span>
-<span class="fc" id="L74">        return exceptionBuilder;</span>
     }
 
     public static &lt;T&gt; T retry(Supplier&lt;T&gt; supplier, Predicate&lt;RuntimeException&gt; ignoreExceptionWhen, int count) {
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        for (int i = 0; i &lt; count - 1; i++) {</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        for (int i = 0; i &lt; count - 1; i++) {</span>
             try {
-<span class="fc" id="L80">                return supplier.get();</span>
-<span class="fc" id="L81">            } catch (RuntimeException e) {</span>
-<span class="fc bfc" id="L82" title="All 2 branches covered.">                if (!ignoreExceptionWhen.test(e)) {</span>
-<span class="fc" id="L83">                    throw e;</span>
+<span class="fc" id="L79">                return supplier.get();</span>
+<span class="fc" id="L80">            } catch (RuntimeException e) {</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                if (!ignoreExceptionWhen.test(e)) {</span>
+<span class="fc" id="L82">                    throw e;</span>
                 }
-<span class="fc" id="L85">                long actualCount = i + 1L;</span>
-<span class="fc" id="L86">                final long duration = actualCount * actualCount;</span>
-<span class="fc" id="L87">                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(duration));</span>
+<span class="fc" id="L84">                long actualCount = i + 1L;</span>
+<span class="fc" id="L85">                final long duration = actualCount * actualCount;</span>
+<span class="fc" id="L86">                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(duration));</span>
             }
         }
-<span class="nc" id="L90">        return supplier.get();</span>
+<span class="nc" id="L89">        return supplier.get();</span>
     }
 
     public static &lt;T&gt; T interruptionSafe(Interruptable&lt;T&gt; i) {
         try {
-<span class="fc" id="L95">            return i.run();</span>
-<span class="nc" id="L96">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L97">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L98">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L94">            return i.run();</span>
+<span class="nc" id="L95">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L96">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L97">            throw new IllegalStateException(e);</span>
         }
     }
 
@@ -109,19 +108,19 @@ public class ExceptionUtils {
 
     public static &lt;T&gt; T ioSafe(IoVulnerable&lt;T&gt; i) {
         try {
-<span class="fc" id="L112">            return i.invoke();</span>
-<span class="fc" id="L113">        } catch (IOException e) {</span>
-<span class="fc" id="L114">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L111">            return i.invoke();</span>
+<span class="fc" id="L112">        } catch (IOException e) {</span>
+<span class="fc" id="L113">            throw new IllegalStateException(e);</span>
         }
     }
 
     public static &lt;T&gt; T withDiagnostics(Callable&lt;T&gt; i, Supplier&lt;HasMetadata&gt; supplier) {
         try {
-<span class="fc" id="L120">            return i.call();</span>
-<span class="fc" id="L121">        } catch (RuntimeException e) {</span>
-<span class="fc" id="L122">            throw ofNullable(supplier.get()).map(h -&gt; (RuntimeException) new EntandoControllerException(h, e)).orElse(e);</span>
-<span class="fc" id="L123">        } catch (Exception e) {</span>
-<span class="fc" id="L124">            throw ofNullable(supplier.get()).map(h -&gt; new EntandoControllerException(h, e)).orElse(new EntandoControllerException(e));</span>
+<span class="fc" id="L119">            return i.call();</span>
+<span class="fc" id="L120">        } catch (RuntimeException e) {</span>
+<span class="fc" id="L121">            throw ofNullable(supplier.get()).map(h -&gt; (RuntimeException) new EntandoControllerException(h, e)).orElse(e);</span>
+<span class="fc" id="L122">        } catch (Exception e) {</span>
+<span class="fc" id="L123">            throw ofNullable(supplier.get()).map(h -&gt; new EntandoControllerException(h, e)).orElse(new EntandoControllerException(e));</span>
         }
     }
 

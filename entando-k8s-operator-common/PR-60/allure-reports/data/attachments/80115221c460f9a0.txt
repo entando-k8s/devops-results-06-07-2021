@@ -1,0 +1,18 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  name: "my-app-sso-ingress"
+  namespace: "my-app-namespace"
+spec:
+  rules:
+  - host: "mykeycloak.com"
+    http:
+      paths:
+      - backend:
+          serviceName: "my-app-sso-service"
+          servicePort: 8080
+        path: "/auth"
+  tls:
+  - hosts:
+    - "mykeycloak.com"
