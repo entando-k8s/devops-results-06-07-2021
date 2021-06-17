@@ -1,0 +1,67 @@
+---
+publicClientIdToUse: "entando-web"
+fileSystemUserAndGroupId: 185
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoApp"
+  metadata:
+    name: "my-app"
+    namespace: "my-namespace"
+  isCustomResource: true
+ingressNamespace: "my-namespace"
+keycloakRealmToUse: "my-realm"
+mixins:
+- "Deployable"
+- "PublicIngressingDeployable"
+- "IngressingDeployable"
+defaultServiceAccountName: "default"
+ingressRequired: true
+ssoConnectionInfo:
+  defaultRealm: "my-realm"
+  baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  mixins:
+  - "SsoConnectionInfo"
+  password: "password123"
+  externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+  internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  adminSecret:
+    apiVersion: "v1"
+    kind: "Secret"
+    metadata:
+      name: "default-sso-in-namespace-admin-secret"
+      namespace: "my-namespace"
+    stringData:
+      username: "jon"
+      password: "password123"
+  username: "jon"
+ingressName: "my-app-ingress"
+qualifier: "ab"
+containers:
+- environmentVariableOverrides: []
+  memoryLimitMebibytes: 512
+  dockerImageInfo:
+    organization: "entando"
+    repository: "app-builder"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 8081
+  webContextPath: "/app-builder/"
+  mixins:
+  - "IngressingPathOnPort"
+  - "ServiceBackingContainer"
+  - "IngressingContainer"
+  - "ParameterizableContainer"
+  - "HasWebContext"
+  - "DeployableContainer"
+  healthCheckPath: "/app-builder/favicon-entando.png"
+  maximumStartupTimeSeconds: 120
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "DOMAIN"
+    value: "/entando-de-app"
+  nameQualifier: "appbuilder"
+  secretsToMount: []
+  cpuLimitMillicores: 500
+  portForIngressPath: 8081
+serviceAccountToUse: "default"
