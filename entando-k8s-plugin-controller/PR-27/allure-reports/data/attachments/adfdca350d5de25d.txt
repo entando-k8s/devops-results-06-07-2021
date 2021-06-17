@@ -1,0 +1,53 @@
+---
+internalServiceHostname: "my-plugin-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-plugin-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-plugin-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8081"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-plugin-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "https://my-plugin-my-namespace.apps.serv.run/my-plugin"
+externalHostUrl: "https://my-plugin-my-namespace.apps.serv.run"
+internalBaseUrl: "http://my-plugin-service.my-namespace.svc.cluster.local:8081/my-plugin"
+status:
+  qualifier: "main"
+  started: "2021-06-17T12:38:26+0000"
+  originatingCustomResource:
+    apiVersion: "entando.org/v1"
+    kind: "EntandoPlugin"
+    namespace: "my-namespace"
+    name: "my-plugin"
+  originatingControllerPod:
+    namespace: "controller-namespace"
+    name: "entando-k8s-entando-k8s-plugin-nr7t4-7-from-build-pack-cx-dzl85"
+  finished: "2021-06-17T12:38:27+0000"
+  serviceName: "my-plugin-service"
+  deploymentName: "my-plugin-deployment"
+  podPhases:
+    my-plugin-dbprep-2a43: "Complete"
+    my-plugin-deployment: "Running"
+  ssoClientIds:
+    server: "my-plugin-server"
+  persistentVolumeClaimPhases:
+    my-plugin-server-pvc: "Pending"
+  ingressName: "my-plugin-ingress"
