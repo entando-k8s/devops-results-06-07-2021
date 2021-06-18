@@ -57,177 +57,201 @@ public class ServerStatus implements Serializable {
     private String deploymentName;
     private String adminSecretName;
     private String ssoRealm;
+    private String ssoClientId;
+    private Map&lt;String, String&gt; webContexts;
     private Map&lt;String, String&gt; podPhases;
-    private Map&lt;String, String&gt; ssoClientIds;
     private Map&lt;String, String&gt; persistentVolumeClaimPhases;
     private Map&lt;String, String&gt; derivedDeploymentParameters;
     private EntandoControllerFailure entandoControllerFailure;
     private String ingressName;
     private String externalBaseUrl;
 
-<span class="fc" id="L68">    protected ServerStatus() {</span>
+<span class="fc" id="L69">    protected ServerStatus() {</span>
         //For json deserialization only. Qualifier is requried
-<span class="fc" id="L70">    }</span>
+<span class="fc" id="L71">    }</span>
 
-<span class="fc" id="L72">    public ServerStatus(String qualifier) {</span>
-<span class="fc" id="L73">        this.qualifier = qualifier;</span>
-<span class="fc" id="L74">    }</span>
+<span class="fc" id="L73">    public ServerStatus(String qualifier) {</span>
+<span class="fc" id="L74">        this.qualifier = qualifier;</span>
+<span class="fc" id="L75">    }</span>
 
-<span class="nc" id="L76">    public ServerStatus(String newQualifier, ServerStatus original) {</span>
-<span class="nc" id="L77">        this.qualifier = newQualifier;</span>
-<span class="nc" id="L78">        this.started = original.started;</span>
-<span class="nc" id="L79">        this.originatingCustomResource = original.originatingCustomResource;</span>
-<span class="nc" id="L80">        this.originatingControllerPod = original.originatingControllerPod;</span>
-<span class="nc" id="L81">        this.finished = original.finished;</span>
-<span class="nc" id="L82">        this.serviceName = original.serviceName;</span>
-<span class="nc" id="L83">        this.deploymentName = original.deploymentName;</span>
-<span class="nc" id="L84">        this.adminSecretName = original.adminSecretName;</span>
-<span class="nc" id="L85">        this.podPhases = ofNullable(original.podPhases).map(HashMap::new).orElse(null);</span>
-<span class="nc" id="L86">        this.persistentVolumeClaimPhases = ofNullable(original.persistentVolumeClaimPhases).map(HashMap::new).orElse(null);</span>
-<span class="nc" id="L87">        this.derivedDeploymentParameters = ofNullable(original.derivedDeploymentParameters).map(HashMap::new).orElse(null);</span>
-<span class="nc" id="L88">        this.entandoControllerFailure = original.entandoControllerFailure;</span>
-<span class="nc" id="L89">        this.ingressName = original.ingressName;</span>
-<span class="nc" id="L90">        this.externalBaseUrl = original.externalBaseUrl;</span>
-<span class="nc" id="L91">        this.ssoClientIds = ofNullable(original.ssoClientIds).map(HashMap::new).orElse(null);</span>
-<span class="nc" id="L92">        this.ssoRealm = original.ssoRealm;</span>
-<span class="nc" id="L93">    }</span>
+<span class="nc" id="L77">    public ServerStatus(String newQualifier, ServerStatus original) {</span>
+<span class="nc" id="L78">        this.qualifier = newQualifier;</span>
+<span class="nc" id="L79">        this.started = original.started;</span>
+<span class="nc" id="L80">        this.originatingCustomResource = original.originatingCustomResource;</span>
+<span class="nc" id="L81">        this.originatingControllerPod = original.originatingControllerPod;</span>
+<span class="nc" id="L82">        this.finished = original.finished;</span>
+<span class="nc" id="L83">        this.serviceName = original.serviceName;</span>
+<span class="nc" id="L84">        this.deploymentName = original.deploymentName;</span>
+<span class="nc" id="L85">        this.adminSecretName = original.adminSecretName;</span>
+<span class="nc" id="L86">        this.podPhases = ofNullable(original.podPhases).map(HashMap::new).orElse(null);</span>
+<span class="nc" id="L87">        this.persistentVolumeClaimPhases = ofNullable(original.persistentVolumeClaimPhases).map(HashMap::new).orElse(null);</span>
+<span class="nc" id="L88">        this.derivedDeploymentParameters = ofNullable(original.derivedDeploymentParameters).map(HashMap::new).orElse(null);</span>
+<span class="nc" id="L89">        this.webContexts = ofNullable(original.webContexts).map(HashMap::new).orElse(null);</span>
+<span class="nc" id="L90">        this.entandoControllerFailure = original.entandoControllerFailure;</span>
+<span class="nc" id="L91">        this.ingressName = original.ingressName;</span>
+<span class="nc" id="L92">        this.externalBaseUrl = original.externalBaseUrl;</span>
+<span class="nc" id="L93">        this.ssoClientId = original.ssoClientId;</span>
+<span class="nc" id="L94">        this.ssoRealm = original.ssoRealm;</span>
+<span class="nc" id="L95">    }</span>
 
     public String getQualifier() {
-<span class="fc" id="L96">        return qualifier;</span>
+<span class="fc" id="L98">        return qualifier;</span>
     }
 
     public ResourceReference getOriginatingCustomResource() {
-<span class="fc" id="L100">        return originatingCustomResource;</span>
+<span class="fc" id="L102">        return originatingCustomResource;</span>
     }
 
     public ServerStatus withOriginatingCustomResource(HasMetadata originatingCustomResource) {
-<span class="fc" id="L104">        this.originatingCustomResource = new CustomResourceReference(originatingCustomResource.getApiVersion(),</span>
-<span class="fc" id="L105">                originatingCustomResource.getKind(),</span>
-<span class="fc" id="L106">                originatingCustomResource.getMetadata().getNamespace(),</span>
-<span class="fc" id="L107">                originatingCustomResource.getMetadata().getName());</span>
-<span class="fc" id="L108">        return this;</span>
+<span class="fc" id="L106">        this.originatingCustomResource = new CustomResourceReference(originatingCustomResource.getApiVersion(),</span>
+<span class="fc" id="L107">                originatingCustomResource.getKind(),</span>
+<span class="fc" id="L108">                originatingCustomResource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L109">                originatingCustomResource.getMetadata().getName());</span>
+<span class="fc" id="L110">        return this;</span>
     }
 
     public ResourceReference getOriginatingControllerPod() {
-<span class="nc" id="L112">        return originatingControllerPod;</span>
+<span class="nc" id="L114">        return originatingControllerPod;</span>
     }
 
     public ServerStatus withOriginatingControllerPod(String namespace, String name) {
-<span class="fc" id="L116">        this.originatingControllerPod = new ResourceReference(namespace, name);</span>
-<span class="fc" id="L117">        return this;</span>
+<span class="fc" id="L118">        this.originatingControllerPod = new ResourceReference(namespace, name);</span>
+<span class="fc" id="L119">        return this;</span>
     }
 
     public void finish() {
-<span class="fc" id="L121">        this.finished = new Date();</span>
-<span class="fc" id="L122">    }</span>
+<span class="fc" id="L123">        this.finished = new Date();</span>
+<span class="fc" id="L124">    }</span>
 
     public Date getStarted() {
-<span class="nc" id="L125">        return started;</span>
+<span class="nc" id="L127">        return started;</span>
     }
 
     public Optional&lt;Date&gt; getFinished() {
-<span class="fc" id="L129">        return ofNullable(finished);</span>
+<span class="fc" id="L131">        return ofNullable(finished);</span>
     }
 
     public Optional&lt;EntandoControllerFailure&gt; getEntandoControllerFailure() {
-<span class="fc" id="L133">        return ofNullable(entandoControllerFailure);</span>
+<span class="fc" id="L135">        return ofNullable(entandoControllerFailure);</span>
     }
 
     public void setEntandoControllerFailure(EntandoControllerFailure entandoControllerFailure) {
-<span class="fc" id="L137">        this.entandoControllerFailure = entandoControllerFailure;</span>
-<span class="fc" id="L138">    }</span>
+<span class="fc" id="L139">        this.entandoControllerFailure = entandoControllerFailure;</span>
+<span class="fc" id="L140">    }</span>
 
     public boolean hasFailed() {
-<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        return entandoControllerFailure != null;</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        return entandoControllerFailure != null;</span>
     }
 
     public Optional&lt;String&gt; getServiceName() {
-<span class="fc" id="L145">        return ofNullable(serviceName);</span>
+<span class="fc" id="L147">        return ofNullable(serviceName);</span>
     }
 
     public void setServiceName(String serviceName) {
-<span class="fc" id="L149">        this.serviceName = serviceName;</span>
-<span class="fc" id="L150">    }</span>
+<span class="fc" id="L151">        this.serviceName = serviceName;</span>
+<span class="fc" id="L152">    }</span>
 
     public Optional&lt;String&gt; getDeploymentName() {
-<span class="fc" id="L153">        return ofNullable(deploymentName);</span>
+<span class="fc" id="L155">        return ofNullable(deploymentName);</span>
     }
 
     public void setDeploymentName(String deploymentName) {
-<span class="fc" id="L157">        this.deploymentName = deploymentName;</span>
-<span class="fc" id="L158">    }</span>
+<span class="fc" id="L159">        this.deploymentName = deploymentName;</span>
+<span class="fc" id="L160">    }</span>
 
     public Map&lt;String, String&gt; getDerivedDeploymentParameters() {
-<span class="fc" id="L161">        return ofNullable(derivedDeploymentParameters).map(Collections::unmodifiableMap).orElseGet(Collections::emptyMap);</span>
+<span class="fc" id="L163">        return ofNullable(derivedDeploymentParameters).map(Collections::unmodifiableMap).orElseGet(Collections::emptyMap);</span>
     }
 
     public void putDerivedDeploymentParameter(String parameterName, String parameterValue) {
-<span class="fc" id="L165">        this.derivedDeploymentParameters = Objects.requireNonNullElseGet(this.derivedDeploymentParameters, HashMap::new);</span>
-<span class="fc" id="L166">        derivedDeploymentParameters.put(parameterName, parameterValue);</span>
-<span class="fc" id="L167">    }</span>
+<span class="fc" id="L167">        this.derivedDeploymentParameters = Objects.requireNonNullElseGet(this.derivedDeploymentParameters, HashMap::new);</span>
+<span class="fc" id="L168">        derivedDeploymentParameters.put(parameterName, parameterValue);</span>
+<span class="fc" id="L169">    }</span>
 
     public Map&lt;String, String&gt; getPersistentVolumeClaimPhases() {
-<span class="fc" id="L170">        return ofNullable(persistentVolumeClaimPhases).map(Collections::unmodifiableMap).orElseGet(Collections::emptyMap);</span>
+<span class="fc" id="L172">        return ofNullable(persistentVolumeClaimPhases).map(Collections::unmodifiableMap).orElseGet(Collections::emptyMap);</span>
     }
 
     public void putPersistentVolumeClaimPhase(String pvcName, String pvcPhase) {
-<span class="fc" id="L174">        this.persistentVolumeClaimPhases = Objects.requireNonNullElseGet(this.persistentVolumeClaimPhases, HashMap::new);</span>
-<span class="fc" id="L175">        persistentVolumeClaimPhases.put(pvcName, pvcPhase);</span>
-<span class="fc" id="L176">    }</span>
+<span class="fc" id="L176">        this.persistentVolumeClaimPhases = Objects.requireNonNullElseGet(this.persistentVolumeClaimPhases, HashMap::new);</span>
+<span class="fc" id="L177">        persistentVolumeClaimPhases.put(pvcName, pvcPhase);</span>
+<span class="fc" id="L178">    }</span>
 
     public Map&lt;String, String&gt; getPodPhases() {
-<span class="fc" id="L179">        return ofNullable(podPhases).map(Collections::unmodifiableMap).orElseGet(Collections::emptyMap);</span>
+<span class="fc" id="L181">        return ofNullable(podPhases).map(Collections::unmodifiableMap).orElseGet(Collections::emptyMap);</span>
     }
 
     public void putPodPhase(String podName, String podPhase) {
-<span class="fc" id="L183">        this.podPhases = Objects.requireNonNullElseGet(this.podPhases, HashMap::new);</span>
-<span class="fc" id="L184">        podPhases.put(podName, podPhase);</span>
-<span class="fc" id="L185">    }</span>
+<span class="fc" id="L185">        this.podPhases = Objects.requireNonNullElseGet(this.podPhases, HashMap::new);</span>
+<span class="fc" id="L186">        podPhases.put(podName, podPhase);</span>
+<span class="fc" id="L187">    }</span>
+
+    public void putWebContext(String qualifier, String path) {
+<span class="fc" id="L190">        this.webContexts = Objects.requireNonNullElseGet(this.webContexts, HashMap::new);</span>
+<span class="fc" id="L191">        webContexts.put(qualifier, path);</span>
+<span class="fc" id="L192">    }</span>
+    public ServerStatus addToWebContexts(String qualifier, String path){
+<span class="fc" id="L194">        this.putWebContext(qualifier, path);</span>
+<span class="fc" id="L195">        return this;</span>
+    }
+
+    public Map&lt;String, String&gt; getWebContexts() {
+<span class="fc" id="L199">        return ofNullable(webContexts).map(Collections::unmodifiableMap).orElseGet(Collections::emptyMap);</span>
+    }
 
     public void finishWith(EntandoControllerFailure failure) {
-<span class="fc" id="L188">        finish();</span>
-<span class="fc" id="L189">        setEntandoControllerFailure(failure);</span>
-<span class="fc" id="L190">    }</span>
+<span class="fc" id="L203">        finish();</span>
+<span class="fc" id="L204">        setEntandoControllerFailure(failure);</span>
+<span class="fc" id="L205">    }</span>
 
     public Optional&lt;String&gt; getIngressName() {
-<span class="fc" id="L193">        return Optional.ofNullable(ingressName);</span>
+<span class="fc" id="L208">        return Optional.ofNullable(ingressName);</span>
     }
 
     public void setExternalBaseUrl(String externalBaseUrl) {
-<span class="fc" id="L197">        this.externalBaseUrl = externalBaseUrl;</span>
-<span class="fc" id="L198">    }</span>
+<span class="fc" id="L212">        this.externalBaseUrl = externalBaseUrl;</span>
+<span class="fc" id="L213">    }</span>
 
     public Optional&lt;String&gt; getExternalBaseUrl() {
-<span class="fc" id="L201">        return Optional.ofNullable(externalBaseUrl);</span>
+<span class="fc" id="L216">        return Optional.ofNullable(externalBaseUrl);</span>
     }
 
     public void setIngressName(String ingressName) {
-<span class="fc" id="L205">        this.ingressName = ingressName;</span>
-<span class="fc" id="L206">    }</span>
+<span class="fc" id="L220">        this.ingressName = ingressName;</span>
+<span class="fc" id="L221">    }</span>
 
     public Optional&lt;String&gt; getAdminSecretName() {
-<span class="fc" id="L209">        return Optional.ofNullable(adminSecretName);</span>
+<span class="fc" id="L224">        return Optional.ofNullable(adminSecretName);</span>
     }
 
     public void setAdminSecretName(String adminSecretName) {
-<span class="fc" id="L213">        this.adminSecretName = adminSecretName;</span>
-<span class="fc" id="L214">    }</span>
-
-    public void putSsoClientId(String qualifier, String clientId) {
-<span class="fc" id="L217">        this.ssoClientIds = Objects.requireNonNullElseGet(this.ssoClientIds, HashMap::new);</span>
-<span class="fc" id="L218">        this.ssoClientIds.put(qualifier, clientId);</span>
-<span class="fc" id="L219">    }</span>
+<span class="fc" id="L228">        this.adminSecretName = adminSecretName;</span>
+<span class="fc" id="L229">    }</span>
 
     public Optional&lt;String&gt; getSsoRealm() {
-<span class="fc" id="L222">        return Optional.ofNullable(ssoRealm);</span>
+<span class="fc" id="L232">        return Optional.ofNullable(ssoRealm);</span>
     }
 
     public void setSsoRealm(String ssoRealm) {
-<span class="fc" id="L226">        this.ssoRealm = ssoRealm;</span>
-<span class="fc" id="L227">    }</span>
+<span class="fc" id="L236">        this.ssoRealm = ssoRealm;</span>
+<span class="fc" id="L237">    }</span>
 
-    public Map&lt;String, String&gt; getSsoClientIds() {
-<span class="fc" id="L230">        return ofNullable(ssoClientIds).map(Collections::unmodifiableMap).orElseGet(Collections::emptyMap);</span>
+    public ServerStatus withSsoRealm(String ssoRealm) {
+<span class="fc" id="L240">        this.setSsoRealm(ssoRealm);</span>
+<span class="fc" id="L241">        return this;</span>
+    }
+
+    public Optional&lt;String&gt; getSsoClientId() {
+<span class="fc" id="L245">        return Optional.ofNullable(ssoClientId);</span>
+    }
+
+    public void setSsoClientId(String ssoClientId) {
+<span class="fc" id="L249">        this.ssoClientId = ssoClientId;</span>
+<span class="fc" id="L250">    }</span>
+
+    public ServerStatus withSsoClientId(String ssoClientId) {
+<span class="fc" id="L253">        this.setSsoClientId(ssoClientId);</span>
+<span class="fc" id="L254">        return this;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
