@@ -189,11 +189,11 @@ public class DeployCommand&lt;T extends ServiceDeploymentResult&lt;T&gt;&gt; {
 <span class="fc" id="L189">                EntandoOperatorSpiConfig.getPodReadinessTimeoutSeconds());</span>
 <span class="fc" id="L190">        status.putPodPhase(pod.getMetadata().getName(), pod.getStatus().getPhase());</span>
 <span class="fc" id="L191">        entandoCustomResource = k8sClient.entandoResources().updateStatus(entandoCustomResource, status);</span>
-<span class="pc bpc" id="L192" title="1 of 2 branches missed.">        if (PodResult.of(pod).hasFailed()) {</span>
-<span class="nc" id="L193">            throw new EntandoControllerException(pod,</span>
-<span class="nc" id="L194">                    format(&quot;Deployment failed. Please inspect the logs of the pod %s/%s&quot;,</span>
-<span class="nc" id="L195">                            pod.getMetadata().getNamespace(),</span>
-<span class="nc" id="L196">                            pod.getMetadata().getName()));</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        if (PodResult.of(pod).hasFailed()) {</span>
+<span class="fc" id="L193">            throw new EntandoControllerException(pod,</span>
+<span class="fc" id="L194">                    format(&quot;Deployment failed. Please inspect the logs of the pod %s/%s&quot;,</span>
+<span class="fc" id="L195">                            pod.getMetadata().getNamespace(),</span>
+<span class="fc" id="L196">                            pod.getMetadata().getName()));</span>
 
         }
 <span class="fc" id="L199">    }</span>
