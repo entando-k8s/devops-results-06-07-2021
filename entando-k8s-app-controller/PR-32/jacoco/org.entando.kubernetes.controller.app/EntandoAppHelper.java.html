@@ -18,8 +18,11 @@ package org.entando.kubernetes.controller.app;
 
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorComplianceMode;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
+import org.entando.kubernetes.controller.spi.container.KeycloakName;
+import org.entando.kubernetes.controller.spi.deployable.SsoConnectionInfo;
 import org.entando.kubernetes.model.app.EntandoApp;
 import org.entando.kubernetes.model.common.DbmsVendor;
+import org.entando.kubernetes.model.common.KeycloakToUse;
 
 public class EntandoAppHelper {
 
@@ -28,13 +31,16 @@ public class EntandoAppHelper {
     }
 
     public static DbmsVendor determineDbmsVendor(EntandoApp entandoApp) {
-<span class="fc bfc" id="L31" title="All 2 branches covered.">        if (EntandoOperatorSpiConfig.getComplianceMode() == EntandoOperatorComplianceMode.REDHAT) {</span>
-<span class="fc" id="L32">            return entandoApp.getSpec().getDbms().orElse(DbmsVendor.POSTGRESQL);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (EntandoOperatorSpiConfig.getComplianceMode() == EntandoOperatorComplianceMode.REDHAT) {</span>
+<span class="fc" id="L35">            return entandoApp.getSpec().getDbms().orElse(DbmsVendor.POSTGRESQL);</span>
         } else {
-<span class="fc" id="L34">            return entandoApp.getSpec().getDbms().orElse(DbmsVendor.EMBEDDED);</span>
+<span class="fc" id="L37">            return entandoApp.getSpec().getDbms().orElse(DbmsVendor.EMBEDDED);</span>
         }
-
     }
 
+    public static String determineRealm(EntandoApp entandoApp, SsoConnectionInfo ssoConnectionInfo) {
+<span class="fc" id="L42">        return entandoApp.getSpec().getKeycloakToUse().flatMap(KeycloakToUse::getRealm).or(() -&gt; ssoConnectionInfo.getDefaultRealm())</span>
+<span class="fc" id="L43">                .orElse(KeycloakName.ENTANDO_DEFAULT_KEYCLOAK_REALM);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

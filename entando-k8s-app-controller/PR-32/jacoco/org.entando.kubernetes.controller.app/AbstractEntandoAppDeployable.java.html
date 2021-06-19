@@ -22,13 +22,11 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import java.util.Optional;
 import org.entando.kubernetes.controller.spi.common.NameUtils;
-import org.entando.kubernetes.controller.spi.container.SsoConnectionInfo;
-import org.entando.kubernetes.controller.spi.deployable.PublicIngressingDeployable;
+import org.entando.kubernetes.controller.spi.deployable.IngressingDeployable;
 import org.entando.kubernetes.model.app.EntandoApp;
 import org.entando.kubernetes.model.common.EntandoResourceRequirements;
-import org.entando.kubernetes.model.common.KeycloakToUse;
 
-public abstract class AbstractEntandoAppDeployable implements PublicIngressingDeployable&lt;EntandoAppDeploymentResult&gt; {
+public abstract class AbstractEntandoAppDeployable implements IngressingDeployable&lt;EntandoAppDeploymentResult&gt; {
 
     /**
      * The operating system level id of the default user in the Red Hat base images. Was determined to be 185 running the 'id' command in
@@ -37,75 +35,64 @@ public abstract class AbstractEntandoAppDeployable implements PublicIngressingDe
     public static final long DEFAULT_USERID_IN_JBOSS_BASE_IMAGES = 185L;
 
     protected final EntandoApp entandoApp;
-    protected final SsoConnectionInfo keycloakConnectionConfig;
 
-<span class="fc" id="L42">    protected AbstractEntandoAppDeployable(EntandoApp entandoApp, SsoConnectionInfo keycloakConnectionConfig) {</span>
-<span class="fc" id="L43">        this.entandoApp = entandoApp;</span>
-<span class="fc" id="L44">        this.keycloakConnectionConfig = keycloakConnectionConfig;</span>
-<span class="fc" id="L45">    }</span>
-
-    @Override
-    public Optional&lt;KeycloakToUse&gt; getPreferredKeycloakToUse() {
-<span class="fc" id="L49">        return entandoApp.getSpec().getKeycloakToUse();</span>
-    }
+<span class="fc" id="L39">    protected AbstractEntandoAppDeployable(EntandoApp entandoApp) {</span>
+<span class="fc" id="L40">        this.entandoApp = entandoApp;</span>
+<span class="fc" id="L41">    }</span>
 
     @Override
     public boolean isIngressRequired() {
-<span class="fc" id="L54">        return true;</span>
+<span class="fc" id="L45">        return true;</span>
     }
 
     @Override
     public Optional&lt;Long&gt; getFileSystemUserAndGroupId() {
-<span class="fc" id="L59">        return Optional.of(DEFAULT_USERID_IN_JBOSS_BASE_IMAGES);</span>
+<span class="fc" id="L50">        return Optional.of(DEFAULT_USERID_IN_JBOSS_BASE_IMAGES);</span>
     }
 
     @Override
     public int getReplicas() {
-<span class="fc" id="L64">        return entandoApp.getSpec().getReplicas().orElse(1);</span>
+<span class="fc" id="L55">        return entandoApp.getSpec().getReplicas().orElse(1);</span>
     }
 
     @Override
     public EntandoApp getCustomResource() {
-<span class="fc" id="L69">        return entandoApp;</span>
+<span class="fc" id="L60">        return entandoApp;</span>
     }
 
     @Override
     public EntandoAppDeploymentResult createResult(Deployment deployment, Service service, Ingress ingress, Pod pod) {
-<span class="fc" id="L74">        return new EntandoAppDeploymentResult(pod, service, ingress);</span>
+<span class="fc" id="L65">        return new EntandoAppDeploymentResult(pod, service, ingress);</span>
     }
 
     @Override
     public String getIngressName() {
-<span class="fc" id="L79">        return NameUtils.standardIngressName(entandoApp);</span>
+<span class="fc" id="L70">        return NameUtils.standardIngressName(entandoApp);</span>
     }
 
     @Override
     public String getIngressNamespace() {
-<span class="fc" id="L84">        return entandoApp.getMetadata().getNamespace();</span>
-    }
-
-    @Override
-    public SsoConnectionInfo getSsoConnectionInfo() {
-<span class="fc" id="L89">        return keycloakConnectionConfig;</span>
+<span class="fc" id="L75">        return entandoApp.getMetadata().getNamespace();</span>
     }
 
     public Optional&lt;String&gt; getFileUploadLimit() {
-<span class="fc" id="L93">        return entandoApp.getSpec().getResourceRequirements().flatMap(EntandoResourceRequirements::getFileUploadLimit);</span>
+<span class="fc" id="L79">        return entandoApp.getSpec().getResourceRequirements().flatMap(EntandoResourceRequirements::getFileUploadLimit);</span>
     }
 
     @Override
     public Optional&lt;String&gt; getTlsSecretName() {
-<span class="fc" id="L98">        return entandoApp.getSpec().getTlsSecretName();</span>
+<span class="fc" id="L84">        return entandoApp.getSpec().getTlsSecretName();</span>
     }
 
     @Override
     public Optional&lt;String&gt; getIngressHostName() {
-<span class="fc" id="L103">        return entandoApp.getSpec().getIngressHostName();</span>
+<span class="fc" id="L89">        return entandoApp.getSpec().getIngressHostName();</span>
     }
 
     @Override
     public String getServiceAccountToUse() {
-<span class="fc" id="L108">        return getCustomResource().getSpec().getServiceAccountToUse().orElse(getDefaultServiceAccountName());</span>
+<span class="fc" id="L94">        return getCustomResource().getSpec().getServiceAccountToUse().orElse(getDefaultServiceAccountName());</span>
     }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -16,43 +16,69 @@
 
 package org.entando.kubernetes.controller.app;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.entando.kubernetes.controller.spi.container.DeployableContainer;
-import org.entando.kubernetes.controller.spi.container.SsoConnectionInfo;
 import org.entando.kubernetes.controller.spi.deployable.DbAwareDeployable;
+import org.entando.kubernetes.controller.spi.deployable.SsoAwareDeployable;
+import org.entando.kubernetes.controller.spi.deployable.SsoClientConfig;
+import org.entando.kubernetes.controller.spi.deployable.SsoConnectionInfo;
 import org.entando.kubernetes.controller.spi.result.DatabaseConnectionInfo;
 import org.entando.kubernetes.model.app.EntandoApp;
+import org.entando.kubernetes.model.common.Permission;
 
-public class ComponentManagerDeployable extends AbstractEntandoAppDeployable implements DbAwareDeployable&lt;EntandoAppDeploymentResult&gt; {
+public class ComponentManagerDeployable
+        extends AbstractEntandoAppDeployable
+        implements DbAwareDeployable&lt;EntandoAppDeploymentResult&gt;, SsoAwareDeployable&lt;EntandoAppDeploymentResult&gt; {
 
     public static final long COMPONENT_MANAGER_CURRENT_USER = 185L;
+    public static final String COMPONENT_MANAGER_QUALIFIER = &quot;cm&quot;;
     private final List&lt;DeployableContainer&gt; containers;
+    private final SsoConnectionInfo ssoConnectionInfo;
 
     public ComponentManagerDeployable(EntandoApp entandoApp,
             SsoConnectionInfo ssoConnectionInfo,
             EntandoK8SService entandoK8SService,
             DatabaseConnectionInfo databaseServiceResult) {
-<span class="fc" id="L37">        super(entandoApp, ssoConnectionInfo);</span>
-<span class="fc" id="L38">        this.containers = Collections.singletonList(</span>
-                new ComponentManagerDeployableContainer(entandoApp, ssoConnectionInfo, entandoK8SService, databaseServiceResult)
+<span class="fc" id="L45">        super(entandoApp);</span>
+<span class="fc" id="L46">        this.ssoConnectionInfo = ssoConnectionInfo;</span>
+<span class="fc" id="L47">        this.containers = Collections.singletonList(</span>
+                new ComponentManagerDeployableContainer(entandoApp, ssoConnectionInfo, entandoK8SService, databaseServiceResult,
+<span class="fc" id="L49">                        getSsoClientConfig())</span>
         );
-<span class="fc" id="L41">    }</span>
+<span class="fc" id="L51">    }</span>
+
+    @Override
+    public SsoConnectionInfo getSsoConnectionInfo() {
+<span class="fc" id="L55">        return ssoConnectionInfo;</span>
+    }
+
+    @Override
+    public SsoClientConfig getSsoClientConfig() {
+<span class="fc" id="L60">        String entandoAppClientId = EntandoAppServerDeployable.clientIdOf(entandoApp);</span>
+<span class="fc" id="L61">        String clientId = entandoApp.getMetadata().getName() + &quot;-&quot; + ComponentManagerDeployableContainer.COMPONENT_MANAGER_QUALIFIER;</span>
+<span class="fc" id="L62">        List&lt;Permission&gt; permissions = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L63">        permissions.add(new Permission(entandoAppClientId, &quot;superuser&quot;));</span>
+<span class="fc" id="L64">        return new SsoClientConfig(EntandoAppHelper.determineRealm(entandoApp, ssoConnectionInfo), clientId, clientId,</span>
+<span class="fc" id="L65">                Collections.emptyList(),</span>
+                permissions);
+    }
 
     @Override
     public Optional&lt;Long&gt; getFileSystemUserAndGroupId() {
-<span class="fc" id="L45">        return Optional.of(COMPONENT_MANAGER_CURRENT_USER);</span>
+<span class="fc" id="L71">        return Optional.of(COMPONENT_MANAGER_CURRENT_USER);</span>
     }
 
     @Override
     public List&lt;DeployableContainer&gt; getContainers() {
-<span class="fc" id="L50">        return containers;</span>
+<span class="fc" id="L76">        return containers;</span>
     }
 
     @Override
     public Optional&lt;String&gt; getQualifier() {
-<span class="fc" id="L55">        return Optional.of(&quot;cm&quot;);</span>
+<span class="fc" id="L81">        return Optional.of(COMPONENT_MANAGER_QUALIFIER);</span>
     }
 
 }

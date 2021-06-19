@@ -16,30 +16,29 @@
 
 package org.entando.kubernetes.controller.app;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.entando.kubernetes.controller.spi.container.DeployableContainer;
-import org.entando.kubernetes.controller.spi.container.SsoConnectionInfo;
 import org.entando.kubernetes.model.app.EntandoApp;
 
 public class AppBuilderDeployable extends AbstractEntandoAppDeployable {
 
     private final List&lt;DeployableContainer&gt; containers;
 
-    public AppBuilderDeployable(EntandoApp entandoApp, SsoConnectionInfo keycloakConnectionConfig) {
-<span class="fc" id="L31">        super(entandoApp, keycloakConnectionConfig);</span>
-<span class="fc" id="L32">        this.containers = Arrays.asList(new AppBuilderDeployableContainer(entandoApp));</span>
-<span class="fc" id="L33">    }</span>
+    public AppBuilderDeployable(EntandoApp entandoApp) {
+<span class="fc" id="L30">        super(entandoApp);</span>
+<span class="fc" id="L31">        this.containers = Collections.singletonList(new AppBuilderDeployableContainer(entandoApp));</span>
+<span class="fc" id="L32">    }</span>
 
     @Override
     public List&lt;DeployableContainer&gt; getContainers() {
-<span class="fc" id="L37">        return containers;</span>
+<span class="fc" id="L36">        return containers;</span>
     }
 
     @Override
     public Optional&lt;String&gt; getQualifier() {
-<span class="fc" id="L42">        return Optional.of(&quot;ab&quot;);</span>
+<span class="fc" id="L41">        return Optional.of(&quot;ab&quot;);</span>
     }
 
 }
