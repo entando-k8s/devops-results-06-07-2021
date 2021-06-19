@@ -16,6 +16,8 @@
 
 package org.entando.kubernetes.controller.support.client.impl;
 
+import static org.entando.kubernetes.controller.spi.common.ExceptionUtils.interruptionSafe;
+
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
@@ -24,8 +26,7 @@ import io.fabric8.kubernetes.client.VersionInfo;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.dsl.RollableScalableResource;
 import java.util.concurrent.TimeUnit;
-import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
-import org.entando.kubernetes.controller.spi.common.ExceptionUtils;
+import java.util.concurrent.TimeoutException;
 import org.entando.kubernetes.controller.support.client.DeploymentClient;
 import org.entando.kubernetes.model.common.EntandoCustomResource;
 
@@ -33,68 +34,68 @@ public class DefaultDeploymentClient implements DeploymentClient {
 
     private final KubernetesClient client;
 
-<span class="fc" id="L36">    public DefaultDeploymentClient(KubernetesClient client) {</span>
-<span class="fc" id="L37">        this.client = client;</span>
-<span class="fc" id="L38">    }</span>
+<span class="fc" id="L37">    public DefaultDeploymentClient(KubernetesClient client) {</span>
+<span class="fc" id="L38">        this.client = client;</span>
+<span class="fc" id="L39">    }</span>
 
     @Override
     public boolean supportsStartupProbes() {
         try {
-<span class="nc" id="L43">            final VersionInfo version = client.getVersion();</span>
+<span class="nc" id="L44">            final VersionInfo version = client.getVersion();</span>
             //Is null when using the MockServer. Return true because that is the most common scenario we want to test
-<span class="nc bnc" id="L45" title="All 4 branches missed.">            return version == null || parseVersion(version) &gt;= 16;</span>
-<span class="nc" id="L46">        } catch (NullPointerException e) {</span>
+<span class="nc bnc" id="L46" title="All 4 branches missed.">            return version == null || parseVersion(version) &gt;= 16;</span>
+<span class="nc" id="L47">        } catch (NullPointerException e) {</span>
             //Happens on the mock server
-<span class="nc" id="L48">            return true;</span>
+<span class="nc" id="L49">            return true;</span>
         }
     }
 
     private int parseVersion(VersionInfo version) {
-<span class="nc" id="L53">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L54">        StringBuilder sb = new StringBuilder();</span>
         //Some versions have trailing non-digit characters
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        for (char current : version.getMinor().toCharArray()) {</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (Character.isDigit(current)) {</span>
-<span class="nc" id="L57">                sb.append(current);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (char current : version.getMinor().toCharArray()) {</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (Character.isDigit(current)) {</span>
+<span class="nc" id="L58">                sb.append(current);</span>
             } else {
                 break;
             }
         }
-<span class="nc" id="L62">        return Integer.parseInt(sb.toString());</span>
+<span class="nc" id="L63">        return Integer.parseInt(sb.toString());</span>
     }
 
     @Override
-    public Deployment createOrPatchDeployment(EntandoCustomResource peerInNamespace,
-            Deployment deployment) {
-<span class="fc" id="L68">        Deployment existingDeployment = getDeploymenResourceFor(peerInNamespace, deployment).get();</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (existingDeployment == null) {</span>
-<span class="fc" id="L70">            return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).create(deployment);</span>
+    public Deployment createOrPatchDeployment(EntandoCustomResource peerInNamespace, Deployment deployment, int timeoutSeconds)
+            throws TimeoutException {
+<span class="fc" id="L69">        Deployment existingDeployment = getDeploymenResourceFor(peerInNamespace, deployment).get();</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (existingDeployment == null) {</span>
+<span class="fc" id="L71">            return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).create(deployment);</span>
         } else {
             //Don't wait because the polling in Fabric8 is dodge
-<span class="fc" id="L73">            getDeploymenResourceFor(peerInNamespace, deployment).scale(0, true);</span>
-<span class="fc" id="L74">            FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods()</span>
-<span class="fc" id="L75">                    .inNamespace(existingDeployment.getMetadata().getNamespace())</span>
-<span class="fc" id="L76">                    .withLabelSelector(existingDeployment.getSpec().getSelector());</span>
-<span class="fc" id="L77">            ExceptionUtils.interruptionSafe(() -&gt; podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
-<span class="fc" id="L78">                    EntandoOperatorSpiConfig.getPodShutdownTimeoutSeconds(),</span>
+<span class="fc" id="L74">            getDeploymenResourceFor(peerInNamespace, deployment).scale(0, true);</span>
+<span class="fc" id="L75">            FilterWatchListDeletable&lt;Pod, PodList&gt; podResource = client.pods()</span>
+<span class="fc" id="L76">                    .inNamespace(existingDeployment.getMetadata().getNamespace())</span>
+<span class="fc" id="L77">                    .withLabelSelector(existingDeployment.getSpec().getSelector());</span>
+<span class="fc" id="L78">            interruptionSafe(() -&gt; podResource.waitUntilCondition(pod -&gt; podResource.list().getItems().isEmpty(),</span>
+                    timeoutSeconds,
                     TimeUnit.SECONDS));
             //Create the deployment with the correct replicas now. We don't support 0 because we will be waiting for the pod
-<span class="fc" id="L81">            return getDeploymenResourceFor(peerInNamespace, deployment).patch(deployment);</span>
+<span class="fc" id="L82">            return getDeploymenResourceFor(peerInNamespace, deployment).patch(deployment);</span>
         }
     }
 
     private RollableScalableResource&lt;Deployment&gt; getDeploymenResourceFor(
             EntandoCustomResource peerInNamespace,
             Deployment deployment) {
-<span class="fc" id="L88">        return client.apps()</span>
-<span class="fc" id="L89">                .deployments()</span>
-<span class="fc" id="L90">                .inNamespace(peerInNamespace.getMetadata().getNamespace())</span>
-<span class="fc" id="L91">                .withName(deployment.getMetadata().getName());</span>
+<span class="fc" id="L89">        return client.apps()</span>
+<span class="fc" id="L90">                .deployments()</span>
+<span class="fc" id="L91">                .inNamespace(peerInNamespace.getMetadata().getNamespace())</span>
+<span class="fc" id="L92">                .withName(deployment.getMetadata().getName());</span>
     }
 
     @Override
     public Deployment loadDeployment(EntandoCustomResource peerInNamespace, String name) {
-<span class="fc" id="L96">        return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name)</span>
-<span class="fc" id="L97">                .get();</span>
+<span class="fc" id="L97">        return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name)</span>
+<span class="fc" id="L98">                .get();</span>
     }
 
 }

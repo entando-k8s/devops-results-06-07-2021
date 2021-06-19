@@ -17,8 +17,8 @@
 package org.entando.kubernetes.controller.support.common;
 
 import static java.util.Optional.ofNullable;
+import static org.entando.kubernetes.controller.spi.common.ExceptionUtils.ioSafe;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import java.util.Map;
@@ -96,13 +96,11 @@ public class PropertyResolution {
 
     @SuppressWarnings(&quot;unchecked&quot;)
     private Optional&lt;String&gt; extractValueFromContent(String content) {
-        try {
+<span class="fc" id="L99">        return ioSafe(() -&gt; {</span>
 <span class="fc" id="L100">            ObjectMapper mapper = new ObjectMapper();</span>
 <span class="fc" id="L101">            Map&lt;String, String&gt; imageConfig = mapper.readValue(content, Map.class);</span>
 <span class="fc" id="L102">            return ofNullable(imageConfig.get(configMapKey));</span>
-<span class="nc" id="L103">        } catch (JsonProcessingException e) {</span>
-<span class="nc" id="L104">            throw new IllegalStateException(e);</span>
-        }
+        });
     }
 
 }

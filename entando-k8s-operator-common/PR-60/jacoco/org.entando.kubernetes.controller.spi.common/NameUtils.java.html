@@ -101,20 +101,28 @@ public class NameUtils {
 <span class="fc" id="L101">        return resource.getMetadata().getName() + &quot;-&quot; + DEFAULT_SERVICE_SUFFIX;</span>
     }
 
+    public static String standardServiceName(EntandoCustomResource resource, String qualifier) {
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (NameUtils.MAIN_QUALIFIER.equals(qualifier)) {</span>
+<span class="fc" id="L106">            return standardServiceName(resource);</span>
+        } else {
+<span class="nc" id="L108">            return resource.getMetadata().getName() + &quot;-&quot; + qualifier + &quot;-&quot; + DEFAULT_SERVICE_SUFFIX;</span>
+        }
+    }
+
     public static String standardDeployment(EntandoCustomResource resource) {
-<span class="fc" id="L105">        return resource.getMetadata().getName() + &quot;-&quot; + DEFAULT_DEPLOYMENT_SUFFIX;</span>
+<span class="fc" id="L113">        return resource.getMetadata().getName() + &quot;-&quot; + DEFAULT_DEPLOYMENT_SUFFIX;</span>
     }
 
     public static String standardPersistentVolumeClaim(EntandoCustomResource resource, String containerQualifier) {
-<span class="fc" id="L109">        return resource.getMetadata().getName() + &quot;-&quot; + containerQualifier + &quot;-&quot; + DEFAULT_PVC_SUFFIX;</span>
+<span class="fc" id="L117">        return resource.getMetadata().getName() + &quot;-&quot; + containerQualifier + &quot;-&quot; + DEFAULT_PVC_SUFFIX;</span>
     }
 
     public static String lowerDashDelimitedOf(String name) {
-<span class="nc" id="L113">        return name.replace(&quot;_&quot;, &quot;-&quot;).toLowerCase(Locale.ROOT);</span>
+<span class="nc" id="L121">        return name.replace(&quot;_&quot;, &quot;-&quot;).toLowerCase(Locale.ROOT);</span>
     }
 
     public static String standardAdminSecretName(EntandoCustomResource keycloakServer) {
-<span class="fc" id="L117">        return keycloakServer.getMetadata().getName() + &quot;-admin-secret&quot;;</span>
+<span class="fc" id="L125">        return keycloakServer.getMetadata().getName() + &quot;-admin-secret&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

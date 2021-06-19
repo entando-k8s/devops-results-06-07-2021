@@ -17,47 +17,23 @@
 package org.entando.kubernetes.controller.support.client.impl;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.entando.kubernetes.controller.spi.client.impl.DefaultKubernetesClientForControllers;
-import org.entando.kubernetes.controller.spi.common.NameUtils;
-import org.entando.kubernetes.controller.spi.result.ExposedService;
 import org.entando.kubernetes.controller.support.client.EntandoResourceClient;
 import org.entando.kubernetes.controller.support.common.EntandoOperatorConfig;
-import org.entando.kubernetes.model.common.EntandoCustomResource;
 
 public class DefaultEntandoResourceClient extends DefaultKubernetesClientForControllers implements
         EntandoResourceClient {
 
     public DefaultEntandoResourceClient(KubernetesClient client) {
-<span class="fc" id="L35">        super(client);</span>
-<span class="fc" id="L36">    }</span>
+<span class="fc" id="L29">        super(client);</span>
+<span class="fc" id="L30">    }</span>
 
     @Override
     public ConfigMap loadDockerImageInfoConfigMap() {
-<span class="nc" id="L40">        return client.configMaps().inNamespace(EntandoOperatorConfig.getEntandoDockerImageInfoNamespace().orElse(client.getNamespace()))</span>
-<span class="nc" id="L41">                .withName(EntandoOperatorConfig.getEntandoDockerImageInfoConfigMap()).fromServer().get();</span>
+<span class="nc" id="L34">        return client.configMaps().inNamespace(EntandoOperatorConfig.getEntandoDockerImageInfoNamespace().orElse(client.getNamespace()))</span>
+<span class="nc" id="L35">                .withName(EntandoOperatorConfig.getEntandoDockerImageInfoConfigMap()).fromServer().get();</span>
     }
 
-    @Override
-    public ExposedService loadExposedService(EntandoCustomResource resource) {
-<span class="nc" id="L46">        return new ExposedService(</span>
-<span class="nc" id="L47">                loadService(resource, NameUtils.standardServiceName(resource)),</span>
-<span class="nc" id="L48">                loadIngress(resource, NameUtils.standardIngressName(resource)));</span>
-    }
-
-    private Service loadService(EntandoCustomResource peerInNamespace, String name) {
-<span class="nc" id="L52">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
-    }
-
-    private Ingress loadIngress(EntandoCustomResource peerInNamespace, String name) {
-<span class="nc" id="L56">        return client.extensions().ingresses().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
-    }
-
-    protected Deployment loadDeployment(EntandoCustomResource peerInNamespace, String name) {
-<span class="nc" id="L60">        return client.apps().deployments().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
-    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

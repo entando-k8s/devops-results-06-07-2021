@@ -163,10 +163,10 @@ public class IngressCreator extends AbstractK8SResourceCreator {
 
 <span class="fc" id="L164">        deployable.getTlsSecretName().ifPresent(s -&gt;</span>
 <span class="fc" id="L165">                result.add(new IngressTLSBuilder().withSecretName(s).withHosts(determineIngressHost(ingressClient, deployable)).build()));</span>
-<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (result.isEmpty()) {</span>
-<span class="fc" id="L167">            EntandoOperatorConfig.getTlsSecretName().ifPresent(s -&gt;</span>
-<span class="fc" id="L168">                    result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>
-<span class="fc" id="L169">                            .withSecretName(s).build()));</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (result.isEmpty()) {</span>
+<span class="nc" id="L167">            EntandoOperatorConfig.getTlsSecretName().ifPresent(s -&gt;</span>
+<span class="nc" id="L168">                    result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>
+<span class="nc" id="L169">                            .withSecretName(s).build()));</span>
         }
 <span class="pc bpc" id="L171" title="3 of 4 branches missed.">        if (result.isEmpty() &amp;&amp; EntandoOperatorConfig.useAutoCertGeneration()) {</span>
 <span class="nc" id="L172">            result.add(new IngressTLSBuilder().withHosts(determineIngressHost(ingressClient, deployable))</span>

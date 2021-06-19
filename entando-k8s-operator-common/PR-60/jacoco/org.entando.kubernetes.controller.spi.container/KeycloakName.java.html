@@ -16,17 +16,12 @@
 
 package org.entando.kubernetes.controller.spi.container;
 
-import static java.util.Optional.ofNullable;
-
-import org.entando.kubernetes.controller.spi.common.KeycloakPreference;
-import org.entando.kubernetes.model.common.KeycloakToUse;
+import org.entando.kubernetes.controller.spi.deployable.SsoClientConfig;
 
 public class KeycloakName {
 
     public static final String CLIENT_SECRET_KEY = &quot;clientSecret&quot;;
     public static final String CLIENT_ID_KEY = &quot;clientId&quot;;
-    public static final String DEFAULT_KEYCLOAK_NAME_KEY = &quot;default-keycloak-name&quot;;
-    public static final String DEFAULT_KEYCLOAK_NAMESPACE_KEY = &quot;default-keycloak-namespace&quot;;
     public static final String DEFAULT_KEYCLOAK_ADMIN_SECRET = &quot;keycloak-admin-secret&quot;;
     public static final String DEFAULT_KEYCLOAK_CONNECTION_CONFIG = &quot;keycloak-connection-config&quot;;
     public static final String PUBLIC_CLIENT_ID = &quot;entando-web&quot;;
@@ -37,20 +32,8 @@ public class KeycloakName {
     }
 
     public static String forTheClientSecret(SsoClientConfig keycloakConfig) {
-<span class="fc" id="L40">        return keycloakConfig.getClientId() + &quot;-secret&quot;;</span>
+<span class="fc" id="L35">        return keycloakConfig.getClientId() + &quot;-secret&quot;;</span>
     }
 
-    public static String ofTheRealm(KeycloakPreference keycloakPreference) {
-<span class="fc" id="L44">        return keycloakPreference.getPreferredKeycloakToUse()</span>
-<span class="fc" id="L45">                .flatMap(KeycloakToUse::getRealm)</span>
-<span class="fc" id="L46">                .or(() -&gt; ofNullable(keycloakPreference.getSsoConnectionInfo()).flatMap(SsoConnectionInfo::getDefaultRealm))</span>
-<span class="fc" id="L47">                .orElse(ENTANDO_DEFAULT_KEYCLOAK_REALM);</span>
-    }
-
-    public static String ofThePublicClient(KeycloakPreference keycloakAwareSpec) {
-<span class="fc" id="L51">        return keycloakAwareSpec.getPreferredKeycloakToUse()</span>
-<span class="pc" id="L52">                .map(keycloakToUse -&gt; keycloakToUse.getPublicClientId().orElse(PUBLIC_CLIENT_ID))</span>
-<span class="fc" id="L53">                .orElse(PUBLIC_CLIENT_ID);</span>
-    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
