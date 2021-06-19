@@ -33,31 +33,31 @@ import org.entando.kubernetes.controller.spi.container.ParameterizableContainer;
 import org.entando.kubernetes.controller.spi.container.PersistentVolumeAwareContainer;
 import org.entando.kubernetes.controller.spi.container.SpringBootDeployableContainer;
 import org.entando.kubernetes.controller.spi.container.SsoAwareContainer;
-import org.entando.kubernetes.controller.spi.container.SsoClientConfig;
-import org.entando.kubernetes.controller.spi.container.SsoConnectionInfo;
+import org.entando.kubernetes.controller.spi.deployable.SsoClientConfig;
+import org.entando.kubernetes.controller.spi.deployable.SsoConnectionInfo;
 import org.entando.kubernetes.controller.spi.result.DatabaseConnectionInfo;
 import org.entando.kubernetes.model.common.DbmsVendor;
 import org.entando.kubernetes.model.common.EntandoResourceRequirements;
 import org.entando.kubernetes.model.common.KeycloakAwareSpec;
-import org.entando.kubernetes.model.common.KeycloakToUse;
 import org.entando.kubernetes.model.plugin.EntandoPlugin;
 import org.entando.kubernetes.model.plugin.PluginSecurityLevel;
 
-public class EntandoPluginDeployableContainer implements PersistentVolumeAwareContainer, SpringBootDeployableContainer,
+public class EntandoPluginDeployableContainer implements PersistentVolumeAwareContainer,
+        SpringBootDeployableContainer,
         ParameterizableContainer,
         ConfigurableResourceContainer, SsoAwareContainer {
-
-    public static final String ENTANDO_APP_ROLE = &quot;entandoApp&quot;;
 
     public static final String PLUGINDB = &quot;plugindb&quot;;
     private final EntandoPlugin entandoPlugin;
     private final SsoConnectionInfo ssoConnectionInfo;
     private final List&lt;DatabaseSchemaConnectionInfo&gt; databaseSchemaConnectionInfo;
+    private final SsoClientConfig ssoClientConfig;
 
     public EntandoPluginDeployableContainer(EntandoPlugin entandoPlugin, SsoConnectionInfo ssoConnectionInfo,
-<span class="fc" id="L58">            DatabaseConnectionInfo databaseConnectionInfo) {</span>
-<span class="fc" id="L59">        this.entandoPlugin = entandoPlugin;</span>
-<span class="fc" id="L60">        this.ssoConnectionInfo = ssoConnectionInfo;</span>
+<span class="fc" id="L57">            DatabaseConnectionInfo databaseConnectionInfo, SsoClientConfig ssoClientConfig) {</span>
+<span class="fc" id="L58">        this.entandoPlugin = entandoPlugin;</span>
+<span class="fc" id="L59">        this.ssoConnectionInfo = ssoConnectionInfo;</span>
+<span class="fc" id="L60">        this.ssoClientConfig = ssoClientConfig;</span>
 <span class="fc" id="L61">        this.databaseSchemaConnectionInfo = ofNullable(databaseConnectionInfo)</span>
 <span class="fc" id="L62">                .map(databaseServiceResult1 -&gt; DbAwareContainer</span>
 <span class="fc" id="L63">                        .buildDatabaseSchemaConnectionInfo(entandoPlugin, databaseConnectionInfo, Collections.singletonList(PLUGINDB)))</span>
@@ -66,34 +66,34 @@ public class EntandoPluginDeployableContainer implements PersistentVolumeAwareCo
 <span class="fc" id="L66">    }</span>
 
     @Override
-    public Optional&lt;KeycloakToUse&gt; getPreferredKeycloakToUse() {
-<span class="fc" id="L70">        return this.getKeycloakAwareSpec().getKeycloakToUse();</span>
-    }
-
-    @Override
     public Optional&lt;String&gt; getStorageClass() {
-<span class="fc" id="L75">        return ofNullable(this.entandoPlugin.getSpec().getStorageClass()</span>
-<span class="fc" id="L76">                .orElse(PersistentVolumeAwareContainer.super.getStorageClass().orElse(null)));</span>
+<span class="fc" id="L70">        return ofNullable(this.entandoPlugin.getSpec().getStorageClass()</span>
+<span class="fc" id="L71">                .orElse(PersistentVolumeAwareContainer.super.getStorageClass().orElse(null)));</span>
     }
 
     @Override
     public Optional&lt;DatabaseSchemaConnectionInfo&gt; getDatabaseSchema() {
-<span class="fc" id="L81">        return databaseSchemaConnectionInfo.stream().findFirst();</span>
+<span class="fc" id="L76">        return databaseSchemaConnectionInfo.stream().findFirst();</span>
     }
 
     @Override
     public int getCpuLimitMillicores() {
-<span class="fc" id="L86">        return 1000;</span>
+<span class="fc" id="L81">        return 1000;</span>
     }
 
     @Override
     public int getMemoryLimitMebibytes() {
-<span class="fc" id="L91">        return 1024;</span>
+<span class="fc" id="L86">        return 1024;</span>
     }
 
     @Override
     public Optional&lt;DbmsVendor&gt; getDbms() {
-<span class="fc" id="L96">        return entandoPlugin.getSpec().getDbms();</span>
+<span class="fc" id="L91">        return entandoPlugin.getSpec().getDbms();</span>
+    }
+
+    @Override
+    public SsoClientConfig getSsoClientConfig() {
+<span class="fc" id="L96">        return ssoClientConfig;</span>
     }
 
     @Override
@@ -140,46 +140,37 @@ public class EntandoPluginDeployableContainer implements PersistentVolumeAwareCo
     }
 
     @Override
-    public SsoClientConfig getSsoClientConfig() {
-<span class="fc" id="L144">        return new SsoClientConfig(getKeycloakRealmToUse(),</span>
-<span class="fc" id="L145">                entandoPlugin.getMetadata().getName() + &quot;-&quot; + getNameQualifier(),</span>
-<span class="fc" id="L146">                entandoPlugin.getMetadata().getName(), entandoPlugin.getSpec().getRoles(),</span>
-<span class="fc" id="L147">                entandoPlugin.getSpec().getPermissions())</span>
-<span class="fc" id="L148">                .withRole(ENTANDO_APP_ROLE);</span>
-    }
-
-    @Override
     public Optional&lt;String&gt; getHealthCheckPath() {
-<span class="fc" id="L153">        return Optional.of(getWebContextPath() + entandoPlugin.getSpec().getHealthCheckPath());</span>
+<span class="fc" id="L144">        return Optional.of(getWebContextPath() + entandoPlugin.getSpec().getHealthCheckPath());</span>
     }
 
     @Override
     public String getWebContextPath() {
-<span class="fc" id="L158">        return ofNullable(entandoPlugin.getSpec().getIngressPath()).orElse(&quot;/&quot; + entandoPlugin.getMetadata().getName());</span>
+<span class="fc" id="L149">        return ofNullable(entandoPlugin.getSpec().getIngressPath()).orElse(&quot;/&quot; + entandoPlugin.getMetadata().getName());</span>
     }
 
     @Override
     public List&lt;DatabaseSchemaConnectionInfo&gt; getSchemaConnectionInfo() {
-<span class="fc" id="L163">        return this.databaseSchemaConnectionInfo;</span>
+<span class="fc" id="L154">        return this.databaseSchemaConnectionInfo;</span>
     }
 
     @Override
     public Optional&lt;EntandoResourceRequirements&gt; getResourceRequirementsOverride() {
-<span class="fc" id="L168">        return getKeycloakAwareSpec().getResourceRequirements();</span>
+<span class="fc" id="L159">        return getKeycloakAwareSpec().getResourceRequirements();</span>
     }
 
     @Override
     public Optional&lt;Integer&gt; getMaximumStartupTimeSeconds() {
-<span class="fc" id="L173">        return Optional.of(120);</span>
+<span class="fc" id="L164">        return Optional.of(120);</span>
     }
 
     @Override
     public List&lt;EnvVar&gt; getEnvironmentVariableOverrides() {
-<span class="fc" id="L178">        return getKeycloakAwareSpec().getEnvironmentVariables();</span>
+<span class="fc" id="L169">        return getKeycloakAwareSpec().getEnvironmentVariables();</span>
     }
 
     private KeycloakAwareSpec getKeycloakAwareSpec() {
-<span class="fc" id="L182">        return entandoPlugin.getSpec();</span>
+<span class="fc" id="L173">        return entandoPlugin.getSpec();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
