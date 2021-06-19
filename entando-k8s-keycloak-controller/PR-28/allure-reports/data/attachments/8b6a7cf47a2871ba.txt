@@ -1,0 +1,17 @@
+---
+mixins:
+- "CapabilityForResource"
+resourceInNeed:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoKeycloakServer"
+  metadata:
+    name: "my-keycloak"
+    namespace: "my-namespace"
+  isCustomResource: true
+capabilityRequirement:
+  capability: "dbms"
+  implementation: "mysql"
+  resolutionScopePreference:
+  - "Namespace"
+  - "Dedicated"
+  provisioningStrategy: "DeployDirectly"

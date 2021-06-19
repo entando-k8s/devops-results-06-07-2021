@@ -1,0 +1,31 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    entando.org/my-app-sso-server-path: "/auth"
+  labels:
+    EntandoKeycloakServer: "my-app-sso"
+  name: "my-app-sso-ingress"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app-sso"
+    uid: "ba4b121c-d0bc-4b44-9d79-acf5efba7fe6"
+spec:
+  rules:
+  - host: "myhost.com"
+    http:
+      paths:
+      - backend:
+          serviceName: "my-app-sso-service"
+          servicePort: 8080
+        path: "/auth"
+  tls:
+  - hosts:
+    - "myhost.com"
+    secretName: "my-tls-secret"
