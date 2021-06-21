@@ -1,0 +1,33 @@
+---
+apiVersion: "test.org/v1"
+kind: "TestResource"
+metadata:
+  generation: 1
+  name: "my-app"
+  namespace: "my-namespace"
+  resourceVersion: "4551060"
+  uid: "ded522c5-fe6f-45df-9b18-b82eb5e81fe8"
+spec:
+  replicas: 1
+status:
+  serverStatuses:
+    main:
+      qualifier: "main"
+      started: "2021-06-21T16:18:09+0000"
+      originatingCustomResource:
+        apiVersion: "test.org/v1"
+        kind: "TestResource"
+        namespace: "my-namespace"
+        name: "my-app"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "test-controller-pod"
+      deploymentName: "my-app-deployment"
+      podPhases:
+        my-app-dbprep-efa4: "Complete"
+        my-app-deployment: "Running"
+      persistentVolumeClaimPhases:
+        my-app-server-pvc: "Pending"
+  observedGeneration: 1
+  phase: "successful"
+crdName: "testresources.test.org"

@@ -1,0 +1,35 @@
+---
+internalServiceHostname: "specified-dbms-service.my-namespace.svc.cluster.local"
+mixins:
+- "DatabaseConnectionInfo"
+- "ServiceResult"
+databaseName: "specified_dbms"
+jdbcParameters:
+  disconnectOnExpiredPasswords: "true"
+port: "3307"
+vendor: "MYSQL"
+adminSecretName: "my-existing-dbms-admin-secret"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    labels:
+      EntandoResourceKind: "TestResource"
+      EntandoResourceNamespace: "my-namespace"
+      TestResource: "specified-dbms"
+      deployment: "specified-dbms"
+    name: "specified-dbms-service"
+    namespace: "my-namespace"
+    ownerReferences:
+    - apiVersion: "test.org/v1"
+      kind: "TestResource"
+      blockOwnerDeletion: true
+      controller: true
+      name: "specified-dbms"
+      uid: "f77cda2b-0dff-4de2-ae2c-7ba3a0826a40"
+  spec:
+    clusterIP: "10.0.0.72"
+    ports:
+    - port: 3307
+      targetPort: 3307
+    type: "ClusterIP"

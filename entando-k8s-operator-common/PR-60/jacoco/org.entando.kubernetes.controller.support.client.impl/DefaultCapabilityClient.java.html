@@ -53,11 +53,11 @@ public class DefaultCapabilityClient implements CapabilityClient {
 
     @Override
     public Optional&lt;ProvidedCapability&gt; providedCapabilityByLabels(Map&lt;String, String&gt; labels) {
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (EntandoOperatorConfig.isClusterScopedDeployment()) {</span>
-<span class="nc" id="L57">            return client.customResources(ProvidedCapability.class).inAnyNamespace().withLabels(labels).list().getItems().stream()</span>
-<span class="nc" id="L58">                    .findFirst();</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (EntandoOperatorConfig.isClusterScopedDeployment()) {</span>
+<span class="fc" id="L57">            return client.customResources(ProvidedCapability.class).inAnyNamespace().withLabels(labels).list().getItems().stream()</span>
+<span class="fc" id="L58">                    .findFirst();</span>
         } else {
-<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            for (String namespace : EntandoOperatorConfig.getAllAccessibleNamespaces()) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            for (String namespace : EntandoOperatorConfig.getAllAccessibleNamespaces()) {</span>
                 try {
 <span class="fc" id="L62">                    final Optional&lt;ProvidedCapability&gt; providedCapability = client.customResources(ProvidedCapability.class)</span>
 <span class="fc" id="L63">                            .inNamespace(namespace)</span>
@@ -66,15 +66,15 @@ public class DefaultCapabilityClient implements CapabilityClient {
 <span class="fc bfc" id="L66" title="All 2 branches covered.">                    if (providedCapability.isPresent()) {</span>
 <span class="fc" id="L67">                        return providedCapability;</span>
                     }
-<span class="nc" id="L69">                } catch (KubernetesClientException e) {</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">                    if (e.getCode() != HttpURLConnection.HTTP_FORBIDDEN) {</span>
+<span class="fc" id="L69">                } catch (KubernetesClientException e) {</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">                    if (e.getCode() != HttpURLConnection.HTTP_FORBIDDEN) {</span>
 <span class="nc" id="L71">                        throw e;</span>
                     }
 <span class="fc" id="L73">                }</span>
 <span class="fc" id="L74">            }</span>
 
         }
-<span class="nc" id="L77">        return Optional.empty();</span>
+<span class="fc" id="L77">        return Optional.empty();</span>
     }
 
     @Override
@@ -85,20 +85,20 @@ public class DefaultCapabilityClient implements CapabilityClient {
 
     @Override
     public ProvidedCapability createCapability(ProvidedCapability capability) {
-<span class="nc" id="L88">        return client.customResources(ProvidedCapability.class).inNamespace(capability.getMetadata().getNamespace())</span>
-<span class="nc" id="L89">                .create(capability);</span>
+<span class="fc" id="L88">        return client.customResources(ProvidedCapability.class).inNamespace(capability.getMetadata().getNamespace())</span>
+<span class="fc" id="L89">                .create(capability);</span>
     }
 
     @Override
     public ProvidedCapability waitForCapabilityCompletion(ProvidedCapability capability, int timeoutSeconds) throws TimeoutException {
-<span class="nc" id="L94">        return interruptionSafe(() -&gt; client.customResources(ProvidedCapability.class)</span>
-<span class="nc" id="L95">                .inNamespace(capability.getMetadata().getNamespace())</span>
-<span class="nc" id="L96">                .withName(capability.getMetadata().getName())</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">                .waitUntilCondition(providedCapability -&gt; providedCapability.getStatus() != null</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">                                &amp;&amp; providedCapability.getStatus().getPhase() != null</span>
-<span class="nc" id="L99">                                &amp;&amp; Set.of(EntandoDeploymentPhase.IGNORED, EntandoDeploymentPhase.FAILED,</span>
+<span class="fc" id="L94">        return interruptionSafe(() -&gt; client.customResources(ProvidedCapability.class)</span>
+<span class="fc" id="L95">                .inNamespace(capability.getMetadata().getNamespace())</span>
+<span class="fc" id="L96">                .withName(capability.getMetadata().getName())</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                .waitUntilCondition(providedCapability -&gt; providedCapability.getStatus() != null</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">                                &amp;&amp; providedCapability.getStatus().getPhase() != null</span>
+<span class="fc" id="L99">                                &amp;&amp; Set.of(EntandoDeploymentPhase.IGNORED, EntandoDeploymentPhase.FAILED,</span>
                         EntandoDeploymentPhase.SUCCESSFUL)
-<span class="nc bnc" id="L101" title="All 2 branches missed.">                                .contains(providedCapability.getStatus().getPhase()),</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">                                .contains(providedCapability.getStatus().getPhase()),</span>
                         timeoutSeconds,
                         TimeUnit.SECONDS));
 
