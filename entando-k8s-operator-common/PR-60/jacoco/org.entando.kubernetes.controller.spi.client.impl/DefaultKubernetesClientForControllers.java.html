@@ -154,13 +154,13 @@ public class DefaultKubernetesClientForControllers implements KubernetesClientFo
 
     @Override
     public HasMetadata loadStandardResource(String kind, String namespace, String name) {
-<span class="fc" id="L157">        return SupportedStandardResourceKind.resolveFromKind(kind)</span>
-<span class="fc" id="L158">                .map(k -&gt; k.getOperation(client)</span>
-<span class="fc" id="L159">                        .inNamespace(namespace)</span>
-<span class="fc" id="L160">                        .withName(name)</span>
-<span class="fc" id="L161">                        .fromServer()</span>
-<span class="fc" id="L162">                        .get())</span>
-<span class="pc" id="L163">                .orElseThrow(() -&gt; new IllegalStateException(</span>
+<span class="nc" id="L157">        return SupportedStandardResourceKind.resolveFromKind(kind)</span>
+<span class="nc" id="L158">                .map(k -&gt; k.getOperation(client)</span>
+<span class="nc" id="L159">                        .inNamespace(namespace)</span>
+<span class="nc" id="L160">                        .withName(name)</span>
+<span class="nc" id="L161">                        .fromServer()</span>
+<span class="nc" id="L162">                        .get())</span>
+<span class="nc" id="L163">                .orElseThrow(() -&gt; new IllegalStateException(</span>
                         &quot;Resource kind '&quot; + kind + &quot;' not supported.&quot;));
     }
 

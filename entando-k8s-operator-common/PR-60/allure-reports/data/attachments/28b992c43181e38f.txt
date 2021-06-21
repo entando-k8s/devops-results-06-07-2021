@@ -1,0 +1,101 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "my-namespace"
+    TestResource: "my-app"
+    deployment: "my-app"
+  name: "my-app-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "b51e4fd9-a237-4859-8284-6ac3cca9e7a9"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoResourceKind: "TestResource"
+      EntandoResourceNamespace: "my-namespace"
+      TestResource: "my-app"
+      deployment: "my-app"
+  template:
+    metadata:
+      labels:
+        EntandoResourceKind: "TestResource"
+        EntandoResourceNamespace: "my-namespace"
+        TestResource: "my-app"
+        deployment: "my-app"
+      name: "my-app-pod"
+    spec:
+      containers:
+      - env:
+        - name: "SPRING_DATASOURCE_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              key: "username"
+              name: "my-app-server-secret"
+              optional: false
+        - name: "SPRING_DATASOURCE_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "my-app-server-secret"
+              optional: false
+        - name: "SPRING_DATASOURCE_URL"
+          value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db?connectionTimeout=300"
+        - name: "SPRING_JPA_DATABASE_PLATFORM"
+          value: "org.hibernate.dialect.PostgreSQLDialect"
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        image: "docker.io/test/my-spring-boot-image:6.3.2"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          failureThreshold: 1
+          periodSeconds: 10
+          tcpSocket:
+            host: "localhost"
+            port: 8081
+          timeoutSeconds: 3
+        name: "server-container"
+        ports:
+        - containerPort: 8081
+          name: "server-port"
+          protocol: "TCP"
+        readinessProbe:
+          failureThreshold: 1
+          periodSeconds: 10
+          tcpSocket:
+            host: "localhost"
+            port: 8081
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+        startupProbe:
+          failureThreshold: 11
+          periodSeconds: 12
+          tcpSocket:
+            host: "localhost"
+            port: 8081
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: "my-app-server-volume"
+          readOnly: false
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      serviceAccountName: "default"
+      volumes:
+      - name: "my-app-server-volume"
+        persistentVolumeClaim:
+          claimName: "my-app-server-pvc"
+          readOnly: false
