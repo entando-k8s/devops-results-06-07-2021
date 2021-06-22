@@ -17,6 +17,8 @@
 package org.entando.kubernetes.controller.coordinator;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.EnvVarSource;
+import io.fabric8.kubernetes.api.model.EnvVarSourceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.client.Watcher.Action;
@@ -25,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import org.entando.kubernetes.controller.spi.client.SerializedEntandoResource;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfigProperty;
 import org.entando.kubernetes.controller.spi.common.NameUtils;
@@ -38,79 +41,84 @@ public class ControllerExecutor {
     private final String controllerNamespace;
     private final String imageName;
 
-<span class="fc" id="L41">    public ControllerExecutor(String controllerNamespace, SimpleKubernetesClient client, String imageName) {</span>
-<span class="fc" id="L42">        this.controllerNamespace = controllerNamespace;</span>
-<span class="fc" id="L43">        this.client = client;</span>
-<span class="fc" id="L44">        this.imageResolver = new EntandoImageResolver(client.loadDockerImageInfoConfigMap());</span>
-<span class="fc" id="L45">        this.imageName = imageName;</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L44">    public ControllerExecutor(String controllerNamespace, SimpleKubernetesClient client, String imageName) {</span>
+<span class="fc" id="L45">        this.controllerNamespace = controllerNamespace;</span>
+<span class="fc" id="L46">        this.client = client;</span>
+<span class="fc" id="L47">        this.imageResolver = new EntandoImageResolver(client.loadDockerImageInfoConfigMap());</span>
+<span class="fc" id="L48">        this.imageName = imageName;</span>
+<span class="fc" id="L49">    }</span>
 
-    public Pod startControllerFor(Action action, SerializedEntandoResource resource) {
-<span class="fc" id="L49">        removeObsoleteControllerPods(resource);</span>
-<span class="fc" id="L50">        Pod pod = buildControllerPod(action, resource);</span>
-<span class="fc" id="L51">        return client.startPod(pod);</span>
+    public Pod startControllerFor(Action action, SerializedEntandoResource resource) throws TimeoutException {
+<span class="fc" id="L52">        removeObsoleteControllerPods(resource);</span>
+<span class="fc" id="L53">        Pod pod = buildControllerPod(action, resource);</span>
+<span class="fc" id="L54">        return client.startPod(pod);</span>
     }
 
-    private void removeObsoleteControllerPods(SerializedEntandoResource resource) {
+    private void removeObsoleteControllerPods(SerializedEntandoResource resource) throws TimeoutException {
         //We need to make sure they all terminate so that we don't have racing conditions between 2 controllers
         // processing the same resource
-<span class="fc" id="L57">        this.client.removePodsAndWait(controllerNamespace, CoordinatorUtils.podLabelsFor(resource));</span>
-<span class="fc" id="L58">    }</span>
+<span class="fc" id="L60">        this.client.removePodsAndWait(controllerNamespace, CoordinatorUtils.podLabelsFor(resource));</span>
+<span class="fc" id="L61">    }</span>
 
     private Pod buildControllerPod(Action action, SerializedEntandoResource resource) {
-<span class="fc" id="L61">        return new PodBuilder().withNewMetadata()</span>
-<span class="fc" id="L62">                .withName(resource.getMetadata().getName() + &quot;-deployer-&quot; + NameUtils.randomNumeric(4).toLowerCase())</span>
-<span class="fc" id="L63">                .withNamespace(this.controllerNamespace)</span>
-<span class="fc" id="L64">                .addToOwnerReferences(ResourceUtils.buildOwnerReference(resource))</span>
-<span class="fc" id="L65">                .addToLabels(CoordinatorUtils.podLabelsFor(resource))</span>
-<span class="fc" id="L66">                .endMetadata()</span>
-<span class="fc" id="L67">                .withNewSpec()</span>
-<span class="fc" id="L68">                .withRestartPolicy(&quot;Never&quot;)</span>
-<span class="fc" id="L69">                .withServiceAccountName(determineServiceAccountName())</span>
-<span class="fc" id="L70">                .addNewContainer()</span>
-<span class="fc" id="L71">                .withName(&quot;deployer&quot;)</span>
-<span class="fc" id="L72">                .withImage(this.imageResolver.determineImageUri(imageName))</span>
-<span class="fc" id="L73">                .withImagePullPolicy(&quot;IfNotPresent&quot;)</span>
-<span class="fc" id="L74">                .withEnv(buildEnvVars(action, resource))</span>
-<span class="fc" id="L75">                .endContainer()</span>
-<span class="fc" id="L76">                .endSpec()</span>
-<span class="fc" id="L77">                .build();</span>
+<span class="fc" id="L64">        return new PodBuilder().withNewMetadata()</span>
+<span class="fc" id="L65">                .withName(resource.getMetadata().getName() + &quot;-deployer-&quot; + NameUtils.randomNumeric(4).toLowerCase())</span>
+<span class="fc" id="L66">                .withNamespace(this.controllerNamespace)</span>
+<span class="fc" id="L67">                .addToOwnerReferences(ResourceUtils.buildOwnerReference(resource))</span>
+<span class="fc" id="L68">                .addToLabels(CoordinatorUtils.podLabelsFor(resource))</span>
+<span class="fc" id="L69">                .endMetadata()</span>
+<span class="fc" id="L70">                .withNewSpec()</span>
+<span class="fc" id="L71">                .withRestartPolicy(&quot;Never&quot;)</span>
+<span class="fc" id="L72">                .withServiceAccountName(determineServiceAccountName())</span>
+<span class="fc" id="L73">                .addNewContainer()</span>
+<span class="fc" id="L74">                .withName(&quot;deployer&quot;)</span>
+<span class="fc" id="L75">                .withImage(this.imageResolver.determineImageUri(imageName))</span>
+<span class="fc" id="L76">                .withImagePullPolicy(&quot;IfNotPresent&quot;)</span>
+<span class="fc" id="L77">                .withEnv(buildEnvVars(action, resource))</span>
+<span class="fc" id="L78">                .endContainer()</span>
+<span class="fc" id="L79">                .endSpec()</span>
+<span class="fc" id="L80">                .build();</span>
     }
 
     private String determineServiceAccountName() {
-<span class="fc" id="L81">        return ControllerCoordinatorConfig.getOperatorServiceAccount().orElse(&quot;default&quot;);</span>
+<span class="fc" id="L84">        return ControllerCoordinatorConfig.getOperatorServiceAccount().orElse(&quot;default&quot;);</span>
     }
 
     private void addTo(Map&lt;String, EnvVar&gt; result, EnvVar envVar) {
-<span class="fc" id="L85">        result.put(envVar.getName(), envVar);</span>
-<span class="fc" id="L86">    }</span>
+<span class="fc" id="L88">        result.put(envVar.getName(), envVar);</span>
+<span class="fc" id="L89">    }</span>
 
     private List&lt;EnvVar&gt; buildEnvVars(Action action, SerializedEntandoResource resource) {
-<span class="fc" id="L89">        Map&lt;String, EnvVar&gt; result = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L90">        System.getProperties().entrySet().stream()</span>
-<span class="fc" id="L91">                .filter(this::matchesKnownSystemProperty).forEach(objectObjectEntry -&gt; addTo(result,</span>
-<span class="fc" id="L92">                new EnvVar(objectObjectEntry.getKey().toString().toUpperCase(Locale.ROOT).replace(&quot;.&quot;, &quot;_&quot;).replace(&quot;-&quot;, &quot;_&quot;),</span>
-<span class="fc" id="L93">                        objectObjectEntry.getValue().toString(), null)));</span>
-<span class="fc" id="L94">        System.getenv().entrySet().stream()</span>
-<span class="fc" id="L95">                .filter(this::matchesKnownEnvironmentVariable)</span>
-<span class="fc" id="L96">                .forEach(objectObjectEntry -&gt; addTo(result, new EnvVar(objectObjectEntry.getKey(),</span>
-<span class="fc" id="L97">                        objectObjectEntry.getValue(), null)));</span>
+<span class="fc" id="L92">        Map&lt;String, EnvVar&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L93">        System.getProperties().entrySet().stream()</span>
+<span class="fc" id="L94">                .filter(this::matchesKnownSystemProperty).forEach(objectObjectEntry -&gt; addTo(result,</span>
+<span class="fc" id="L95">                new EnvVar(objectObjectEntry.getKey().toString().toUpperCase(Locale.ROOT).replace(&quot;.&quot;, &quot;_&quot;).replace(&quot;-&quot;, &quot;_&quot;),</span>
+<span class="fc" id="L96">                        objectObjectEntry.getValue().toString(), null)));</span>
+<span class="fc" id="L97">        System.getenv().entrySet().stream()</span>
+<span class="fc" id="L98">                .filter(this::matchesKnownEnvironmentVariable)</span>
+<span class="fc" id="L99">                .forEach(objectObjectEntry -&gt; addTo(result, new EnvVar(objectObjectEntry.getKey(),</span>
+<span class="fc" id="L100">                        objectObjectEntry.getValue(), null)));</span>
         //Make sure we overwrite previously set resource info
-<span class="fc" id="L99">        addTo(result, new EnvVar(&quot;ENTANDO_RESOURCE_ACTION&quot;, action.name(), null));</span>
-<span class="fc" id="L100">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAMESPACE.name(), resource.getMetadata().getNamespace(),</span>
+<span class="fc" id="L102">        addTo(result, new EnvVar(&quot;ENTANDO_RESOURCE_ACTION&quot;, action.name(), null));</span>
+<span class="fc" id="L103">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAMESPACE.name(), resource.getMetadata().getNamespace(),</span>
                 null));
-<span class="fc" id="L102">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAME.name(), resource.getMetadata().getName(), null));</span>
-<span class="fc" id="L103">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_KIND.name(), resource.getKind(), null));</span>
-<span class="fc" id="L104">        return new ArrayList&lt;&gt;(result.values());</span>
+<span class="fc" id="L105">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_NAME.name(), resource.getMetadata().getName(), null));</span>
+<span class="fc" id="L106">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_RESOURCE_KIND.name(), resource.getKind(), null));</span>
+<span class="fc" id="L107">        addTo(result, new EnvVar(EntandoOperatorSpiConfigProperty.ENTANDO_CONTROLLER_POD_NAME.name(),null, new EnvVarSourceBuilder()</span>
+<span class="fc" id="L108">                .withNewFieldRef()</span>
+<span class="fc" id="L109">                .withFieldPath(&quot;metadata.name&quot;)</span>
+<span class="fc" id="L110">                .endFieldRef()</span>
+<span class="fc" id="L111">                .build()));</span>
+<span class="fc" id="L112">        return new ArrayList&lt;&gt;(result.values());</span>
     }
 
     private boolean matchesKnownEnvironmentVariable(Map.Entry&lt;String, String&gt; objectObjectEntry) {
-<span class="pc bpc" id="L108" title="1 of 4 branches missed.">        return objectObjectEntry.getKey().startsWith(&quot;RELATED_IMAGE&quot;) || objectObjectEntry.getKey().startsWith(&quot;ENTANDO_&quot;);</span>
+<span class="pc bpc" id="L116" title="1 of 4 branches missed.">        return objectObjectEntry.getKey().startsWith(&quot;RELATED_IMAGE&quot;) || objectObjectEntry.getKey().startsWith(&quot;ENTANDO_&quot;);</span>
     }
 
     private boolean matchesKnownSystemProperty(Map.Entry&lt;Object, Object&gt; objectObjectEntry) {
-<span class="fc" id="L112">        String propertyName = objectObjectEntry.getKey().toString().toLowerCase(Locale.ROOT).replace(&quot;_&quot;, &quot;.&quot;);</span>
-<span class="pc bpc" id="L113" title="1 of 4 branches missed.">        return propertyName.startsWith(&quot;related.image&quot;) || propertyName.startsWith(&quot;entando.&quot;);</span>
+<span class="fc" id="L120">        String propertyName = objectObjectEntry.getKey().toString().toLowerCase(Locale.ROOT).replace(&quot;_&quot;, &quot;.&quot;);</span>
+<span class="pc bpc" id="L121" title="1 of 4 branches missed.">        return propertyName.startsWith(&quot;related.image&quot;) || propertyName.startsWith(&quot;entando.&quot;);</span>
     }
 
 }

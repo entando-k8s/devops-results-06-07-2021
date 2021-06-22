@@ -25,6 +25,7 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import org.entando.kubernetes.controller.spi.client.SerializedEntandoResource;
 import org.entando.kubernetes.controller.support.common.EntandoOperatorConfig;
 import org.entando.kubernetes.model.common.EntandoDeploymentPhase;
@@ -40,12 +41,12 @@ public interface SimpleKubernetesClient {
     Secret overwriteControllerSecret(Secret secret);
 
     default ConfigMap loadDockerImageInfoConfigMap() {
-<span class="fc" id="L43">        return findOrCreateControllerConfigMap(EntandoOperatorConfig.getEntandoDockerImageInfoConfigMap());</span>
+<span class="fc" id="L44">        return findOrCreateControllerConfigMap(EntandoOperatorConfig.getEntandoDockerImageInfoConfigMap());</span>
     }
 
     Pod startPod(Pod pod);
 
-    void removePodsAndWait(String namespace, Map&lt;String, String&gt; labels);
+    void removePodsAndWait(String namespace, Map&lt;String, String&gt; labels) throws TimeoutException;
 
     ConfigMap findOrCreateControllerConfigMap(String name);
 
