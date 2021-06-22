@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinkInfo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller for Entando App Plugin Links</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.link.support</a> &gt; <span class="el_source">LinkInfo.java</span></div><h1>LinkInfo.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.link.support;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.entando.kubernetes.controller.spi.client.SerializedEntandoResource;
+import org.entando.kubernetes.controller.spi.common.MayRequireDelegateService;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.controller.spi.container.IngressingPathOnPort;
+import org.entando.kubernetes.model.common.EntandoCustomResource;
+import org.entando.kubernetes.model.common.ServerStatus;
+
+public class LinkInfo implements MayRequireDelegateService {
+
+    private final SerializedEntandoResource sourceResource;
+    private final SerializedEntandoResource targetResource;
+    private final Linkable linkable;
+
+<span class="fc" id="L36">    public LinkInfo(Linkable linkable, SerializedEntandoResource sourceResource, SerializedEntandoResource targetResource) {</span>
+<span class="fc" id="L37">        this.sourceResource = sourceResource;</span>
+<span class="fc" id="L38">        this.targetResource = targetResource;</span>
+<span class="fc" id="L39">        this.linkable = linkable;</span>
+<span class="fc" id="L40">    }</span>
+
+    public String getSsoRealm() {
+<span class="fc" id="L43">        return sourceResource.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).flatMap(ServerStatus::getSsoRealm)</span>
+<span class="fc" id="L44">                .orElseThrow(IllegalStateException::new);</span>
+    }
+
+    public String getSourceServiceName() {
+<span class="nc" id="L48">        return this.sourceResource.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).flatMap(ServerStatus::getServiceName)</span>
+<span class="nc" id="L49">                .orElseThrow(IllegalStateException::new);</span>
+    }
+
+    public String getTargetServiceName() {
+<span class="fc" id="L53">        return this.targetResource.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).flatMap(ServerStatus::getServiceName)</span>
+<span class="fc" id="L54">                .orElseThrow(IllegalStateException::new);</span>
+    }
+
+    public String getSourceIngressName() {
+<span class="fc" id="L58">        return this.sourceResource.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).flatMap(ServerStatus::getIngressName)</span>
+<span class="fc" id="L59">                .orElseThrow(IllegalStateException::new);</span>
+    }
+
+    public List&lt;LinkPermission&gt; getPermissions() {
+<span class="fc" id="L63">        return linkable.getRolesOfSourceOnTarget().stream().map(qra -&gt;</span>
+<span class="fc" id="L64">                new LinkPermission(getClientId(sourceResource, qra.getSourceQualifier()),</span>
+<span class="fc" id="L65">                        getClientId(targetResource, qra.getTargetQualifier()),</span>
+<span class="fc" id="L66">                        qra.getRole())).collect(Collectors.toList());</span>
+    }
+
+    private String getClientId(EntandoCustomResource resource, String qualifier) {
+<span class="fc" id="L70">        return resource.getStatus().getServerStatus(qualifier).flatMap(ServerStatus::getSsoClientId)</span>
+<span class="fc" id="L71">                .orElseThrow(IllegalStateException::new);</span>
+    }
+
+    public ServerStatus getSsoServiceStatus() {
+<span class="fc" id="L75">        return sourceResource.getStatus().getServerStatus(NameUtils.SSO_QUALIFIER).orElseThrow(IllegalStateException::new);</span>
+    }
+
+    public String getTargetNamespace() {
+<span class="fc" id="L79">        return this.targetResource.getMetadata().getNamespace();</span>
+    }
+
+    public String getSourceNamespace() {
+<span class="fc" id="L83">        return this.sourceResource.getMetadata().getNamespace();</span>
+    }
+
+    @Override
+    public String getIngressName() {
+<span class="fc" id="L88">        return getSourceIngressName();</span>
+    }
+
+    @Override
+    public String getIngressNamespace() {
+<span class="fc" id="L93">        return getSourceNamespace();</span>
+    }
+
+    @Override
+    public Optional&lt;String&gt; getQualifier() {
+<span class="fc" id="L98">        return Optional.ofNullable(targetResource.getMetadata().getName());</span>
+    }
+
+    public List&lt;IngressingPathOnPort&gt; getPathsOnPorts() {
+<span class="fc" id="L102">        return Collections.singletonList(new IngressingPathOnPort() {</span>
+            @Override
+            public String getNameQualifier() {
+<span class="fc" id="L105">                return targetResource.getMetadata().getName();</span>
+            }
+
+            @Override
+            public int getPortForIngressPath() {
+<span class="fc" id="L110">                return linkable.getTargetServicePort();</span>
+            }
+
+            @Override
+            public String getWebContextPath() {
+<span class="fc" id="L115">                return linkable.getTargetPathOnSourceIngress();</span>
+            }
+
+            @Override
+            public Optional&lt;String&gt; getHealthCheckPath() {
+                //Not required in this context TODO normalize this
+<span class="nc" id="L121">                return Optional.empty();</span>
+            }
+        });
+    }
+
+    public SerializedEntandoResource getTargetResource() {
+<span class="fc" id="L127">        return targetResource;</span>
+    }
+
+    public Optional&lt;String&gt; getTargetIngressName() {
+<span class="fc" id="L131">        return this.targetResource.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).flatMap(ServerStatus::getIngressName);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

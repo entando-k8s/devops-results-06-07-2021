@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppToPluginLinkable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller for Entando App Plugin Links</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.link</a> &gt; <span class="el_source">AppToPluginLinkable.java</span></div><h1>AppToPluginLinkable.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.link;
+
+import java.util.Arrays;
+import java.util.List;
+import org.entando.kubernetes.controller.link.support.AccessStrategy;
+import org.entando.kubernetes.controller.link.support.Linkable;
+import org.entando.kubernetes.controller.link.support.QualifiedRoleAssignment;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.model.common.CustomResourceReference;
+import org.entando.kubernetes.model.common.EntandoCustomResource;
+import org.entando.kubernetes.model.link.EntandoAppPluginLink;
+
+public class AppToPluginLinkable implements Linkable {
+
+    public static final String ENTANDO_APP_ROLE = &quot;entandoApp&quot;;
+    public static final String COMPONENT_MANAGER_QUALIFIER = &quot;cm&quot;;
+    private final CustomResourceReference source;
+    private final EntandoAppPluginLink link;
+    private CustomResourceReference target;
+    private String targetPathOnSourceIngres;
+
+<span class="fc" id="L38">    public AppToPluginLinkable(EntandoAppPluginLink link) {</span>
+<span class="fc" id="L39">        this.link = link;</span>
+<span class="fc" id="L40">        this.source = new CustomResourceReference(link.getApiVersion(), &quot;EntandoApp&quot;,</span>
+<span class="fc" id="L41">                link.getSpec().getEntandoAppNamespace().orElse(link.getMetadata().getNamespace()), link.getSpec().getEntandoAppName());</span>
+<span class="fc" id="L42">        this.target = new CustomResourceReference(link.getApiVersion(), &quot;EntandoPlugin&quot;,</span>
+<span class="fc" id="L43">                link.getSpec().getEntandoPluginNamespace().orElse(link.getMetadata().getNamespace()),</span>
+<span class="fc" id="L44">                link.getSpec().getEntandoPluginName());</span>
+<span class="fc" id="L45">    }</span>
+
+    @Override
+    public CustomResourceReference getSource() {
+<span class="fc" id="L49">        return source;</span>
+    }
+
+    @Override
+    public CustomResourceReference getTarget() {
+<span class="fc" id="L54">        return target;</span>
+    }
+
+    @Override
+    public AccessStrategy getAccessStrategy() {
+<span class="fc" id="L59">        return AccessStrategy.SSO;</span>
+    }
+
+    @Override
+    public List&lt;QualifiedRoleAssignment&gt; getRolesOfSourceOnTarget() {
+<span class="fc" id="L64">        return Arrays.asList(</span>
+                new QualifiedRoleAssignment(NameUtils.MAIN_QUALIFIER, NameUtils.MAIN_QUALIFIER, ENTANDO_APP_ROLE),
+                new QualifiedRoleAssignment(COMPONENT_MANAGER_QUALIFIER, NameUtils.MAIN_QUALIFIER, ENTANDO_APP_ROLE)
+
+        );
+    }
+
+    @Override
+    public EntandoCustomResource getLinkResource() {
+<span class="fc" id="L73">        return link;</span>
+    }
+
+    @Override
+    public String getTargetPathOnSourceIngress() {
+<span class="fc" id="L78">        return this.targetPathOnSourceIngres;</span>
+    }
+
+    @Override
+    public int getTargetServicePort() {
+<span class="fc" id="L83">        return 8081;</span>
+    }
+
+    public void setTargetPathOnSourceIngress(String targetPathOnSourceIngres) {
+<span class="fc" id="L87">        this.targetPathOnSourceIngres = targetPathOnSourceIngres;</span>
+<span class="fc" id="L88">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

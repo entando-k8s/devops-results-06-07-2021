@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinkCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando K8S Controller for Entando App Plugin Links</a> &gt; <a href="index.source.html" class="el_package">org.entando.kubernetes.controller.link.support</a> &gt; <span class="el_source">LinkCommand.java</span></div><h1>LinkCommand.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ *  This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ */
+
+package org.entando.kubernetes.controller.link.support;
+
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import java.util.Objects;
+import java.util.Optional;
+import org.entando.kubernetes.controller.spi.client.SerializedEntandoResource;
+import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
+import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.controller.spi.container.ProvidedSsoCapability;
+import org.entando.kubernetes.controller.spi.deployable.SsoConnectionInfo;
+import org.entando.kubernetes.controller.support.client.ServiceClient;
+import org.entando.kubernetes.controller.support.client.SimpleK8SClient;
+import org.entando.kubernetes.controller.support.client.SimpleKeycloakClient;
+import org.entando.kubernetes.controller.support.creators.IngressPathCreator;
+import org.entando.kubernetes.controller.support.creators.ServiceCreator;
+import org.entando.kubernetes.model.common.CustomResourceReference;
+import org.entando.kubernetes.model.common.EntandoCustomResource;
+import org.entando.kubernetes.model.common.ServerStatus;
+
+public class LinkCommand {
+
+    private final EntandoCustomResource linkResource;
+    private LinkInfo linkInfo;
+    private final IngressPathCreator ingressCreator;
+    private final ServerStatus status;
+    private final Linkable linkable;
+    private Ingress sourceIngress;
+
+<span class="fc" id="L46">    public LinkCommand(Linkable linkable) {</span>
+<span class="fc" id="L47">        this.linkable = linkable;</span>
+<span class="fc" id="L48">        this.linkResource = linkable.getLinkResource();</span>
+<span class="fc" id="L49">        this.ingressCreator = new IngressPathCreator(linkable.getLinkResource());</span>
+<span class="fc" id="L50">        this.status = new ServerStatus(NameUtils.MAIN_QUALIFIER).withOriginatingCustomResource(linkResource);</span>
+<span class="fc" id="L51">    }</span>
+
+    static SerializedEntandoResource resolveResource(SimpleK8SClient&lt;?&gt; k8SClient, EntandoCustomResource linkResource,
+            CustomResourceReference source) {
+<span class="fc" id="L55">        return k8SClient.entandoResources()</span>
+<span class="fc" id="L56">                .loadCustomResource(source.getApiVersion(), source.getKind(),</span>
+<span class="fc" id="L57">                        source.getNamespace().orElse(linkResource.getMetadata().getNamespace()),</span>
+<span class="fc" id="L58">                        source.getName());</span>
+    }
+
+    public ServerStatus execute(SimpleK8SClient&lt;?&gt; k8sClient, SimpleKeycloakClient keycloakClient) {
+<span class="fc" id="L62">        this.linkInfo = new LinkInfo(linkable,</span>
+<span class="fc" id="L63">                resolveResource(k8sClient, linkable.getLinkResource(), linkable.getSource()),</span>
+<span class="fc" id="L64">                resolveResource(k8sClient, linkable.getLinkResource(), linkable.getTarget()));</span>
+<span class="fc" id="L65">        status.withOriginatingControllerPod(k8sClient.entandoResources().getNamespace(), EntandoOperatorSpiConfig.getControllerPodName());</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (this.linkable.getAccessStrategy() == AccessStrategy.SSO) {</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">            if (usingSameHostname(k8sClient)) {</span>
+<span class="nc" id="L68">                status.setServiceName(linkInfo.getSourceServiceName());</span>
+<span class="nc" id="L69">                status.setIngressName(linkInfo.getSourceIngressName());</span>
+<span class="nc" id="L70">                k8sClient.entandoResources().updateStatus(linkResource, status);</span>
+            } else {
+<span class="fc" id="L72">                Service service = prepareReachableTargetService(k8sClient);</span>
+<span class="fc" id="L73">                status.setServiceName(service.getMetadata().getName());</span>
+<span class="fc" id="L74">                k8sClient.entandoResources().updateStatus(linkResource, status);</span>
+<span class="fc" id="L75">                Ingress ingress = addMissingIngressPaths(k8sClient, service);</span>
+<span class="fc" id="L76">                status.setIngressName(ingress.getMetadata().getName());</span>
+<span class="fc" id="L77">                k8sClient.entandoResources().updateStatus(linkResource, status);</span>
+            }
+<span class="fc" id="L79">            grantSourceAccessToTarget(keycloakClient, k8sClient);</span>
+        }
+<span class="fc" id="L81">        return this.status;</span>
+        //TODO wait for result - when new ingress path is available
+    }
+
+    private boolean usingSameHostname(SimpleK8SClient&lt;?&gt; client) {
+<span class="fc" id="L86">        Optional&lt;Ingress&gt; targetIngress = linkInfo.getTargetIngressName()</span>
+<span class="fc" id="L87">                .map(ingressName -&gt; client.ingresses().loadIngress(linkInfo.getTargetNamespace(), ingressName));</span>
+<span class="fc" id="L88">        return targetIngress</span>
+<span class="fc" id="L89">                .map(ti -&gt; ti.getSpec().getRules().get(0).getHost().equals(getSourceIngress(client).getSpec().getRules().get(0).getHost()))</span>
+<span class="fc" id="L90">                .orElse(Boolean.FALSE);</span>
+    }
+
+    private void grantSourceAccessToTarget(SimpleKeycloakClient keycloakClient, SimpleK8SClient&lt;?&gt; client) {
+<span class="fc" id="L94">        SsoConnectionInfo keycloakConnectionConfig = new ProvidedSsoCapability(client.entandoResources()</span>
+<span class="fc" id="L95">                .loadCapabilityProvisioningResult(linkInfo.getSsoServiceStatus()));</span>
+<span class="fc" id="L96">        keycloakClient.login(keycloakConnectionConfig.getBaseUrlToUse(), keycloakConnectionConfig.getUsername(),</span>
+<span class="fc" id="L97">                keycloakConnectionConfig.getPassword());</span>
+<span class="fc" id="L98">        linkInfo.getPermissions().forEach(linkPermission -&gt;</span>
+<span class="fc" id="L99">                keycloakClient.assignRoleToClientServiceAccount(</span>
+<span class="fc" id="L100">                        linkInfo.getSsoRealm(),</span>
+<span class="fc" id="L101">                        linkPermission.getSourceClientId(),</span>
+                        linkPermission));
+<span class="fc" id="L103">    }</span>
+
+    private Ingress addMissingIngressPaths(SimpleK8SClient&lt;?&gt; k8sClient, Service service) {
+<span class="fc" id="L106">        Ingress ingress = getSourceIngress(k8sClient);</span>
+<span class="fc" id="L107">        return ingressCreator.addMissingHttpPaths(k8sClient.ingresses(), linkInfo.getPathsOnPorts(), ingress, service, status);</span>
+    }
+
+    private Ingress getSourceIngress(SimpleK8SClient&lt;?&gt; k8sClient) {
+<span class="fc" id="L111">        this.sourceIngress = Objects.requireNonNullElseGet(this.sourceIngress, () -&gt; k8sClient.ingresses()</span>
+<span class="fc" id="L112">                .loadIngress(linkInfo.getSourceNamespace(), linkInfo.getSourceIngressName()));</span>
+<span class="fc" id="L113">        return this.sourceIngress;</span>
+    }
+
+    private Service prepareReachableTargetService(SimpleK8SClient&lt;?&gt; k8sClient) {
+<span class="fc" id="L117">        ServiceClient services = k8sClient.services();</span>
+<span class="fc" id="L118">        final Service targetService = services.loadService(linkInfo.getTargetResource(), linkInfo.getTargetServiceName());</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (linkInfo.getSourceNamespace().equals(linkInfo.getTargetNamespace())) {</span>
+<span class="fc" id="L120">            return targetService;</span>
+        } else {
+<span class="fc" id="L122">            return new ServiceCreator(linkResource, targetService).newDelegatingService(services, linkInfo);</span>
+        }
+    }
+
+    public ServerStatus getStatus() {
+<span class="nc" id="L127">        return status;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
