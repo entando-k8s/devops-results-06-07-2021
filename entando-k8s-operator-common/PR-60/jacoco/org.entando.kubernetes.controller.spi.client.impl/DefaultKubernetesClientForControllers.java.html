@@ -72,37 +72,37 @@ public class DefaultKubernetesClientForControllers implements KubernetesClientFo
     @Override
     public SerializedEntandoResource waitForCompletion(SerializedEntandoResource customResource, int timeoutSeconds)
             throws TimeoutException {
-<span class="pc" id="L75">        Predicate&lt;EntandoCustomResource&gt; predicate = resource -&gt; Set</span>
+<span class="fc" id="L75">        Predicate&lt;EntandoCustomResource&gt; predicate = resource -&gt; Set</span>
 <span class="fc" id="L76">                .of(EntandoDeploymentPhase.IGNORED, EntandoDeploymentPhase.FAILED, EntandoDeploymentPhase.SUCCESSFUL)</span>
-<span class="nc" id="L77">                .contains(resource.getStatus().getPhase());</span>
+<span class="fc" id="L77">                .contains(Optional.ofNullable(resource.getStatus().getPhase()).orElse(EntandoDeploymentPhase.REQUESTED));</span>
 <span class="fc" id="L78">        final SerializedEntandoResource reloaded = reload(customResource);</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (predicate.test(reloaded)) {</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (predicate.test(reloaded)) {</span>
 <span class="nc" id="L80">            return reloaded;</span>
         }
-<span class="nc" id="L82">        final CompletableFuture&lt;SerializedEntandoResource&gt; future = new CompletableFuture&lt;&gt;();</span>
-<span class="nc" id="L83">        try (Watch ignore = ioSafe(() -&gt; client.customResource(customResource.getDefinition())</span>
-<span class="nc" id="L84">                .watch(customResource.getMetadata().getNamespace(), customResource.getMetadata().getName(), null,</span>
-<span class="nc" id="L85">                        (ListOptions) null, new Watcher&lt;&gt;() {</span>
-<span class="nc" id="L86">                            final ObjectMapper objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L82">        final CompletableFuture&lt;SerializedEntandoResource&gt; future = new CompletableFuture&lt;&gt;();</span>
+<span class="fc" id="L83">        try (Watch ignore = ioSafe(() -&gt; client.customResource(customResource.getDefinition())</span>
+<span class="fc" id="L84">                .watch(customResource.getMetadata().getNamespace(), customResource.getMetadata().getName(), null,</span>
+<span class="fc" id="L85">                        (ListOptions) null, new Watcher&lt;&gt;() {</span>
+<span class="fc" id="L86">                            final ObjectMapper objectMapper = new ObjectMapper();</span>
 
                             @Override
                             public void eventReceived(Action action, String s) {
-<span class="nc" id="L90">                                final SerializedEntandoResource resource = ioSafe(</span>
-<span class="nc" id="L91">                                        () -&gt; objectMapper.readValue(s, SerializedEntandoResource.class));</span>
-<span class="nc" id="L92">                                resource.setDefinition(customResource.getDefinition());</span>
-<span class="nc" id="L93">                                final EntandoDeploymentPhase phase = resource.getStatus()</span>
-<span class="nc" id="L94">                                        .getPhase();</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">                                if (predicate.test(resource)) {</span>
-<span class="nc" id="L96">                                    future.complete(resource);</span>
+<span class="fc" id="L90">                                final SerializedEntandoResource resource = ioSafe(</span>
+<span class="fc" id="L91">                                        () -&gt; objectMapper.readValue(s, SerializedEntandoResource.class));</span>
+<span class="fc" id="L92">                                resource.setDefinition(customResource.getDefinition());</span>
+<span class="fc" id="L93">                                final EntandoDeploymentPhase phase = resource.getStatus()</span>
+<span class="fc" id="L94">                                        .getPhase();</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                                if (predicate.test(resource)) {</span>
+<span class="fc" id="L96">                                    future.complete(resource);</span>
                                 }
-<span class="nc" id="L98">                            }</span>
+<span class="fc" id="L98">                            }</span>
 
                             @Override
                             public void onClose(WatcherException e) {
 <span class="nc" id="L102">                                future.completeExceptionally(e);</span>
 <span class="nc" id="L103">                            }</span>
                         }))) {
-<span class="nc" id="L105">            return interruptionSafe(() -&gt; future.get(timeoutSeconds, TimeUnit.SECONDS));</span>
+<span class="fc" id="L105">            return interruptionSafe(() -&gt; future.get(timeoutSeconds, TimeUnit.SECONDS));</span>
         }
     }
 

@@ -1,0 +1,31 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "my-namespace"
+    TestResource: "my-app"
+    deployment: "my-app"
+  name: "my-app-service"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "test.org/v1"
+    kind: "TestResource"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "12035fc4-3782-4f94-97b7-9e162aba3eae"
+spec:
+  clusterIP: "10.0.0.75"
+  ports:
+  - name: "server-port"
+    port: 8081
+    protocol: "TCP"
+    targetPort: 8081
+  selector:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "my-namespace"
+    TestResource: "my-app"
+    deployment: "my-app"
+  type: "ClusterIP"
