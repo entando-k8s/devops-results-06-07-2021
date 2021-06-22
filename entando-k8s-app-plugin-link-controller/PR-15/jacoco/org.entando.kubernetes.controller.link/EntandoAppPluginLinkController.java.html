@@ -16,13 +16,17 @@
 
 package org.entando.kubernetes.controller.link;
 
+import static java.lang.String.format;
+
 import java.util.Collections;
 import javax.inject.Inject;
 import org.entando.kubernetes.controller.link.support.DeploymentLinker;
 import org.entando.kubernetes.controller.spi.client.KubernetesClientForControllers;
 import org.entando.kubernetes.controller.spi.client.SerializedEntandoResource;
+import org.entando.kubernetes.controller.spi.common.EntandoControllerException;
 import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
 import org.entando.kubernetes.controller.spi.common.NameUtils;
+import org.entando.kubernetes.model.common.EntandoControllerFailure;
 import org.entando.kubernetes.model.common.ServerStatus;
 import org.entando.kubernetes.model.link.EntandoAppPluginLink;
 import picocli.CommandLine;
@@ -35,41 +39,51 @@ public class EntandoAppPluginLinkController implements Runnable {
     private final DeploymentLinker linker;
 
     @Inject
-<span class="fc" id="L38">    public EntandoAppPluginLinkController(KubernetesClientForControllers k8sClient, DeploymentLinker linker) {</span>
-<span class="fc" id="L39">        this.k8sClient = k8sClient;</span>
-<span class="fc" id="L40">        this.linker = linker;</span>
-<span class="fc" id="L41">    }</span>
+<span class="fc" id="L42">    public EntandoAppPluginLinkController(KubernetesClientForControllers k8sClient, DeploymentLinker linker) {</span>
+<span class="fc" id="L43">        this.k8sClient = k8sClient;</span>
+<span class="fc" id="L44">        this.linker = linker;</span>
+<span class="fc" id="L45">    }</span>
 
     @Override
     public void run() {
-<span class="fc" id="L45">        EntandoAppPluginLink appPluginLink = (EntandoAppPluginLink) k8sClient</span>
-<span class="fc" id="L46">                .resolveCustomResourceToProcess(Collections.singletonList(EntandoAppPluginLink.class));</span>
+<span class="fc" id="L49">        EntandoAppPluginLink appPluginLink = (EntandoAppPluginLink) k8sClient</span>
+<span class="fc" id="L50">                .resolveCustomResourceToProcess(Collections.singletonList(EntandoAppPluginLink.class));</span>
         try {
-
-<span class="fc" id="L49">            final AppToPluginLinkable linkable = new AppToPluginLinkable(appPluginLink);</span>
-<span class="fc" id="L50">            final SerializedEntandoResource entandoApp = k8sClient.loadCustomResource(appPluginLink.getApiVersion(),</span>
+<span class="fc" id="L52">            final AppToPluginLinkable linkable = new AppToPluginLinkable(appPluginLink);</span>
+<span class="fc" id="L53">            final SerializedEntandoResource entandoApp = k8sClient.loadCustomResource(appPluginLink.getApiVersion(),</span>
                     &quot;EntandoApp&quot;,
-<span class="fc" id="L52">                    appPluginLink.getSpec().getEntandoAppNamespace().orElse(appPluginLink.getMetadata().getNamespace()),</span>
-<span class="fc" id="L53">                    appPluginLink.getSpec().getEntandoAppName());</span>
-<span class="fc" id="L54">            k8sClient.waitForCompletion(entandoApp, EntandoOperatorSpiConfig.getPodCompletionTimeoutSeconds());</span>
-<span class="fc" id="L55">            final SerializedEntandoResource entandoPlugin = k8sClient.loadCustomResource(appPluginLink.getApiVersion(),</span>
+<span class="fc" id="L55">                    appPluginLink.getSpec().getEntandoAppNamespace().orElse(appPluginLink.getMetadata().getNamespace()),</span>
+<span class="fc" id="L56">                    appPluginLink.getSpec().getEntandoAppName());</span>
+<span class="fc" id="L57">            k8sClient.waitForCompletion(entandoApp, EntandoOperatorSpiConfig.getPodCompletionTimeoutSeconds() * 2).getStatus()</span>
+<span class="fc" id="L58">                    .findFailedServerStatus().flatMap(ServerStatus::getEntandoControllerFailure).ifPresent(s -&gt; {</span>
+<span class="nc" id="L59">                throw toException(s, entandoApp);</span>
+            });
+<span class="fc" id="L61">            final SerializedEntandoResource entandoPlugin = k8sClient.loadCustomResource(appPluginLink.getApiVersion(),</span>
                     &quot;EntandoPlugin&quot;,
-<span class="fc" id="L57">                    appPluginLink.getSpec().getEntandoPluginNamespace().orElse(appPluginLink.getMetadata().getNamespace()),</span>
-<span class="fc" id="L58">                    appPluginLink.getSpec().getEntandoPluginName());</span>
-<span class="fc" id="L59">            k8sClient.waitForCompletion(entandoPlugin, EntandoOperatorSpiConfig.getPodCompletionTimeoutSeconds());</span>
-<span class="fc" id="L60">            linkable.setTargetPathOnSourceIngress(</span>
-<span class="fc" id="L61">                    entandoPlugin.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).orElseThrow(IllegalStateException::new)</span>
-<span class="fc" id="L62">                            .getWebContexts().get(NameUtils.DEFAULT_SERVER_QUALIFIER));</span>
-<span class="fc" id="L63">            ServerStatus status = linker.link(linkable);</span>
-<span class="fc" id="L64">            appPluginLink = k8sClient.updateStatus(appPluginLink, status);</span>
-<span class="fc" id="L65">            appPluginLink = k8sClient.deploymentEnded(appPluginLink);</span>
-<span class="nc" id="L66">        } catch (Exception e) {</span>
-<span class="nc" id="L67">            appPluginLink = k8sClient.deploymentFailed(appPluginLink, e, NameUtils.MAIN_QUALIFIER);</span>
-<span class="fc" id="L68">        }</span>
-<span class="fc" id="L69">        appPluginLink.getStatus().findFailedServerStatus().flatMap(ServerStatus::getEntandoControllerFailure).ifPresent(s -&gt; {</span>
-<span class="nc" id="L70">            throw new CommandLine.ExecutionException(new CommandLine(this), s.getDetailMessage());</span>
+<span class="fc" id="L63">                    appPluginLink.getSpec().getEntandoPluginNamespace().orElse(appPluginLink.getMetadata().getNamespace()),</span>
+<span class="fc" id="L64">                    appPluginLink.getSpec().getEntandoPluginName());</span>
+<span class="fc" id="L65">            k8sClient.waitForCompletion(entandoPlugin, EntandoOperatorSpiConfig.getPodCompletionTimeoutSeconds() * 2).getStatus()</span>
+<span class="fc" id="L66">                    .findFailedServerStatus().flatMap(ServerStatus::getEntandoControllerFailure).ifPresent(s -&gt; {</span>
+<span class="nc" id="L67">                throw toException(s, entandoPlugin);</span>
+            });
+<span class="fc" id="L69">            linkable.setTargetPathOnSourceIngress(</span>
+<span class="fc" id="L70">                    entandoPlugin.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).orElseThrow(IllegalStateException::new)</span>
+<span class="fc" id="L71">                            .getWebContexts().get(NameUtils.DEFAULT_SERVER_QUALIFIER));</span>
+<span class="fc" id="L72">            ServerStatus status = linker.link(linkable);</span>
+<span class="fc" id="L73">            appPluginLink = k8sClient.updateStatus(appPluginLink, status);</span>
+<span class="fc" id="L74">            appPluginLink = k8sClient.deploymentEnded(appPluginLink);</span>
+<span class="nc" id="L75">        } catch (Exception e) {</span>
+<span class="nc" id="L76">            appPluginLink = k8sClient.deploymentFailed(appPluginLink, e, NameUtils.MAIN_QUALIFIER);</span>
+<span class="fc" id="L77">        }</span>
+<span class="fc" id="L78">        appPluginLink.getStatus().findFailedServerStatus().flatMap(ServerStatus::getEntandoControllerFailure).ifPresent(s -&gt; {</span>
+<span class="nc" id="L79">            throw new CommandLine.ExecutionException(new CommandLine(this), s.getDetailMessage());</span>
         });
-<span class="fc" id="L72">    }</span>
+<span class="fc" id="L81">    }</span>
+
+    private EntandoControllerException toException(EntandoControllerFailure s, SerializedEntandoResource resource) {
+<span class="nc" id="L84">        return new EntandoControllerException(resource, format(&quot;The %s %s/%s has not been deployed successfully:%n %s&quot;, resource.getKind(),</span>
+<span class="nc" id="L85">                resource.getMetadata().getNamespace(), resource.getMetadata().getName(), s.getDetailMessage()));</span>
+    }
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
