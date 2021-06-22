@@ -1,0 +1,18 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  name: "my-app-ingress"
+  namespace: "my-namespace"
+spec:
+  rules:
+  - host: "myhost.com"
+    http:
+      paths:
+      - backend:
+          serviceName: "my-app-cm-service"
+          servicePort: 8080
+        path: "/digital-exchange"
+  tls:
+  - hosts:
+    - "myhost.com"
