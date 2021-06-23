@@ -1,0 +1,884 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContentDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: CMS</a> &gt; <a href="index.source.html" class="el_package">com.agiletec.plugins.jacms.aps.system.services.content</a> &gt; <span class="el_source">ContentDAO.java</span></div><h1>ContentDAO.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package com.agiletec.plugins.jacms.aps.system.services.content;
+
+import com.agiletec.aps.system.SystemConstants;
+import java.sql.BatchUpdateException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.entando.entando.ent.util.EntLogging.EntLogger;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+
+import com.agiletec.aps.system.common.entity.AbstractEntityDAO;
+import com.agiletec.aps.system.common.entity.model.ApsEntityRecord;
+import com.agiletec.aps.system.common.entity.model.IApsEntity;
+import com.agiletec.aps.system.common.entity.model.attribute.AttributeInterface;
+import com.agiletec.aps.system.common.util.EntityAttributeIterator;
+import org.entando.entando.ent.exception.EntException;
+import com.agiletec.aps.system.services.category.Category;
+import com.agiletec.aps.system.services.category.ICategoryManager;
+import com.agiletec.aps.util.DateConverter;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.CmsAttributeReference;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.Content;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.ContentRecordVO;
+import com.agiletec.plugins.jacms.aps.system.services.content.model.attribute.IReferenceableAttribute;
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * DAO class for objects of type content.
+ * 
+ * @author M.Diana - E.Santoboni - S.Didaci
+ */
+<span class="fc" id="L52">public class ContentDAO extends AbstractEntityDAO implements IContentDAO {</span>
+
+<span class="fc" id="L54">	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(ContentDAO.class);</span>
+
+<span class="fc" id="L56">	private final String DELETE_CONTENT = &quot;DELETE FROM contents WHERE contentid = ? &quot;;</span>
+
+<span class="fc" id="L58">	private final String DELETE_CONTENT_REL_RECORD = &quot;DELETE FROM contentrelations WHERE contentid = ? &quot;;</span>
+
+<span class="fc" id="L60">	private final String DELETE_CONTENT_REL_RECORD_NULL_GROUP = &quot;DELETE FROM contentrelations WHERE contentid = ? and refgroup is null&quot;;</span>
+
+<span class="fc" id="L62">	private final String DELETE_WORK_CONTENT_REL_RECORD = &quot;DELETE FROM workcontentrelations WHERE contentid = ? &quot;;</span>
+
+<span class="fc" id="L64">	private final String ADD_CONTENT_SEARCH_RECORD = &quot;INSERT INTO contentsearch (contentid, attrname, textvalue, datevalue, numvalue, langcode) &quot;</span>
+			+ &quot;VALUES ( ? , ? , ? , ? , ? , ? )&quot;;
+
+<span class="fc" id="L67">	private final String DELETE_CONTENT_SEARCH_RECORD = &quot;DELETE FROM contentsearch WHERE contentid = ? &quot;;</span>
+
+<span class="fc" id="L69">	private final String ADD_WORK_CONTENT_SEARCH_RECORD = &quot;INSERT INTO workcontentsearch (contentid, attrname, textvalue, datevalue, numvalue, langcode) &quot;</span>
+			+ &quot;VALUES ( ? , ? , ? , ? , ? , ? )&quot;;
+
+<span class="fc" id="L72">	private final String DELETE_WORK_CONTENT_SEARCH_RECORD = &quot;DELETE FROM workcontentsearch WHERE contentid = ? &quot;;</span>
+
+<span class="fc" id="L74">	private final String ADD_CONTENT_REL_RECORD = &quot;INSERT INTO contentrelations &quot;</span>
+			+ &quot;(contentid, refpage, refcontent, refresource, refcategory, refgroup) VALUES ( ? , ? , ? , ? , ? , ? )&quot;;
+
+<span class="fc" id="L77">	private final String ADD_WORK_CONTENT_REL_RECORD = &quot;INSERT INTO workcontentrelations (contentid, refcategory) VALUES ( ? , ? )&quot;;</span>
+
+<span class="fc" id="L79">	private final String LOAD_CONTENTS_ID_MAIN_BLOCK = &quot;SELECT DISTINCT contents.contentid FROM contents &quot;;</span>
+
+<span class="fc" id="L81">	private final String LOAD_REFERENCED_CONTENTS_FOR_PAGE = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refpage = ? &quot;
+			+ &quot;ORDER BY contents.contentid&quot;;
+
+<span class="fc" id="L85">	private final String LOAD_REFERENCED_CONTENTS_FOR_CONTENT = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refcontent = ? &quot;
+			+ &quot;ORDER BY contents.contentid&quot;;
+
+<span class="fc" id="L89">	private final String LOAD_REFERENCED_CONTENTS_FOR_GROUP = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refgroup = ? &quot;
+			+ &quot;ORDER BY contents.contentid&quot;;
+
+<span class="fc" id="L93">	private final String LOAD_REFERENCED_CONTENTS_FOR_RESOURCE = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refresource = ? &quot;
+			+ &quot;ORDER BY contents.contentid&quot;;
+
+<span class="fc" id="L97">	private final String LOAD_REFERENCED_CONTENTS_FOR_CATEGORY = LOAD_CONTENTS_ID_MAIN_BLOCK</span>
+			+ &quot; RIGHT JOIN contentrelations ON contents.contentid = contentrelations.contentid WHERE refcategory = ? &quot;
+			+ &quot;ORDER BY contents.contentid&quot;;
+
+<span class="fc" id="L101">	private final String LOAD_CONTENTS_VO_MAIN_BLOCK = &quot;SELECT contents.contentid, contents.contenttype, contents.descr, &quot;</span>
+            + &quot;contents.status, contents.workxml, contents.created, contents.lastmodified, contents.onlinexml, contents.published, &quot;
+            + &quot;contents.sync, contents.maingroup, contents.currentversion, contents.firsteditor, contents.lasteditor, contents.restriction FROM contents &quot;;
+
+<span class="fc" id="L105">	private final String LOAD_CONTENT_VO = LOAD_CONTENTS_VO_MAIN_BLOCK + &quot; WHERE contents.contentid = ? &quot;;</span>
+
+<span class="fc" id="L107">	private final String ADD_CONTENT = &quot;INSERT INTO contents (contentid, contenttype, descr, status, workxml, &quot;</span>
+			+ &quot;created, lastmodified, sync, maingroup, currentversion, firsteditor, lasteditor, restriction) &quot;
+			+ &quot;VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ?)&quot;;
+
+<span class="fc" id="L111">	private final String INSERT_ONLINE_CONTENT = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;</span>
+			+ &quot;workxml = ? , lastmodified = ? , onlinexml = ? , published = ? , sync = ? , maingroup = ? , currentversion = ? , lasteditor = ? , &quot;
+			+ &quot;restriction = ? WHERE contentid = ? &quot;;
+
+<span class="fc" id="L115">	private final String INSERT_ONLINE_CONTENT_WITHOUT_DATE = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;</span>
+			+ &quot;workxml = ? , onlinexml = ? , sync = ? , maingroup = ? , currentversion = ? , lasteditor = ? , restriction = ? WHERE contentid = ? &quot;;
+
+<span class="fc" id="L118">	private final String REMOVE_ONLINE_CONTENT = &quot;UPDATE contents SET onlinexml = ? , published = ? , sync = ? , &quot;</span>
+            + &quot;status = ? , workxml = ? , lastmodified = ? , currentversion = ? , lasteditor = ? , restriction = ? WHERE contentid = ? &quot;;
+
+<span class="fc" id="L121">	private final String REMOVE_ONLINE_CONTENT_WITHOUT_DATE = &quot;UPDATE contents SET onlinexml = ? , published = ? , sync = ? , &quot;</span>
+            + &quot;status = ? , workxml = ? , currentversion = ? , lasteditor = ? , restriction = ? WHERE contentid = ? &quot;;
+
+<span class="fc" id="L124">	private final String UPDATE_CONTENT = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;</span>
+			+ &quot;workxml = ? , sync = ? , lastmodified = ? , maingroup = ? , currentversion = ? , lasteditor = ? , restriction = ? &quot; + &quot;WHERE contentid = ? &quot;;
+
+<span class="fc" id="L127">	private final String UPDATE_CONTENT_WITHOUT_DATE = &quot;UPDATE contents SET contenttype = ? , descr = ? , status = ? , &quot;</span>
+			+ &quot;workxml = ? , sync = ? , maingroup = ? , currentversion = ? , lasteditor = ? , restriction = ? &quot; + &quot;WHERE contentid = ? &quot;;
+
+<span class="fc" id="L130">	private final String LOAD_ALL_CONTENTS_ID = &quot;SELECT contentid FROM contents&quot;;</span>
+
+<span class="fc" id="L132">	private final String ADD_ATTRIBUTE_ROLE_RECORD = &quot;INSERT INTO contentattributeroles (contentid, attrname, rolename) VALUES ( ? , ? , ? )&quot;;</span>
+
+<span class="fc" id="L134">	private final String DELETE_ATTRIBUTE_ROLE_RECORD = &quot;DELETE FROM contentattributeroles WHERE contentid = ? &quot;;</span>
+
+<span class="fc" id="L136">	private final String ADD_WORK_ATTRIBUTE_ROLE_RECORD = &quot;INSERT INTO workcontentattributeroles (contentid, attrname, rolename) VALUES ( ? , ? , ? )&quot;;</span>
+
+<span class="fc" id="L138">	private final String DELETE_WORK_ATTRIBUTE_ROLE_RECORD = &quot;DELETE FROM workcontentattributeroles WHERE contentid = ? &quot;;</span>
+    
+	private static final String COUNT_OFFLINE_CONTENTS = 
+            &quot;SELECT count(contents.contentid) from contents WHERE contents.sync = 0 and onlinexml is null&quot;;
+
+	private static final String COUNT_ONLINE_CONTENTS = 
+            &quot;SELECT count(contentid) from contents WHERE contents.sync = 1&quot;;
+
+	private static final String COUNT_ONLINE_CONTENTS_WITH_DIFFS = 
+            &quot;SELECT count(contents.contentid) from contents WHERE contents.sync = 0 and onlinexml is not null&quot;;
+    
+    private static final String LOAD_LAST_MODIFIED_DATE  = &quot;SELECT MAX(lastmodified) FROM contents&quot;;
+    
+    private ICategoryManager categoryManager;
+
+	@Override
+	protected String getLoadEntityRecordQuery() {
+<span class="fc" id="L155">		return LOAD_CONTENT_VO;</span>
+	}
+
+	@Override
+	protected ApsEntityRecord createEntityRecord(ResultSet res) throws Throwable {
+<span class="fc" id="L160">        ContentRecordVO contentVo = new ContentRecordVO();</span>
+<span class="fc" id="L161">		contentVo.setId(res.getString(&quot;contentid&quot;));</span>
+<span class="fc" id="L162">		contentVo.setTypeCode(res.getString(&quot;contenttype&quot;));</span>
+<span class="fc" id="L163">		contentVo.setDescription(res.getString(&quot;descr&quot;));</span>
+<span class="fc" id="L164">		contentVo.setStatus(res.getString(&quot;status&quot;));</span>
+<span class="fc" id="L165">		String xmlWork = res.getString(&quot;workxml&quot;);</span>
+<span class="fc" id="L166">		contentVo.setCreate(DateConverter.parseDate(res.getString(&quot;created&quot;), SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT));</span>
+<span class="fc" id="L167">		contentVo.setModify(DateConverter.parseDate(res.getString(&quot;lastmodified&quot;), SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT));</span>
+<span class="fc" id="L168">		contentVo.setPublish(DateConverter.parseDate(res.getString(&quot;published&quot;), SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT));</span>
+<span class="fc" id="L169">		String xmlOnLine = res.getString(&quot;onlinexml&quot;);</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">		contentVo.setOnLine(!StringUtils.isBlank(xmlOnLine));</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">		contentVo.setSync(res.getInt(&quot;sync&quot;) == 1);</span>
+<span class="fc" id="L172">		contentVo.setMainGroupCode(res.getString(&quot;maingroup&quot;));</span>
+<span class="fc" id="L173">		contentVo.setXmlWork(xmlWork);</span>
+<span class="fc" id="L174">		contentVo.setXmlOnLine(xmlOnLine);</span>
+<span class="fc" id="L175">		contentVo.setVersion(res.getString(&quot;currentversion&quot;));</span>
+<span class="fc" id="L176">		contentVo.setFirstEditor(res.getString(&quot;firsteditor&quot;));</span>
+<span class="fc" id="L177">		contentVo.setLastEditor(res.getString(&quot;lasteditor&quot;));</span>
+<span class="fc" id="L178">		contentVo.setRestriction(res.getString(&quot;restriction&quot;));</span>
+<span class="fc" id="L179">		return contentVo;</span>
+	}
+
+	@Override
+	protected void executeAddEntity(IApsEntity entity, Connection conn) throws Throwable {
+<span class="fc" id="L184">		super.executeAddEntity(entity, conn);</span>
+<span class="fc" id="L185">		this.addWorkContentRelationsRecord((Content) entity, conn);</span>
+<span class="fc" id="L186">		this.addGroupRelationsRecord((Content) entity, conn);</span>
+<span class="fc" id="L187">	}</span>
+
+	@Override
+	protected String getAddEntityRecordQuery() {
+<span class="fc" id="L191">		return ADD_CONTENT;</span>
+	}
+    
+	@Override
+	protected void buildAddEntityStatement(IApsEntity entity, PreparedStatement stat) throws Throwable {
+<span class="fc" id="L196">		Content content = (Content) entity;</span>
+<span class="fc" id="L197">		stat.setString(1, content.getId());</span>
+<span class="fc" id="L198">		stat.setString(2, content.getTypeCode());</span>
+<span class="fc" id="L199">		stat.setString(3, content.getDescription());</span>
+<span class="fc" id="L200">		stat.setString(4, content.getStatus());</span>
+<span class="fc" id="L201">		stat.setString(5, content.getXML());</span>
+<span class="fc" id="L202">		String currentDate = DateConverter.getFormattedDate(new Date(), SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT);</span>
+<span class="fc" id="L203">		stat.setString(6, currentDate);</span>
+<span class="fc" id="L204">		stat.setString(7, currentDate);</span>
+<span class="fc" id="L205">		stat.setInt(8, 0);</span>
+<span class="fc" id="L206">		stat.setString(9, content.getMainGroup());</span>
+<span class="fc" id="L207">		stat.setString(10, content.getVersion());</span>
+<span class="fc" id="L208">		stat.setString(11, content.getFirstEditor());</span>
+<span class="fc" id="L209">		stat.setString(12, content.getLastEditor());</span>
+<span class="fc" id="L210">		stat.setString(13, content.getRestriction());</span>
+<span class="fc" id="L211">	}</span>
+
+	@Override
+	public void updateContent(Content content, boolean updateDate) {
+<span class="fc" id="L215">		Connection conn = null;</span>
+		try {
+<span class="fc" id="L217">			conn = this.getConnection();</span>
+<span class="fc" id="L218">			conn.setAutoCommit(false);</span>
+<span class="fc" id="L219">			this.executeUpdateContent(content, updateDate, conn);</span>
+<span class="fc" id="L220">			conn.commit();</span>
+<span class="nc" id="L221">		} catch (Throwable t) {</span>
+<span class="nc" id="L222">			this.executeRollback(conn);</span>
+<span class="nc" id="L223">			_logger.error(&quot;Error updating content&quot;, t);</span>
+<span class="nc" id="L224">			throw new RuntimeException(&quot;Error updating content&quot;, t);</span>
+		} finally {
+<span class="fc" id="L226">			this.closeConnection(conn);</span>
+		}
+<span class="fc" id="L228">	}</span>
+
+	protected void executeUpdateContent(Content content, boolean updateDate, Connection conn) throws Throwable {
+<span class="fc" id="L231">		PreparedStatement stat = null;</span>
+		try {
+<span class="fc" id="L233">			this.deleteRecordsByEntityId(content.getId(), DELETE_WORK_CONTENT_REL_RECORD, conn);</span>
+<span class="fc" id="L234">			this.deleteRecordsByEntityId(content.getId(), this.getRemovingSearchRecordQuery(), conn);</span>
+<span class="fc" id="L235">			this.deleteRecordsByEntityId(content.getId(), this.getRemovingAttributeRoleRecordQuery(), conn);</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">			if (updateDate) {</span>
+<span class="fc" id="L237">				stat = conn.prepareStatement(this.getUpdateEntityRecordQuery());</span>
+			} else {
+<span class="nc" id="L239">				stat = conn.prepareStatement(this.getUpdateEntityRecordQueryWithoutDate());</span>
+			}
+<span class="fc" id="L241">			this.buildUpdateEntityStatement(content, updateDate, stat);</span>
+<span class="fc" id="L242">			stat.executeUpdate();</span>
+<span class="fc" id="L243">			this.addEntitySearchRecord(content.getId(), content, conn);</span>
+<span class="fc" id="L244">			this.addEntityAttributeRoleRecord(content.getId(), content, conn);</span>
+<span class="fc" id="L245">			this.addWorkContentRelationsRecord(content, conn);</span>
+<span class="nc" id="L246">		} catch (Throwable t) {</span>
+<span class="nc" id="L247">			throw t;</span>
+		} finally {
+<span class="fc" id="L249">			this.closeDaoResources(null, stat);</span>
+		}
+<span class="fc" id="L251">	}</span>
+
+	@Override
+	protected void executeUpdateEntity(IApsEntity entity, Connection conn) throws Throwable {
+<span class="fc" id="L255">		this.deleteRecordsByEntityId(entity.getId(), DELETE_WORK_CONTENT_REL_RECORD, conn);</span>
+<span class="fc" id="L256">		super.executeUpdateEntity(entity, conn);</span>
+<span class="fc" id="L257">		this.addWorkContentRelationsRecord((Content) entity, conn);</span>
+<span class="fc" id="L258">	}</span>
+
+	@Override
+	protected String getUpdateEntityRecordQuery() {
+<span class="fc" id="L262">		return UPDATE_CONTENT;</span>
+	}
+
+	protected String getUpdateEntityRecordQueryWithoutDate() {
+<span class="nc" id="L266">		return UPDATE_CONTENT_WITHOUT_DATE;</span>
+	}
+
+	@Override
+	protected void buildUpdateEntityStatement(IApsEntity entity, PreparedStatement stat) throws Throwable {
+<span class="fc" id="L271">		this.buildUpdateEntityStatement(entity, true, stat);</span>
+<span class="fc" id="L272">	}</span>
+
+	protected void buildUpdateEntityStatement(IApsEntity entity, boolean updateDate, PreparedStatement stat) throws Throwable {
+<span class="fc" id="L275">		Content content = (Content) entity;</span>
+<span class="fc" id="L276">		int index = 1;</span>
+<span class="fc" id="L277">		stat.setString(index++, content.getTypeCode());</span>
+<span class="fc" id="L278">		stat.setString(index++, content.getDescription());</span>
+<span class="fc" id="L279">		stat.setString(index++, content.getStatus());</span>
+<span class="fc" id="L280">		stat.setString(index++, content.getXML());</span>
+<span class="fc" id="L281">		stat.setInt(index++, 0);</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">		if (updateDate) {</span>
+<span class="fc" id="L283">			stat.setString(index++, DateConverter.getFormattedDate(new Date(), SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT));</span>
+		}
+<span class="fc" id="L285">		stat.setString(index++, content.getMainGroup());</span>
+<span class="fc" id="L286">		stat.setString(index++, content.getVersion());</span>
+<span class="fc" id="L287">		stat.setString(index++, content.getLastEditor());</span>
+<span class="fc" id="L288">		stat.setString(index++, content.getRestriction());</span>
+<span class="fc" id="L289">		stat.setString(index++, content.getId());</span>
+<span class="fc" id="L290">	}</span>
+
+	/**
+	 * This publishes a content.
+	 * 
+	 * @param content
+	 * the content to publish.
+	 */
+	@Override
+	public void insertOnLineContent(Content content) {
+<span class="fc" id="L300">		Connection conn = null;</span>
+		try {
+<span class="fc" id="L302">			conn = this.getConnection();</span>
+<span class="fc" id="L303">			conn.setAutoCommit(false);</span>
+<span class="fc" id="L304">			this.executeInsertOnLineContent(content, conn);</span>
+<span class="fc" id="L305">			conn.commit();</span>
+<span class="nc" id="L306">		} catch (Throwable t) {</span>
+<span class="nc" id="L307">			this.executeRollback(conn);</span>
+<span class="nc" id="L308">			_logger.error(&quot;Error publish content {} &quot;, content.getId(), t);</span>
+<span class="nc" id="L309">			throw new RuntimeException(&quot;Error publish content - &quot; + content.getId(), t);</span>
+		} finally {
+<span class="fc" id="L311">			this.closeConnection(conn);</span>
+		}
+<span class="fc" id="L313">	}</span>
+
+	protected void executeInsertOnLineContent(Content content, Connection conn) throws Throwable {
+<span class="fc" id="L316">		this.executeInsertOnLineContent(content, true, conn);</span>
+<span class="fc" id="L317">	}</span>
+
+	protected void executeInsertOnLineContent(Content content, boolean updateDate, Connection conn) throws Throwable {
+<span class="fc" id="L320">		super.deleteRecordsByEntityId(content.getId(), DELETE_WORK_CONTENT_REL_RECORD, conn);</span>
+<span class="fc" id="L321">		super.deleteRecordsByEntityId(content.getId(), DELETE_WORK_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L322">		super.deleteRecordsByEntityId(content.getId(), DELETE_CONTENT_SEARCH_RECORD, conn);</span>
+<span class="fc" id="L323">		super.deleteRecordsByEntityId(content.getId(), DELETE_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L324">		super.deleteEntitySearchRecord(content.getId(), conn);</span>
+<span class="fc" id="L325">		super.deleteRecordsByEntityId(content.getId(), DELETE_CONTENT_REL_RECORD, conn);</span>
+<span class="fc" id="L326">		this.updateContentRecordForInsertOnLine(content, updateDate, conn);</span>
+<span class="fc" id="L327">		this.addPublicContentSearchRecord(content.getId(), content, conn);</span>
+<span class="fc" id="L328">		super.addEntitySearchRecord(content.getId(), content, conn);</span>
+<span class="fc" id="L329">		this.addContentAttributeRoleRecord(content.getId(), content, ADD_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L330">		this.addWorkContentRelationsRecord(content, conn);</span>
+<span class="fc" id="L331">		this.addContentRelationsRecord(content, conn);</span>
+<span class="fc" id="L332">		this.addContentAttributeRoleRecord(content.getId(), content, ADD_WORK_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L333">	}</span>
+
+	@Deprecated
+	protected void deletePublicContentSearchRecord(String id, Connection conn) throws EntException {
+<span class="nc" id="L337">		super.deleteRecordsByEntityId(id, DELETE_CONTENT_SEARCH_RECORD, conn);</span>
+<span class="nc" id="L338">	}</span>
+
+	protected void addPublicContentSearchRecord(String id, IApsEntity entity, Connection conn) throws EntException {
+<span class="fc" id="L341">		PreparedStatement stat = null;</span>
+		try {
+<span class="fc" id="L343">			stat = conn.prepareStatement(ADD_CONTENT_SEARCH_RECORD);</span>
+<span class="fc" id="L344">			this.addEntitySearchRecord(id, entity, stat);</span>
+<span class="nc" id="L345">		} catch (Throwable t) {</span>
+<span class="nc" id="L346">			_logger.error(&quot;Error on adding public content search records&quot;, t);</span>
+<span class="nc" id="L347">			throw new RuntimeException(&quot;Error on adding public content search records&quot;, t);</span>
+		} finally {
+<span class="fc" id="L349">			closeDaoResources(null, stat);</span>
+		}
+<span class="fc" id="L351">	}</span>
+
+	protected void updateContentRecordForInsertOnLine(Content content, Connection conn) throws EntException {
+<span class="nc" id="L354">		this.updateContentRecordForInsertOnLine(content, true, conn);</span>
+<span class="nc" id="L355">	}</span>
+
+	protected void updateContentRecordForInsertOnLine(Content content, boolean updateDate, Connection conn) throws EntException {
+<span class="fc" id="L358">		PreparedStatement stat = null;</span>
+		try {
+<span class="fc" id="L360">			int index = 1;</span>
+<span class="pc bpc" id="L361" title="1 of 2 branches missed.">			if (updateDate) {</span>
+<span class="fc" id="L362">				stat = conn.prepareStatement(INSERT_ONLINE_CONTENT);</span>
+			} else {
+<span class="nc" id="L364">				stat = conn.prepareStatement(INSERT_ONLINE_CONTENT_WITHOUT_DATE);</span>
+			}
+<span class="fc" id="L366">			stat.setString(index++, content.getTypeCode());</span>
+<span class="fc" id="L367">			stat.setString(index++, content.getDescription());</span>
+<span class="fc" id="L368">			stat.setString(index++, content.getStatus());</span>
+<span class="fc" id="L369">			String xml = content.getXML();</span>
+<span class="fc" id="L370">			stat.setString(index++, xml);</span>
+<span class="fc" id="L371">            String cuttentDateString = DateConverter.getFormattedDate(new Date(), SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT);</span>
+<span class="pc bpc" id="L372" title="1 of 2 branches missed.">			if (updateDate) {</span>
+<span class="fc" id="L373">				stat.setString(index++, cuttentDateString);</span>
+			}
+<span class="fc" id="L375">			stat.setString(index++, xml);</span>
+<span class="pc bpc" id="L376" title="1 of 2 branches missed.">            if (updateDate) {</span>
+<span class="fc" id="L377">				stat.setString(index++, cuttentDateString);</span>
+			}
+<span class="fc" id="L379">            stat.setInt(index++, 1);</span>
+<span class="fc" id="L380">			stat.setString(index++, content.getMainGroup());</span>
+<span class="fc" id="L381">			stat.setString(index++, content.getVersion());</span>
+<span class="fc" id="L382">			stat.setString(index++, content.getLastEditor());</span>
+<span class="fc" id="L383">			stat.setString(index++, content.getRestriction());</span>
+<span class="fc" id="L384">			stat.setString(index++, content.getId());</span>
+<span class="fc" id="L385">			stat.executeUpdate();</span>
+<span class="nc" id="L386">		} catch (Throwable t) {</span>
+<span class="nc" id="L387">			_logger.error(&quot;Error updating for insert onLine content {}&quot;, content.getId(), t);</span>
+<span class="nc" id="L388">			throw new RuntimeException(&quot;Error updating for insert onLine content &quot; + content.getId(), t);</span>
+		} finally {
+<span class="fc" id="L390">			closeDaoResources(null, stat);</span>
+		}
+<span class="fc" id="L392">	}</span>
+
+	/**
+	 * Updates the references of a published content
+	 * 
+	 * @param content
+	 * the published content
+	 */
+	@Override
+	public void reloadPublicContentReferences(Content content) {
+<span class="pc bpc" id="L402" title="1 of 2 branches missed.">		if (content.isOnLine()) {</span>
+<span class="fc" id="L403">			Connection conn = null;</span>
+			try {
+<span class="fc" id="L405">				conn = this.getConnection();</span>
+<span class="fc" id="L406">				conn.setAutoCommit(false);</span>
+<span class="fc" id="L407">				this.executeReloadPublicContentReferences(content, conn);</span>
+<span class="fc" id="L408">				conn.commit();</span>
+<span class="nc" id="L409">			} catch (Throwable t) {</span>
+<span class="nc" id="L410">				this.executeRollback(conn);</span>
+<span class="nc" id="L411">				_logger.error(&quot;Error reloading references - Content {}&quot;, content.getId(), t);</span>
+<span class="nc" id="L412">				throw new RuntimeException(&quot;Error reloading references - Content &quot; + content.getId(), t);</span>
+			} finally {
+<span class="fc" id="L414">				this.closeConnection(conn);</span>
+			}
+		}
+<span class="fc" id="L417">	}</span>
+
+	protected void executeReloadPublicContentReferences(Content content, Connection conn) throws Throwable {
+<span class="fc" id="L420">		super.deleteRecordsByEntityId(content.getId(), DELETE_CONTENT_SEARCH_RECORD, conn);</span>
+<span class="fc" id="L421">		super.deleteRecordsByEntityId(content.getId(), DELETE_CONTENT_REL_RECORD, conn);</span>
+<span class="fc" id="L422">		super.deleteRecordsByEntityId(content.getId(), DELETE_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L423">		this.addPublicContentSearchRecord(content.getId(), content, conn);</span>
+<span class="fc" id="L424">		this.addContentRelationsRecord(content, conn);</span>
+<span class="fc" id="L425">		this.addContentAttributeRoleRecord(content.getId(), content, ADD_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L426">	}</span>
+
+	/**
+	 * Updates the references of a content
+	 * 
+	 * @param content
+	 * the content
+	 */
+	@Override
+	public void reloadWorkContentReferences(Content content) {
+<span class="fc" id="L436">		Connection conn = null;</span>
+		try {
+<span class="fc" id="L438">			conn = this.getConnection();</span>
+<span class="fc" id="L439">			conn.setAutoCommit(false);</span>
+<span class="fc" id="L440">			this.executeReloadWorkContentReferences(content, conn);</span>
+<span class="fc" id="L441">			conn.commit();</span>
+<span class="nc" id="L442">		} catch (Throwable t) {</span>
+<span class="nc" id="L443">			this.executeRollback(conn);</span>
+<span class="nc" id="L444">			_logger.error(&quot;Errore in reloading references - Work Content {}&quot;, content.getId(), t);</span>
+<span class="nc" id="L445">			throw new RuntimeException(&quot;Errore in reloading references - Work Content &quot; + content.getId(), t);</span>
+		} finally {
+<span class="fc" id="L447">			this.closeConnection(conn);</span>
+		}
+<span class="fc" id="L449">	}</span>
+
+	protected void executeReloadWorkContentReferences(Content content, Connection conn) throws Throwable {
+<span class="fc" id="L452">		super.deleteRecordsByEntityId(content.getId(), DELETE_WORK_CONTENT_REL_RECORD, conn);</span>
+<span class="fc" id="L453">		super.deleteRecordsByEntityId(content.getId(), DELETE_WORK_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L454">		super.deleteEntitySearchRecord(content.getId(), conn);</span>
+<span class="fc" id="L455">		super.addEntitySearchRecord(content.getId(), content, conn);</span>
+<span class="fc" id="L456">		this.addWorkContentRelationsRecord(content, conn);</span>
+<span class="fc" id="L457">		this.addContentAttributeRoleRecord(content.getId(), content, ADD_WORK_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L458">	}</span>
+
+	/**
+	 * Unpublish a content, preventing it from being displayed in the portal.
+	 * Obviously the content itslef is not deleted.
+	 * 
+	 * @param content
+	 * the content to unpublish.
+	 */
+	@Override
+	public void removeOnLineContent(Content content) {
+<span class="fc" id="L469">		Connection conn = null;</span>
+		try {
+<span class="fc" id="L471">			conn = this.getConnection();</span>
+<span class="fc" id="L472">			conn.setAutoCommit(false);</span>
+<span class="fc" id="L473">			this.executeRemoveOnLineContent(content, conn);</span>
+<span class="fc" id="L474">			conn.commit();</span>
+<span class="nc" id="L475">		} catch (Throwable t) {</span>
+<span class="nc" id="L476">			this.executeRollback(conn);</span>
+<span class="nc" id="L477">			_logger.error(&quot;Error removing online content {}&quot;, content.getId(), t);</span>
+<span class="nc" id="L478">			throw new RuntimeException(&quot;Error removing online content - &quot; + content.getId(), t);</span>
+		} finally {
+<span class="fc" id="L480">			this.closeConnection(conn);</span>
+		}
+<span class="fc" id="L482">	}</span>
+
+	protected void executeRemoveOnLineContent(Content content, Connection conn) {
+<span class="fc" id="L485">		this.executeRemoveOnLineContent(content, true, conn);</span>
+<span class="fc" id="L486">	}</span>
+
+	/**
+	 * Unpublish a content, preventing it from being displayed in the portal.
+	 * Obviously the content itslef is not deleted.
+	 * 
+	 * @param content
+	 * the content to unpublish.
+	 * @param updateDate
+	 * @param conn
+	 * the connection to the DB.
+	 */
+	protected void executeRemoveOnLineContent(Content content, boolean updateDate, Connection conn) {
+<span class="fc" id="L499">		super.deleteRecordsByEntityId(content.getId(), DELETE_CONTENT_SEARCH_RECORD, conn);</span>
+<span class="fc" id="L500">		super.deleteRecordsByEntityId(content.getId(), DELETE_CONTENT_REL_RECORD_NULL_GROUP, conn);</span>
+<span class="fc" id="L501">		super.deleteRecordsByEntityId(content.getId(), DELETE_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L502">		PreparedStatement stat = null;</span>
+		try {
+<span class="pc bpc" id="L504" title="1 of 2 branches missed.">			if (updateDate) {</span>
+<span class="fc" id="L505">				stat = conn.prepareStatement(REMOVE_ONLINE_CONTENT);</span>
+			} else {
+<span class="nc" id="L507">				stat = conn.prepareStatement(REMOVE_ONLINE_CONTENT_WITHOUT_DATE);</span>
+			}
+<span class="fc" id="L509">			int index = 1;</span>
+<span class="fc" id="L510">			stat.setString(index++, null);</span>
+<span class="fc" id="L511">			stat.setString(index++, null);</span>
+<span class="fc" id="L512">			stat.setInt(index++, 0);</span>
+<span class="fc" id="L513">			stat.setString(index++, content.getStatus());</span>
+<span class="fc" id="L514">			stat.setString(index++, content.getXML());</span>
+<span class="fc" id="L515">            String cuttentDateString = DateConverter.getFormattedDate(new Date(), SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT);</span>
+<span class="pc bpc" id="L516" title="1 of 2 branches missed.">			if (updateDate) {</span>
+<span class="fc" id="L517">				stat.setString(index++, cuttentDateString);</span>
+			}
+<span class="fc" id="L519">			stat.setString(index++, content.getVersion());</span>
+<span class="fc" id="L520">			stat.setString(index++, content.getLastEditor());</span>
+<span class="fc" id="L521">			stat.setString(index++, content.getRestriction());</span>
+<span class="fc" id="L522">			stat.setString(index++, content.getId());</span>
+<span class="fc" id="L523">			stat.executeUpdate();</span>
+<span class="nc" id="L524">		} catch (Throwable t) {</span>
+<span class="nc" id="L525">			_logger.error(&quot;Error removing online content {}&quot;, content.getId(), t);</span>
+<span class="nc" id="L526">			throw new RuntimeException(&quot;Error removing online content - &quot; + content.getId(), t);</span>
+		} finally {
+<span class="fc" id="L528">			closeDaoResources(null, stat);</span>
+		}
+<span class="fc" id="L530">	}</span>
+
+	@Override
+	protected String getDeleteEntityRecordQuery() {
+<span class="fc" id="L534">		return DELETE_CONTENT;</span>
+	}
+
+	@Override
+	protected void executeDeleteEntity(String entityId, Connection conn) throws Throwable {
+<span class="fc" id="L539">		super.deleteRecordsByEntityId(entityId, DELETE_CONTENT_SEARCH_RECORD, conn);</span>
+<span class="fc" id="L540">		super.deleteRecordsByEntityId(entityId, DELETE_CONTENT_REL_RECORD, conn);</span>
+<span class="fc" id="L541">		super.deleteRecordsByEntityId(entityId, DELETE_ATTRIBUTE_ROLE_RECORD, conn);</span>
+<span class="fc" id="L542">		super.deleteRecordsByEntityId(entityId, DELETE_WORK_CONTENT_REL_RECORD, conn);</span>
+<span class="fc" id="L543">		super.executeDeleteEntity(entityId, conn);</span>
+<span class="fc" id="L544">	}</span>
+
+	private void addCategoryRelationsRecord(Content content, boolean isPublicRelations, PreparedStatement stat) throws EntException {
+<span class="fc bfc" id="L547" title="All 2 branches covered.">		if (content.getCategories().size() &gt; 0) {</span>
+			try {
+<span class="fc" id="L549">				Set&lt;String&gt; codes = new HashSet&lt;String&gt;();</span>
+<span class="fc" id="L550">				Iterator&lt;Category&gt; categoryIter = content.getCategories().iterator();</span>
+<span class="fc bfc" id="L551" title="All 2 branches covered.">				while (categoryIter.hasNext()) {</span>
+<span class="fc" id="L552">					Category category = (Category) categoryIter.next();</span>
+<span class="fc" id="L553">					this.addCategoryCode(category, codes);</span>
+<span class="fc" id="L554">				}</span>
+<span class="fc" id="L555">				Iterator&lt;String&gt; codeIter = codes.iterator();</span>
+<span class="fc bfc" id="L556" title="All 2 branches covered.">				while (codeIter.hasNext()) {</span>
+<span class="fc" id="L557">					String code = codeIter.next();</span>
+<span class="fc" id="L558">					int i = 1;</span>
+<span class="fc" id="L559">					stat.setString(i++, content.getId());</span>
+<span class="fc bfc" id="L560" title="All 2 branches covered.">					if (isPublicRelations) {</span>
+<span class="fc" id="L561">						stat.setString(i++, null);</span>
+<span class="fc" id="L562">						stat.setString(i++, null);</span>
+<span class="fc" id="L563">						stat.setBigDecimal(i++, null);</span>
+					}
+<span class="fc" id="L565">					stat.setString(i++, code);</span>
+<span class="fc bfc" id="L566" title="All 2 branches covered.">					if (isPublicRelations) {</span>
+<span class="fc" id="L567">						stat.setString(i++, null);</span>
+					}
+<span class="fc" id="L569">					stat.addBatch();</span>
+<span class="fc" id="L570">					stat.clearParameters();</span>
+<span class="fc" id="L571">				}</span>
+<span class="nc" id="L572">			} catch (SQLException e) {</span>
+<span class="nc" id="L573">				_logger.error(&quot;Error saving content relation record for content {}&quot;, content.getId(), e.getNextException());</span>
+<span class="nc" id="L574">				throw new RuntimeException(&quot;Error saving content relation record for content &quot; + content.getId(), e.getNextException());</span>
+<span class="fc" id="L575">			}</span>
+		}
+<span class="fc" id="L577">	}</span>
+    
+    private void addCategoryCode(Category category, Set&lt;String&gt; codes) {
+<span class="fc" id="L580">        codes.add(category.getCode());</span>
+<span class="fc" id="L581">        Category parentCategory = this.getCategoryManager().getCategory(category.getParentCode());</span>
+<span class="pc bpc" id="L582" title="1 of 4 branches missed.">        if (null != parentCategory &amp;&amp; !parentCategory.getCode().equals(parentCategory.getParentCode())) {</span>
+<span class="fc" id="L583">            this.addCategoryCode(parentCategory, codes);</span>
+        }
+<span class="fc" id="L585">    }</span>
+
+	private void addGroupRelationsRecord(Content content, PreparedStatement stat) throws EntException {
+		try {
+<span class="fc" id="L589">			content.addGroup(content.getMainGroup());</span>
+<span class="fc" id="L590">			Iterator&lt;String&gt; groupIter = content.getGroups().iterator();</span>
+<span class="fc bfc" id="L591" title="All 2 branches covered.">			while (groupIter.hasNext()) {</span>
+<span class="fc" id="L592">				String groupName = groupIter.next();</span>
+<span class="fc" id="L593">				stat.setString(1, content.getId());</span>
+<span class="fc" id="L594">				stat.setString(2, null);</span>
+<span class="fc" id="L595">				stat.setString(3, null);</span>
+<span class="fc" id="L596">				stat.setBigDecimal(4, null);</span>
+<span class="fc" id="L597">				stat.setString(5, null);</span>
+<span class="fc" id="L598">				stat.setString(6, groupName);</span>
+<span class="fc" id="L599">				stat.addBatch();</span>
+<span class="fc" id="L600">				stat.clearParameters();</span>
+<span class="fc" id="L601">			}</span>
+<span class="nc" id="L602">		} catch (Throwable t) {</span>
+<span class="nc" id="L603">			_logger.error(&quot;Error saving group relation record for content {}&quot;, content.getId(), t);</span>
+<span class="nc" id="L604">			throw new RuntimeException(&quot;Error saving group relation record for content &quot; + content.getId(), t);</span>
+<span class="fc" id="L605">		}</span>
+<span class="fc" id="L606">	}</span>
+
+	/**
+	 * Add a record in the table 'contentrelations' for every resource, page,
+	 * other content, role and category associated to the given content).
+	 * 
+	 * @param content
+	 * The current content.
+	 * @param conn
+	 * The connection to the database.
+	 * @throws EntException
+	 * when connection error are detected.
+	 */
+	protected void addContentRelationsRecord(Content content, Connection conn) throws EntException {
+<span class="fc" id="L620">		PreparedStatement stat = null;</span>
+		try {
+<span class="fc" id="L622">			stat = conn.prepareStatement(ADD_CONTENT_REL_RECORD);</span>
+<span class="fc" id="L623">			this.addCategoryRelationsRecord(content, true, stat);</span>
+<span class="fc" id="L624">			this.addGroupRelationsRecord(content, stat);</span>
+<span class="fc" id="L625">			EntityAttributeIterator attributeIter = new EntityAttributeIterator(content);</span>
+<span class="fc bfc" id="L626" title="All 2 branches covered.">			while (attributeIter.hasNext()) {</span>
+<span class="fc" id="L627">				AttributeInterface currAttribute = (AttributeInterface) attributeIter.next();</span>
+<span class="fc bfc" id="L628" title="All 2 branches covered.">				if (currAttribute instanceof IReferenceableAttribute) {</span>
+<span class="fc" id="L629">					IReferenceableAttribute cmsAttribute = (IReferenceableAttribute) currAttribute;</span>
+<span class="fc" id="L630">					List&lt;CmsAttributeReference&gt; refs = cmsAttribute.getReferences(this.getLangManager().getLangs());</span>
+<span class="fc bfc" id="L631" title="All 2 branches covered.">					for (int i = 0; i &lt; refs.size(); i++) {</span>
+<span class="fc" id="L632">						CmsAttributeReference ref = refs.get(i);</span>
+<span class="fc" id="L633">						stat.setString(1, content.getId());</span>
+<span class="fc" id="L634">						stat.setString(2, ref.getRefPage());</span>
+<span class="fc" id="L635">						stat.setString(3, ref.getRefContent());</span>
+<span class="fc" id="L636">						stat.setString(4, ref.getRefResource());</span>
+<span class="fc" id="L637">						stat.setString(5, null);</span>
+<span class="fc" id="L638">						stat.setString(6, null);</span>
+<span class="fc" id="L639">						stat.addBatch();</span>
+<span class="fc" id="L640">						stat.clearParameters();</span>
+					}
+				}
+<span class="fc" id="L643">			}</span>
+<span class="fc" id="L644">			stat.executeBatch();</span>
+<span class="nc" id="L645">		} catch (BatchUpdateException e) {</span>
+<span class="nc" id="L646">			_logger.error(&quot;Error saving record into contentrelations {}&quot;, content.getId(), e.getNextException());</span>
+<span class="nc" id="L647">			throw new RuntimeException(&quot;Error saving record into contentrelations &quot; + content.getId(), e.getNextException());</span>
+<span class="nc" id="L648">		} catch (Throwable t) {</span>
+<span class="nc" id="L649">			_logger.error(&quot;Error saving record into contentrelations {}&quot;, content.getId(), t);</span>
+<span class="nc" id="L650">			throw new RuntimeException(&quot;Error saving record into contentrelations &quot; + content.getId(), t);</span>
+		} finally {
+<span class="fc" id="L652">			closeDaoResources(null, stat);</span>
+		}
+<span class="fc" id="L654">	}</span>
+
+	protected void addGroupRelationsRecord(Content content, Connection conn) {
+<span class="fc" id="L657">		PreparedStatement stat = null;</span>
+		try {
+<span class="fc" id="L659">			stat = conn.prepareStatement(ADD_CONTENT_REL_RECORD);</span>
+<span class="fc" id="L660">			this.addGroupRelationsRecord(content, stat);</span>
+<span class="fc" id="L661">			stat.executeBatch();</span>
+<span class="nc" id="L662">		} catch (BatchUpdateException e) {</span>
+<span class="nc" id="L663">			_logger.error(&quot;Error saving record into contentrelations {}&quot;, content.getId(), e.getNextException());</span>
+<span class="nc" id="L664">			throw new RuntimeException(&quot;Error saving record into contentrelations &quot; + content.getId(), e.getNextException());</span>
+<span class="nc" id="L665">		} catch (Throwable t) {</span>
+<span class="nc" id="L666">			_logger.error(&quot;Error saving record into contentrelations {}&quot;, content.getId(), t);</span>
+<span class="nc" id="L667">			throw new RuntimeException(&quot;Error saving record into contentrelations &quot; + content.getId(), t);</span>
+		} finally {
+<span class="fc" id="L669">			closeDaoResources(null, stat);</span>
+		}
+<span class="fc" id="L671">	}</span>
+
+	protected void addWorkContentRelationsRecord(Content content, Connection conn) throws EntException {
+<span class="fc" id="L674">		PreparedStatement stat = null;</span>
+		try {
+<span class="fc" id="L676">			stat = conn.prepareStatement(ADD_WORK_CONTENT_REL_RECORD);</span>
+<span class="fc" id="L677">			this.addCategoryRelationsRecord(content, false, stat);</span>
+<span class="fc" id="L678">			stat.executeBatch();</span>
+<span class="nc" id="L679">		} catch (BatchUpdateException e) {</span>
+<span class="nc" id="L680">			_logger.error(&quot;Error saving record into workcontentrelations {}&quot;, content.getId(), e.getNextException());</span>
+<span class="nc" id="L681">			throw new RuntimeException(&quot;Error saving record into workcontentrelations &quot; + content.getId(), e);</span>
+<span class="nc" id="L682">		} catch (Throwable t) {</span>
+<span class="nc" id="L683">			_logger.error(&quot;Error saving record into workcontentrelations {}&quot;, content.getId(), t);</span>
+<span class="nc" id="L684">			throw new RuntimeException(&quot;Error saving record into workcontentrelations &quot; + content.getId(), t);</span>
+		} finally {
+<span class="fc" id="L686">			closeDaoResources(null, stat);</span>
+		}
+<span class="fc" id="L688">	}</span>
+
+	protected void addContentAttributeRoleRecord(String id, IApsEntity entity, String query, Connection conn) throws EntException {
+<span class="fc" id="L691">		PreparedStatement stat = null;</span>
+		try {
+<span class="fc" id="L693">			stat = conn.prepareStatement(query);</span>
+<span class="fc" id="L694">			super.addEntityAttributeRoleRecord(id, entity, stat);</span>
+<span class="nc" id="L695">		} catch (Throwable t) {</span>
+<span class="nc" id="L696">			_logger.error(&quot;Error on adding content attribute role records&quot;, t);</span>
+<span class="nc" id="L697">			throw new RuntimeException(&quot;Error on adding content attribute role records&quot;, t);</span>
+		} finally {
+<span class="fc" id="L699">			closeDaoResources(null, stat);</span>
+		}
+<span class="fc" id="L701">	}</span>
+
+	@Override
+	public List&lt;String&gt; getContentUtilizers(String contentId) {
+<span class="fc" id="L705">		List&lt;String&gt; contentIds = null;</span>
+		try {
+<span class="fc" id="L707">			contentIds = this.getUtilizers(contentId, LOAD_REFERENCED_CONTENTS_FOR_CONTENT);</span>
+<span class="nc" id="L708">		} catch (Throwable t) {</span>
+<span class="nc" id="L709">			_logger.error(&quot;Error loading referenced contents for content {}&quot;, contentId, t);</span>
+<span class="nc" id="L710">			throw new RuntimeException(&quot;Error loading referenced contents for content&quot; + contentId, t);</span>
+<span class="fc" id="L711">		}</span>
+<span class="fc" id="L712">		return contentIds;</span>
+	}
+
+	@Override
+	public List&lt;String&gt; getPageUtilizers(String pageCode) {
+<span class="fc" id="L717">		List&lt;String&gt; contentIds = null;</span>
+		try {
+<span class="fc" id="L719">			contentIds = this.getUtilizers(pageCode, LOAD_REFERENCED_CONTENTS_FOR_PAGE);</span>
+<span class="nc" id="L720">		} catch (Throwable t) {</span>
+<span class="nc" id="L721">			_logger.error(&quot;Error loading referenced contents for page {}&quot;, pageCode, t);</span>
+<span class="nc" id="L722">			throw new RuntimeException(&quot;Error loading referenced contents for page&quot; + pageCode, t);</span>
+<span class="fc" id="L723">		}</span>
+<span class="fc" id="L724">		return contentIds;</span>
+	}
+
+	@Override
+	public List&lt;String&gt; getGroupUtilizers(String groupName) {
+<span class="fc" id="L729">		List&lt;String&gt; contentIds = null;</span>
+		try {
+<span class="fc" id="L731">			contentIds = this.getUtilizers(groupName, LOAD_REFERENCED_CONTENTS_FOR_GROUP);</span>
+<span class="nc" id="L732">		} catch (Throwable t) {</span>
+<span class="nc" id="L733">			_logger.error(&quot;Error loading referenced contents for group {}&quot;, groupName, t);</span>
+<span class="nc" id="L734">			throw new RuntimeException(&quot;Error loading referenced contents for group &quot; + groupName, t);</span>
+<span class="fc" id="L735">		}</span>
+<span class="fc" id="L736">		return contentIds;</span>
+	}
+
+	@Override
+	public List&lt;String&gt; getResourceUtilizers(String resourceId) {
+<span class="fc" id="L741">		List&lt;String&gt; contentIds = null;</span>
+		try {
+<span class="fc" id="L743">			contentIds = this.getUtilizers(resourceId, LOAD_REFERENCED_CONTENTS_FOR_RESOURCE);</span>
+<span class="nc" id="L744">		} catch (Throwable t) {</span>
+<span class="nc" id="L745">			_logger.error(&quot;Error loading referenced contents for resource {}&quot;, resourceId, t);</span>
+<span class="nc" id="L746">			throw new RuntimeException(&quot;Error loading referenced contents for resource &quot; + resourceId, t);</span>
+<span class="fc" id="L747">		}</span>
+<span class="fc" id="L748">		return contentIds;</span>
+	}
+
+	@Override
+	public List&lt;String&gt; getCategoryUtilizers(String categoryCode) {
+<span class="fc" id="L753">		List&lt;String&gt; contentIds = null;</span>
+		try {
+<span class="fc" id="L755">			contentIds = this.getUtilizers(categoryCode, LOAD_REFERENCED_CONTENTS_FOR_CATEGORY);</span>
+<span class="nc" id="L756">		} catch (Throwable t) {</span>
+<span class="nc" id="L757">			_logger.error(&quot;Error loading referenced contents for category {}&quot;, categoryCode, t);</span>
+<span class="nc" id="L758">			throw new RuntimeException(&quot;Error loading referenced contents for category &quot; + categoryCode, t);</span>
+<span class="fc" id="L759">		}</span>
+<span class="fc" id="L760">		return contentIds;</span>
+	}
+
+	protected List&lt;String&gt; getUtilizers(String referencedObjectCode, String query) throws Throwable {
+<span class="fc" id="L764">		Connection conn = null;</span>
+<span class="fc" id="L765">		List&lt;String&gt; contentIds = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L766">		PreparedStatement stat = null;</span>
+<span class="fc" id="L767">		ResultSet res = null;</span>
+		try {
+<span class="fc" id="L769">			conn = this.getConnection();</span>
+<span class="fc" id="L770">			stat = conn.prepareStatement(query);</span>
+<span class="fc" id="L771">			stat.setString(1, referencedObjectCode);</span>
+<span class="fc" id="L772">			res = stat.executeQuery();</span>
+<span class="fc bfc" id="L773" title="All 2 branches covered.">			while (res.next()) {</span>
+<span class="fc" id="L774">				String id = res.getString(1);</span>
+<span class="fc" id="L775">				contentIds.add(id);</span>
+<span class="fc" id="L776">			}</span>
+<span class="nc" id="L777">		} catch (Throwable t) {</span>
+<span class="nc" id="L778">			throw t;</span>
+		} finally {
+<span class="fc" id="L780">			closeDaoResources(res, stat, conn);</span>
+		}
+<span class="fc" id="L782">		return contentIds;</span>
+	}
+
+	@Override
+	public ContentsStatus loadContentStatus() {
+<span class="fc" id="L787">		Connection conn = null;</span>
+<span class="fc" id="L788">		PreparedStatement stat = null;</span>
+<span class="fc" id="L789">		ResultSet res = null;</span>
+<span class="fc" id="L790">		ContentsStatus status = null;</span>
+		try {
+<span class="fc" id="L792">			conn = this.getConnection();</span>
+<span class="fc" id="L793">			int online = this.loadContentStatus(conn, COUNT_ONLINE_CONTENTS);</span>
+<span class="fc" id="L794">			int offline = this.loadContentStatus(conn, COUNT_OFFLINE_CONTENTS);</span>
+<span class="fc" id="L795">			int withDiffs = this.loadContentStatus(conn, COUNT_ONLINE_CONTENTS_WITH_DIFFS);</span>
+<span class="fc" id="L796">			Date lastModified = this.loadContentStatusLastModified(conn, LOAD_LAST_MODIFIED_DATE);</span>
+<span class="fc" id="L797">			status = new ContentsStatus();</span>
+<span class="fc" id="L798">			status.setDraft(offline);</span>
+<span class="fc" id="L799">			status.setOnline(online);</span>
+<span class="fc" id="L800">			status.setOnlineWithChanges(withDiffs);</span>
+<span class="fc" id="L801">			status.setLastUpdate(lastModified);</span>
+<span class="nc" id="L802">		} catch (Throwable t) {</span>
+<span class="nc" id="L803">			_logger.error(&quot;Error loading contents status&quot;, t);</span>
+<span class="nc" id="L804">			throw new RuntimeException(&quot;Error loading contents status&quot;, t);</span>
+		} finally {
+<span class="fc" id="L806">			closeDaoResources(res, stat, conn);</span>
+		}
+<span class="fc" id="L808">		return status;</span>
+	}
+
+	private int loadContentStatus(Connection conn, String query) {
+<span class="fc" id="L812">		PreparedStatement stat = null;</span>
+<span class="fc" id="L813">		ResultSet res = null;</span>
+<span class="fc" id="L814">		int count = 0;</span>
+		try {
+<span class="fc" id="L816">			stat = conn.prepareStatement(query);</span>
+<span class="fc" id="L817">			res = stat.executeQuery();</span>
+<span class="pc bpc" id="L818" title="1 of 2 branches missed.">			if (res.next()) {</span>
+<span class="fc" id="L819">				count = res.getInt(1);</span>
+			}
+<span class="nc" id="L821">		} catch (Throwable t) {</span>
+<span class="nc" id="L822">            _logger.error(&quot;Error loading contents status &quot;, t);</span>
+<span class="nc" id="L823">			throw new RuntimeException(&quot;Error loading contents status&quot;, t);</span>
+		} finally {
+<span class="fc" id="L825">			closeDaoResources(res, stat);</span>
+		}
+<span class="fc" id="L827">		return count;</span>
+	}
+
+	private Date loadContentStatusLastModified(Connection conn, String query) {
+<span class="fc" id="L831">		PreparedStatement stat = null;</span>
+<span class="fc" id="L832">		ResultSet res = null;</span>
+<span class="fc" id="L833">		Date lastModified = null;</span>
+		try {
+<span class="fc" id="L835">			stat = conn.prepareStatement(query);</span>
+<span class="fc" id="L836">			res = stat.executeQuery();</span>
+<span class="pc bpc" id="L837" title="1 of 2 branches missed.">			if (res.next()) {</span>
+<span class="fc" id="L838">				String lastMod = res.getString(1);</span>
+<span class="fc" id="L839">				lastModified = DateConverter.parseDate(lastMod, SystemConstants.DATA_TYPE_METADATA_DATE_FORMAT);</span>
+			}
+<span class="nc" id="L841">		} catch (Throwable t) {</span>
+<span class="nc" id="L842">			_logger.error(&quot;Error loading contents status last modified date&quot;, t);</span>
+<span class="nc" id="L843">			throw new RuntimeException(&quot;Error loading contents status last modified date&quot;, t);</span>
+		} finally {
+<span class="fc" id="L845">			closeDaoResources(res, stat);</span>
+		}
+<span class="fc" id="L847">		return lastModified;</span>
+	}
+
+	@Override
+	protected String getAddingSearchRecordQuery() {
+<span class="fc" id="L852">		return ADD_WORK_CONTENT_SEARCH_RECORD;</span>
+	}
+
+	@Override
+	protected String getRemovingSearchRecordQuery() {
+<span class="fc" id="L857">		return DELETE_WORK_CONTENT_SEARCH_RECORD;</span>
+	}
+
+	@Override
+	protected String getAddingAttributeRoleRecordQuery() {
+<span class="fc" id="L862">		return ADD_WORK_ATTRIBUTE_ROLE_RECORD;</span>
+	}
+
+	@Override
+	protected String getRemovingAttributeRoleRecordQuery() {
+<span class="fc" id="L867">		return DELETE_WORK_ATTRIBUTE_ROLE_RECORD;</span>
+	}
+
+	@Override
+	protected String getExtractingAllEntityIdQuery() {
+<span class="fc" id="L872">		return LOAD_ALL_CONTENTS_ID;</span>
+	}
+
+    protected ICategoryManager getCategoryManager() {
+<span class="fc" id="L876">        return categoryManager;</span>
+    }
+
+    public void setCategoryManager(ICategoryManager categoryManager) {
+<span class="fc" id="L880">        this.categoryManager = categoryManager;</span>
+<span class="fc" id="L881">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
