@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IAnalysisController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Core: Engine</a> &gt; <a href="index.source.html" class="el_package">org.entando.entando.web.analysis</a> &gt; <span class="el_source">IAnalysisController.java</span></div><h1>IAnalysisController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package org.entando.entando.web.analysis;
+
+import org.entando.entando.aps.system.services.IComponentExistsService;
+import org.entando.entando.aps.system.services.analysis.component_existence.ComponentExistenceAnalysis;
+import org.entando.entando.aps.system.services.analysis.component_existence.ComponentExistenceAnalysis.ServiceParams;
+import org.entando.entando.web.analysis.AnalysisResponse.Status;
+import org.entando.entando.web.common.model.SimpleRestResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.*;
+
+public interface IAnalysisController {
+
+    default ResponseEntity&lt;SimpleRestResponse&lt;AnalysisResponse&gt;&gt; runComponentExistenceAnalysisDefaultImpl(
+            ComponentExistenceAnalysis analyzer,
+            Map&lt;String, List&lt;String&gt;&gt; idCodesByObjectType) {
+        //-
+<span class="nc" id="L32">        Set&lt;String&gt; objectTypes = idCodesByObjectType.keySet();</span>
+
+<span class="nc" id="L34">        List&lt;ServiceParams&gt; servicesParams = convertDtoParamsToServiceParams(idCodesByObjectType);</span>
+
+<span class="nc" id="L36">        ComponentExistenceAnalysis.ComponentExistenceAnalysisResult analysisResult = analyzer.run(new ComponentExistenceAnalysis.ComponentExistenceAnalysisResult(), servicesParams);</span>
+<span class="nc" id="L37">        Map&lt;String, Map&lt;String, String&gt;&gt; report = convertServiceResultToDtoResult(analysisResult, objectTypes);</span>
+
+<span class="nc" id="L39">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(new AnalysisResponse(report)), HttpStatus.OK);</span>
+    }
+
+    default List&lt;ServiceParams&gt; convertDtoParamsToServiceParams(Map&lt;String, List&lt;String&gt;&gt; idCodesByObjectType) {
+        //-
+<span class="nc" id="L44">        List&lt;ServiceParams&gt; servicesParams = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L45">        Set&lt;String&gt; objectTypes = idCodesByObjectType.keySet();</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        for (String objectType : objectTypes) {</span>
+<span class="nc" id="L47">            IComponentExistsService service = mapComponentTypeToService(objectType);</span>
+<span class="nc" id="L48">            servicesParams.add(</span>
+                    new ServiceParams(
+<span class="nc" id="L50">                            service, idCodesByObjectType.get(objectType)</span>
+                    )
+            );
+<span class="nc" id="L53">        }</span>
+<span class="nc" id="L54">        return servicesParams;</span>
+    }
+
+    default Map&lt;String, Map&lt;String, String&gt;&gt; convertServiceResultToDtoResult(
+            ComponentExistenceAnalysis.ComponentExistenceAnalysisResult analysisResult,
+            Set&lt;String&gt; objectTypes) {
+        //-
+<span class="nc" id="L61">        Map&lt;String, Map&lt;String, String&gt;&gt; report = new HashMap&lt;&gt;();</span>
+
+<span class="nc" id="L63">        HashMap&lt;Object, String&gt; serviceToObjectType = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        for (String objectType : objectTypes) {</span>
+<span class="nc" id="L65">            Object service = mapComponentTypeToService(objectType);</span>
+<span class="nc" id="L66">            serviceToObjectType.put(</span>
+                    service, objectType
+            );
+<span class="nc" id="L69">        }</span>
+
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for (Object service : analysisResult.getMap().keySet()) {</span>
+<span class="nc" id="L72">            ComponentExistenceAnalysis.ComponentStatusMap componentsStatus = analysisResult.getMap().get(service);</span>
+<span class="nc" id="L73">            String objectType = serviceToObjectType.get(service);</span>
+
+<span class="nc" id="L75">            Map&lt;String, String&gt; dtoComponentStatus = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            for (String idCode : componentsStatus.getMap().keySet()) {</span>
+<span class="nc" id="L78">                ComponentExistenceAnalysis.Status status = componentsStatus.getMap().get(idCode);</span>
+<span class="nc" id="L79">                String dtoStatus = getDtoStatus(status).toString();</span>
+<span class="nc" id="L80">                dtoComponentStatus.put(idCode, dtoStatus);</span>
+<span class="nc" id="L81">            }</span>
+
+<span class="nc" id="L83">            report.put(objectType, dtoComponentStatus);</span>
+<span class="nc" id="L84">        }</span>
+<span class="nc" id="L85">        return report;</span>
+    }
+
+    default Status getDtoStatus(ComponentExistenceAnalysis.Status status) {
+        Status result;
+<span class="nc bnc" id="L90" title="All 4 branches missed.">        switch (status) {</span>
+            case NEW:
+<span class="nc" id="L92">                result = Status.NEW;</span>
+<span class="nc" id="L93">                break;</span>
+            case DIFF:
+<span class="nc" id="L95">                result = Status.DIFF;</span>
+<span class="nc" id="L96">                break;</span>
+            case EQUAL:
+<span class="nc" id="L98">                result = Status.EQUAL;</span>
+<span class="nc" id="L99">                break;</span>
+            default:
+<span class="nc" id="L101">                throw new IllegalStateException(&quot;Unexpected value: &quot; + status);</span>
+        }
+<span class="nc" id="L103">        return result;</span>
+    }
+
+    IComponentExistsService mapComponentTypeToService(String objectType);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
