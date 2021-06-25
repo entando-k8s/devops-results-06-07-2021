@@ -15,10 +15,10 @@ package org.entando.entando.apsadmin.system.tiles;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.struts2.tiles.StrutsTilesListener;
 import org.apache.tiles.startup.TilesInitializer;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
 
 /**
  * Listener for loading during init struts2 tiles configuration files.
@@ -34,27 +34,28 @@ import org.apache.tiles.startup.TilesInitializer;
  */
 <span class="nc" id="L35">public class EntandoStrutsTilesListener extends StrutsTilesListener {</span>
 	
-<span class="nc" id="L37">    private static final Logger LOG = LogManager.getLogger(StrutsTilesListener.class);</span>
+<span class="nc" id="L37">    private static final EntLogger logger = EntLogFactory.getSanitizedLogger(EntandoStrutsTilesListener.class);</span>
+    
 	private ServletContext _servletContext;
 	
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
-<span class="nc" id="L42">		this.setServletContext(event.getServletContext());</span>
-<span class="nc" id="L43">		super.contextInitialized(event);</span>
-<span class="nc" id="L44">	}</span>
+<span class="nc" id="L43">		this.setServletContext(event.getServletContext());</span>
+<span class="nc" id="L44">		super.contextInitialized(event);</span>
+<span class="nc" id="L45">	}</span>
 	
     @Override
     protected TilesInitializer createTilesInitializer() {
-<span class="nc" id="L48">        LOG.info(&quot;Starting Struts Tiles 3 integration ...&quot;);</span>
-<span class="nc" id="L49">        return new EntandoStrutsTilesInitializer(this.getServletContext());</span>
+<span class="nc" id="L49">        logger.info(&quot;Starting Struts Tiles 3 integration ...&quot;);</span>
+<span class="nc" id="L50">        return new EntandoStrutsTilesInitializer(this.getServletContext());</span>
     }
 	
 	protected void setServletContext(ServletContext servletContext) {
-<span class="nc" id="L53">		this._servletContext = servletContext;</span>
-<span class="nc" id="L54">	}</span>
+<span class="nc" id="L54">		this._servletContext = servletContext;</span>
+<span class="nc" id="L55">	}</span>
 	protected ServletContext getServletContext() {
-<span class="nc" id="L56">		return _servletContext;</span>
+<span class="nc" id="L57">		return _servletContext;</span>
 	}
 	
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

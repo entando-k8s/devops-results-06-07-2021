@@ -14,11 +14,11 @@
 package org.entando.entando.apsadmin.system.tiles;
 
 import javax.servlet.ServletContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.struts2.tiles.StrutsTilesInitializer;
 import org.apache.tiles.factory.AbstractTilesContainerFactory;
 import org.apache.tiles.request.ApplicationContext;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
 
 /**
  * @see org.entando.entando.apsadmin.system.tiles.EntandoStrutsTilesListener
@@ -26,25 +26,26 @@ import org.apache.tiles.request.ApplicationContext;
  */
 public class EntandoStrutsTilesInitializer extends StrutsTilesInitializer {
 	
-<span class="nc" id="L29">	private static final Logger LOG = LogManager.getLogger(EntandoStrutsTilesInitializer.class);</span>
+<span class="nc" id="L29">	private static final EntLogger logger = EntLogFactory.getSanitizedLogger(EntandoStrutsTilesInitializer.class);</span>
+    
 	private ServletContext _servletContext;
 	
-<span class="nc" id="L32">	protected EntandoStrutsTilesInitializer(ServletContext servletContext) {</span>
-<span class="nc" id="L33">		this.setServletContext(servletContext);</span>
-<span class="nc" id="L34">	}</span>
+<span class="nc" id="L33">	protected EntandoStrutsTilesInitializer(ServletContext servletContext) {</span>
+<span class="nc" id="L34">		this.setServletContext(servletContext);</span>
+<span class="nc" id="L35">	}</span>
 	
 	@Override
     protected AbstractTilesContainerFactory createContainerFactory(ApplicationContext context) {
-<span class="nc" id="L38">        LOG.trace(&quot;Creating dedicated Struts factory to create Tiles container&quot;);</span>
-<span class="nc" id="L39">        return new EntandoStrutsTilesContainerFactory(this.getServletContext());</span>
+<span class="nc" id="L39">        logger.trace(&quot;Creating dedicated Struts factory to create Tiles container&quot;);</span>
+<span class="nc" id="L40">        return new EntandoStrutsTilesContainerFactory(this.getServletContext());</span>
     }
 	
 	protected void setServletContext(ServletContext servletContext) {
-<span class="nc" id="L43">		this._servletContext = servletContext;</span>
-<span class="nc" id="L44">	}</span>
+<span class="nc" id="L44">		this._servletContext = servletContext;</span>
+<span class="nc" id="L45">	}</span>
 	protected ServletContext getServletContext() {
-<span class="nc" id="L46">		return _servletContext;</span>
+<span class="nc" id="L47">		return _servletContext;</span>
 	}
 	
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

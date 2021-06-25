@@ -17,8 +17,8 @@ import com.opensymphony.xwork2.validator.ValidationException;
 import com.opensymphony.xwork2.validator.validators.FieldValidatorSupport;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+import org.entando.entando.ent.util.EntLogging.EntLogger;
 
 /**
  * URLValidator checks that a given field is a String and a valid URL
@@ -40,9 +40,9 @@ import org.apache.logging.log4j.Logger;
  * &amp;lt;/validators&amp;gt;
  * &lt;/pre&gt;
  */
-<span class="nc" id="L43">public class URLValidator extends FieldValidatorSupport {</span>
+<span class="fc" id="L43">public class URLValidator extends FieldValidatorSupport {</span>
 
-<span class="nc" id="L45">    private static final Logger LOG = LogManager.getLogger(URLValidator.class);</span>
+<span class="fc" id="L45">    private static final EntLogger logger = EntLogFactory.getSanitizedLogger(URLValidator.class);</span>
 
     @Override
     public void validate(Object object) throws ValidationException {
@@ -59,8 +59,8 @@ import org.apache.logging.log4j.Logger;
 <span class="nc" id="L59">    }</span>
 
     private boolean verifyUrl(String url) {
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L63">            LOG.debug(&quot;Checking if url [#0] is valid&quot;, url);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L63">            logger.debug(&quot;Checking if url [#0] is valid&quot;, url);</span>
         }
 <span class="nc bnc" id="L65" title="All 2 branches missed.">        if (url == null) {</span>
 <span class="nc" id="L66">            return false;</span>
@@ -73,12 +73,12 @@ import org.apache.logging.log4j.Logger;
 <span class="nc" id="L73">            new URL(url);</span>
 <span class="nc" id="L74">            return true;</span>
 <span class="nc" id="L75">        } catch (MalformedURLException e) {</span>
-<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (LOG.isDebugEnabled()) {</span>
-<span class="nc" id="L77">                LOG.debug(&quot;Url [#0] is invalid: #1&quot;, e, url, e.getMessage());</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (logger.isDebugEnabled()) {</span>
+<span class="nc" id="L77">                logger.debug(&quot;Url [#0] is invalid: #1&quot;, e, url, e.getMessage());</span>
             }
 <span class="nc" id="L79">            return false;</span>
         }
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

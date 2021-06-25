@@ -31,9 +31,9 @@ import com.agiletec.aps.system.common.tree.ITreeNodeManager;
  *
  * @author E.Santoboni
  */
-<span class="nc" id="L34">public abstract class TreeNodeBaseActionHelper extends BaseActionHelper implements ITreeNodeBaseActionHelper {</span>
+<span class="fc" id="L34">public abstract class TreeNodeBaseActionHelper extends BaseActionHelper implements ITreeNodeBaseActionHelper {</span>
 
-<span class="nc" id="L36">	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(TreeNodeBaseActionHelper.class);</span>
+<span class="fc" id="L36">	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(TreeNodeBaseActionHelper.class);</span>
 
 	/**
 	 * Costruisce il codice univoco di un nodo in base ai parametri specificato.
@@ -51,22 +51,22 @@ import com.agiletec.aps.system.common.tree.ITreeNodeManager;
 	 */
 	@Override
 	public String buildCode(String title, String baseDefaultCode, int maxLength) throws EntException {
-<span class="nc" id="L54">		String uniqueCode = null;</span>
+<span class="fc" id="L54">		String uniqueCode = null;</span>
 		try {
 			// punto 1
-<span class="nc bnc" id="L57" title="All 2 branches missed.">			uniqueCode = (null != title) ? purgeString(title) : baseDefaultCode;</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">			if (uniqueCode.length() == 0) {</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">			uniqueCode = (null != title) ? purgeString(title) : baseDefaultCode;</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">			if (uniqueCode.length() == 0) {</span>
 <span class="nc" id="L59">				uniqueCode = baseDefaultCode;</span>
 			}
 			// punto 2
-<span class="nc bnc" id="L62" title="All 2 branches missed.">			if (uniqueCode.length() &gt; maxLength) {</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">			if (uniqueCode.length() &gt; maxLength) {</span>
 <span class="nc" id="L63">				uniqueCode = uniqueCode.substring(0, maxLength);</span>
 <span class="nc bnc" id="L64" title="All 2 branches missed.">				if (uniqueCode.charAt(uniqueCode.length() - 1) == '_') {</span>
 <span class="nc" id="L65">					uniqueCode = uniqueCode.substring(0, uniqueCode.length() - 1);</span>
 				}
 			}
 			//punto 3
-<span class="nc bnc" id="L69" title="All 2 branches missed.">			if (null != this.getTreeNode(uniqueCode)) {</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">			if (null != this.getTreeNode(uniqueCode)) {</span>
 <span class="nc" id="L70">				int index = 0;</span>
 <span class="nc" id="L71">				String currentCode = null;</span>
 				do {
@@ -77,20 +77,20 @@ import com.agiletec.aps.system.common.tree.ITreeNodeManager;
 			}
 <span class="nc" id="L78">		} catch (Throwable t) {</span>
 <span class="nc" id="L79">			throw new EntException(&quot;Errore in creazione nuovo codice&quot;, t);</span>
-<span class="nc" id="L80">		}</span>
-<span class="nc" id="L81">		return uniqueCode;</span>
+<span class="fc" id="L80">		}</span>
+<span class="fc" id="L81">		return uniqueCode;</span>
 	}
 
 	@Override
 	public Set&lt;String&gt; checkTargetNodes(String nodeToOpen, Set&lt;String&gt; lastOpenedNodes, Collection&lt;String&gt; groupCodes) throws EntException {
-<span class="nc" id="L86">		Set&lt;String&gt; checkedTargetNodes = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L86">		Set&lt;String&gt; checkedTargetNodes = new HashSet&lt;&gt;();</span>
 		try {
-<span class="nc bnc" id="L88" title="All 4 branches missed.">			if (null != nodeToOpen &amp;&amp; this.checkNode(nodeToOpen, groupCodes)) {</span>
-<span class="nc" id="L89">				checkedTargetNodes.add(nodeToOpen);</span>
+<span class="pc bpc" id="L88" title="2 of 4 branches missed.">			if (null != nodeToOpen &amp;&amp; this.checkNode(nodeToOpen, groupCodes)) {</span>
+<span class="fc" id="L89">				checkedTargetNodes.add(nodeToOpen);</span>
 			}
-<span class="nc bnc" id="L91" title="All 2 branches missed.">			if (null != lastOpenedNodes) {</span>
-<span class="nc" id="L92">				Iterator&lt;String&gt; iter = lastOpenedNodes.iterator();</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">				while (iter.hasNext()) {</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">			if (null != lastOpenedNodes) {</span>
+<span class="fc" id="L92">				Iterator&lt;String&gt; iter = lastOpenedNodes.iterator();</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">				while (iter.hasNext()) {</span>
 <span class="nc" id="L94">					String code = (String) iter.next();</span>
 <span class="nc bnc" id="L95" title="All 4 branches missed.">					if (null != code &amp;&amp; this.checkNode(code, groupCodes)) {</span>
 <span class="nc" id="L96">						checkedTargetNodes.add(code);</span>
@@ -100,8 +100,8 @@ import com.agiletec.aps.system.common.tree.ITreeNodeManager;
 <span class="nc" id="L100">		} catch (Throwable t) {</span>
 <span class="nc" id="L101">			_logger.error(&quot;Error check target nodes&quot;, t);</span>
 <span class="nc" id="L102">			throw new EntException(&quot;Error check target nodes&quot;, t);</span>
-<span class="nc" id="L103">		}</span>
-<span class="nc" id="L104">		return checkedTargetNodes;</span>
+<span class="fc" id="L103">		}</span>
+<span class="fc" id="L104">		return checkedTargetNodes;</span>
 	}
 
 	@Override
@@ -137,51 +137,51 @@ import com.agiletec.aps.system.common.tree.ITreeNodeManager;
 	}
 
 	protected boolean checkNode(String nodeCode, Collection&lt;String&gt; groupCodes) {
-<span class="nc bnc" id="L140" title="All 2 branches missed.">		if (!this.isNodeAllowed(nodeCode, groupCodes)) {</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">		if (!this.isNodeAllowed(nodeCode, groupCodes)) {</span>
 <span class="nc" id="L141">			_logger.error(&quot;Node '{}' not allowed &quot;, nodeCode);</span>
 <span class="nc" id="L142">			return false;</span>
 		}
-<span class="nc" id="L144">		ITreeNode treeNode = this.getTreeNode(nodeCode);</span>
-<span class="nc bnc" id="L145" title="All 2 branches missed.">		if (null == treeNode) {</span>
+<span class="fc" id="L144">		ITreeNode treeNode = this.getTreeNode(nodeCode);</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">		if (null == treeNode) {</span>
 <span class="nc" id="L146">			_logger.error(&quot;Node '{}' null&quot;, nodeCode);</span>
 <span class="nc" id="L147">			return false;</span>
 		}
-<span class="nc" id="L149">		return true;</span>
+<span class="fc" id="L149">		return true;</span>
 	}
 
 	@Override
 	public TreeNodeWrapper getShowableTree(Set&lt;String&gt; treeNodesToOpen, ITreeNode fullTree, Collection&lt;String&gt; groupCodes) throws EntException {
-<span class="nc bnc" id="L154" title="All 4 branches missed.">		if (null == treeNodesToOpen || treeNodesToOpen.isEmpty()) {</span>
-<span class="nc" id="L155">			_logger.warn(&quot;No selected nodes&quot;);</span>
-<span class="nc" id="L156">			return this.buildWrapper(fullTree);</span>
+<span class="pc bpc" id="L154" title="1 of 4 branches missed.">		if (null == treeNodesToOpen || treeNodesToOpen.isEmpty()) {</span>
+<span class="fc" id="L155">			_logger.warn(&quot;No selected nodes&quot;);</span>
+<span class="fc" id="L156">			return this.buildWrapper(fullTree);</span>
 		}
-<span class="nc" id="L158">		TreeNodeWrapper root = null;</span>
+<span class="fc" id="L158">		TreeNodeWrapper root = null;</span>
 		try {
-<span class="nc" id="L160">			Set&lt;String&gt; nodesToShow = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L161">			this.buildCheckNodes(treeNodesToOpen, nodesToShow, groupCodes);</span>
-<span class="nc" id="L162">			root = this.buildWrapper(fullTree);</span>
-<span class="nc" id="L163">			root.setParent(root);</span>
-<span class="nc" id="L164">			this.builShowableTree(root, fullTree, nodesToShow);</span>
+<span class="fc" id="L160">			Set&lt;String&gt; nodesToShow = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L161">			this.buildCheckNodes(treeNodesToOpen, nodesToShow, groupCodes);</span>
+<span class="fc" id="L162">			root = this.buildWrapper(fullTree);</span>
+<span class="fc" id="L163">			root.setParent(root);</span>
+<span class="fc" id="L164">			this.builShowableTree(root, fullTree, nodesToShow);</span>
 <span class="nc" id="L165">		} catch (Throwable t) {</span>
 <span class="nc" id="L166">			_logger.error(&quot;Error creating showable tree&quot;, t);</span>
 <span class="nc" id="L167">			throw new EntException(&quot;Error creating showable tree&quot;, t);</span>
-<span class="nc" id="L168">		}</span>
-<span class="nc" id="L169">		return root;</span>
+<span class="fc" id="L168">		}</span>
+<span class="fc" id="L169">		return root;</span>
 	}
 
 	private void buildCheckNodes(Set&lt;String&gt; treeNodesToOpen, Set&lt;String&gt; nodesToShow, Collection&lt;String&gt; groupCodes) {
-<span class="nc bnc" id="L173" title="All 2 branches missed.">		if (null == treeNodesToOpen) {</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">		if (null == treeNodesToOpen) {</span>
 <span class="nc" id="L174">			return;</span>
 		}
-<span class="nc" id="L176">		Iterator&lt;String&gt; iter = treeNodesToOpen.iterator();</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">		while (iter.hasNext()) {</span>
-<span class="nc" id="L178">			String targetNode = (String) iter.next();</span>
-<span class="nc" id="L179">			ITreeNode treeNode = this.getTreeNode(targetNode);</span>
-<span class="nc bnc" id="L180" title="All 2 branches missed.">			if (null != treeNode) {</span>
-<span class="nc" id="L181">				this.buildCheckNodes(treeNode, nodesToShow, groupCodes);</span>
+<span class="fc" id="L176">		Iterator&lt;String&gt; iter = treeNodesToOpen.iterator();</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">		while (iter.hasNext()) {</span>
+<span class="fc" id="L178">			String targetNode = (String) iter.next();</span>
+<span class="fc" id="L179">			ITreeNode treeNode = this.getTreeNode(targetNode);</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">			if (null != treeNode) {</span>
+<span class="fc" id="L181">				this.buildCheckNodes(treeNode, nodesToShow, groupCodes);</span>
 			}
-<span class="nc" id="L183">		}</span>
-<span class="nc" id="L184">	}</span>
+<span class="fc" id="L183">		}</span>
+<span class="fc" id="L184">	}</span>
 
 	protected void buildCheckNodes(ITreeNode treeNode, Set&lt;String&gt; nodesToShow, Collection&lt;String&gt; groupCodes) {
 <span class="nc" id="L187">		nodesToShow.add(treeNode.getCode());</span>
@@ -193,20 +193,20 @@ import com.agiletec.aps.system.common.tree.ITreeNodeManager;
 <span class="nc" id="L193">	}</span>
 
 	private void builShowableTree(TreeNodeWrapper currentNode, ITreeNode currentTreeNode, Set&lt;String&gt; checkNodes) {
-<span class="nc bnc" id="L196" title="All 2 branches missed.">		if (checkNodes.contains(currentNode.getCode())) {</span>
-<span class="nc" id="L197">			currentNode.setOpen(true);</span>
-<span class="nc" id="L198">			String[] children = currentTreeNode.getChildrenCodes();</span>
-<span class="nc bnc" id="L199" title="All 2 branches missed.">			for (int i = 0; i &lt; children.length; i++) {</span>
-<span class="nc" id="L200">				ITreeNode newCurrentTreeNode = this.getTreeNode(children[i]);</span>
-<span class="nc" id="L201">				TreeNodeWrapper newNode = this.buildWrapper(newCurrentTreeNode);</span>
-<span class="nc" id="L202">				newNode.setParent(currentNode);</span>
-<span class="nc" id="L203">				newNode.setParentCode(currentNode.getCode());</span>
-<span class="nc" id="L204">				currentNode.addChildCode(newNode.getCode());</span>
-<span class="nc" id="L205">				currentNode.addChild(newNode);</span>
-<span class="nc" id="L206">				this.builShowableTree(newNode, newCurrentTreeNode, checkNodes);</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">		if (checkNodes.contains(currentNode.getCode())) {</span>
+<span class="fc" id="L197">			currentNode.setOpen(true);</span>
+<span class="fc" id="L198">			String[] children = currentTreeNode.getChildrenCodes();</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">			for (int i = 0; i &lt; children.length; i++) {</span>
+<span class="fc" id="L200">				ITreeNode newCurrentTreeNode = this.getTreeNode(children[i]);</span>
+<span class="fc" id="L201">				TreeNodeWrapper newNode = this.buildWrapper(newCurrentTreeNode);</span>
+<span class="fc" id="L202">				newNode.setParent(currentNode);</span>
+<span class="fc" id="L203">				newNode.setParentCode(currentNode.getCode());</span>
+<span class="fc" id="L204">				currentNode.addChildCode(newNode.getCode());</span>
+<span class="fc" id="L205">				currentNode.addChild(newNode);</span>
+<span class="fc" id="L206">				this.builShowableTree(newNode, newCurrentTreeNode, checkNodes);</span>
 			}
 		}
-<span class="nc" id="L209">	}</span>
+<span class="fc" id="L209">	}</span>
     
 	protected abstract boolean isNodeAllowed(String code, Collection&lt;String&gt; groupCodes);
 
@@ -220,26 +220,26 @@ import com.agiletec.aps.system.common.tree.ITreeNodeManager;
 	 */
 	@Override
 	public ITreeNode getAllowedTreeRoot(Collection&lt;String&gt; groupCodes) throws EntException {
-<span class="nc" id="L223">		ITreeNode currentRoot = this.getRoot();</span>
-<span class="nc" id="L224">		TreeNodeWrapper root = this.buildWrapper(currentRoot);</span>
-<span class="nc" id="L225">		this.addTreeWrapper(root, currentRoot);</span>
-<span class="nc" id="L226">		return root;</span>
+<span class="fc" id="L223">		ITreeNode currentRoot = this.getRoot();</span>
+<span class="fc" id="L224">		TreeNodeWrapper root = this.buildWrapper(currentRoot);</span>
+<span class="fc" id="L225">		this.addTreeWrapper(root, currentRoot);</span>
+<span class="fc" id="L226">		return root;</span>
 	}
 
 	private void addTreeWrapper(TreeNodeWrapper currentNode, ITreeNode currentTreeNode) {
-<span class="nc" id="L230">		String[] children = currentTreeNode.getChildrenCodes();</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">		for (int i = 0; i &lt; children.length; i++) {</span>
-<span class="nc" id="L232">			ITreeNode newCurrentTreeNode = this.getTreeNode(children[i]);</span>
-<span class="nc" id="L233">			TreeNodeWrapper newNode = this.buildWrapper(newCurrentTreeNode);</span>
-<span class="nc" id="L234">			currentNode.addChildCode(newNode.getCode());</span>
-<span class="nc" id="L235">			currentNode.addChild(newNode);</span>
-<span class="nc" id="L236">			this.addTreeWrapper(newNode, newCurrentTreeNode);</span>
+<span class="fc" id="L230">		String[] children = currentTreeNode.getChildrenCodes();</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">		for (int i = 0; i &lt; children.length; i++) {</span>
+<span class="fc" id="L232">			ITreeNode newCurrentTreeNode = this.getTreeNode(children[i]);</span>
+<span class="fc" id="L233">			TreeNodeWrapper newNode = this.buildWrapper(newCurrentTreeNode);</span>
+<span class="fc" id="L234">			currentNode.addChildCode(newNode.getCode());</span>
+<span class="fc" id="L235">			currentNode.addChild(newNode);</span>
+<span class="fc" id="L236">			this.addTreeWrapper(newNode, newCurrentTreeNode);</span>
 		}
-<span class="nc" id="L238">	}</span>
+<span class="fc" id="L238">	}</span>
 
 	protected TreeNodeWrapper buildWrapper(ITreeNode treeNode) {
-<span class="nc" id="L241">        ITreeNode parent = this.getTreeNodeManager().getNode(treeNode.getParentCode());</span>
-<span class="nc" id="L242">		return new TreeNodeWrapper(treeNode, parent);</span>
+<span class="fc" id="L241">        ITreeNode parent = this.getTreeNodeManager().getNode(treeNode.getParentCode());</span>
+<span class="fc" id="L242">		return new TreeNodeWrapper(treeNode, parent);</span>
 	}
     
     protected abstract ITreeNodeManager getTreeNodeManager();
@@ -260,4 +260,4 @@ import com.agiletec.aps.system.common.tree.ITreeNodeManager;
 	protected abstract ITreeNode getTreeNode(String code);
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

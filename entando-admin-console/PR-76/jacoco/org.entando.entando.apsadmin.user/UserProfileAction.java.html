@@ -23,7 +23,7 @@ import com.agiletec.apsadmin.system.entity.AbstractApsEntityAction;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.entando.entando.aps.system.services.userprofile.IUserProfileManager;
 import org.entando.entando.aps.system.services.userprofile.model.IUserProfile;
 import org.entando.entando.ent.exception.EntException;
@@ -33,52 +33,52 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 /**
  * @author E.Santoboni
  */
-<span class="nc" id="L36">public class UserProfileAction extends AbstractApsEntityAction {</span>
+<span class="fc" id="L36">public class UserProfileAction extends AbstractApsEntityAction {</span>
 
-<span class="nc" id="L38">	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(UserProfileAction.class);</span>
+<span class="fc" id="L38">	private static final EntLogger _logger = EntLogFactory.getSanitizedLogger(UserProfileAction.class);</span>
 	
 	@Override
     public String edit() {
-<span class="nc" id="L42">        String username = this.getUsername();</span>
+<span class="fc" id="L42">        String username = this.getUsername();</span>
         try {
-<span class="nc" id="L44">            String checkUsernameResult = this.checkUsername(username, false);</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (null != checkUsernameResult) return checkUsernameResult;</span>
-<span class="nc" id="L46">            IUserProfile userProfile = (IUserProfile) this.getUserProfileManager().getProfile(username);</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">            if (null == userProfile) {</span>
-<span class="nc" id="L48">                List&lt;IApsEntity&gt; userProfileTypes = new ArrayList&lt;IApsEntity&gt;();</span>
-<span class="nc" id="L49">                userProfileTypes.addAll(this.getUserProfileManager().getEntityPrototypes().values());</span>
-<span class="nc bnc" id="L50" title="All 2 branches missed.">                if (userProfileTypes.isEmpty()) {</span>
+<span class="fc" id="L44">            String checkUsernameResult = this.checkUsername(username, false);</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">            if (null != checkUsernameResult) return checkUsernameResult;</span>
+<span class="fc" id="L46">            IUserProfile userProfile = (IUserProfile) this.getUserProfileManager().getProfile(username);</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            if (null == userProfile) {</span>
+<span class="fc" id="L48">                List&lt;IApsEntity&gt; userProfileTypes = new ArrayList&lt;IApsEntity&gt;();</span>
+<span class="fc" id="L49">                userProfileTypes.addAll(this.getUserProfileManager().getEntityPrototypes().values());</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">                if (userProfileTypes.isEmpty()) {</span>
 <span class="nc" id="L51">                    throw new RuntimeException(&quot;Unexpected error - no one user profile types&quot;);</span>
-<span class="nc bnc" id="L52" title="All 2 branches missed.">                } else if (userProfileTypes.size() == 1) {</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">                } else if (userProfileTypes.size() == 1) {</span>
 <span class="nc" id="L53">                    userProfile = (IUserProfile) userProfileTypes.get(0);</span>
 <span class="nc" id="L54">                    userProfile.setId(username);</span>
                 } else {
-<span class="nc" id="L56">                    return &quot;chooseType&quot;;</span>
+<span class="fc" id="L56">                    return &quot;chooseType&quot;;</span>
                 }
             }
-<span class="nc" id="L59">            this.getRequest().getSession().setAttribute(USERPROFILE_ON_SESSION, userProfile);</span>
+<span class="fc" id="L59">            this.getRequest().getSession().setAttribute(USERPROFILE_ON_SESSION, userProfile);</span>
 <span class="nc" id="L60">        } catch (Throwable t) {</span>
 <span class="nc" id="L61">        	_logger.error(&quot;error in edit&quot;, t);</span>
 <span class="nc" id="L62">            return FAILURE;</span>
-<span class="nc" id="L63">        }</span>
-<span class="nc" id="L64">        return SUCCESS;</span>
+<span class="fc" id="L63">        }</span>
+<span class="fc" id="L64">        return SUCCESS;</span>
     }
 	
 	public String saveEmpty() {
-<span class="nc" id="L68">		return this.createNewProfile(true);</span>
+<span class="fc" id="L68">		return this.createNewProfile(true);</span>
 	}
     
 	public String saveAndContinue() {
-<span class="nc" id="L72">		return this.createNewProfile(false);</span>
+<span class="fc" id="L72">		return this.createNewProfile(false);</span>
 	}
     
 	protected String createNewProfile(boolean onlyVoid) {
-<span class="nc" id="L76">        String username = this.getUsername();</span>
-<span class="nc" id="L77">        String profileTypeCode = this.getProfileTypeCode();</span>
+<span class="fc" id="L76">        String username = this.getUsername();</span>
+<span class="fc" id="L77">        String profileTypeCode = this.getProfileTypeCode();</span>
         try {
-<span class="nc" id="L79">            String check = this.checkUsername(username, false);</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (null != check) return check;</span>
-<span class="nc" id="L81">			this.getUserProfileManager().deleteProfile(username);</span>
+<span class="fc" id="L79">            String check = this.checkUsername(username, false);</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            if (null != check) return check;</span>
+<span class="fc" id="L81">			this.getUserProfileManager().deleteProfile(username);</span>
 			/*
             IUserProfile userProfile = (IUserProfile) this.getUserProfileManager().getProfile(username);
             if (null != userProfile) {
@@ -86,29 +86,29 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
                 return &quot;edit&quot;;
             }
 			*/
-<span class="nc bnc" id="L89" title="All 2 branches missed.">            if (StringUtils.isBlank(profileTypeCode)) {</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">            if (StringUtils.isBlank(profileTypeCode)) {</span>
 <span class="nc" id="L90">                String[] args = {profileTypeCode};</span>
 <span class="nc" id="L91">                this.addFieldError(&quot;profileTypeCode&quot;, this.getText(&quot;error.profileType.mandatory&quot;, args));</span>
 <span class="nc" id="L92">                return INPUT;</span>
             }
-<span class="nc" id="L94">            IUserProfile prototype = (IUserProfile) this.getUserProfileManager().getEntityPrototype(profileTypeCode);</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">            if (null == prototype) {</span>
-<span class="nc" id="L96">                String[] args = {profileTypeCode};</span>
-<span class="nc" id="L97">                this.addFieldError(&quot;profileTypeCode&quot;, this.getText(&quot;error.newUserProfile.invalidProfileType&quot;, args));</span>
-<span class="nc" id="L98">                return INPUT;</span>
+<span class="fc" id="L94">            IUserProfile prototype = (IUserProfile) this.getUserProfileManager().getEntityPrototype(profileTypeCode);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            if (null == prototype) {</span>
+<span class="fc" id="L96">                String[] args = {profileTypeCode};</span>
+<span class="fc" id="L97">                this.addFieldError(&quot;profileTypeCode&quot;, this.getText(&quot;error.newUserProfile.invalidProfileType&quot;, args));</span>
+<span class="fc" id="L98">                return INPUT;</span>
             }
-<span class="nc" id="L100">            prototype.setId(this.getUsername());</span>
-<span class="nc" id="L101">			this.getUserProfileManager().addProfile(username, prototype);</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">			if (onlyVoid) {</span>
-<span class="nc" id="L103">				this.getRequest().getSession().removeAttribute(USERPROFILE_ON_SESSION);</span>
+<span class="fc" id="L100">            prototype.setId(this.getUsername());</span>
+<span class="fc" id="L101">			this.getUserProfileManager().addProfile(username, prototype);</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">			if (onlyVoid) {</span>
+<span class="fc" id="L103">				this.getRequest().getSession().removeAttribute(USERPROFILE_ON_SESSION);</span>
 			} else {
-<span class="nc" id="L105">				this.getRequest().getSession().setAttribute(USERPROFILE_ON_SESSION, prototype);</span>
+<span class="fc" id="L105">				this.getRequest().getSession().setAttribute(USERPROFILE_ON_SESSION, prototype);</span>
 			}
 <span class="nc" id="L107">        } catch (Throwable t) {</span>
 <span class="nc" id="L108">        	_logger.error(&quot;error in createNewProfile&quot;, t);</span>
 <span class="nc" id="L109">            return FAILURE;</span>
-<span class="nc" id="L110">        }</span>
-<span class="nc" id="L111">        return SUCCESS;</span>
+<span class="fc" id="L110">        }</span>
+<span class="fc" id="L111">        return SUCCESS;</span>
     }
 	
     @Override
@@ -119,24 +119,24 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
     @Override
     public String save() {
         try {
-<span class="nc" id="L122">            IUserProfile userProfile = (IUserProfile) this.getApsEntity();</span>
-<span class="nc" id="L123">            String username = userProfile.getUsername();</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (null == this.getUserProfileManager().getProfile(userProfile.getUsername())) {</span>
+<span class="fc" id="L122">            IUserProfile userProfile = (IUserProfile) this.getApsEntity();</span>
+<span class="fc" id="L123">            String username = userProfile.getUsername();</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">            if (null == this.getUserProfileManager().getProfile(userProfile.getUsername())) {</span>
 <span class="nc" id="L125">                this.getUserProfileManager().addProfile(username, userProfile);</span>
             } else {
-<span class="nc" id="L127">                this.getUserProfileManager().updateProfile(username, userProfile);</span>
+<span class="fc" id="L127">                this.getUserProfileManager().updateProfile(username, userProfile);</span>
             }
-<span class="nc" id="L129">			UserDetails currentUser = super.getCurrentUser();</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">			if (null != currentUser </span>
-<span class="nc bnc" id="L131" title="All 4 branches missed.">					&amp;&amp; currentUser.getUsername().equals(username)</span>
+<span class="fc" id="L129">			UserDetails currentUser = super.getCurrentUser();</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">			if (null != currentUser </span>
+<span class="pc bpc" id="L131" title="3 of 4 branches missed.">					&amp;&amp; currentUser.getUsername().equals(username)</span>
 					&amp;&amp; (currentUser instanceof AbstractUser)) {
 <span class="nc" id="L133">				((AbstractUser) currentUser).setProfile(userProfile);</span>
 			}
 <span class="nc" id="L135">        } catch (Throwable t) {</span>
 <span class="nc" id="L136">        	_logger.error(&quot;error in save&quot;, t);</span>
 <span class="nc" id="L137">            return FAILURE;</span>
-<span class="nc" id="L138">        }</span>
-<span class="nc" id="L139">        return SUCCESS;</span>
+<span class="fc" id="L138">        }</span>
+<span class="fc" id="L139">        return SUCCESS;</span>
     }
     
     @Override
@@ -172,12 +172,12 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
     }
 	
     private String checkUsername(String username, boolean checkNullProfile) throws EntException {
-<span class="nc bnc" id="L175" title="All 6 branches missed.">        if (StringUtils.isBlank(username) || (checkNullProfile &amp;&amp; null == this.getUserProfileManager().getProfile(username))) {</span>
+<span class="pc bpc" id="L175" title="4 of 6 branches missed.">        if (StringUtils.isBlank(username) || (checkNullProfile &amp;&amp; null == this.getUserProfileManager().getProfile(username))) {</span>
 <span class="nc" id="L176">            String[] args = {username};</span>
 <span class="nc" id="L177">            this.addFieldError(&quot;username&quot;, this.getText(&quot;error.newUserProfile.invalidUsername&quot;, args));</span>
 <span class="nc" id="L178">            return INPUT;</span>
         }
-<span class="nc" id="L180">        return null;</span>
+<span class="fc" id="L180">        return null;</span>
     }
     
     public List&lt;SmallEntityType&gt; getUserProfileTypes() {
@@ -206,29 +206,29 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
     
 	@Override
     public IApsEntity getApsEntity() {
-<span class="nc" id="L209">        return (IUserProfile) this.getRequest().getSession().getAttribute(USERPROFILE_ON_SESSION);</span>
+<span class="fc" id="L209">        return (IUserProfile) this.getRequest().getSession().getAttribute(USERPROFILE_ON_SESSION);</span>
     }
     
     public String getUsername() {
-<span class="nc" id="L213">        return _username;</span>
+<span class="fc" id="L213">        return _username;</span>
     }
     public void setUsername(String username) {
-<span class="nc" id="L216">        this._username = username;</span>
-<span class="nc" id="L217">    }</span>
+<span class="fc" id="L216">        this._username = username;</span>
+<span class="fc" id="L217">    }</span>
     
     public String getProfileTypeCode() {
-<span class="nc" id="L220">        return _profileTypeCode;</span>
+<span class="fc" id="L220">        return _profileTypeCode;</span>
     }
     public void setProfileTypeCode(String profileTypeCode) {
-<span class="nc" id="L223">        this._profileTypeCode = profileTypeCode;</span>
-<span class="nc" id="L224">    }</span>
+<span class="fc" id="L223">        this._profileTypeCode = profileTypeCode;</span>
+<span class="fc" id="L224">    }</span>
     
     protected IUserProfileManager getUserProfileManager() {
-<span class="nc" id="L227">        return _userProfileManager;</span>
+<span class="fc" id="L227">        return _userProfileManager;</span>
     }
     public void setUserProfileManager(IUserProfileManager userProfileManager) {
-<span class="nc" id="L230">        this._userProfileManager = userProfileManager;</span>
-<span class="nc" id="L231">    }</span>
+<span class="fc" id="L230">        this._userProfileManager = userProfileManager;</span>
+<span class="fc" id="L231">    }</span>
 	
     private String _username;
     private String _profileTypeCode;
@@ -237,4 +237,4 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
     public static final String USERPROFILE_ON_SESSION = &quot;userprofile_profileOnSession&quot;;
     
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
