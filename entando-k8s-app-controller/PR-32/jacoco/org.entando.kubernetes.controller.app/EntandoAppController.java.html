@@ -38,12 +38,12 @@ import org.entando.kubernetes.controller.spi.common.NameUtils;
 import org.entando.kubernetes.controller.spi.container.ProvidedDatabaseCapability;
 import org.entando.kubernetes.controller.spi.container.ProvidedSsoCapability;
 import org.entando.kubernetes.controller.spi.deployable.IngressingDeployable;
-import org.entando.kubernetes.controller.spi.deployable.PublicIngressingDeployable;
 import org.entando.kubernetes.controller.spi.deployable.SsoConnectionInfo;
 import org.entando.kubernetes.controller.spi.result.DatabaseConnectionInfo;
 import org.entando.kubernetes.model.app.EntandoApp;
 import org.entando.kubernetes.model.capability.CapabilityRequirementBuilder;
 import org.entando.kubernetes.model.capability.CapabilityScope;
+import org.entando.kubernetes.model.capability.ProvidedCapability;
 import org.entando.kubernetes.model.capability.StandardCapability;
 import org.entando.kubernetes.model.capability.StandardCapabilityImplementation;
 import org.entando.kubernetes.model.common.DbmsVendor;
@@ -136,50 +136,64 @@ public class EntandoAppController implements Runnable {
 <span class="fc" id="L136">                            .withImplementation(StandardCapabilityImplementation.valueOf(dbmsVendor.name()))</span>
 <span class="fc" id="L137">                            .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.DEDICATED, CapabilityScope.CLUSTER)</span>
 <span class="fc" id="L138">                            .build(), 180);</span>
-<span class="fc" id="L139">            capabilityResult.getProvidedCapability().getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).ifPresent(s -&gt;</span>
-<span class="fc" id="L140">                    this.entandoApp.updateAndGet(a -&gt; this.k8sClient.updateStatus(a, new ServerStatus(NameUtils.DB_QUALIFIER, s))));</span>
-<span class="fc" id="L141">            capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
-<span class="fc" id="L142">                throw new EntandoControllerException(format(&quot;Could not prepare database for EntandoApp %s/%s%n%s&quot;, entandoApp.get()</span>
-<span class="fc" id="L143">                                .getMetadata().getNamespace(), entandoApp.get()</span>
-<span class="fc" id="L144">                                .getMetadata().getName(),</span>
-<span class="fc" id="L145">                        f.getDetailMessage()));</span>
+<span class="fc" id="L139">            final ProvidedCapability dbmsCapability = capabilityResult.getProvidedCapability();</span>
+<span class="fc" id="L140">            dbmsCapability.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).ifPresent(s -&gt;</span>
+<span class="fc" id="L141">                    this.entandoApp.updateAndGet(a -&gt; this.k8sClient.updateStatus(a, new ServerStatus(NameUtils.DB_QUALIFIER, s))));</span>
+<span class="fc" id="L142">            capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
+<span class="fc" id="L143">                throw new EntandoControllerException(</span>
+<span class="fc" id="L144">                        format(&quot;Could not prepare DBMS  capability for EntandoApp %s/%s. Please inspect the ProvidedCapability %s/%s, &quot;</span>
+                                        + &quot;address the &quot;
+                                        + &quot;deployment failure and force a redeployment using the annotation value 'entando&quot;
+                                        + &quot;.org/processing-instruction: force. The following message was received:%n %s&quot;,
+<span class="fc" id="L148">                                entandoApp.get().getMetadata().getNamespace(),</span>
+<span class="fc" id="L149">                                entandoApp.get().getMetadata().getName(),</span>
+<span class="fc" id="L150">                                dbmsCapability.getMetadata().getNamespace(),</span>
+<span class="fc" id="L151">                                dbmsCapability.getMetadata().getName(),</span>
+<span class="fc" id="L152">                                f.getDetailMessage()));</span>
             });
-<span class="fc" id="L147">            return new ProvidedDatabaseCapability(capabilityResult);</span>
+<span class="fc" id="L154">            return new ProvidedDatabaseCapability(capabilityResult);</span>
         } else {
-<span class="fc" id="L149">            return null;</span>
+<span class="fc" id="L156">            return null;</span>
         }
     }
 
     private boolean requiresDbmsService(DbmsVendor dbmsVendor) {
-<span class="fc bfc" id="L154" title="All 2 branches covered.">        return !Set.of(DbmsVendor.NONE, DbmsVendor.EMBEDDED).contains(dbmsVendor);</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        return !Set.of(DbmsVendor.NONE, DbmsVendor.EMBEDDED).contains(dbmsVendor);</span>
     }
 
     private ProvidedSsoCapability provideSso() throws TimeoutException {
-<span class="fc" id="L158">        final CapabilityProvisioningResult capabilityResult = capabilityProvider</span>
-<span class="fc" id="L159">                .provideCapability(entandoApp.get(), new CapabilityRequirementBuilder()</span>
-<span class="fc" id="L160">                        .withCapability(StandardCapability.SSO)</span>
-<span class="fc" id="L161">                        .withPreferredDbms(determineDbmsForSso())</span>
-<span class="fc" id="L162">                        .withPreferredIngressHostName(entandoApp.get().getSpec().getIngressHostName().orElse(null))</span>
-<span class="fc" id="L163">                        .withPreferredTlsSecretName(entandoApp.get().getSpec().getTlsSecretName().orElse(null))</span>
-<span class="fc" id="L164">                        .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.CLUSTER)</span>
-<span class="fc" id="L165">                        .build(), 240);</span>
-<span class="fc" id="L166">        capabilityResult.getProvidedCapability().getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).ifPresent(s -&gt;</span>
-<span class="fc" id="L167">                this.entandoApp.updateAndGet(a -&gt; this.k8sClient.updateStatus(a, new ServerStatus(NameUtils.SSO_QUALIFIER, s))));</span>
-<span class="fc" id="L168">        capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
-<span class="fc" id="L169">            throw new EntandoControllerException(format(&quot;Could not prepare SSO for EntandoApp %s/%s%n%s&quot;, entandoApp.get()</span>
-<span class="fc" id="L170">                            .getMetadata().getNamespace(), entandoApp.get()</span>
-<span class="fc" id="L171">                            .getMetadata().getName(),</span>
-<span class="fc" id="L172">                    f.getDetailMessage()));</span>
+<span class="fc" id="L165">        final CapabilityProvisioningResult capabilityResult = capabilityProvider</span>
+<span class="fc" id="L166">                .provideCapability(entandoApp.get(), new CapabilityRequirementBuilder()</span>
+<span class="fc" id="L167">                        .withCapability(StandardCapability.SSO)</span>
+<span class="fc" id="L168">                        .withPreferredDbms(determineDbmsForSso())</span>
+<span class="fc" id="L169">                        .withPreferredIngressHostName(entandoApp.get().getSpec().getIngressHostName().orElse(null))</span>
+<span class="fc" id="L170">                        .withPreferredTlsSecretName(entandoApp.get().getSpec().getTlsSecretName().orElse(null))</span>
+<span class="fc" id="L171">                        .withResolutionScopePreference(CapabilityScope.NAMESPACE, CapabilityScope.CLUSTER)</span>
+<span class="fc" id="L172">                        .build(), 240);</span>
+<span class="fc" id="L173">        final ProvidedCapability ssoCapability = capabilityResult.getProvidedCapability();</span>
+<span class="fc" id="L174">        ssoCapability.getStatus().getServerStatus(NameUtils.MAIN_QUALIFIER).ifPresent(s -&gt;</span>
+<span class="fc" id="L175">                this.entandoApp.updateAndGet(a -&gt; this.k8sClient.updateStatus(a, new ServerStatus(NameUtils.SSO_QUALIFIER, s))));</span>
+<span class="fc" id="L176">        capabilityResult.getControllerFailure().ifPresent(f -&gt; {</span>
+<span class="fc" id="L177">            throw new EntandoControllerException(</span>
+<span class="fc" id="L178">                    format(&quot;Could not prepare SSO capability for EntandoApp %s/%s. Please inspect the ProvidedCapability %s/%s, address &quot;</span>
+                                    + &quot;the &quot;
+                                    + &quot;deployment failure and force a redeployment using the annotation value 'entando&quot;
+                                    + &quot;.org/processing-instruction: force. The following message was received:%n %s&quot;,
+<span class="fc" id="L182">                            entandoApp.get().getMetadata().getNamespace(),</span>
+<span class="fc" id="L183">                            entandoApp.get().getMetadata().getName(),</span>
+<span class="fc" id="L184">                            ssoCapability.getMetadata().getNamespace(),</span>
+<span class="fc" id="L185">                            ssoCapability.getMetadata().getName(),</span>
+<span class="fc" id="L186">                            f.getDetailMessage()));</span>
         });
-<span class="fc" id="L174">        return new ProvidedSsoCapability(capabilityResult);</span>
+<span class="fc" id="L188">        return new ProvidedSsoCapability(capabilityResult);</span>
     }
 
     private DbmsVendor determineDbmsForSso() {
-<span class="fc" id="L178">        final DbmsVendor dbmsVendor = EntandoAppHelper.determineDbmsVendor(entandoApp.get());</span>
-<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        if (dbmsVendor == DbmsVendor.NONE) {</span>
-<span class="nc" id="L180">            return null;</span>
+<span class="fc" id="L192">        final DbmsVendor dbmsVendor = EntandoAppHelper.determineDbmsVendor(entandoApp.get());</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">        if (dbmsVendor == DbmsVendor.NONE) {</span>
+<span class="nc" id="L194">            return null;</span>
         }
-<span class="fc" id="L182">        return dbmsVendor;</span>
+<span class="fc" id="L196">        return dbmsVendor;</span>
     }
 
 }

@@ -1,0 +1,54 @@
+---
+internalServiceHostname: "my-app-cm-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-app-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-app-cm-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8083"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-app-cm-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "http://my-app-my-namespace.apps.serv.run/digital-exchange"
+externalHostUrl: "http://my-app-my-namespace.apps.serv.run"
+internalBaseUrl: "http://my-app-cm-service.my-namespace.svc.cluster.local:8083/digital-exchange"
+status:
+  qualifier: "cm"
+  started: "2021-06-28T11:49:11+0000"
+  originatingCustomResource:
+    apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    namespace: "my-namespace"
+    name: "my-app"
+  originatingControllerPod:
+    namespace: "controller-namespace"
+    name: "entando-k8s-entando-k8s-app-con-sbl8q-23-from-build-pack--7dbxz"
+  finished: "2021-06-28T11:49:11+0000"
+  serviceName: "my-app-cm-service"
+  deploymentName: "my-app-cm-deployment"
+  ssoRealm: "my-realm"
+  ssoClientId: "my-app-de"
+  webContexts:
+    de: "/digital-exchange"
+  podPhases:
+    my-app-cm-deployment: "Running"
+  persistentVolumeClaimPhases:
+    my-app-de-pvc: "Pending"
+  ingressName: "my-app-ingress"
