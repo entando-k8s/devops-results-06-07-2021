@@ -58,15 +58,9 @@ class CrdNameMapSync implements RestartingWatcher&lt;CustomResourceDefinition&gt
 <span class="fc" id="L58">        crdNameMap = new ConfigMapBuilder(crdNameMap).addToData(key, r.getMetadata().getName()).build();</span>
 <span class="fc" id="L59">    }</span>
 
-    @Override
-    public void onClose(WatcherException e) {
-<span class="fc" id="L63">        LOGGER.log(Level.SEVERE, e, () -&gt; &quot;EntandoControllerCoordinator closed. Can't reconnect. The container should restart now.&quot;);</span>
-<span class="fc" id="L64">        Liveness.dead();</span>
-<span class="fc" id="L65">    }</span>
-
     public boolean isOfInterest(OwnerReference ownerReference) {
-<span class="fc" id="L68">        final String key = CoordinatorUtils.keyOf(ownerReference);</span>
-<span class="fc" id="L69">        return CoordinatorUtils.resolveValue(crdNameMap, key).isPresent();</span>
+<span class="fc" id="L62">        final String key = CoordinatorUtils.keyOf(ownerReference);</span>
+<span class="fc" id="L63">        return CoordinatorUtils.resolveValue(crdNameMap, key).isPresent();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

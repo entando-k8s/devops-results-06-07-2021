@@ -1,0 +1,59 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    openshift.io/scc: "anyuid"
+  creationTimestamp: "2021-06-28T13:40:47Z"
+  labels:
+    EntandoResourceKind: "TestResource"
+    EntandoResourceNamespace: "entando-k8s-controller-coordinator-carcpr75-test1"
+    TestResource: "my-test-resource"
+  name: "my-pod"
+  namespace: "entando-k8s-controller-coordinator-carcpr75-test1"
+  resourceVersion: "206229198"
+  selfLink: "/api/v1/namespaces/entando-k8s-controller-coordinator-carcpr75-test1/pods/my-pod"
+  uid: "71dbc42d-d816-11eb-ad14-fa163ea775ae"
+spec:
+  containers:
+  - args:
+    - "/bin/sh"
+    - "-c"
+    - "sleep 3"
+    image: "busybox"
+    imagePullPolicy: "Always"
+    name: "busybox"
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - "MKNOD"
+    terminationMessagePath: "/dev/termination-log"
+    terminationMessagePolicy: "File"
+    volumeMounts:
+    - mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      name: "default-token-mxb6r"
+      readOnly: true
+  dnsPolicy: "ClusterFirst"
+  imagePullSecrets:
+  - name: "default-dockercfg-z4qpx"
+  - name: "redhat-registry"
+  nodeSelector:
+    node-role.kubernetes.io/compute: "true"
+  priority: 0
+  restartPolicy: "Never"
+  schedulerName: "default-scheduler"
+  securityContext:
+    seLinuxOptions:
+      level: "s0:c142,c49"
+  serviceAccount: "default"
+  serviceAccountName: "default"
+  terminationGracePeriodSeconds: 30
+  volumes:
+  - name: "default-token-mxb6r"
+    secret:
+      defaultMode: 420
+      secretName: "default-token-mxb6r"
+status:
+  phase: "Pending"
+  qosClass: "BestEffort"
