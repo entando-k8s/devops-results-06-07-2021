@@ -1,0 +1,91 @@
+---
+ingressNamespace: "my-namespace"
+mixins:
+- "IngressingDeployable"
+- "Secretive"
+- "Deployable"
+- "DbAwareDeployable"
+fileSystemUserAndGroupId: 1000
+defaultServiceAccountName: "default"
+ingressRequired: true
+replicas: 1
+ingressName: "my-keycloak-ingress"
+expectingDatabaseSchemas: false
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoKeycloakServer"
+  metadata:
+    name: "my-keycloak"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- environmentVariableOverrides: []
+  memoryLimitMebibytes: 768
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-keycloak"
+  volumeMountPath: "/opt/jboss/keycloak/standalone/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 8080
+  storageLimitMebibytes: 2048
+  webContextPath: "/auth"
+  mixins:
+  - "PersistentVolumeAwareContainer"
+  - "DeployableContainer"
+  - "HasWebContext"
+  - "ConfigurableResourceContainer"
+  - "ParameterizableContainer"
+  - "ServiceBackingContainer"
+  - "IngressingPathOnPort"
+  - "IngressingContainer"
+  - "DbAwareContainer"
+  healthCheckPath: "/auth"
+  maximumStartupTimeSeconds: 180
+  databaseConnectionVariables:
+  - name: "DB_VENDOR"
+    value: "h2"
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "KEYCLOAK_USER"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-keycloak-admin-secret"
+        optional: false
+  - name: "KEYCLOAK_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-keycloak-admin-secret"
+        optional: false
+  - name: "PROXY_ADDRESS_FORWARDING"
+    value: "true"
+  - name: "X509_CA_BUNDLE"
+    value: "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt /var/run/secrets/kubernetes.io/serviceaccount/ca.crt\
+      \ /etc/entando/certs/my-ca-certs/cert1.crt /etc/entando/certs/my-ca-certs/cert2.crt"
+  schemaConnectionInfo: []
+  nameQualifier: "server"
+  secretsToMount:
+  - secretName: "my-ca-certs"
+    mountPath: "/etc/entando/certs/my-ca-certs"
+  cpuLimitMillicores: 1000
+  portForIngressPath: 8080
+secrets:
+- apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoKeycloakServer: "my-keycloak"
+    name: "my-keycloak-admin-secret"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoKeycloakServer"
+      blockOwnerDeletion: true
+      controller: true
+      name: "my-keycloak"
+      uid: "1520623f-8e45-4bb3-9e3e-5640d5ebf8d0"
+  stringData:
+    username: "entando_keycloak_admin"
+    password: "ee94398d21d74286"
+serviceAccountToUse: "default"
