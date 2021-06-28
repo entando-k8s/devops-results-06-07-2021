@@ -1,0 +1,29 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoApp"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoApp: "my-app"
+    deployment: "my-app"
+  name: "my-app-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "f801ff93-18d3-4c96-9fae-2aa9fe745dc3"
+spec:
+  containers:
+  - {}
+status:
+  conditions:
+  - lastTransitionTime: "2021-06-28T12:41:07Z"
+    type: "Ready"
+  containerStatuses:
+  - state:
+      running: {}
+  phase: "Running"
