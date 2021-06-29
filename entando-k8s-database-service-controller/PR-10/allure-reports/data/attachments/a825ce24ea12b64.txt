@@ -1,0 +1,39 @@
+---
+internalServiceHostname: "mysql-dbms-4233-service.my-namespace.svc.cluster.local"
+mixins:
+- "ServiceDeploymentResult"
+- "SerializableDeploymentResult"
+- "ServiceResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "mysql-dbms-4233-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "3306"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "mysql-dbms-4233-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+status:
+  qualifier: "main"
+  started: "2021-06-29T13:45:29+0000"
+  originatingCustomResource:
+    apiVersion: "entando.org/v1"
+    kind: "EntandoDatabaseService"
+    namespace: "my-namespace"
+    name: "mysql-dbms-4233"
+  originatingControllerPod:
+    namespace: "controller-namespace"
+    name: "test-controller-pod"
+  finished: "2021-06-29T13:45:29+0000"
+  serviceName: "mysql-dbms-4233-service"
+  deploymentName: "mysql-dbms-4233-deployment"
+  podPhases:
+    mysql-dbms-4233-deployment: "Running"
+  persistentVolumeClaimPhases:
+    mysql-dbms-4233-db-pvc: "Pending"
