@@ -1,0 +1,29 @@
+---
+apiVersion: "v1"
+kind: "PersistentVolumeClaim"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Dedicated"
+    EntandoResourceNamespace: "my-namespace"
+    entando.org/capability-implementation: "Keycloak"
+    EntandoKeycloakServer: "my-app-sso"
+    deployment: "my-app-sso"
+  name: "my-app-sso-server-pvc"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app-sso"
+    uid: "8f08dbe2-ce69-4b09-8bfd-248ce73cd7f0"
+spec:
+  accessModes:
+  - "ReadWriteOnce"
+  resources:
+    limits:
+      storage: "2048Mi"
+    requests:
+      storage: "512Mi"

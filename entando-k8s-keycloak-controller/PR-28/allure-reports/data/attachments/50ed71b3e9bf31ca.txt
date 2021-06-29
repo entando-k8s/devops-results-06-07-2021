@@ -1,0 +1,164 @@
+---
+fileSystemUserAndGroupId: 1000
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoKeycloakServer"
+  metadata:
+    name: "my-keycloak"
+    namespace: "my-namespace"
+  isCustomResource: true
+ingressHostName: "myhost.com"
+secrets:
+- apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoKeycloakServer: "my-keycloak"
+    name: "my-keycloak-admin-secret"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoKeycloakServer"
+      blockOwnerDeletion: true
+      controller: true
+      name: "my-keycloak"
+      uid: "523021c2-b07b-473e-aeb7-192459f988bf"
+  stringData:
+    username: "entando_keycloak_admin"
+    password: "e4c2c671616f47fc"
+tlsSecretName: "my-tls-secret"
+ingressNamespace: "my-namespace"
+mixins:
+- "Deployable"
+- "Secretive"
+- "DbAwareDeployable"
+- "IngressingDeployable"
+defaultServiceAccountName: "default"
+ingressRequired: true
+ingressName: "my-keycloak-ingress"
+expectingDatabaseSchemas: true
+containers:
+- environmentVariableOverrides: []
+  memoryLimitMebibytes: 768
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-keycloak"
+  volumeMountPath: "/opt/jboss/keycloak/standalone/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 8080
+  storageLimitMebibytes: 2048
+  webContextPath: "/auth"
+  mixins:
+  - "DbAwareContainer"
+  - "HasWebContext"
+  - "DeployableContainer"
+  - "PersistentVolumeAwareContainer"
+  - "ConfigurableResourceContainer"
+  - "IngressingContainer"
+  - "IngressingPathOnPort"
+  - "ServiceBackingContainer"
+  - "ParameterizableContainer"
+  maximumStartupTimeSeconds: 180
+  healthCheckPath: "/auth"
+  storageClass: "my-storage-class"
+  databaseConnectionVariables:
+  - name: "DB_ADDR"
+    value: "default-mysql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+  - name: "DB_PORT"
+    value: "3306"
+  - name: "DB_SCHEMA"
+    value: "my_keycloak_db"
+  - name: "DB_USER"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-keycloak-db-secret"
+        optional: false
+  - name: "DB_VENDOR"
+    value: "mysql"
+  - name: "DB_DATABASE"
+    value: "my_db"
+  - name: "DB_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-keycloak-db-secret"
+        optional: false
+  - name: "JDBC_PARAMS"
+    value: ""
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "KEYCLOAK_USER"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-keycloak-admin-secret"
+        optional: false
+  - name: "KEYCLOAK_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-keycloak-admin-secret"
+        optional: false
+  - name: "PROXY_ADDRESS_FORWARDING"
+    value: "true"
+  schemaConnectionInfo:
+  - schemaSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        labels:
+          EntandoKeycloakServer: "my-keycloak"
+        name: "my-keycloak-db-secret"
+        ownerReferences:
+        - apiVersion: "entando.org/v1"
+          kind: "EntandoKeycloakServer"
+          blockOwnerDeletion: true
+          controller: true
+          name: "my-keycloak"
+          uid: "523021c2-b07b-473e-aeb7-192459f988bf"
+      stringData:
+        username: "my_keycloak_db"
+        password: "43bf60469ad74c63"
+    mixins:
+    - "DatabaseSchemaConnectionInfo"
+    database: "my_keycloak_db"
+    passwordRef:
+      secretKeyRef:
+        key: "password"
+        name: "my-keycloak-db-secret"
+        optional: false
+    usernameRef:
+      secretKeyRef:
+        key: "username"
+        name: "my-keycloak-db-secret"
+        optional: false
+    jdbcUrl: "jdbc:mysql://default-mysql-dbms-in-namespace-service.my-namespace.svc.cluster.local:3306/my_keycloak_db"
+    databaseServiceResult:
+      internalServiceHostname: "default-mysql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+      mixins:
+      - "ServiceResult"
+      - "DatabaseConnectionInfo"
+      databaseName: "my_db"
+      jdbcParameters: {}
+      port: "3306"
+      vendor: "MYSQL"
+      adminSecretName: "default-mysql-dbms-in-namespace-admin-secret"
+      service:
+        apiVersion: "v1"
+        kind: "Service"
+        metadata:
+          name: "default-mysql-dbms-in-namespace-service"
+          namespace: "my-namespace"
+        spec:
+          clusterIP: "10.0.0.-110"
+          ports:
+          - port: 3306
+    schemaName: "my_keycloak_db"
+    schemaSecretName: "my-keycloak-db-secret"
+  nameQualifier: "server"
+  secretsToMount: []
+  cpuLimitMillicores: 1000
+  portForIngressPath: 8080
+serviceAccountToUse: "default"
