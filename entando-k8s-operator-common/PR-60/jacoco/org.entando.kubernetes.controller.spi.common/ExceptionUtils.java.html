@@ -99,16 +99,16 @@ public class ExceptionUtils {
 <span class="nc" id="L99">            throw new IllegalStateException(e);</span>
 <span class="fc" id="L100">        } catch (ExecutionException e) {</span>
 <span class="fc" id="L101">            throw maybeWrapAndThrow(e.getCause());</span>
-<span class="fc" id="L102">        } catch (RuntimeException e) {</span>
+<span class="nc" id="L102">        } catch (RuntimeException e) {</span>
 <span class="nc" id="L103">            throw maybeWrapAndThrow(e);</span>
         }
     }
 
     private static RuntimeException maybeWrapAndThrow(Throwable cause) throws TimeoutException {
-<span class="pc bpc" id="L108" title="1 of 4 branches missed.">        if (cause instanceof IllegalArgumentException &amp;&amp; cause.getMessage().contains(&quot;matching condition not found&quot;)) {</span>
+<span class="pc bpc" id="L108" title="3 of 4 branches missed.">        if (cause instanceof IllegalArgumentException &amp;&amp; cause.getMessage().contains(&quot;matching condition not found&quot;)) {</span>
             //NB!!! this is a risky assumption but generally the Fabric8 BaseOperation.waitUntilCondition methods throw
             //an IllegalArgumentException with a message containing the above text when the conditions times out
-<span class="fc" id="L111">            throw new TimeoutException(cause.getMessage());</span>
+<span class="nc" id="L111">            throw new TimeoutException(cause.getMessage());</span>
 <span class="pc bpc" id="L112" title="1 of 2 branches missed.">        } else if (cause instanceof RuntimeException) {</span>
 <span class="fc" id="L113">            return (RuntimeException) cause;</span>
 <span class="nc bnc" id="L114" title="All 2 branches missed.">        } else if (cause instanceof TimeoutException) {</span>

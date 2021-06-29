@@ -1,0 +1,61 @@
+---
+mixins:
+- "Secretive"
+- "Deployable"
+defaultServiceAccountName: "default"
+externalService:
+  mixins:
+  - "ExternalService"
+  port: 3307
+  host: "pg.apps.serv.run"
+  createDelegateService: true
+replicas: 1
+customResource:
+  apiVersion: "test.org/v1"
+  kind: "TestResource"
+  metadata:
+    name: "specified-dbms"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- memoryLimitMebibytes: 256
+  dockerImageInfo:
+    organization: "centos"
+    repository: "mysql-80-centos7"
+  volumeMountPath: "/var/lib/mysql/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 3306
+  storageLimitMebibytes: 2048
+  mixins:
+  - "HasHealthCommand"
+  - "PersistentVolumeAwareContainer"
+  - "DeployableContainer"
+  - "ServiceBackingContainer"
+  healthCheckCommand: "MYSQL_PWD=${MYSQL_ROOT_PASSWORD} mysql -h 127.0.0.1 -u root\
+    \ -e 'SELECT 1'"
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "DB_ADMIN"
+    value: "root"
+  nameQualifier: "db"
+  secretsToMount: []
+  cpuLimitMillicores: 500
+serviceAccountToUse: "default"
+secrets:
+- apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      TestResource: "specified-dbms"
+    name: "specified-dbms-admin-secret"
+    ownerReferences:
+    - apiVersion: "test.org/v1"
+      kind: "TestResource"
+      blockOwnerDeletion: true
+      controller: true
+      name: "specified-dbms"
+      uid: "d19433aa-a736-4088-9d3f-772c7f71c0f2"
+  stringData:
+    username: "root"
+    password: "a56f4ff84dc444d7"

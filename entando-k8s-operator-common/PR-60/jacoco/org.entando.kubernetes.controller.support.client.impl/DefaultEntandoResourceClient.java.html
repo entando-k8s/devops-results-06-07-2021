@@ -21,18 +21,24 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.entando.kubernetes.controller.spi.client.impl.DefaultKubernetesClientForControllers;
 import org.entando.kubernetes.controller.support.client.EntandoResourceClient;
 import org.entando.kubernetes.controller.support.common.EntandoOperatorConfig;
+import org.entando.kubernetes.model.common.EntandoCustomResource;
 
 public class DefaultEntandoResourceClient extends DefaultKubernetesClientForControllers implements
         EntandoResourceClient {
 
     public DefaultEntandoResourceClient(KubernetesClient client) {
-<span class="fc" id="L29">        super(client);</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L30">        super(client);</span>
+<span class="fc" id="L31">    }</span>
+
+    @Override
+    public &lt;T extends EntandoCustomResource&gt; T reload(T customResource) {
+<span class="fc" id="L35">        return super.reload(customResource);</span>
+    }
 
     @Override
     public ConfigMap loadDockerImageInfoConfigMap() {
-<span class="nc" id="L34">        return client.configMaps().inNamespace(EntandoOperatorConfig.getEntandoDockerImageInfoNamespace().orElse(client.getNamespace()))</span>
-<span class="nc" id="L35">                .withName(EntandoOperatorConfig.getEntandoDockerImageInfoConfigMap()).fromServer().get();</span>
+<span class="nc" id="L40">        return client.configMaps().inNamespace(EntandoOperatorConfig.getEntandoDockerImageInfoNamespace().orElse(client.getNamespace()))</span>
+<span class="nc" id="L41">                .withName(EntandoOperatorConfig.getEntandoDockerImageInfoConfigMap()).fromServer().get();</span>
     }
 
 }
