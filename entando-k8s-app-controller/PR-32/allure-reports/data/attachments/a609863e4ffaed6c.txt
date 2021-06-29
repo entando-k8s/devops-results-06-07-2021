@@ -1,0 +1,164 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoApp"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoApp: "my-app"
+    deployment: "my-app"
+  name: "my-app-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "bfd61ab2-1308-4465-bd60-e649ccfa5f3b"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoResourceKind: "EntandoApp"
+      EntandoResourceNamespace: "my-namespace"
+      EntandoApp: "my-app"
+      deployment: "my-app"
+  template:
+    metadata:
+      labels:
+        EntandoResourceKind: "EntandoApp"
+        EntandoResourceNamespace: "my-namespace"
+        EntandoApp: "my-app"
+        deployment: "my-app"
+      name: "my-app-pod"
+    spec:
+      containers:
+      - env:
+        - name: "KEYCLOAK_ENABLED"
+          value: "true"
+        - name: "KEYCLOAK_REALM"
+          value: "my-realm"
+        - name: "KEYCLOAK_PUBLIC_CLIENT_ID"
+          value: "entando-web"
+        - name: "KEYCLOAK_AUTH_URL"
+          value: "https://mykeycloak.apps.serv.run/auth"
+        - name: "KEYCLOAK_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "clientSecret"
+              name: "my-app-secret"
+              optional: false
+        - name: "KEYCLOAK_CLIENT_ID"
+          valueFrom:
+            secretKeyRef:
+              key: "clientId"
+              name: "my-app-secret"
+              optional: false
+        - name: "DB_STARTUP_CHECK"
+          value: "false"
+        - name: "PORTDB_URL"
+          value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+        - name: "PORTDB_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              key: "username"
+              name: "my-app-portdb-secret"
+              optional: false
+        - name: "PORTDB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "my-app-portdb-secret"
+              optional: false
+        - name: "PORTDB_CONNECTION_CHECKER"
+          value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"
+        - name: "PORTDB_EXCEPTION_SORTER"
+          value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"
+        - name: "SERVDB_URL"
+          value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+        - name: "SERVDB_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              key: "username"
+              name: "my-app-servdb-secret"
+              optional: false
+        - name: "SERVDB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "my-app-servdb-secret"
+              optional: false
+        - name: "SERVDB_CONNECTION_CHECKER"
+          value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"
+        - name: "SERVDB_EXCEPTION_SORTER"
+          value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"
+        - name: "SERVER_SERVLET_CONTEXT_PATH"
+          value: "/entando-de-app"
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        - name: "JGROUPS_CLUSTER_PASSWORD"
+          value: "255bb1f4ba"
+        - name: "JGROUPS_JOIN_TIMEOUT"
+          value: "3000"
+        - name: "JGROUPS_PING_PROTOCOL"
+          value: "openshift.KUBE_PING"
+        - name: "OPENSHIFT_KUBE_PING_NAMESPACE"
+          value: "my-namespace"
+        - name: "OPENSHIFT_KUBE_PING_LABELS"
+          value: "deployment=my-app-server"
+        image: "docker.io/entando/entando-de-app-eap:latest"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/entando-de-app/api/health"
+            port: 8080
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: "server-container"
+        ports:
+        - containerPort: 8080
+          name: "server-port"
+          protocol: "TCP"
+        - containerPort: 8888
+          name: "ping"
+          protocol: "TCP"
+        - containerPort: 7600
+          name: "ping2"
+          protocol: "TCP"
+        readinessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/entando-de-app/api/health"
+            port: 8080
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "1792Mi"
+            cpu: "1500m"
+          requests:
+            memory: "448Mi"
+            cpu: "375m"
+        startupProbe:
+          failureThreshold: 11
+          httpGet:
+            path: "/entando-de-app/api/health"
+            port: 8080
+          periodSeconds: 24
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: "/entando-data"
+          name: "my-app-server-volume"
+          readOnly: false
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      securityContext:
+        fsGroup: 185
+      serviceAccountName: "default"
+      volumes:
+      - name: "my-app-server-volume"
+        persistentVolumeClaim:
+          claimName: "my-app-server-pvc"
+          readOnly: false
