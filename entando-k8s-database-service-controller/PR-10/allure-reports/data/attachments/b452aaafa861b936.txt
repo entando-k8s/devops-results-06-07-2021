@@ -1,0 +1,32 @@
+---
+mixins:
+- "CapabilityProvisioningResult"
+providedCapability:
+  apiVersion: "entando.org/v1"
+  kind: "ProvidedCapability"
+  metadata:
+    name: "default-dbms-in-namespace"
+    namespace: "my-namespace"
+  isCustomResource: true
+controllerFailure:
+  failedObjectApiVersion: "entando.org/v1"
+  failedObjectKind: "ProvidedCapability"
+  failedObjectNamespace: "my-namespace"
+  failedObjectName: "default-dbms-in-namespace"
+  message: "Please provide the name of the secret containing the admin credentials\
+    \ for the database service you intend to connect to using the ProvidedCapability.spec.externallyProvisionedService.adminSecretName\
+    \ property."
+  detailMessage: "org.entando.kubernetes.controller.spi.common.EntandoControllerException:\
+    \ Please provide the name of the secret containing the admin credentials for the\
+    \ database service you intend to connect to using the ProvidedCapability.spec.externallyProvisionedService.adminSecretName\
+    \ property.\n\tat org.entando.kubernetes.controller.databaseservice.EntandoDatabaseServiceController.lambda$validateExternalServiceRequirements$6(EntandoDatabaseServiceController.java:195)\n\
+    \tat java.base/java.util.Optional.orElseThrow(Optional.java:408)\n\tat org.entando.kubernetes.controller.databaseservice.EntandoDatabaseServiceController.validateExternalServiceRequirements(EntandoDatabaseServiceController.java:195)\n\
+    \tat org.entando.kubernetes.controller.databaseservice.EntandoDatabaseServiceController.run(EntandoDatabaseServiceController.java:99)\n\
+    \tat org.entando.kubernetes.test.common.ControllerTestHelper.runControllerAgainstCapabilityAndUpdateStatus(ControllerTestHelper.java:132)\n\
+    \tat org.entando.kubernetes.test.common.ControllerTestHelper.lambda$runControllerAgainstCapabilityRequirement$0(ControllerTestHelper.java:91)\n\
+    \tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)\n\
+    \tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat\
+    \ java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\n\
+    \tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\
+    \tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\
+    \tat java.base/java.lang.Thread.run(Thread.java:834)\n"

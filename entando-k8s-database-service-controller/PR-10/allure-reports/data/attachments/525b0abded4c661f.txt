@@ -1,0 +1,52 @@
+--- !<EntandoDatabaseService>
+apiVersion: "entando.org/v1"
+kind: "EntandoDatabaseService"
+metadata:
+  generation: 1
+  labels:
+    my-label: "my-label-value"
+    entando.org/capability: "Dbms"
+    capabilityProvisionScope: "Labeled"
+    entando.org/capability-implementation: "Mysql"
+  name: "mysql-dbms-4444"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "ProvidedCapability"
+    blockOwnerDeletion: true
+    controller: true
+    name: "mysql-dbms-4444"
+    uid: "6a4457ce-3f86-4225-a0be-73eaedc50eb4"
+  resourceVersion: "2817419"
+  uid: "04d1cbac-0e36-44d0-b33c-2585bc1e2835"
+spec:
+  dbms: "mysql"
+  databaseName: "my_db"
+  createDeployment: true
+  jdbcParameters:
+    disconnectOnExpiredPasswords: "true"
+  replicas: 1
+  environmentVariables: []
+  providedCapabilityScope: "Labeled"
+status:
+  serverStatuses:
+    main:
+      qualifier: "main"
+      started: "2021-06-30T16:06:20+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "EntandoDatabaseService"
+        namespace: "my-namespace"
+        name: "mysql-dbms-4444"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "test-controller-pod"
+      serviceName: "mysql-dbms-4444-service"
+      deploymentName: "mysql-dbms-4444-deployment"
+      podPhases:
+        mysql-dbms-4444-deployment: "Running"
+      persistentVolumeClaimPhases:
+        mysql-dbms-4444-db-pvc: "Pending"
+  observedGeneration: 1
+  phase: "successful"
+crdName: "entandodatabaseservices.entando.org"

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.entando.kubernetes.controller.spi.capability.CapabilityProvider;
 import org.entando.kubernetes.controller.spi.client.KubernetesClientForControllers;
 import org.entando.kubernetes.controller.spi.command.DeploymentProcessor;
 import org.entando.kubernetes.controller.spi.common.DbmsVendorConfig;
@@ -58,210 +59,212 @@ import picocli.CommandLine;
 public class EntandoDatabaseServiceController implements Runnable {
 
     private static final String SECRET_KIND = &quot;Secret&quot;;
-<span class="fc" id="L61">    public static final int DATABASE_DEPLOYMENT_TIME = EntandoOperatorSpiConfig.getPodCompletionTimeoutSeconds();</span>
+<span class="fc" id="L62">    public static final int DATABASE_DEPLOYMENT_TIME = EntandoOperatorSpiConfig.getPodCompletionTimeoutSeconds();</span>
     private final KubernetesClientForControllers k8sClient;
     private final DeploymentProcessor deploymentProcessor;
-<span class="fc" id="L64">    private static final Collection&lt;Class&lt;? extends EntandoCustomResource&gt;&gt; SUPPORTED_RESOURCE_KINDS = Arrays</span>
-<span class="fc" id="L65">            .asList(EntandoDatabaseService.class, ProvidedCapability.class);</span>
+<span class="fc" id="L65">    private static final Collection&lt;Class&lt;? extends EntandoCustomResource&gt;&gt; SUPPORTED_RESOURCE_KINDS = Arrays</span>
+<span class="fc" id="L66">            .asList(EntandoDatabaseService.class, ProvidedCapability.class);</span>
     private EntandoDatabaseService entandoDatabaseService;
     private ProvidedCapability providedCapability;
 
     @Inject
-<span class="fc" id="L70">    public EntandoDatabaseServiceController(KubernetesClientForControllers k8sClient, DeploymentProcessor deploymentProcessor) {</span>
-<span class="fc" id="L71">        this.k8sClient = k8sClient;</span>
-<span class="fc" id="L72">        this.deploymentProcessor = deploymentProcessor;</span>
-<span class="fc" id="L73">    }</span>
+<span class="fc" id="L71">    public EntandoDatabaseServiceController(KubernetesClientForControllers k8sClient, DeploymentProcessor deploymentProcessor) {</span>
+<span class="fc" id="L72">        this.k8sClient = k8sClient;</span>
+<span class="fc" id="L73">        this.deploymentProcessor = deploymentProcessor;</span>
+<span class="fc" id="L74">    }</span>
 
     @Override
     public void run() {
-<span class="fc" id="L77">        k8sClient.prepareConfig();</span>
-<span class="fc" id="L78">        EntandoCustomResource resourceToProcess = k8sClient.resolveCustomResourceToProcess(SUPPORTED_RESOURCE_KINDS);</span>
-<span class="fc" id="L79">        k8sClient.deploymentStarted(resourceToProcess);</span>
+<span class="fc" id="L78">        k8sClient.prepareConfig();</span>
+<span class="fc" id="L79">        EntandoCustomResource resourceToProcess = k8sClient.resolveCustomResourceToProcess(SUPPORTED_RESOURCE_KINDS);</span>
+<span class="fc" id="L80">        k8sClient.deploymentStarted(resourceToProcess);</span>
         //No need to update the resource being synced to. It will be ignored by ControllerCoordinator
         try {
-<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (resourceToProcess instanceof EntandoDatabaseService) {</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            if (resourceToProcess instanceof EntandoDatabaseService) {</span>
                 //This event originated from the original EntandoDatabaseService, NOT a capability requirement expressed by means of a
                 // ProvidedCapability
                 //The ProvidedCapability is to be owned by the implementing CustomResource and will therefore be ignored by
                 // ControllerCoordinator
-<span class="fc" id="L87">                this.entandoDatabaseService = (EntandoDatabaseService) resourceToProcess;</span>
-<span class="fc" id="L88">                this.providedCapability = syncFromImplementingResourceToCapability(this.entandoDatabaseService);</span>
-<span class="fc" id="L89">                this.providedCapability = this.k8sClient.createOrPatchEntandoResource(this.providedCapability);</span>
-<span class="fc" id="L90">                validateExternalServiceRequirements(this.entandoDatabaseService);</span>
+<span class="fc" id="L88">                this.entandoDatabaseService = (EntandoDatabaseService) resourceToProcess;</span>
+<span class="fc" id="L89">                this.providedCapability = syncFromImplementingResourceToCapability(this.entandoDatabaseService);</span>
+<span class="fc" id="L90">                this.providedCapability = this.k8sClient.createOrPatchEntandoResource(this.providedCapability);</span>
+<span class="fc" id="L91">                validateExternalServiceRequirements(this.entandoDatabaseService);</span>
             } else {
                 //This event originated from the capability requirement, and we need to keep the implementing CustomResource in sync
                 //The implementing CustomResource is to be owned by the ProvidedCapability and will therefore be ignored by
                 // ControllerCoordinator
-<span class="fc" id="L95">                this.providedCapability = (ProvidedCapability) resourceToProcess;</span>
-<span class="fc" id="L96">                this.entandoDatabaseService = syncFromCapabilityToImplementingCustomResource(this.providedCapability);</span>
-<span class="fc" id="L97">                this.entandoDatabaseService = this.k8sClient.createOrPatchEntandoResource(this.entandoDatabaseService);</span>
-<span class="fc" id="L98">                validateExternalServiceRequirements(this.providedCapability);</span>
+<span class="fc" id="L96">                this.providedCapability = (ProvidedCapability) resourceToProcess;</span>
+<span class="fc" id="L97">                this.entandoDatabaseService = syncFromCapabilityToImplementingCustomResource(this.providedCapability);</span>
+<span class="fc" id="L98">                this.entandoDatabaseService = this.k8sClient.createOrPatchEntandoResource(this.entandoDatabaseService);</span>
+<span class="fc" id="L99">                validateExternalServiceRequirements(this.providedCapability);</span>
             }
-<span class="fc" id="L100">            DatabaseServiceDeployable deployable = new DatabaseServiceDeployable(entandoDatabaseService);</span>
-<span class="fc" id="L101">            DatabaseDeploymentResult result = deploymentProcessor.processDeployable(deployable, DATABASE_DEPLOYMENT_TIME);</span>
-<span class="fc" id="L102">            providedCapability = k8sClient.updateStatus(providedCapability,</span>
-<span class="fc" id="L103">                    result.getStatus().withOriginatingCustomResource(providedCapability));</span>
-<span class="fc" id="L104">            entandoDatabaseService = k8sClient.deploymentEnded(entandoDatabaseService);</span>
-<span class="fc" id="L105">            providedCapability = k8sClient.deploymentEnded(providedCapability);</span>
-<span class="fc" id="L106">        } catch (Exception e) {</span>
-<span class="fc" id="L107">            entandoDatabaseService = k8sClient.deploymentFailed(entandoDatabaseService, e, NameUtils.MAIN_QUALIFIER);</span>
-<span class="fc" id="L108">            providedCapability = k8sClient.deploymentFailed(providedCapability, e, NameUtils.MAIN_QUALIFIER);</span>
-<span class="fc" id="L109">        }</span>
-<span class="fc" id="L110">        entandoDatabaseService.getStatus().findFailedServerStatus().flatMap(ServerStatus::getEntandoControllerFailure).ifPresent(f -&gt; {</span>
-<span class="fc" id="L111">            throw new CommandLine.ExecutionException(new CommandLine(this), f.getDetailMessage());</span>
+<span class="fc" id="L101">            DatabaseServiceDeployable deployable = new DatabaseServiceDeployable(entandoDatabaseService);</span>
+<span class="fc" id="L102">            DatabaseDeploymentResult result = deploymentProcessor.processDeployable(deployable, DATABASE_DEPLOYMENT_TIME);</span>
+<span class="fc" id="L103">            providedCapability = k8sClient.updateStatus(providedCapability,</span>
+<span class="fc" id="L104">                    result.getStatus().withOriginatingCustomResource(providedCapability));</span>
+<span class="fc" id="L105">            entandoDatabaseService = k8sClient.deploymentEnded(entandoDatabaseService);</span>
+<span class="fc" id="L106">            providedCapability = k8sClient.deploymentEnded(providedCapability);</span>
+<span class="fc" id="L107">        } catch (Exception e) {</span>
+<span class="fc" id="L108">            entandoDatabaseService = k8sClient.deploymentFailed(entandoDatabaseService, e, NameUtils.MAIN_QUALIFIER);</span>
+<span class="fc" id="L109">            providedCapability = k8sClient.deploymentFailed(providedCapability, e, NameUtils.MAIN_QUALIFIER);</span>
+<span class="fc" id="L110">        }</span>
+<span class="fc" id="L111">        entandoDatabaseService.getStatus().findFailedServerStatus().flatMap(ServerStatus::getEntandoControllerFailure).ifPresent(f -&gt; {</span>
+<span class="fc" id="L112">            throw new CommandLine.ExecutionException(new CommandLine(this), f.getDetailMessage());</span>
         });
-<span class="fc" id="L113">    }</span>
+<span class="fc" id="L114">    }</span>
 
     private EntandoDatabaseService syncFromCapabilityToImplementingCustomResource(ProvidedCapability providedCapability) {
-<span class="fc" id="L116">        final EntandoDatabaseService entandoDatabaseServiceToSyncTo = new EntandoDatabaseServiceBuilder(</span>
-<span class="fc" id="L117">                Objects.requireNonNullElseGet(k8sClient</span>
-<span class="fc" id="L118">                                .load(EntandoDatabaseService.class, providedCapability.getMetadata().getNamespace(),</span>
-<span class="fc" id="L119">                                        providedCapability.getMetadata().getName()),</span>
-<span class="fc" id="L120">                        () -&gt; new EntandoDatabaseService(new EntandoDatabaseServiceSpec())))</span>
+<span class="fc" id="L117">        final EntandoDatabaseService entandoDatabaseServiceToSyncTo = new EntandoDatabaseServiceBuilder(</span>
+<span class="fc" id="L118">                Objects.requireNonNullElseGet(k8sClient</span>
+<span class="fc" id="L119">                                .load(EntandoDatabaseService.class, providedCapability.getMetadata().getNamespace(),</span>
+<span class="fc" id="L120">                                        providedCapability.getMetadata().getName()),</span>
+<span class="fc" id="L121">                        () -&gt; new EntandoDatabaseService(new EntandoDatabaseServiceSpec())))</span>
 
-<span class="fc" id="L122">                .editMetadata()</span>
-<span class="fc" id="L123">                .withNamespace(providedCapability.getMetadata().getNamespace())</span>
-<span class="fc" id="L124">                .withName(providedCapability.getMetadata().getName())</span>
-<span class="fc" id="L125">                .withLabels(providedCapability.getMetadata().getLabels())</span>
-<span class="fc" id="L126">                .endMetadata()</span>
-<span class="fc" id="L127">                .editSpec()</span>
-<span class="fc" id="L128">                .withDbms(DbmsVendor.valueOf(</span>
-<span class="fc" id="L129">                        providedCapability.getSpec().getImplementation().orElse(StandardCapabilityImplementation.POSTGRESQL).name()))</span>
-<span class="fc" id="L130">                .withCreateDeployment(</span>
-<span class="fc bfc" id="L131" title="All 2 branches covered.">                        providedCapability.getSpec().getProvisioningStrategy().orElse(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY)</span>
+<span class="fc" id="L123">                .editMetadata()</span>
+<span class="fc" id="L124">                .withNamespace(providedCapability.getMetadata().getNamespace())</span>
+<span class="fc" id="L125">                .withName(providedCapability.getMetadata().getName())</span>
+<span class="fc" id="L126">                .withLabels(providedCapability.getMetadata().getLabels())</span>
+<span class="fc" id="L127">                .endMetadata()</span>
+<span class="fc" id="L128">                .editSpec()</span>
+<span class="fc" id="L129">                .withDbms(DbmsVendor.valueOf(</span>
+<span class="fc" id="L130">                        providedCapability.getSpec().getImplementation().orElse(StandardCapabilityImplementation.POSTGRESQL).name()))</span>
+<span class="fc" id="L131">                .withCreateDeployment(</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">                        providedCapability.getSpec().getProvisioningStrategy().orElse(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY)</span>
                                 == CapabilityProvisioningStrategy.DEPLOY_DIRECTLY)
-<span class="fc" id="L133">                .withSecretName(providedCapability.getSpec().getExternallyProvisionedService()</span>
-<span class="fc" id="L134">                        .map(ExternallyProvidedService::getAdminSecretName).orElse(null))</span>
-<span class="fc" id="L135">                .withHost(providedCapability.getSpec().getExternallyProvisionedService()</span>
-<span class="fc" id="L136">                        .map(ExternallyProvidedService::getHost).orElse(null))</span>
-<span class="fc" id="L137">                .withPort(providedCapability.getSpec().getExternallyProvisionedService()</span>
-<span class="fc" id="L138">                        .flatMap(ExternallyProvidedService::getPort).orElse(null))</span>
-<span class="fc" id="L139">                .withTablespace(resolveParameterIfPresent(providedCapability, &quot;tablespace&quot;))</span>
-<span class="fc" id="L140">                .withDatabaseName(resolveParameterIfPresent(providedCapability, &quot;databaseName&quot;))</span>
-<span class="fc" id="L141">                .withProvidedCapabilityScope(determinePreferredScope(providedCapability))</span>
-<span class="fc" id="L142">                .withJdbcParameters(ofNullable(providedCapability.getSpec().getCapabilityParameters()).orElse(Collections.emptyMap())</span>
-<span class="fc" id="L143">                        .entrySet().stream()</span>
-<span class="fc" id="L144">                        .filter(entry -&gt; entry.getKey().startsWith(ProvidedDatabaseCapability.JDBC_PARAMETER_PREFIX))</span>
-<span class="fc" id="L145">                        .map(entry -&gt; Map.entry(entry.getKey().substring(ProvidedDatabaseCapability.JDBC_PARAMETER_PREFIX.length()),</span>
-<span class="fc" id="L146">                                entry.getValue()))</span>
-<span class="fc" id="L147">                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))</span>
-<span class="fc" id="L148">                .endSpec()</span>
-<span class="fc" id="L149">                .build();</span>
-<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (!ResourceUtils.customResourceOwns(providedCapability, entandoDatabaseServiceToSyncTo)) {</span>
-<span class="fc" id="L151">            entandoDatabaseServiceToSyncTo.getMetadata().getOwnerReferences().add(ResourceUtils.buildOwnerReference(providedCapability));</span>
+<span class="fc" id="L134">                .withSecretName(providedCapability.getSpec().getExternallyProvisionedService()</span>
+<span class="fc" id="L135">                        .map(ExternallyProvidedService::getAdminSecretName).orElse(null))</span>
+<span class="fc" id="L136">                .withHost(providedCapability.getSpec().getExternallyProvisionedService()</span>
+<span class="fc" id="L137">                        .map(ExternallyProvidedService::getHost).orElse(null))</span>
+<span class="fc" id="L138">                .withPort(providedCapability.getSpec().getExternallyProvisionedService()</span>
+<span class="fc" id="L139">                        .flatMap(ExternallyProvidedService::getPort).orElse(null))</span>
+<span class="fc" id="L140">                .withTablespace(resolveParameterIfPresent(providedCapability, &quot;tablespace&quot;))</span>
+<span class="fc" id="L141">                .withDatabaseName(resolveParameterIfPresent(providedCapability, &quot;databaseName&quot;))</span>
+<span class="fc" id="L142">                .withProvidedCapabilityScope(determinePreferredScope(providedCapability))</span>
+<span class="fc" id="L143">                .withJdbcParameters(ofNullable(providedCapability.getSpec().getCapabilityParameters()).orElse(Collections.emptyMap())</span>
+<span class="fc" id="L144">                        .entrySet().stream()</span>
+<span class="fc" id="L145">                        .filter(entry -&gt; entry.getKey().startsWith(ProvidedDatabaseCapability.JDBC_PARAMETER_PREFIX))</span>
+<span class="fc" id="L146">                        .map(entry -&gt; Map.entry(entry.getKey().substring(ProvidedDatabaseCapability.JDBC_PARAMETER_PREFIX.length()),</span>
+<span class="fc" id="L147">                                entry.getValue()))</span>
+<span class="fc" id="L148">                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))</span>
+<span class="fc" id="L149">                .endSpec()</span>
+<span class="fc" id="L150">                .build();</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        if (!ResourceUtils.customResourceOwns(providedCapability, entandoDatabaseServiceToSyncTo)) {</span>
+<span class="fc" id="L152">            entandoDatabaseServiceToSyncTo.getMetadata().getOwnerReferences().add(ResourceUtils.buildOwnerReference(providedCapability));</span>
         }
-<span class="fc" id="L153">        return entandoDatabaseServiceToSyncTo;</span>
+<span class="fc" id="L154">        return entandoDatabaseServiceToSyncTo;</span>
     }
 
     private CapabilityScope determinePreferredScope(ProvidedCapability providedCapability) {
-<span class="fc" id="L157">        return providedCapability.getSpec().getResolutionScopePreference().stream().findFirst().orElse(CapabilityScope.NAMESPACE);</span>
+<span class="fc" id="L158">        return providedCapability.getSpec().getResolutionScopePreference().stream().findFirst().orElse(CapabilityScope.NAMESPACE);</span>
     }
 
     private void validateExternalServiceRequirements(EntandoDatabaseService entandoKeycloakServer) {
-<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (!entandoKeycloakServer.getSpec().getCreateDeployment().orElse(false)) {</span>
-<span class="fc bfc" id="L162" title="All 2 branches covered.">            if (entandoKeycloakServer.getSpec().getHost().isEmpty()) {</span>
-<span class="fc" id="L163">                throw new EntandoControllerException(</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (!entandoKeycloakServer.getSpec().getCreateDeployment().orElse(false)) {</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">            if (entandoKeycloakServer.getSpec().getHost().isEmpty()) {</span>
+<span class="fc" id="L164">                throw new EntandoControllerException(</span>
                         &quot;Please provide the hostname of the database service you intend to connect to using the &quot;
                                 + &quot;EntandoDatabaseService.spec.host property.&quot;);
             }
-<span class="pc bpc" id="L167" title="1 of 2 branches missed.">            if (strategyFor(entandoKeycloakServer).getVendorConfig() != DbmsVendorConfig.MYSQL</span>
-<span class="fc bfc" id="L168" title="All 2 branches covered.">                    &amp;&amp; entandoKeycloakServer.getSpec().getDatabaseName().isEmpty()) {</span>
-<span class="fc" id="L169">                throw new EntandoControllerException(</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">            if (strategyFor(entandoKeycloakServer).getVendorConfig() != DbmsVendorConfig.MYSQL</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">                    &amp;&amp; entandoKeycloakServer.getSpec().getDatabaseName().isEmpty()) {</span>
+<span class="fc" id="L170">                throw new EntandoControllerException(</span>
                         &quot;Please provide the name of the database on the database service you intend to connect to using the &quot;
                                 + &quot;EntandoDatabaseService.spec.databaseName property.&quot;);
             }
-<span class="fc" id="L173">            String adminSecretName = entandoKeycloakServer.getSpec().getSecretName()</span>
-<span class="fc" id="L174">                    .orElseThrow(() -&gt; new EntandoControllerException(</span>
+<span class="fc" id="L174">            String adminSecretName = entandoKeycloakServer.getSpec().getSecretName()</span>
+<span class="fc" id="L175">                    .orElseThrow(() -&gt; new EntandoControllerException(</span>
                             &quot;Please provide the name of the secret containing the admin credentials for the database service you intend &quot;
                                     + &quot;to connect to using the EntandoDatabaseService.spec.secretName property.&quot;));
-<span class="fc" id="L177">            if (ofNullable(k8sClient.loadStandardResource(SECRET_KIND, entandoKeycloakServer.getMetadata().getNamespace(), adminSecretName))</span>
-<span class="fc bfc" id="L178" title="All 2 branches covered.">                    .isEmpty()) {</span>
-<span class="fc" id="L179">                throw new EntandoControllerException(format(</span>
+<span class="fc" id="L178">            if (ofNullable(k8sClient.loadStandardResource(SECRET_KIND, entandoKeycloakServer.getMetadata().getNamespace(), adminSecretName))</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">                    .isEmpty()) {</span>
+<span class="fc" id="L180">                throw new EntandoControllerException(format(</span>
                         &quot;Please ensure that a secret with the name '%s' exists in the requested namespace %s&quot;, adminSecretName,
-<span class="fc" id="L181">                        entandoKeycloakServer.getMetadata().getName()));</span>
+<span class="fc" id="L182">                        entandoKeycloakServer.getMetadata().getName()));</span>
             }
         }
-<span class="fc" id="L184">    }</span>
+<span class="fc" id="L185">    }</span>
 
     private void validateExternalServiceRequirements(ProvidedCapability providedCapability) {
-<span class="fc bfc" id="L187" title="All 2 branches covered.">        if (providedCapability.getSpec().getProvisioningStrategy().map(CapabilityProvisioningStrategy.USE_EXTERNAL::equals)</span>
-<span class="fc" id="L188">                .orElse(false)) {</span>
-<span class="fc" id="L189">            final ExternallyProvidedService externallyProvidedService = providedCapability.getSpec().getExternallyProvisionedService()</span>
-<span class="pc" id="L190">                    .orElseThrow(() -&gt; new EntandoControllerException(</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">        if (providedCapability.getSpec().getProvisioningStrategy().map(CapabilityProvisioningStrategy.USE_EXTERNAL::equals)</span>
+<span class="fc" id="L189">                .orElse(false)) {</span>
+<span class="fc" id="L190">            final ExternallyProvidedService externallyProvidedService = providedCapability.getSpec().getExternallyProvisionedService()</span>
+<span class="pc" id="L191">                    .orElseThrow(() -&gt; new EntandoControllerException(</span>
                             &quot;Please provide the connection information of the database service you intend to connect to using the &quot;
                                     + &quot;ProvidedCapability.spec.externallyProvisionedService object.&quot;));
-<span class="fc" id="L193">            String adminSecretName = ofNullable(externallyProvidedService.getAdminSecretName())</span>
-<span class="fc" id="L194">                    .orElseThrow(() -&gt; new EntandoControllerException(</span>
+<span class="fc" id="L194">            String adminSecretName = ofNullable(externallyProvidedService.getAdminSecretName())</span>
+<span class="fc" id="L195">                    .orElseThrow(() -&gt; new EntandoControllerException(</span>
                             &quot;Please provide the name of the secret containing the admin credentials for the database service you intend &quot;
                                     + &quot;to connect to &quot;
                                     + &quot;using the &quot;
                                     + &quot;ProvidedCapability.spec.externallyProvisionedService.adminSecretName property.&quot;));
-<span class="fc" id="L199">            if (ofNullable(k8sClient.loadStandardResource(SECRET_KIND, providedCapability.getMetadata().getNamespace(), adminSecretName))</span>
-<span class="fc bfc" id="L200" title="All 2 branches covered.">                    .isEmpty()) {</span>
-<span class="fc" id="L201">                throw new EntandoControllerException(format(</span>
+<span class="fc" id="L200">            if (ofNullable(k8sClient.loadStandardResource(SECRET_KIND, providedCapability.getMetadata().getNamespace(), adminSecretName))</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">                    .isEmpty()) {</span>
+<span class="fc" id="L202">                throw new EntandoControllerException(format(</span>
                         &quot;Please ensure that a secret with the name '%s' exists in the requested namespace %s&quot;, adminSecretName,
-<span class="fc" id="L203">                        providedCapability.getMetadata().getName()));</span>
+<span class="fc" id="L204">                        providedCapability.getMetadata().getName()));</span>
             }
-<span class="fc bfc" id="L205" title="All 2 branches covered.">            if (ofNullable(externallyProvidedService.getHost()).isEmpty()) {</span>
-<span class="fc" id="L206">                throw new EntandoControllerException(</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">            if (ofNullable(externallyProvidedService.getHost()).isEmpty()) {</span>
+<span class="fc" id="L207">                throw new EntandoControllerException(</span>
                         &quot;Please provide the hostname of the database service you intend to connect to using the &quot;
                                 + &quot;ProvidedCapability.spec.externallyProvisionedService.host property.&quot;);
             }
         }
-<span class="fc" id="L211">    }</span>
+<span class="fc" id="L212">    }</span>
 
     private String resolveParameterIfPresent(ProvidedCapability providedCapability, String paramName) {
-<span class="fc" id="L214">        return ofNullable(providedCapability.getSpec().getCapabilityParameters()).map(params -&gt; params.get(paramName)).orElse(null);</span>
+<span class="fc" id="L215">        return ofNullable(providedCapability.getSpec().getCapabilityParameters()).map(params -&gt; params.get(paramName)).orElse(null);</span>
     }
 
     private ProvidedCapability syncFromImplementingResourceToCapability(EntandoDatabaseService resourceToProcess) {
-<span class="fc" id="L218">        ProvidedCapability capabilityToSyncTo = k8sClient.load(</span>
+<span class="fc" id="L219">        ProvidedCapability capabilityToSyncTo = k8sClient.load(</span>
                 ProvidedCapability.class,
-<span class="fc" id="L220">                resourceToProcess.getMetadata().getNamespace(),</span>
-<span class="fc" id="L221">                resourceToProcess.getMetadata().getName());</span>
+<span class="fc" id="L221">                resourceToProcess.getMetadata().getNamespace(),</span>
+<span class="fc" id="L222">                resourceToProcess.getMetadata().getName());</span>
         final ProvidedCapabilityBuilder builder;
-<span class="fc" id="L223">        builder = new ProvidedCapabilityBuilder(Objects.requireNonNullElseGet(capabilityToSyncTo,</span>
-<span class="fc" id="L224">                () -&gt; new ProvidedCapability(new ObjectMeta(), new CapabilityRequirement())));</span>
-<span class="fc" id="L225">        final HashMap&lt;String, String&gt; parameters = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L226">        resourceToProcess.getSpec().getDatabaseName().ifPresent(s -&gt; parameters.put(&quot;databaseName&quot;, s));</span>
-<span class="pc" id="L227">        resourceToProcess.getSpec().getTablespace().ifPresent(s -&gt; parameters.put(&quot;tablespace&quot;, s));</span>
-<span class="fc" id="L228">        resourceToProcess.getSpec().getJdbcParameters()</span>
-<span class="fc" id="L229">                .forEach((key, value) -&gt; parameters.put(ProvidedDatabaseCapability.JDBC_PARAMETER_PREFIX + key, value));</span>
-<span class="fc" id="L230">        NestedCapabilityRequirementFluent&lt;ProvidedCapabilityBuilder&gt; specBuilder = builder</span>
-<span class="fc" id="L231">                .editMetadata()</span>
-<span class="fc" id="L232">                .withNamespace(resourceToProcess.getMetadata().getNamespace())</span>
-<span class="fc" id="L233">                .withName(resourceToProcess.getMetadata().getName())</span>
-<span class="fc" id="L234">                .withLabels(resourceToProcess.getMetadata().getLabels())</span>
-<span class="fc" id="L235">                .endMetadata()</span>
-<span class="fc" id="L236">                .editSpec()</span>
-<span class="fc" id="L237">                .withCapability(StandardCapability.DBMS)</span>
-<span class="fc" id="L238">                .withImplementation(StandardCapabilityImplementation</span>
-<span class="fc" id="L239">                        .valueOf(strategyFor(resourceToProcess).getVendorConfig().name()))</span>
-<span class="fc" id="L240">                .withSelector(resourceToProcess.getSpec().getProvidedCapabilityScope().filter(CapabilityScope.LABELED::equals)</span>
-<span class="fc" id="L241">                        .map(s -&gt; resourceToProcess.getMetadata().getLabels()).orElse(null))</span>
-<span class="fc" id="L242">                .withResolutionScopePreference(resourceToProcess.getSpec().getProvidedCapabilityScope().orElse(CapabilityScope.NAMESPACE))</span>
-<span class="fc" id="L243">                .addAllToCapabilityParameters(parameters);</span>
-<span class="fc bfc" id="L244" title="All 2 branches covered.">        if (resourceToProcess.getSpec().getCreateDeployment().orElse(false)) {</span>
-<span class="fc" id="L245">            specBuilder = specBuilder.withProvisioningStrategy(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY);</span>
+<span class="fc" id="L224">        builder = new ProvidedCapabilityBuilder(Objects.requireNonNullElseGet(capabilityToSyncTo,</span>
+<span class="fc" id="L225">                () -&gt; new ProvidedCapability(new ObjectMeta(), new CapabilityRequirement())));</span>
+<span class="fc" id="L226">        final HashMap&lt;String, String&gt; parameters = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L227">        resourceToProcess.getSpec().getDatabaseName().ifPresent(s -&gt; parameters.put(&quot;databaseName&quot;, s));</span>
+<span class="pc" id="L228">        resourceToProcess.getSpec().getTablespace().ifPresent(s -&gt; parameters.put(&quot;tablespace&quot;, s));</span>
+<span class="fc" id="L229">        resourceToProcess.getSpec().getJdbcParameters()</span>
+<span class="fc" id="L230">                .forEach((key, value) -&gt; parameters.put(ProvidedDatabaseCapability.JDBC_PARAMETER_PREFIX + key, value));</span>
+<span class="fc" id="L231">        NestedCapabilityRequirementFluent&lt;ProvidedCapabilityBuilder&gt; specBuilder = builder</span>
+<span class="fc" id="L232">                .editMetadata()</span>
+<span class="fc" id="L233">                .withNamespace(resourceToProcess.getMetadata().getNamespace())</span>
+<span class="fc" id="L234">                .withName(resourceToProcess.getMetadata().getName())</span>
+<span class="fc" id="L235">                .withLabels(resourceToProcess.getMetadata().getLabels())</span>
+<span class="fc" id="L236">                .endMetadata()</span>
+<span class="fc" id="L237">                .editSpec()</span>
+<span class="fc" id="L238">                .withCapability(StandardCapability.DBMS)</span>
+<span class="fc" id="L239">                .withImplementation(StandardCapabilityImplementation</span>
+<span class="fc" id="L240">                        .valueOf(strategyFor(resourceToProcess).getVendorConfig().name()))</span>
+<span class="fc" id="L241">                .withSelector(resourceToProcess.getSpec().getProvidedCapabilityScope().filter(CapabilityScope.LABELED::equals)</span>
+<span class="fc" id="L242">                        .map(s -&gt; resourceToProcess.getMetadata().getLabels()).orElse(null))</span>
+<span class="fc" id="L243">                .withResolutionScopePreference(resourceToProcess.getSpec().getProvidedCapabilityScope().orElse(CapabilityScope.NAMESPACE))</span>
+<span class="fc" id="L244">                .addAllToCapabilityParameters(parameters);</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        if (resourceToProcess.getSpec().getCreateDeployment().orElse(false)) {</span>
+<span class="fc" id="L246">            specBuilder = specBuilder.withProvisioningStrategy(CapabilityProvisioningStrategy.DEPLOY_DIRECTLY);</span>
         } else {
-<span class="fc" id="L247">            specBuilder = specBuilder.withProvisioningStrategy(CapabilityProvisioningStrategy.USE_EXTERNAL)</span>
-<span class="fc" id="L248">                    .withNewExternallyProvidedService()</span>
-<span class="fc" id="L249">                    .withHost(resourceToProcess.getSpec().getHost().orElse(null))</span>
-<span class="fc" id="L250">                    .withPort(resourceToProcess.getSpec().getPort().orElse(strategyFor(resourceToProcess).getPort()))</span>
-<span class="fc" id="L251">                    .withAdminSecretName(resourceToProcess.getSpec().getSecretName().orElse(null))</span>
-<span class="fc" id="L252">                    .endExternallyProvidedService();</span>
+<span class="fc" id="L248">            specBuilder = specBuilder.withProvisioningStrategy(CapabilityProvisioningStrategy.USE_EXTERNAL)</span>
+<span class="fc" id="L249">                    .withNewExternallyProvidedService()</span>
+<span class="fc" id="L250">                    .withHost(resourceToProcess.getSpec().getHost().orElse(null))</span>
+<span class="fc" id="L251">                    .withPort(resourceToProcess.getSpec().getPort().orElse(strategyFor(resourceToProcess).getPort()))</span>
+<span class="fc" id="L252">                    .withAdminSecretName(resourceToProcess.getSpec().getSecretName().orElse(null))</span>
+<span class="fc" id="L253">                    .endExternallyProvidedService();</span>
         }
-<span class="fc" id="L254">        capabilityToSyncTo = specBuilder.endSpec().build();</span>
-<span class="pc bpc" id="L255" title="1 of 2 branches missed.">        if (!ResourceUtils.customResourceOwns(resourceToProcess, capabilityToSyncTo)) {</span>
+<span class="fc" id="L255">        capabilityToSyncTo = specBuilder.endSpec().build();</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">        if (!ResourceUtils.customResourceOwns(resourceToProcess, capabilityToSyncTo)) {</span>
             //If we are here, it means one of two things:
             // 1. This is a new EntandoDatabaseService and we need to create a ProvidedCapability owned by it so that the
             // ControllerCoordinator won't process changes against the ProvidedCapability.
             // 2. the user has removed the ownerReference from the original EntandoDatabaseService, thus indicating
             //that he is taking control of it.  Now we change control over to the original EntandoDatabaseService, make it own the
             // ProvidedCapability so that only its events will be listened to.
-<span class="fc" id="L262">            capabilityToSyncTo.getMetadata().getOwnerReferences().add(ResourceUtils.buildOwnerReference(resourceToProcess));</span>
+<span class="fc" id="L263">            capabilityToSyncTo.getMetadata().getOwnerReferences().add(ResourceUtils.buildOwnerReference(resourceToProcess));</span>
+<span class="fc" id="L264">            ofNullable(capabilityToSyncTo.getMetadata().getAnnotations())</span>
+<span class="pc" id="L265">                    .ifPresent(m -&gt; m.remove(CapabilityProvider.ORIGIN_UUID_ANNOTATION_NAME));</span>
         }
-<span class="fc" id="L264">        return capabilityToSyncTo;</span>
+<span class="fc" id="L267">        return capabilityToSyncTo;</span>
     }
 
 }
