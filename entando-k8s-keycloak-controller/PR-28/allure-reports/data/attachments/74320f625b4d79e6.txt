@@ -1,0 +1,20 @@
+---
+mixins:
+- "CapabilityForResource"
+resourceInNeed:
+  apiVersion: "test.org/v1"
+  kind: "TestResource"
+  metadata:
+    name: "my-app"
+    namespace: "my-namespace"
+  isCustomResource: true
+capabilityRequirement:
+  capability: "sso"
+  implementation: "keycloak"
+  resolutionScopePreference:
+  - "Dedicated"
+  provisioningStrategy: "DeployDirectly"
+  capabilityParameters:
+    preferredDbms: "mysql"
+    preferredIngressHostName: "myhost.com"
+    preferredTlsSecretName: "my-tls-secret"

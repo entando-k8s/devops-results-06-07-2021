@@ -1,0 +1,75 @@
+---
+fileSystemUserAndGroupId: 1000
+externalService:
+  path: "/auth"
+  mixins:
+  - "ExternalService"
+  port: 443
+  host: "kc.apps.serv.run"
+  createDelegateService: false
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoKeycloakServer"
+  metadata:
+    name: "specified-sso"
+    namespace: "my-namespace"
+  isCustomResource: true
+secrets: []
+ingressNamespace: "my-namespace"
+mixins:
+- "Secretive"
+- "DbAwareDeployable"
+- "Deployable"
+- "IngressingDeployable"
+defaultServiceAccountName: "default"
+ingressRequired: false
+ingressName: "specified-sso-ingress"
+expectingDatabaseSchemas: false
+containers:
+- environmentVariableOverrides: []
+  memoryLimitMebibytes: 768
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-keycloak"
+  volumeMountPath: "/opt/jboss/keycloak/standalone/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 8080
+  storageLimitMebibytes: 2048
+  webContextPath: "/auth"
+  mixins:
+  - "HasWebContext"
+  - "IngressingPathOnPort"
+  - "PersistentVolumeAwareContainer"
+  - "ConfigurableResourceContainer"
+  - "DeployableContainer"
+  - "DbAwareContainer"
+  - "IngressingContainer"
+  - "ParameterizableContainer"
+  - "ServiceBackingContainer"
+  healthCheckPath: "/auth"
+  maximumStartupTimeSeconds: 180
+  databaseConnectionVariables: []
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "KEYCLOAK_USER"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-existing-sso-admin-secret"
+        optional: false
+  - name: "KEYCLOAK_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-existing-sso-admin-secret"
+        optional: false
+  - name: "PROXY_ADDRESS_FORWARDING"
+    value: "true"
+  schemaConnectionInfo: []
+  nameQualifier: "server"
+  secretsToMount: []
+  cpuLimitMillicores: 1000
+  portForIngressPath: 8080
+serviceAccountToUse: "default"

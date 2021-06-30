@@ -1,0 +1,163 @@
+---
+fileSystemUserAndGroupId: 1000
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoKeycloakServer"
+  metadata:
+    name: "my-app-sso"
+    namespace: "my-namespace"
+  isCustomResource: true
+ingressHostName: "myhost.com"
+secrets:
+- apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoKeycloakServer: "my-app-sso"
+    name: "my-app-sso-admin-secret"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoKeycloakServer"
+      blockOwnerDeletion: true
+      controller: true
+      name: "my-app-sso"
+      uid: "bda06c2d-cf49-4c11-af54-6e791d6ab41f"
+  stringData:
+    username: "entando_keycloak_admin"
+    password: "48a0033d004e4cd8"
+tlsSecretName: "my-tls-secret"
+ingressNamespace: "my-namespace"
+mixins:
+- "Secretive"
+- "DbAwareDeployable"
+- "Deployable"
+- "IngressingDeployable"
+defaultServiceAccountName: "default"
+ingressRequired: true
+ingressName: "my-app-sso-ingress"
+expectingDatabaseSchemas: true
+containers:
+- environmentVariableOverrides: []
+  memoryLimitMebibytes: 768
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-keycloak"
+  volumeMountPath: "/opt/jboss/keycloak/standalone/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 8080
+  storageLimitMebibytes: 2048
+  webContextPath: "/auth"
+  mixins:
+  - "HasWebContext"
+  - "IngressingPathOnPort"
+  - "PersistentVolumeAwareContainer"
+  - "ConfigurableResourceContainer"
+  - "DeployableContainer"
+  - "DbAwareContainer"
+  - "IngressingContainer"
+  - "ParameterizableContainer"
+  - "ServiceBackingContainer"
+  healthCheckPath: "/auth"
+  maximumStartupTimeSeconds: 180
+  databaseConnectionVariables:
+  - name: "DB_ADDR"
+    value: "default-mysql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+  - name: "DB_PORT"
+    value: "3306"
+  - name: "DB_SCHEMA"
+    value: "my_app_sso_db"
+  - name: "DB_USER"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-sso-db-secret"
+        optional: false
+  - name: "DB_VENDOR"
+    value: "mysql"
+  - name: "DB_DATABASE"
+    value: "my_db"
+  - name: "DB_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-sso-db-secret"
+        optional: false
+  - name: "JDBC_PARAMS"
+    value: ""
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "KEYCLOAK_USER"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-sso-admin-secret"
+        optional: false
+  - name: "KEYCLOAK_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-sso-admin-secret"
+        optional: false
+  - name: "PROXY_ADDRESS_FORWARDING"
+    value: "true"
+  schemaConnectionInfo:
+  - schemaSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        labels:
+          EntandoKeycloakServer: "my-app-sso"
+        name: "my-app-sso-db-secret"
+        ownerReferences:
+        - apiVersion: "entando.org/v1"
+          kind: "EntandoKeycloakServer"
+          blockOwnerDeletion: true
+          controller: true
+          name: "my-app-sso"
+          uid: "bda06c2d-cf49-4c11-af54-6e791d6ab41f"
+      stringData:
+        username: "my_app_sso_db"
+        password: "911d94775e4a4bb5"
+    mixins:
+    - "DatabaseSchemaConnectionInfo"
+    database: "my_app_sso_db"
+    passwordRef:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-sso-db-secret"
+        optional: false
+    usernameRef:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-sso-db-secret"
+        optional: false
+    jdbcUrl: "jdbc:mysql://default-mysql-dbms-in-namespace-service.my-namespace.svc.cluster.local:3306/my_app_sso_db"
+    schemaName: "my_app_sso_db"
+    databaseServiceResult:
+      internalServiceHostname: "default-mysql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+      mixins:
+      - "DatabaseConnectionInfo"
+      - "ServiceResult"
+      databaseName: "my_db"
+      jdbcParameters: {}
+      port: "3306"
+      vendor: "MYSQL"
+      adminSecretName: "default-mysql-dbms-in-namespace-admin-secret"
+      service:
+        apiVersion: "v1"
+        kind: "Service"
+        metadata:
+          name: "default-mysql-dbms-in-namespace-service"
+          namespace: "my-namespace"
+        spec:
+          clusterIP: "10.0.0.78"
+          ports:
+          - port: 3306
+    schemaSecretName: "my-app-sso-db-secret"
+  nameQualifier: "server"
+  secretsToMount: []
+  cpuLimitMillicores: 1000
+  portForIngressPath: 8080
+serviceAccountToUse: "default"

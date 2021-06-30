@@ -1,0 +1,78 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    entando.org/capability: "Sso"
+    capabilityProvisionScope: "Dedicated"
+    jobKind: "db-preparation-job"
+    EntandoResourceNamespace: "my-namespace"
+    entando.org/capability-implementation: "Keycloak"
+    EntandoKeycloakServer: "my-app-sso"
+    deploymentQualifier: "main"
+  name: "my-app-sso-dbprep-6f9c"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app-sso"
+    uid: "bda06c2d-cf49-4c11-af54-6e791d6ab41f"
+spec:
+  containers:
+  - image: "docker.io/entando/busybox:latest"
+    name: "dummy"
+  initContainers:
+  - env:
+    - name: "DATABASE_SERVER_HOST"
+      value: "default-mysql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+    - name: "DATABASE_SERVER_PORT"
+      value: "3306"
+    - name: "DATABASE_ADMIN_USER"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "default-mysql-dbms-in-namespace-admin-secret"
+          optional: false
+    - name: "DATABASE_ADMIN_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "default-mysql-dbms-in-namespace-admin-secret"
+          optional: false
+    - name: "DATABASE_NAME"
+      value: "my_db"
+    - name: "DATABASE_VENDOR"
+      value: "mysql"
+    - name: "DATABASE_SCHEMA_COMMAND"
+      value: "CREATE_SCHEMA"
+    - name: "DATABASE_USER"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "my-app-sso-db-secret"
+          optional: false
+    - name: "DATABASE_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "my-app-sso-db-secret"
+          optional: false
+    image: "entando/entando-k8s-dbjob@sha256:660d3af5b44fb3d443b36f58515b880210517fa4e3061925a41c46ea552d61d2"
+    imagePullPolicy: "IfNotPresent"
+    name: "my-app-sso-db-schema-creation-job"
+  restartPolicy: "Never"
+status:
+  containerStatuses:
+  - state:
+      terminated:
+        exitCode: 0
+        reason: "Complete"
+  initContainerStatuses:
+  - state:
+      terminated:
+        exitCode: 0
+        reason: "Complete"
+  phase: "Complete"

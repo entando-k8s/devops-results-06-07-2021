@@ -1,0 +1,45 @@
+---
+apiVersion: "entando.org/v1"
+kind: "ProvidedCapability"
+metadata:
+  annotations:
+    entando.org/origin-uuid: "bda06c2d-cf49-4c11-af54-6e791d6ab41f"
+  generation: 1
+  labels:
+    entando.org/capability: "Dbms"
+    capabilityProvisionScope: "Namespace"
+    entando.org/capability-implementation: "Mysql"
+  name: "default-mysql-dbms-in-namespace"
+  namespace: "my-namespace"
+  resourceVersion: "9328696"
+  uid: "bd70aa6f-8c99-4d9d-81dc-b313067e31f5"
+spec:
+  capability: "dbms"
+  implementation: "mysql"
+  resolutionScopePreference:
+  - "Namespace"
+  - "Dedicated"
+  - "Cluster"
+  provisioningStrategy: "DeployDirectly"
+  capabilityParameters: {}
+status:
+  serverStatuses:
+    main:
+      qualifier: "main"
+      started: "2021-06-30T16:07:48+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "ProvidedCapability"
+        namespace: "my-namespace"
+        name: "default-mysql-dbms-in-namespace"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "my-test-pod"
+      serviceName: "default-mysql-dbms-in-namespace-service"
+      adminSecretName: "default-mysql-dbms-in-namespace-admin-secret"
+      derivedDeploymentParameters:
+        databaseName: "my_db"
+        dbmsVendor: "mysql"
+  observedGeneration: 1
+  phase: "successful"
+crdName: "providedcapabilities.entando.org"
