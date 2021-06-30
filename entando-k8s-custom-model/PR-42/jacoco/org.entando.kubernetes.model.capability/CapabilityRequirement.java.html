@@ -25,11 +25,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.entando.kubernetes.model.common.DbmsVendor;
 import org.entando.kubernetes.model.common.ResourceReference;
 
@@ -109,24 +109,25 @@ public class CapabilityRequirement {
     }
 
     public Map&lt;String, String&gt; getSelector() {
-<span class="fc" id="L112">        return selector;</span>
+<span class="fc" id="L112">        selector = Objects.requireNonNullElseGet(selector, ConcurrentHashMap::new);</span>
+<span class="fc" id="L113">        return selector;</span>
     }
 
     public Map&lt;String, String&gt; getCapabilityParameters() {
-<span class="fc" id="L116">        capabilityParameters = Objects.requireNonNullElseGet(capabilityParameters, HashMap::new);</span>
-<span class="fc" id="L117">        return capabilityParameters;</span>
+<span class="fc" id="L117">        capabilityParameters = Objects.requireNonNullElseGet(capabilityParameters, ConcurrentHashMap::new);</span>
+<span class="fc" id="L118">        return capabilityParameters;</span>
     }
 
     public Optional&lt;ResourceReference&gt; getSpecifiedCapability() {
-<span class="fc" id="L121">        return Optional.ofNullable(specifiedCapability);</span>
+<span class="fc" id="L122">        return Optional.ofNullable(specifiedCapability);</span>
     }
 
     public Optional&lt;CapabilityProvisioningStrategy&gt; getProvisioningStrategy() {
-<span class="fc" id="L125">        return Optional.ofNullable(provisioningStrategy);</span>
+<span class="fc" id="L126">        return Optional.ofNullable(provisioningStrategy);</span>
     }
 
     public Optional&lt;ExternallyProvidedService&gt; getExternallyProvisionedService() {
-<span class="fc" id="L129">        return Optional.ofNullable(externallyProvidedService);</span>
+<span class="fc" id="L130">        return Optional.ofNullable(externallyProvidedService);</span>
     }
 
 }

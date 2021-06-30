@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import org.entando.kubernetes.model.common.DbmsVendor;
 import org.entando.kubernetes.model.common.ResourceReference;
 
@@ -35,116 +36,116 @@ public class CapabilityRequirementFluent&lt;N extends CapabilityRequirementFluen
     private ResourceReference specifiedCapability;
     private ExternallyProvidedService externallyProvidedService;
 
-<span class="fc" id="L38">    public CapabilityRequirementFluent() {</span>
+<span class="fc" id="L39">    public CapabilityRequirementFluent() {</span>
 
-<span class="fc" id="L40">    }</span>
+<span class="fc" id="L41">    }</span>
 
-<span class="fc" id="L42">    public CapabilityRequirementFluent(CapabilityRequirement spec) {</span>
-<span class="fc" id="L43">        this.capability = spec.getCapability();</span>
-<span class="fc" id="L44">        this.implementation = spec.getImplementation().orElse(null);</span>
-<span class="fc" id="L45">        this.resolutionScopePreference = spec.getResolutionScopePreference();</span>
-<span class="fc" id="L46">        this.provisioningStrategy = spec.getProvisioningStrategy().orElse(null);</span>
-<span class="fc" id="L47">        this.selector = spec.getSelector();</span>
-<span class="fc" id="L48">        this.capabilityParameters = spec.getCapabilityParameters();</span>
-<span class="fc" id="L49">        this.specifiedCapability = spec.getSpecifiedCapability().orElse(null);</span>
-<span class="fc" id="L50">        this.externallyProvidedService = spec.getExternallyProvisionedService().orElse(null);</span>
+<span class="fc" id="L43">    public CapabilityRequirementFluent(CapabilityRequirement spec) {</span>
+<span class="fc" id="L44">        this.capability = spec.getCapability();</span>
+<span class="fc" id="L45">        this.implementation = spec.getImplementation().orElse(null);</span>
+<span class="fc" id="L46">        this.resolutionScopePreference = spec.getResolutionScopePreference();</span>
+<span class="fc" id="L47">        this.provisioningStrategy = spec.getProvisioningStrategy().orElse(null);</span>
+<span class="fc" id="L48">        this.selector = new ConcurrentHashMap&lt;&gt;(spec.getSelector());</span>
+<span class="fc" id="L49">        this.capabilityParameters = new ConcurrentHashMap&lt;&gt;(spec.getCapabilityParameters());</span>
+<span class="fc" id="L50">        this.specifiedCapability = spec.getSpecifiedCapability().orElse(null);</span>
+<span class="fc" id="L51">        this.externallyProvidedService = spec.getExternallyProvisionedService().orElse(null);</span>
 
-<span class="fc" id="L52">    }</span>
+<span class="fc" id="L53">    }</span>
 
     public N withCapability(StandardCapability capability) {
-<span class="fc" id="L55">        this.capability = capability;</span>
-<span class="fc" id="L56">        return thisAsN();</span>
+<span class="fc" id="L56">        this.capability = capability;</span>
+<span class="fc" id="L57">        return thisAsN();</span>
     }
 
     public N withImplementation(StandardCapabilityImplementation implementation) {
-<span class="fc" id="L60">        this.implementation = implementation;</span>
-<span class="fc" id="L61">        return thisAsN();</span>
+<span class="fc" id="L61">        this.implementation = implementation;</span>
+<span class="fc" id="L62">        return thisAsN();</span>
     }
 
     public N withResolutionScopePreference(CapabilityScope... resolutionScopePreference) {
-<span class="fc" id="L65">        this.resolutionScopePreference = Arrays.asList(resolutionScopePreference);</span>
-<span class="fc" id="L66">        return thisAsN();</span>
+<span class="fc" id="L66">        this.resolutionScopePreference = Arrays.asList(resolutionScopePreference);</span>
+<span class="fc" id="L67">        return thisAsN();</span>
     }
 
     public N withSelector(Map&lt;String, String&gt; selector) {
-<span class="fc" id="L70">        this.selector = selector;</span>
-<span class="fc" id="L71">        return thisAsN();</span>
+<span class="fc" id="L71">        this.selector = selector;</span>
+<span class="fc" id="L72">        return thisAsN();</span>
     }
 
     public N addAllToCapabilityParameters(Map&lt;String, String&gt; capabilityParameters) {
-<span class="fc" id="L75">        getCapabilityParameters().putAll(capabilityParameters);</span>
-<span class="fc" id="L76">        return thisAsN();</span>
+<span class="fc" id="L76">        getCapabilityParameters().putAll(capabilityParameters);</span>
+<span class="fc" id="L77">        return thisAsN();</span>
     }
 
     public N withSpecifiedCapability(ResourceReference specifiedCapability) {
-<span class="fc" id="L80">        this.specifiedCapability = specifiedCapability;</span>
-<span class="fc" id="L81">        return thisAsN();</span>
+<span class="fc" id="L81">        this.specifiedCapability = specifiedCapability;</span>
+<span class="fc" id="L82">        return thisAsN();</span>
     }
 
     public N withProvisioningStrategy(CapabilityProvisioningStrategy provisioningStrategy) {
-<span class="fc" id="L85">        this.provisioningStrategy = provisioningStrategy;</span>
-<span class="fc" id="L86">        return thisAsN();</span>
+<span class="fc" id="L86">        this.provisioningStrategy = provisioningStrategy;</span>
+<span class="fc" id="L87">        return thisAsN();</span>
     }
 
     public N withExternallyProvidedService(ExternallyProvidedService externallyProvisionedService) {
-<span class="fc" id="L90">        this.externallyProvidedService = externallyProvisionedService;</span>
-<span class="fc" id="L91">        return thisAsN();</span>
+<span class="fc" id="L91">        this.externallyProvidedService = externallyProvisionedService;</span>
+<span class="fc" id="L92">        return thisAsN();</span>
     }
 
     protected Map&lt;String, String&gt; getCapabilityParameters() {
-<span class="fc" id="L95">        this.capabilityParameters = Objects.requireNonNullElseGet(this.capabilityParameters, HashMap::new);</span>
-<span class="fc" id="L96">        return this.capabilityParameters;</span>
+<span class="fc" id="L96">        this.capabilityParameters = Objects.requireNonNullElseGet(this.capabilityParameters, HashMap::new);</span>
+<span class="fc" id="L97">        return this.capabilityParameters;</span>
 
     }
 
     public N withPreferredTlsSecretName(String preferredTlsSecretName) {
-<span class="fc" id="L101">        getCapabilityParameters().put(CapabilityRequirement.PREFERRED_TLS_SECRET_NAME, preferredTlsSecretName);</span>
-<span class="fc" id="L102">        return thisAsN();</span>
+<span class="fc" id="L102">        getCapabilityParameters().put(CapabilityRequirement.PREFERRED_TLS_SECRET_NAME, preferredTlsSecretName);</span>
+<span class="fc" id="L103">        return thisAsN();</span>
     }
 
     public N withPreferredIngressHostName(String preferredHostName) {
-<span class="fc" id="L106">        getCapabilityParameters().put(CapabilityRequirement.PREFERRED_INGRESS_HOST_NAME, preferredHostName);</span>
-<span class="fc" id="L107">        return thisAsN();</span>
+<span class="fc" id="L107">        getCapabilityParameters().put(CapabilityRequirement.PREFERRED_INGRESS_HOST_NAME, preferredHostName);</span>
+<span class="fc" id="L108">        return thisAsN();</span>
     }
 
     public N withPreferredDbms(DbmsVendor dbms) {
-<span class="fc" id="L111">        getCapabilityParameters().put(CapabilityRequirement.PREFERRED_DBMS, dbms.toValue());</span>
-<span class="fc" id="L112">        return thisAsN();</span>
+<span class="fc" id="L112">        getCapabilityParameters().put(CapabilityRequirement.PREFERRED_DBMS, dbms.toValue());</span>
+<span class="fc" id="L113">        return thisAsN();</span>
     }
 
     @SuppressWarnings(&quot;unchecked&quot;)
     protected N thisAsN() {
-<span class="fc" id="L117">        return (N) this;</span>
+<span class="fc" id="L118">        return (N) this;</span>
     }
 
     public CapabilityRequirement build() {
-<span class="fc" id="L121">        return new CapabilityRequirement(this.capability, this.implementation, this.resolutionScopePreference, this.provisioningStrategy,</span>
+<span class="fc" id="L122">        return new CapabilityRequirement(this.capability, this.implementation, this.resolutionScopePreference, this.provisioningStrategy,</span>
                 this.selector, this.capabilityParameters, this.specifiedCapability, this.externallyProvidedService);
     }
 
     public ExternallyProvidedServiceNested withNewExternallyProvidedService() {
-<span class="fc" id="L126">        return new ExternallyProvidedServiceNested(thisAsN());</span>
+<span class="fc" id="L127">        return new ExternallyProvidedServiceNested(thisAsN());</span>
     }
 
     public ExternallyProvidedServiceNested editExternallyProvidedService() {
-<span class="nc" id="L130">        return new ExternallyProvidedServiceNested(thisAsN(), externallyProvidedService);</span>
+<span class="nc" id="L131">        return new ExternallyProvidedServiceNested(thisAsN(), externallyProvidedService);</span>
     }
 
     public class ExternallyProvidedServiceNested extends ExternallyProvidedServiceFluent&lt;ExternallyProvidedServiceNested&gt; {
 
         private final N parentBuilder;
 
-<span class="nc" id="L137">        public ExternallyProvidedServiceNested(N parentBuilder, ExternallyProvidedService keycloakToUse) {</span>
-<span class="nc" id="L138">            super(keycloakToUse);</span>
-<span class="nc" id="L139">            this.parentBuilder = parentBuilder;</span>
-<span class="nc" id="L140">        }</span>
+<span class="nc" id="L138">        public ExternallyProvidedServiceNested(N parentBuilder, ExternallyProvidedService keycloakToUse) {</span>
+<span class="nc" id="L139">            super(keycloakToUse);</span>
+<span class="nc" id="L140">            this.parentBuilder = parentBuilder;</span>
+<span class="nc" id="L141">        }</span>
 
-<span class="fc" id="L142">        public ExternallyProvidedServiceNested(N parentBuilder) {</span>
-<span class="fc" id="L143">            this.parentBuilder = parentBuilder;</span>
-<span class="fc" id="L144">        }</span>
+<span class="fc" id="L143">        public ExternallyProvidedServiceNested(N parentBuilder) {</span>
+<span class="fc" id="L144">            this.parentBuilder = parentBuilder;</span>
+<span class="fc" id="L145">        }</span>
 
         public N endExternallyProvidedService() {
-<span class="fc" id="L147">            return parentBuilder.withExternallyProvidedService(super.build());</span>
+<span class="fc" id="L148">            return parentBuilder.withExternallyProvidedService(super.build());</span>
         }
     }
 
