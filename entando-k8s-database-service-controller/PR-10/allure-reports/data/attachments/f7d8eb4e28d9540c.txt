@@ -1,0 +1,31 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  labels:
+    EntandoDatabaseService: "default-dbms-in-namespace"
+    EntandoResourceKind: "EntandoDatabaseService"
+    entando.org/capability: "Dbms"
+    capabilityProvisionScope: "Namespace"
+    EntandoResourceNamespace: "my-namespace"
+    deployment: "default-dbms-in-namespace"
+  name: "default-dbms-in-namespace-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoDatabaseService"
+    blockOwnerDeletion: true
+    controller: true
+    name: "default-dbms-in-namespace"
+    uid: "650108e8-5820-4ee6-872d-7dc4ba69b311"
+spec:
+  containers:
+  - {}
+status:
+  conditions:
+  - lastTransitionTime: "2021-07-01T07:28:26Z"
+    type: "Ready"
+  containerStatuses:
+  - state:
+      running: {}
+  phase: "Running"

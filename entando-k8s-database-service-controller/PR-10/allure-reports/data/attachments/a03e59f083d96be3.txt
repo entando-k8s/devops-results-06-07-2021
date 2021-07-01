@@ -1,0 +1,65 @@
+---
+mixins:
+- "Secretive"
+- "Deployable"
+fileSystemUserAndGroupId: 27
+defaultServiceAccountName: "default"
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoDatabaseService"
+  metadata:
+    name: "mysql-dbms-4165"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- memoryLimitMebibytes: 512
+  dockerImageInfo:
+    registryHost: "registry.redhat.io"
+    organization: "rhel8"
+    repository: "mysql-80"
+    tag: "latest"
+  volumeMountPath: "/var/lib/mysql/data"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 3306
+  storageLimitMebibytes: 2048
+  accessMode: "ReadWriteOnce"
+  mixins:
+  - "ConfigurableResourceContainer"
+  - "PersistentVolumeAwareContainer"
+  - "HasHealthCommand"
+  - "ServiceBackingContainer"
+  - "DeployableContainer"
+  maximumStartupTimeSeconds: 90
+  healthCheckCommand: "MYSQL_PWD=${MYSQL_ROOT_PASSWORD} mysql -h 127.0.0.1 -u root\
+    \ -e 'SELECT 1'"
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "MYSQL_ROOT_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "mysql-dbms-4165-admin-secret"
+        optional: false
+  nameQualifier: "db"
+  secretsToMount: []
+  cpuLimitMillicores: 500
+secrets:
+- apiVersion: "v1"
+  kind: "Secret"
+  metadata:
+    labels:
+      EntandoDatabaseService: "mysql-dbms-4165"
+    name: "mysql-dbms-4165-admin-secret"
+    ownerReferences:
+    - apiVersion: "entando.org/v1"
+      kind: "EntandoDatabaseService"
+      blockOwnerDeletion: true
+      controller: true
+      name: "mysql-dbms-4165"
+      uid: "79cd8413-a9e7-4698-b2ee-8d01692dac75"
+  stringData:
+    username: "root"
+    password: "7bb97e57d6ca49a5"
+serviceAccountToUse: "default"
