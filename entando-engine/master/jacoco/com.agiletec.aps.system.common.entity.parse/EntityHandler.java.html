@@ -91,8 +91,8 @@ import com.agiletec.aps.system.services.category.ICategoryManager;
 <span class="fc" id="L91">                    this.startGroup(attributes, qName);</span>
 <span class="fc bfc" id="L92" title="All 2 branches covered.">                } else if (qName.equals(&quot;categories&quot;)) {</span>
 <span class="fc" id="L93">                    this.startCategories(attributes, qName);</span>
-<span class="fc bfc" id="L94" title="All 2 branches covered.">                } else if (qName.equals(&quot;category&quot;)) {</span>
-<span class="fc" id="L95">                    this.startCategory(attributes, qName);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                } else if (qName.equals(&quot;category&quot;)) {</span>
+<span class="nc" id="L95">                    this.startCategory(attributes, qName);</span>
 <span class="fc bfc" id="L96" title="All 2 branches covered.">                } else if (qName.equals(&quot;attributes&quot;)) {</span>
 <span class="fc" id="L97">                    startAttributes(attributes, qName);</span>
                 } else {
@@ -159,8 +159,8 @@ import com.agiletec.aps.system.services.category.ICategoryManager;
 <span class="fc" id="L159">                    this.endGroup();</span>
 <span class="fc bfc" id="L160" title="All 2 branches covered.">                } else if (qName.equals(&quot;categories&quot;)) {</span>
 <span class="fc" id="L161">                    this.endCategories();</span>
-<span class="fc bfc" id="L162" title="All 2 branches covered.">                } else if (qName.equals(&quot;category&quot;)) {</span>
-<span class="fc" id="L163">                    this.endCategory();</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">                } else if (qName.equals(&quot;category&quot;)) {</span>
+<span class="nc" id="L163">                    this.endCategory();</span>
                 } else {
 <span class="fc" id="L165">                    this.endEntityElement(uri, localName, qName);</span>
                 }
@@ -244,18 +244,18 @@ import com.agiletec.aps.system.services.category.ICategoryManager;
 <span class="fc" id="L244">    }</span>
     
     private void startCategory(Attributes attributes, String qName) throws SAXException {
-<span class="pc bpc" id="L247" title="1 of 2 branches missed.">        if (this._categoryManager != null) {</span>
-<span class="fc" id="L248">            String categoryCode = extractXmlAttribute(attributes, &quot;id&quot;, qName, true);</span>
-<span class="fc" id="L249">            Category category = this._categoryManager.getCategory(categoryCode);</span>
-<span class="pc bpc" id="L250" title="1 of 2 branches missed.">            if (null != category) {</span>
-<span class="fc" id="L251">                this._currentEntity.addCategory(category);</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">        if (this._categoryManager != null) {</span>
+<span class="nc" id="L248">            String categoryCode = extractXmlAttribute(attributes, &quot;id&quot;, qName, true);</span>
+<span class="nc" id="L249">            Category category = this._categoryManager.getCategory(categoryCode);</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">            if (null != category) {</span>
+<span class="nc" id="L251">                this._currentEntity.addCategory(category);</span>
             }
         }
-<span class="fc" id="L254">    }</span>
+<span class="nc" id="L254">    }</span>
     
     private void endCategory() {
         // nothing to do
-<span class="fc" id="L258">    }</span>
+<span class="nc" id="L258">    }</span>
     
     private void startAttribute(Attributes attributes, String qName) throws SAXException {
 <span class="fc bfc" id="L261" title="All 2 branches covered.">        if (null == this._currentAttr) {</span>
@@ -333,7 +333,7 @@ import com.agiletec.aps.system.services.category.ICategoryManager;
      * @return Il buffer relativo al testo incluso.
      */
     protected StringBuffer getTextBuffer() {
-<span class="fc" id="L336">        return this._textBuffer;</span>
+<span class="nc" id="L336">        return this._textBuffer;</span>
     }
 
     /**

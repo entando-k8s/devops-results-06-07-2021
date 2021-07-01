@@ -194,7 +194,7 @@ import com.agiletec.aps.util.FileTextReader;
 <span class="fc" id="L194">                ApiMethodParameter apiParam = apiParameters.get(i);</span>
 <span class="fc" id="L195">                String paramName = apiParam.getKey();</span>
 <span class="fc" id="L196">                Object value = parameters.get(paramName);</span>
-<span class="pc bpc" id="L197" title="2 of 6 branches missed.">                if (apiParam.isRequired() &amp;&amp; (null == value || value.toString().trim().length() == 0)) {</span>
+<span class="pc bpc" id="L197" title="3 of 6 branches missed.">                if (apiParam.isRequired() &amp;&amp; (null == value || value.toString().trim().length() == 0)) {</span>
 <span class="nc" id="L198">                    errors.add(new ApiError(IApiErrorCodes.API_PARAMETER_REQUIRED, &quot;Parameter '&quot; + paramName + &quot;' is required&quot;, Response.Status.BAD_REQUEST));</span>
                 }
             }
@@ -363,8 +363,8 @@ import com.agiletec.aps.util.FileTextReader;
 <span class="fc" id="L363">        String methodName = api.getSpringBeanMethod();</span>
         try {
 <span class="fc" id="L365">            Class[] parameterTypes = new Class[]{bodyObject.getClass(), Properties.class};</span>
-<span class="fc" id="L366">            Method method = beanClass.getDeclaredMethod(methodName, parameterTypes);</span>
-<span class="fc" id="L367">            result = method.invoke(bean, bodyObject, parameters);</span>
+<span class="nc" id="L366">            Method method = beanClass.getDeclaredMethod(methodName, parameterTypes);</span>
+<span class="nc" id="L367">            result = method.invoke(bean, bodyObject, parameters);</span>
 <span class="fc" id="L368">        } catch (NoSuchMethodException e) {</span>
             //the first exception of type &quot;NoSuchMethodException&quot; will not catched... the second yes
 <span class="fc" id="L370">            Class[] parameterTypes = new Class[]{bodyObject.getClass()};</span>
@@ -374,7 +374,7 @@ import com.agiletec.aps.util.FileTextReader;
 <span class="nc" id="L374">            throw e;</span>
 <span class="nc" id="L375">        } catch (Throwable t) {</span>
 <span class="nc" id="L376">            throw t;</span>
-<span class="fc" id="L377">        }</span>
+<span class="pc" id="L377">        }</span>
 <span class="fc" id="L378">        return result;</span>
     }
     

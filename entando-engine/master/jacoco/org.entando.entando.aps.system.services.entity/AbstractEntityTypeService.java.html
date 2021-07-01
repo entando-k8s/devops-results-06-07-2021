@@ -353,7 +353,7 @@ import static org.entando.entando.web.entity.validator.AbstractEntityTypeValidat
     }
 
     private void setNamesWithFallbackFromDescription(AttributeInterface attribute, ApsProperties names) {
-<span class="fc bfc" id="L356" title="All 4 branches covered.">        if (null != attribute.getDescription() &amp;&amp; names.size() == 0) {</span>
+<span class="pc bpc" id="L356" title="1 of 4 branches missed.">        if (null != attribute.getDescription() &amp;&amp; names.size() == 0) {</span>
 <span class="fc" id="L357">            names.put(languageManager.getDefaultLang().getCode(), attribute.getDescription());</span>
         }
 <span class="fc" id="L359">        attribute.setNames(names);</span>
@@ -362,14 +362,14 @@ import static org.entando.entando.web.entity.validator.AbstractEntityTypeValidat
     private void setDescriptionWithFallbackFromNames(AttributeInterface attribute, EntityTypeAttributeFullDto attributeDto, ApsProperties names) {
 <span class="fc" id="L363">        String description = attributeDto.getName();</span>
 
-<span class="fc bfc" id="L365" title="All 4 branches covered.">        if (null == description &amp;&amp; names.size() &gt; 0) {</span>
-<span class="fc" id="L366">            String defaultLangCode = languageManager.getDefaultLang().getCode();</span>
-<span class="fc" id="L367">            description = (String)names.get(defaultLangCode);</span>
-<span class="pc bpc" id="L368" title="1 of 2 branches missed.">            if (null == description) {</span>
-<span class="pc bpc" id="L369" title="1 of 2 branches missed.">                for (String lang : names.stringPropertyNames()) {</span>
-<span class="pc bpc" id="L370" title="1 of 2 branches missed.">                    if (null != names.get(lang)) {</span>
-<span class="fc" id="L371">                        description = (String)names.get(lang);</span>
-<span class="fc" id="L372">                        break;</span>
+<span class="pc bpc" id="L365" title="1 of 4 branches missed.">        if (null == description &amp;&amp; names.size() &gt; 0) {</span>
+<span class="nc" id="L366">            String defaultLangCode = languageManager.getDefaultLang().getCode();</span>
+<span class="nc" id="L367">            description = (String)names.get(defaultLangCode);</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">            if (null == description) {</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">                for (String lang : names.stringPropertyNames()) {</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">                    if (null != names.get(lang)) {</span>
+<span class="nc" id="L371">                        description = (String)names.get(lang);</span>
+<span class="nc" id="L372">                        break;</span>
                     }
 <span class="nc" id="L374">                }</span>
             }
@@ -385,10 +385,10 @@ import static org.entando.entando.web.entity.validator.AbstractEntityTypeValidat
 <span class="nc" id="L385">                return;</span>
             }
 <span class="fc" id="L387">            List&lt;String&gt; ids = entityManager.searchId(entityTypeCode, null);</span>
-<span class="fc bfc" id="L388" title="All 2 branches covered.">            if (!CollectionUtils.isEmpty(ids)) {</span>
-<span class="fc" id="L389">                BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(entityType, &quot;entityType&quot;);</span>
-<span class="fc" id="L390">                bindingResult.reject(AbstractEntityTypeValidator.ERRCODE_ENTITY_TYPE_REFERENCES, new Object[]{entityTypeCode}, &quot;entityType.cannot.delete.references&quot;);</span>
-<span class="fc" id="L391">                throw new ValidationConflictException(bindingResult);</span>
+<span class="pc bpc" id="L388" title="1 of 2 branches missed.">            if (!CollectionUtils.isEmpty(ids)) {</span>
+<span class="nc" id="L389">                BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(entityType, &quot;entityType&quot;);</span>
+<span class="nc" id="L390">                bindingResult.reject(AbstractEntityTypeValidator.ERRCODE_ENTITY_TYPE_REFERENCES, new Object[]{entityTypeCode}, &quot;entityType.cannot.delete.references&quot;);</span>
+<span class="nc" id="L391">                throw new ValidationConflictException(bindingResult);</span>
             }
 <span class="fc" id="L393">            ((IEntityTypesConfigurer) entityManager).removeEntityPrototype(entityTypeCode);</span>
 <span class="nc" id="L394">        } catch (EntException e) {</span>
@@ -568,47 +568,47 @@ import static org.entando.entando.web.entity.validator.AbstractEntityTypeValidat
 <span class="fc" id="L568">    }</span>
 
     protected void moveEntityAttribute(String entityManagerCode, String entityTypeCode, String attributeCode, boolean moveUp) {
-<span class="fc" id="L571">        IEntityManager entityManager = this.extractEntityManager(entityManagerCode);</span>
-<span class="fc" id="L572">        IApsEntity entityType = entityManager.getEntityPrototype(entityTypeCode);</span>
-<span class="pc bpc" id="L573" title="1 of 2 branches missed.">        if (null == entityType) {</span>
+<span class="nc" id="L571">        IEntityManager entityManager = this.extractEntityManager(entityManagerCode);</span>
+<span class="nc" id="L572">        IApsEntity entityType = entityManager.getEntityPrototype(entityTypeCode);</span>
+<span class="nc bnc" id="L573" title="All 2 branches missed.">        if (null == entityType) {</span>
 <span class="nc" id="L574">            logger.warn(NO_TYPE_FOUND_WITH_CODE, entityTypeCode);</span>
 <span class="nc" id="L575">            throw new ResourceNotFoundException(ERRCODE_ENTITY_TYPE_DOES_NOT_EXIST, TYPE_CODE, entityTypeCode);</span>
         }
-<span class="fc" id="L577">        int index = -1;</span>
-<span class="fc" id="L578">        AttributeInterface attributeToMove = null;</span>
-<span class="fc" id="L579">        List&lt;AttributeInterface&gt; attributes = entityType.getAttributeList();</span>
-<span class="fc bfc" id="L580" title="All 2 branches covered.">        for (int i = 0; i &lt; attributes.size(); i++) {</span>
-<span class="fc" id="L581">            AttributeInterface attribute = attributes.get(i);</span>
-<span class="fc bfc" id="L582" title="All 2 branches covered.">            if (attribute.getName().equals(attributeCode)) {</span>
-<span class="fc" id="L583">                attributeToMove = attribute;</span>
-<span class="fc" id="L584">                index = i;</span>
+<span class="nc" id="L577">        int index = -1;</span>
+<span class="nc" id="L578">        AttributeInterface attributeToMove = null;</span>
+<span class="nc" id="L579">        List&lt;AttributeInterface&gt; attributes = entityType.getAttributeList();</span>
+<span class="nc bnc" id="L580" title="All 2 branches missed.">        for (int i = 0; i &lt; attributes.size(); i++) {</span>
+<span class="nc" id="L581">            AttributeInterface attribute = attributes.get(i);</span>
+<span class="nc bnc" id="L582" title="All 2 branches missed.">            if (attribute.getName().equals(attributeCode)) {</span>
+<span class="nc" id="L583">                attributeToMove = attribute;</span>
+<span class="nc" id="L584">                index = i;</span>
             }
         }
-<span class="fc" id="L587">        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(entityType, &quot;entityType&quot;);</span>
-<span class="pc bpc" id="L588" title="1 of 2 branches missed.">        if (null == attributeToMove) {</span>
+<span class="nc" id="L587">        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(entityType, &quot;entityType&quot;);</span>
+<span class="nc bnc" id="L588" title="All 2 branches missed.">        if (null == attributeToMove) {</span>
 <span class="nc" id="L589">            this.addError(AbstractEntityTypeValidator.ERRCODE_ENTITY_ATTRIBUTE_NOT_EXISTS,</span>
                     bindingResult, new String[]{entityTypeCode, attributeCode}, &quot;entityType.attribute.notExists&quot;);
 <span class="nc" id="L591">            throw new ResourceNotFoundException(bindingResult);</span>
         }
-<span class="fc bfc" id="L593" title="All 8 branches covered.">        if ((index == 0 &amp;&amp; moveUp) || (index == attributes.size() - 1 &amp;&amp; !moveUp)) {</span>
-<span class="fc bfc" id="L594" title="All 2 branches covered.">            String movement = (moveUp) ? &quot;UP&quot; : &quot;DOWN&quot;;</span>
-<span class="fc" id="L595">            this.addError(AbstractEntityTypeValidator.ERRCODE_ENTITY_ATTRIBUTE_INVALID_MOVEMENT,</span>
+<span class="nc bnc" id="L593" title="All 8 branches missed.">        if ((index == 0 &amp;&amp; moveUp) || (index == attributes.size() - 1 &amp;&amp; !moveUp)) {</span>
+<span class="nc bnc" id="L594" title="All 2 branches missed.">            String movement = (moveUp) ? &quot;UP&quot; : &quot;DOWN&quot;;</span>
+<span class="nc" id="L595">            this.addError(AbstractEntityTypeValidator.ERRCODE_ENTITY_ATTRIBUTE_INVALID_MOVEMENT,</span>
                     bindingResult, new String[]{entityTypeCode, attributeCode, movement}, &quot;entityType.attribute.movement.invalid&quot;);
-<span class="fc" id="L597">            throw new ValidationGenericException(bindingResult);</span>
+<span class="nc" id="L597">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="fc" id="L599">        attributes.remove(index);</span>
-<span class="fc bfc" id="L600" title="All 2 branches covered.">        if (moveUp) {</span>
-<span class="fc" id="L601">            attributes.add(index - 1, attributeToMove);</span>
+<span class="nc" id="L599">        attributes.remove(index);</span>
+<span class="nc bnc" id="L600" title="All 2 branches missed.">        if (moveUp) {</span>
+<span class="nc" id="L601">            attributes.add(index - 1, attributeToMove);</span>
         } else {
-<span class="fc" id="L603">            attributes.add(index + 1, attributeToMove);</span>
+<span class="nc" id="L603">            attributes.add(index + 1, attributeToMove);</span>
         }
         try {
-<span class="fc" id="L606">            ((IEntityTypesConfigurer) entityManager).updateEntityPrototype(entityType);</span>
+<span class="nc" id="L606">            ((IEntityTypesConfigurer) entityManager).updateEntityPrototype(entityType);</span>
 <span class="nc" id="L607">        } catch (Throwable e) {</span>
 <span class="nc" id="L608">            logger.error(ERROR_UPDATING_ENTITY_TYPE, e);</span>
 <span class="nc" id="L609">            throw new RestServerError(ERROR_UPDATING_ENTITY_TYPE, e);</span>
-<span class="fc" id="L610">        }</span>
-<span class="fc" id="L611">    }</span>
+<span class="nc" id="L610">        }</span>
+<span class="nc" id="L611">    }</span>
 
     protected void reloadEntityTypeReferences(String entityManagerCode, String entityTypeCode) {
 <span class="fc" id="L614">        IEntityManager entityManager = this.extractEntityManager(entityManagerCode);</span>

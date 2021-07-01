@@ -50,7 +50,7 @@ public class TextAttribute extends AbstractTextAttribute {
      */
     @Override
     public String getIndexeableFieldValue() {
-<span class="fc" id="L53">        return this.getText();</span>
+<span class="nc" id="L53">        return this.getText();</span>
     }
 
     /**
@@ -63,10 +63,10 @@ public class TextAttribute extends AbstractTextAttribute {
     @Override
     public String getText() {
 <span class="fc" id="L65">        String text = (String) this.getTextMap().get(this.getRenderingLang());</span>
-<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (text == null) {</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (text == null) {</span>
 <span class="fc" id="L67">            text = (String) this.getTextMap().get(this.getDefaultLangCode());</span>
-<span class="fc bfc" id="L68" title="All 2 branches covered.">            if (text == null) {</span>
-<span class="fc" id="L69">                text = &quot;&quot;;</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">            if (text == null) {</span>
+<span class="nc" id="L69">                text = &quot;&quot;;</span>
             }
         }
 <span class="fc" id="L72">        return text;</span>
@@ -90,7 +90,7 @@ public class TextAttribute extends AbstractTextAttribute {
 
     @Override
     public boolean needToConvertSpecialCharacter() {
-<span class="fc" id="L93">        return true;</span>
+<span class="nc" id="L93">        return true;</span>
     }
 
     /**
@@ -122,7 +122,7 @@ public class TextAttribute extends AbstractTextAttribute {
     @Override
     public List&lt;AttributeSearchInfo&gt; getSearchInfos(List&lt;Lang&gt; systemLangs) {
 <span class="fc" id="L124">        List&lt;AttributeSearchInfo&gt; infos = null;</span>
-<span class="pc bpc" id="L125" title="1 of 4 branches missed.">        if (null != this.getTextMap() &amp;&amp; this.getTextMap().size() &gt; 0) {</span>
+<span class="pc bpc" id="L125" title="2 of 4 branches missed.">        if (null != this.getTextMap() &amp;&amp; this.getTextMap().size() &gt; 0) {</span>
 <span class="fc" id="L126">            infos = new ArrayList&lt;&gt;();</span>
 <span class="fc bfc" id="L127" title="All 2 branches covered.">            for (int i = 0; i &lt; systemLangs.size(); i++) {</span>
 <span class="fc" id="L128">                Lang lang = systemLangs.get(i);</span>
@@ -130,7 +130,7 @@ public class TextAttribute extends AbstractTextAttribute {
 <span class="fc bfc" id="L130" title="All 2 branches covered.">                if (null == text) {</span>
 <span class="fc" id="L131">                    text = this.getTextMap().get(this.getDefaultLangCode());</span>
                 }
-<span class="fc bfc" id="L133" title="All 2 branches covered.">                if (null != text) {</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">                if (null != text) {</span>
 <span class="fc" id="L134">                    AttributeSearchInfo info = null;</span>
 <span class="pc bpc" id="L135" title="1 of 2 branches missed.">                    if (text.length() &gt;= 255) {</span>
 <span class="nc" id="L136">                        info = new AttributeSearchInfo(text.substring(0, 254), null, null, lang.getCode());</span>
@@ -166,7 +166,7 @@ public class TextAttribute extends AbstractTextAttribute {
 <span class="fc bfc" id="L166" title="All 2 branches covered.">        while (langIter.hasNext()) {</span>
 <span class="fc" id="L167">            String currentLangCode = langIter.next();</span>
 <span class="fc" id="L168">            String text = this.getTextMap().get(currentLangCode);</span>
-<span class="pc bpc" id="L169" title="2 of 6 branches missed.">            if (null != text &amp;&amp; text.trim().length() &gt; 0 &amp;&amp; currentLangCode != null) {</span>
+<span class="pc bpc" id="L169" title="3 of 6 branches missed.">            if (null != text &amp;&amp; text.trim().length() &gt; 0 &amp;&amp; currentLangCode != null) {</span>
 <span class="fc" id="L170">                Element textElement = new Element(&quot;text&quot;);</span>
 <span class="fc" id="L171">                textElement.setAttribute(&quot;lang&quot;, currentLangCode);</span>
 <span class="fc" id="L172">                textElement.setText(text.trim());</span>

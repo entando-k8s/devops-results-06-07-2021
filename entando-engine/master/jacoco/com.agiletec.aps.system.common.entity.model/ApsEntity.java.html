@@ -198,8 +198,8 @@ public class ApsEntity implements IApsEntity {
 <span class="fc bfc" id="L198" title="All 2 branches covered.">        for (int i = 0; i &lt; attributes.size(); i++) {</span>
 <span class="fc" id="L199">            AttributeInterface attribute = attributes.get(i);</span>
 <span class="fc bfc" id="L200" title="All 2 branches covered.">            if (null != attribute.getRoles()</span>
-<span class="fc bfc" id="L201" title="All 2 branches covered.">                    &amp;&amp; Arrays.asList(attribute.getRoles()).contains(roleName)) {</span>
-<span class="fc" id="L202">                return attribute;</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">                    &amp;&amp; Arrays.asList(attribute.getRoles()).contains(roleName)) {</span>
+<span class="nc" id="L202">                return attribute;</span>
             }
         }
 <span class="fc" id="L205">        return null;</span>
@@ -212,8 +212,8 @@ public class ApsEntity implements IApsEntity {
      */
     @Override
     public void addCategory(Category category) {
-<span class="fc" id="L215">        this._categories.add(category);</span>
-<span class="fc" id="L216">    }</span>
+<span class="nc" id="L215">        this._categories.add(category);</span>
+<span class="nc" id="L216">    }</span>
 
     /**
      * Return the list of the categories associated to the entity.
@@ -294,12 +294,12 @@ public class ApsEntity implements IApsEntity {
      */
     @Override
     public void setRenderingLang(String langCode) {
-<span class="fc" id="L297">        this._renderingLang = langCode;</span>
-<span class="fc bfc" id="L298" title="All 2 branches covered.">        for (int i = 0; i &lt; this._attributeList.size(); i++) {</span>
-<span class="fc" id="L299">            AttributeInterface attr = (AttributeInterface) this._attributeList.get(i);</span>
-<span class="fc" id="L300">            attr.setRenderingLang(this._renderingLang);</span>
+<span class="nc" id="L297">        this._renderingLang = langCode;</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">        for (int i = 0; i &lt; this._attributeList.size(); i++) {</span>
+<span class="nc" id="L299">            AttributeInterface attr = (AttributeInterface) this._attributeList.get(i);</span>
+<span class="nc" id="L300">            attr.setRenderingLang(this._renderingLang);</span>
         }
-<span class="fc" id="L302">    }</span>
+<span class="nc" id="L302">    }</span>
 
     /**
      * Set up the default language of the entity and its attributes.
@@ -374,10 +374,10 @@ public class ApsEntity implements IApsEntity {
 <span class="fc" id="L374">            entityDom.addGroup(groupName);</span>
 <span class="fc" id="L375">        }</span>
 <span class="fc" id="L376">        Iterator&lt;Category&gt; iterCategory = this._categories.iterator();</span>
-<span class="fc bfc" id="L377" title="All 2 branches covered.">        while (iterCategory.hasNext()) {</span>
-<span class="fc" id="L378">            Category category = iterCategory.next();</span>
-<span class="fc" id="L379">            entityDom.addCategory(category.getCode());</span>
-<span class="fc" id="L380">        }</span>
+<span class="pc bpc" id="L377" title="1 of 2 branches missed.">        while (iterCategory.hasNext()) {</span>
+<span class="nc" id="L378">            Category category = iterCategory.next();</span>
+<span class="nc" id="L379">            entityDom.addCategory(category.getCode());</span>
+<span class="nc" id="L380">        }</span>
 <span class="fc" id="L381">        Iterator&lt;AttributeInterface&gt; iterAttribute = this._attributeList.iterator();</span>
 <span class="fc bfc" id="L382" title="All 2 branches covered.">        while (iterAttribute.hasNext()) {</span>
 <span class="fc" id="L383">            AttributeInterface currentAttribute = iterAttribute.next();</span>
@@ -429,7 +429,7 @@ public class ApsEntity implements IApsEntity {
     @Override
     public List&lt;FieldError&gt; validate(IGroupManager groupManager, ILangManager langManager) {
 <span class="fc" id="L431">        List&lt;FieldError&gt; errors = new ArrayList&lt;&gt;();</span>
-<span class="pc bpc" id="L432" title="1 of 4 branches missed.">        if (null != this.getMainGroup() &amp;&amp; null == groupManager.getGroup(this.getMainGroup())) {</span>
+<span class="pc bpc" id="L432" title="3 of 4 branches missed.">        if (null != this.getMainGroup() &amp;&amp; null == groupManager.getGroup(this.getMainGroup())) {</span>
 <span class="nc" id="L433">            FieldError error = new FieldError(&quot;mainGroup&quot;, FieldError.INVALID);</span>
 <span class="nc" id="L434">            error.setMessage(&quot;Invalid main group - &quot; + this.getMainGroup());</span>
 <span class="nc" id="L435">            errors.add(error);</span>

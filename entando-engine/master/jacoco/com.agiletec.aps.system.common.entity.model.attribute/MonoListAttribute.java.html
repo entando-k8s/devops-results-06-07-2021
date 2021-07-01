@@ -95,12 +95,12 @@ public class MonoListAttribute extends AbstractListAttribute {
      */
     @Override
     public void setRenderingLang(String langCode) {
-<span class="fc" id="L98">        super.setRenderingLang(langCode);</span>
-<span class="fc bfc" id="L99" title="All 2 branches covered.">        for (int i = 0; i &lt; this.getAttributes().size(); i++) {</span>
-<span class="fc" id="L100">            AttributeInterface attribute = (AttributeInterface) this.getAttributes().get(i);</span>
-<span class="fc" id="L101">            attribute.setRenderingLang(langCode);</span>
+<span class="nc" id="L98">        super.setRenderingLang(langCode);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        for (int i = 0; i &lt; this.getAttributes().size(); i++) {</span>
+<span class="nc" id="L100">            AttributeInterface attribute = (AttributeInterface) this.getAttributes().get(i);</span>
+<span class="nc" id="L101">            attribute.setRenderingLang(langCode);</span>
         }
-<span class="fc" id="L103">    }</span>
+<span class="nc" id="L103">    }</span>
 
     /**
      * Return an Element that represents a list of homogeneous attributes, that
@@ -124,8 +124,8 @@ public class MonoListAttribute extends AbstractListAttribute {
 
     @Override
     public Object getRenderingAttributes() {
-<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        if (this.getNestedAttributeType().isSimple()) {</span>
-<span class="fc" id="L128">            return this.getAttributes();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (this.getNestedAttributeType().isSimple()) {</span>
+<span class="nc" id="L128">            return this.getAttributes();</span>
         } else {
 <span class="nc" id="L130">            List&lt;Object&gt; attributes = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L131" title="All 2 branches missed.">            for (int i = 0; i &lt; this.getAttributes().size(); i++) {</span>
@@ -143,43 +143,43 @@ public class MonoListAttribute extends AbstractListAttribute {
 
     @Override
     public AbstractJAXBAttribute getJAXBAttribute(String langCode) {
-<span class="fc" id="L146">        JAXBListAttribute jaxbAttribute = (JAXBListAttribute) super.createJAXBAttribute(langCode);</span>
-<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (null == jaxbAttribute) {</span>
+<span class="nc" id="L146">        JAXBListAttribute jaxbAttribute = (JAXBListAttribute) super.createJAXBAttribute(langCode);</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (null == jaxbAttribute) {</span>
 <span class="nc" id="L148">            return null;</span>
         }
-<span class="fc" id="L150">        List&lt;AttributeInterface&gt; attributes = this.getAttributes();</span>
-<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        if (null == attributes) {</span>
+<span class="nc" id="L150">        List&lt;AttributeInterface&gt; attributes = this.getAttributes();</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (null == attributes) {</span>
 <span class="nc" id="L152">            return null;</span>
         }
-<span class="fc" id="L154">        List&lt;AbstractJAXBAttribute&gt; jaxbList = this.extractJAXBListAttributes(attributes, langCode);</span>
-<span class="fc" id="L155">        jaxbAttribute.setAttributes(jaxbList);</span>
-<span class="fc" id="L156">        return jaxbAttribute;</span>
+<span class="nc" id="L154">        List&lt;AbstractJAXBAttribute&gt; jaxbList = this.extractJAXBListAttributes(attributes, langCode);</span>
+<span class="nc" id="L155">        jaxbAttribute.setAttributes(jaxbList);</span>
+<span class="nc" id="L156">        return jaxbAttribute;</span>
     }
 
     @Override
     public void valueFrom(AbstractJAXBAttribute jaxbAttribute, String langCode) {
-<span class="fc" id="L161">        JAXBListAttribute jaxbListAttribute = (JAXBListAttribute) jaxbAttribute;</span>
-<span class="pc bpc" id="L162" title="1 of 2 branches missed.">        if (null == jaxbListAttribute) {</span>
+<span class="nc" id="L161">        JAXBListAttribute jaxbListAttribute = (JAXBListAttribute) jaxbAttribute;</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (null == jaxbListAttribute) {</span>
 <span class="nc" id="L163">            return;</span>
         }
-<span class="fc" id="L165">        List&lt;AbstractJAXBAttribute&gt; attributes = jaxbListAttribute.getAttributes();</span>
-<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (null == attributes) {</span>
+<span class="nc" id="L165">        List&lt;AbstractJAXBAttribute&gt; attributes = jaxbListAttribute.getAttributes();</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (null == attributes) {</span>
 <span class="nc" id="L167">            return;</span>
         }
-<span class="fc bfc" id="L169" title="All 2 branches covered.">        for (int i = 0; i &lt; attributes.size(); i++) {</span>
-<span class="fc" id="L170">            AbstractJAXBAttribute jaxbAttributeElement = attributes.get(i);</span>
-<span class="fc" id="L171">            AttributeInterface attribute = this.addAttribute();</span>
-<span class="fc" id="L172">            attribute.valueFrom(jaxbAttributeElement, langCode);</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        for (int i = 0; i &lt; attributes.size(); i++) {</span>
+<span class="nc" id="L170">            AbstractJAXBAttribute jaxbAttributeElement = attributes.get(i);</span>
+<span class="nc" id="L171">            AttributeInterface attribute = this.addAttribute();</span>
+<span class="nc" id="L172">            attribute.valueFrom(jaxbAttributeElement, langCode);</span>
         }
-<span class="fc" id="L174">    }</span>
+<span class="nc" id="L174">    }</span>
 
     @Override
     public Status getStatus() {
 <span class="fc" id="L178">        List&lt;AttributeInterface&gt; attributes = this.getAttributes();</span>
-<span class="pc bpc" id="L179" title="1 of 4 branches missed.">        if (null != attributes &amp;&amp; attributes.size() &gt; 0) {</span>
+<span class="pc bpc" id="L179" title="2 of 4 branches missed.">        if (null != attributes &amp;&amp; attributes.size() &gt; 0) {</span>
 <span class="fc" id="L180">            return Status.VALUED;</span>
         }
-<span class="fc" id="L182">        return Status.EMPTY;</span>
+<span class="nc" id="L182">        return Status.EMPTY;</span>
     }
 
     @Override
@@ -193,8 +193,8 @@ public class MonoListAttribute extends AbstractListAttribute {
 <span class="fc" id="L193">                elementTracer.setListIndex(i);</span>
 <span class="fc" id="L194">                elementTracer.setMonoListElement(true);</span>
 <span class="fc" id="L195">                Status elementStatus = attributeElement.getStatus();</span>
-<span class="fc bfc" id="L196" title="All 2 branches covered.">                if (elementStatus.equals(Status.EMPTY)) {</span>
-<span class="fc" id="L197">                    errors.add(new AttributeFieldError(attributeElement, FieldError.INVALID, elementTracer));</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                if (elementStatus.equals(Status.EMPTY)) {</span>
+<span class="nc" id="L197">                    errors.add(new AttributeFieldError(attributeElement, FieldError.INVALID, elementTracer));</span>
                 } else {
 <span class="fc" id="L199">                    List&lt;AttributeFieldError&gt; elementErrors = attributeElement.validate(elementTracer, langManager);</span>
 <span class="pc bpc" id="L200" title="1 of 2 branches missed.">                    if (null != elementErrors) {</span>

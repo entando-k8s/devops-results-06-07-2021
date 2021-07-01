@@ -123,12 +123,12 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 
     protected EntitySearchFilter[] addFilter(EntitySearchFilter[] filters, EntitySearchFilter filterToAdd) {
 <span class="fc" id="L125">        int len = 0;</span>
-<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (filters != null) {</span>
-<span class="fc" id="L127">            len = filters.length;</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (filters != null) {</span>
+<span class="nc" id="L127">            len = filters.length;</span>
         }
 <span class="fc" id="L129">        EntitySearchFilter[] newFilters = new EntitySearchFilter[len + 1];</span>
-<span class="fc bfc" id="L130" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i++) {</span>
-<span class="fc" id="L131">            newFilters[i] = filters[i];</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        for (int i = 0; i &lt; len; i++) {</span>
+<span class="nc" id="L131">            newFilters[i] = filters[i];</span>
         }
 <span class="fc" id="L133">        newFilters[len] = filterToAdd;</span>
 <span class="fc" id="L134">        return newFilters;</span>
@@ -206,8 +206,8 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
      * @throws SQLException In case of error.
      */
     protected int addObjectSearchStatementBlock(EntitySearchFilter filter, int index, PreparedStatement stat) throws SQLException {
-<span class="fc bfc" id="L209" title="All 4 branches covered.">        if (filter.isAttributeFilter() &amp;&amp; null != filter.getLangCode()) {</span>
-<span class="fc" id="L210">            stat.setString(++index, filter.getLangCode());</span>
+<span class="pc bpc" id="L209" title="1 of 4 branches missed.">        if (filter.isAttributeFilter() &amp;&amp; null != filter.getLangCode()) {</span>
+<span class="nc" id="L210">            stat.setString(++index, filter.getLangCode());</span>
         }
 <span class="fc" id="L212">        return super.addObjectSearchStatementBlock(filter, index, stat);</span>
     }
@@ -259,8 +259,8 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="fc bfc" id="L259" title="All 4 branches covered.">                if (!filter.isAttributeFilter() &amp;&amp; filter.isLikeOption()) {</span>
 <span class="fc" id="L260">                    String tableFieldName = this.getTableFieldName(filter.getKey());</span>
                     //check for id column already present
-<span class="fc bfc" id="L262" title="All 2 branches covered.">                    if (!tableFieldName.equals(this.getMasterTableIdFieldName())) {</span>
-<span class="fc" id="L263">                        query.append(&quot;, &quot;).append(masterTableName).append(&quot;.&quot;).append(tableFieldName);</span>
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">                    if (!tableFieldName.equals(this.getMasterTableIdFieldName())) {</span>
+<span class="nc" id="L263">                        query.append(&quot;, &quot;).append(masterTableName).append(&quot;.&quot;).append(tableFieldName);</span>
                     }
 <span class="fc bfc" id="L265" title="All 4 branches covered.">                } else if (filter.isAttributeFilter() &amp;&amp; filter.isLikeOption()) {</span>
 <span class="fc" id="L266">                    String columnName = this.getAttributeFieldColunm(filter);</span>
@@ -285,7 +285,7 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="fc" id="L285">        String attributeRoleTableIdFieldName = this.getEntityAttributeRoleTableIdFieldName();</span>
 <span class="fc bfc" id="L286" title="All 2 branches covered.">        for (int i = 0; i &lt; filters.length; i++) {</span>
 <span class="fc" id="L287">            EntitySearchFilter filter = filters[i];</span>
-<span class="pc bpc" id="L288" title="1 of 8 branches missed.">            if ((null != filter.getKey() || null != filter.getRoleName()) &amp;&amp; filter.isAttributeFilter() &amp;&amp; !filter.isNullOption()) {</span>
+<span class="pc bpc" id="L288" title="2 of 8 branches missed.">            if ((null != filter.getKey() || null != filter.getRoleName()) &amp;&amp; filter.isAttributeFilter() &amp;&amp; !filter.isNullOption()) {</span>
 <span class="fc" id="L289">                query.append(&quot;INNER JOIN &quot;);</span>
 <span class="fc" id="L290">                query.append(searchTableName).append(&quot; &quot;).append(searchTableName).append(i).append(&quot; ON &quot;)</span>
 <span class="fc" id="L291">                     .append(masterTableName).append(&quot;.&quot;).append(masterTableIdFieldName).append(&quot; = &quot;)</span>
@@ -307,8 +307,8 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="fc bfc" id="L307" title="All 2 branches covered.">                if (!filter.isAttributeFilter()) {</span>
 <span class="fc" id="L308">                    continue;</span>
                 }
-<span class="pc bpc" id="L310" title="1 of 4 branches missed.">                if (filter.isNullOption() &amp;&amp; filter.getKey() != null) {</span>
-<span class="fc" id="L311">                    hasAppendWhereClause = this.appendNullAttributeFilterQueryBlocks(filter, query, hasAppendWhereClause);</span>
+<span class="pc bpc" id="L310" title="3 of 4 branches missed.">                if (filter.isNullOption() &amp;&amp; filter.getKey() != null) {</span>
+<span class="nc" id="L311">                    hasAppendWhereClause = this.appendNullAttributeFilterQueryBlocks(filter, query, hasAppendWhereClause);</span>
 <span class="pc bpc" id="L312" title="2 of 6 branches missed.">                } else if (!filter.isNullOption() &amp;&amp; (filter.getKey() != null || filter.getRoleName() != null)) {</span>
 <span class="fc" id="L313">                    hasAppendWhereClause = this.appendValuedAttributeFilterQueryBlocks(filter, i, query, hasAppendWhereClause);</span>
                 }
@@ -318,16 +318,16 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
     }
 
     private boolean appendNullAttributeFilterQueryBlocks(EntitySearchFilter filter, StringBuffer query, boolean hasAppendWhereClause) {
-<span class="fc" id="L321">        hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);</span>
-<span class="fc" id="L322">        query.append(this.getEntityMasterTableName()).append(&quot;.&quot;).append(this.getEntityMasterTableIdFieldName());</span>
-<span class="fc" id="L323">        query.append(&quot; NOT IN (&quot;);</span>
-<span class="fc" id="L324">        String searchTableName = this.getEntitySearchTableName();</span>
-<span class="fc" id="L325">        query.append(&quot;SELECT &quot;).append(searchTableName).append(&quot;.&quot;).append(this.getEntitySearchTableIdFieldName());</span>
-<span class="fc" id="L326">        query.append(&quot; FROM &quot;).append(searchTableName).append(&quot; WHERE &quot;).append(searchTableName).append(&quot;.attrname = ? &quot;);</span>
-<span class="fc" id="L327">        this.addAttributeLangQueryBlock(searchTableName, query, filter, true);</span>
-<span class="fc" id="L328">        query.append(&quot; AND (&quot;).append(searchTableName).append(&quot;.datevalue IS NOT NULL OR &quot;).append(searchTableName).append(&quot;.textvalue IS NOT NULL OR &quot;).append(searchTableName).append(&quot;.numvalue IS NOT NULL) &quot;);</span>
-<span class="fc" id="L329">        query.append(&quot; ) &quot;);</span>
-<span class="fc" id="L330">        return hasAppendWhereClause;</span>
+<span class="nc" id="L321">        hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);</span>
+<span class="nc" id="L322">        query.append(this.getEntityMasterTableName()).append(&quot;.&quot;).append(this.getEntityMasterTableIdFieldName());</span>
+<span class="nc" id="L323">        query.append(&quot; NOT IN (&quot;);</span>
+<span class="nc" id="L324">        String searchTableName = this.getEntitySearchTableName();</span>
+<span class="nc" id="L325">        query.append(&quot;SELECT &quot;).append(searchTableName).append(&quot;.&quot;).append(this.getEntitySearchTableIdFieldName());</span>
+<span class="nc" id="L326">        query.append(&quot; FROM &quot;).append(searchTableName).append(&quot; WHERE &quot;).append(searchTableName).append(&quot;.attrname = ? &quot;);</span>
+<span class="nc" id="L327">        this.addAttributeLangQueryBlock(searchTableName, query, filter, true);</span>
+<span class="nc" id="L328">        query.append(&quot; AND (&quot;).append(searchTableName).append(&quot;.datevalue IS NOT NULL OR &quot;).append(searchTableName).append(&quot;.textvalue IS NOT NULL OR &quot;).append(searchTableName).append(&quot;.numvalue IS NOT NULL) &quot;);</span>
+<span class="nc" id="L329">        query.append(&quot; ) &quot;);</span>
+<span class="nc" id="L330">        return hasAppendWhereClause;</span>
     }
 
     private boolean appendValuedAttributeFilterQueryBlocks(EntitySearchFilter filter, int index, StringBuffer query, boolean hasAppendWhereClause) {
@@ -342,45 +342,45 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
         }
 <span class="fc" id="L343">        hasAppendWhereClause = this.addAttributeLangQueryBlock(searchTableNameAlias, query, filter, hasAppendWhereClause);</span>
 
-<span class="pc bpc" id="L345" title="1 of 4 branches missed.">        if (filter.getAllowedValues() != null &amp;&amp; filter.getAllowedValues().size() &gt; 0) {</span>
-<span class="fc" id="L346">            hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);</span>
-<span class="fc" id="L347">            List&lt;Object&gt; allowedValues = filter.getAllowedValues();</span>
-<span class="fc bfc" id="L348" title="All 2 branches covered.">            for (int j = 0; j &lt; allowedValues.size(); j++) {</span>
-<span class="fc" id="L349">                Object allowedValue = allowedValues.get(j);</span>
-<span class="fc bfc" id="L350" title="All 2 branches covered.">                if (j == 0) {</span>
-<span class="fc" id="L351">                    query.append(&quot; ( &quot;);</span>
+<span class="pc bpc" id="L345" title="3 of 4 branches missed.">        if (filter.getAllowedValues() != null &amp;&amp; filter.getAllowedValues().size() &gt; 0) {</span>
+<span class="nc" id="L346">            hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);</span>
+<span class="nc" id="L347">            List&lt;Object&gt; allowedValues = filter.getAllowedValues();</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">            for (int j = 0; j &lt; allowedValues.size(); j++) {</span>
+<span class="nc" id="L349">                Object allowedValue = allowedValues.get(j);</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">                if (j == 0) {</span>
+<span class="nc" id="L351">                    query.append(&quot; ( &quot;);</span>
                 } else {
-<span class="fc" id="L353">                    query.append(&quot; OR &quot;);</span>
+<span class="nc" id="L353">                    query.append(&quot; OR &quot;);</span>
                 }
-<span class="fc bfc" id="L355" title="All 2 branches covered.">                String operator = filter.isLikeOption() ? this.getLikeClause() : &quot;= ? &quot;;</span>
-<span class="fc bfc" id="L356" title="All 2 branches covered.">                if (filter.isLikeOption()) {</span>
-<span class="fc" id="L357">                    query.append(&quot;UPPER(&quot; + searchTableNameAlias).append(&quot;.&quot;).append(this.getAttributeFieldColunm(allowedValue)).append(&quot;) &quot;);</span>
+<span class="nc bnc" id="L355" title="All 2 branches missed.">                String operator = filter.isLikeOption() ? this.getLikeClause() : &quot;= ? &quot;;</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">                if (filter.isLikeOption()) {</span>
+<span class="nc" id="L357">                    query.append(&quot;UPPER(&quot; + searchTableNameAlias).append(&quot;.&quot;).append(this.getAttributeFieldColunm(allowedValue)).append(&quot;) &quot;);</span>
                 } else {
 
-<span class="fc" id="L360">                    query.append(searchTableNameAlias).append(&quot;.&quot;).append(this.getAttributeFieldColunm(allowedValue)).append(&quot; &quot;);</span>
+<span class="nc" id="L360">                    query.append(searchTableNameAlias).append(&quot;.&quot;).append(this.getAttributeFieldColunm(allowedValue)).append(&quot; &quot;);</span>
                 }
 
-<span class="fc" id="L363">                query.append(operator);</span>
-<span class="fc bfc" id="L364" title="All 2 branches covered.">                if (j == (allowedValues.size() - 1)) {</span>
-<span class="fc" id="L365">                    query.append(&quot; ) &quot;);</span>
+<span class="nc" id="L363">                query.append(operator);</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">                if (j == (allowedValues.size() - 1)) {</span>
+<span class="nc" id="L365">                    query.append(&quot; ) &quot;);</span>
                 }
             }
-<span class="fc bfc" id="L368" title="All 2 branches covered.">        } else if (filter.getValue() != null) {</span>
+<span class="pc bfc" id="L368" title="All 2 branches covered.">        } else if (filter.getValue() != null) {</span>
 <span class="fc" id="L369">            Object object = filter.getValue();</span>
-<span class="fc bfc" id="L370" title="All 2 branches covered.">            String operator = filter.isLikeOption() ? this.getLikeClause() : &quot;= ? &quot;;</span>
+<span class="pc bpc" id="L370" title="1 of 2 branches missed.">            String operator = filter.isLikeOption() ? this.getLikeClause() : &quot;= ? &quot;;</span>
 <span class="fc" id="L371">            hasAppendWhereClause = this.addAttributeObjectSearchQueryBlock(searchTableNameAlias, query,</span>
 <span class="fc" id="L372">                                                                           object, operator, hasAppendWhereClause, filter.getLangCode(), filter);</span>
 <span class="fc" id="L373">        } else {</span>
             //creazione blocco selezione su tabella ricerca
-<span class="fc bfc" id="L375" title="All 2 branches covered.">            if (null != filter.getStart()) {</span>
-<span class="fc" id="L376">                hasAppendWhereClause = this.addAttributeObjectSearchQueryBlock(searchTableNameAlias, query,</span>
-<span class="fc" id="L377">                                                                               filter.getStart(), &quot;&gt;= ? &quot;, hasAppendWhereClause, filter.getLangCode(), filter);</span>
+<span class="pc bpc" id="L375" title="1 of 2 branches missed.">            if (null != filter.getStart()) {</span>
+<span class="nc" id="L376">                hasAppendWhereClause = this.addAttributeObjectSearchQueryBlock(searchTableNameAlias, query,</span>
+<span class="nc" id="L377">                                                                               filter.getStart(), &quot;&gt;= ? &quot;, hasAppendWhereClause, filter.getLangCode(), filter);</span>
             }
-<span class="fc bfc" id="L379" title="All 2 branches covered.">            if (null != filter.getEnd()) {</span>
-<span class="fc" id="L380">                hasAppendWhereClause = this.addAttributeObjectSearchQueryBlock(searchTableNameAlias, query,</span>
-<span class="fc" id="L381">                                                                               filter.getEnd(), &quot;&lt;= ? &quot;, hasAppendWhereClause, filter.getLangCode(), filter);</span>
+<span class="pc bpc" id="L379" title="1 of 2 branches missed.">            if (null != filter.getEnd()) {</span>
+<span class="nc" id="L380">                hasAppendWhereClause = this.addAttributeObjectSearchQueryBlock(searchTableNameAlias, query,</span>
+<span class="nc" id="L381">                                                                               filter.getEnd(), &quot;&lt;= ? &quot;, hasAppendWhereClause, filter.getLangCode(), filter);</span>
             }
-<span class="fc bfc" id="L383" title="All 4 branches covered.">            if (null == filter.getStart() &amp;&amp; null == filter.getEnd()) {</span>
+<span class="pc bpc" id="L383" title="2 of 4 branches missed.">            if (null == filter.getStart() &amp;&amp; null == filter.getEnd()) {</span>
 <span class="fc" id="L384">                hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);</span>
 <span class="fc" id="L385">                query.append(&quot; (&quot;).append(searchTableNameAlias).append(&quot;.datevalue IS NOT NULL OR &quot;).append(searchTableNameAlias).append(&quot;.textvalue IS NOT NULL OR &quot;).append(searchTableNameAlias).append(</span>
                                                                                                                                                                                                            &quot;.numvalue IS NOT NULL) &quot;);
@@ -393,9 +393,9 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
                                                  StringBuffer query,
                                                  EntitySearchFilter filter,
                                                  boolean hasAppendWhereClause) {
-<span class="pc bpc" id="L396" title="1 of 4 branches missed.">        if (filter.isAttributeFilter() &amp;&amp; null != filter.getLangCode()) {</span>
-<span class="fc" id="L397">            hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);</span>
-<span class="fc" id="L398">            query.append(searchTableName).append(&quot;.langcode = ? &quot;);</span>
+<span class="pc bpc" id="L396" title="2 of 4 branches missed.">        if (filter.isAttributeFilter() &amp;&amp; null != filter.getLangCode()) {</span>
+<span class="nc" id="L397">            hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);</span>
+<span class="nc" id="L398">            query.append(searchTableName).append(&quot;.langcode = ? &quot;);</span>
         }
 <span class="fc" id="L400">        return hasAppendWhereClause;</span>
     }
@@ -419,12 +419,12 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
         }
 <span class="fc bfc" id="L420" title="All 2 branches covered.">        for (int i = 0; i &lt; filters.length; i++) {</span>
 <span class="fc" id="L421">            EntitySearchFilter filter = filters[i];</span>
-<span class="pc bpc" id="L422" title="1 of 8 branches missed.">            if ((null != filter.getKey() || null != filter.getRoleName()) &amp;&amp; null != filter.getOrder() &amp;&amp; !filter.isNullOption()) {</span>
-<span class="fc bfc" id="L423" title="All 2 branches covered.">                if (!ordered) {</span>
+<span class="pc bpc" id="L422" title="2 of 8 branches missed.">            if ((null != filter.getKey() || null != filter.getRoleName()) &amp;&amp; null != filter.getOrder() &amp;&amp; !filter.isNullOption()) {</span>
+<span class="pc bpc" id="L423" title="1 of 2 branches missed.">                if (!ordered) {</span>
 <span class="fc" id="L424">                    query.append(&quot;ORDER BY &quot;);</span>
 <span class="fc" id="L425">                    ordered = true;</span>
                 } else {
-<span class="fc" id="L427">                    query.append(&quot;, &quot;);</span>
+<span class="nc" id="L427">                    query.append(&quot;, &quot;);</span>
                 }
 <span class="fc bfc" id="L429" title="All 2 branches covered.">                if (filter.isAttributeFilter()) {</span>
 <span class="fc" id="L430">                    String tableName = this.getEntitySearchTableName() + i;</span>
@@ -446,14 +446,14 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
                                                          String langCode,
                                                          EntitySearchFilter filter) {
 <span class="fc" id="L448">        hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);</span>
-<span class="fc bfc" id="L449" title="All 2 branches covered.">        if (filter.getValue() != null) {</span>
-<span class="fc bfc" id="L450" title="All 2 branches covered.">            if (filter.isLikeOption()) {</span>
+<span class="pc bpc" id="L449" title="1 of 2 branches missed.">        if (filter.getValue() != null) {</span>
+<span class="pc bpc" id="L450" title="1 of 2 branches missed.">            if (filter.isLikeOption()) {</span>
 <span class="fc" id="L451">                query.append(&quot;UPPER(&quot;).append(searchTableName).append(&quot;.&quot;).append(this.getAttributeFieldColunm(object)).append(&quot;) &quot;);</span>
             } else {
-<span class="fc" id="L453">                query.append(searchTableName).append(&quot;.&quot;).append(this.getAttributeFieldColunm(object)).append(&quot; &quot;);</span>
+<span class="nc" id="L453">                query.append(searchTableName).append(&quot;.&quot;).append(this.getAttributeFieldColunm(object)).append(&quot; &quot;);</span>
             }
         } else {
-<span class="fc" id="L456">            query.append(&quot;(&quot;).append(searchTableName).append(&quot;.&quot;).append(this.getAttributeFieldColunm(object)).append(&quot;) &quot;);</span>
+<span class="nc" id="L456">            query.append(&quot;(&quot;).append(searchTableName).append(&quot;.&quot;).append(this.getAttributeFieldColunm(object)).append(&quot;) &quot;);</span>
         }
 <span class="fc" id="L458">        query.append(operator);</span>
 <span class="fc" id="L459">        return hasAppendWhereClause;</span>
@@ -493,8 +493,8 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 
     private String getAttributeFieldColunm(EntitySearchFilter filter) {
 <span class="fc" id="L495">        Object object = null;</span>
-<span class="pc bpc" id="L496" title="1 of 4 branches missed.">        if (null != filter.getAllowedValues() &amp;&amp; filter.getAllowedValues().size() &gt; 0) {</span>
-<span class="fc" id="L497">            object = filter.getAllowedValues().get(0);</span>
+<span class="pc bpc" id="L496" title="3 of 4 branches missed.">        if (null != filter.getAllowedValues() &amp;&amp; filter.getAllowedValues().size() &gt; 0) {</span>
+<span class="nc" id="L497">            object = filter.getAllowedValues().get(0);</span>
 <span class="pc bpc" id="L498" title="1 of 2 branches missed.">        } else if (null != filter.getValue()) {</span>
 <span class="fc" id="L499">            object = filter.getValue();</span>
 <span class="nc bnc" id="L500" title="All 2 branches missed.">        } else if (null != filter.getStart()) {</span>
@@ -511,10 +511,10 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="fc" id="L511">        String columnName = null;</span>
 <span class="pc bpc" id="L512" title="1 of 2 branches missed.">        if (null == attributeValue) {</span>
 <span class="nc" id="L513">            columnName = null;</span>
-<span class="fc bfc" id="L514" title="All 2 branches covered.">        } else if (attributeValue instanceof String) {</span>
+<span class="pc bpc" id="L514" title="1 of 2 branches missed.">        } else if (attributeValue instanceof String) {</span>
 <span class="fc" id="L515">            columnName = &quot;textvalue&quot;;</span>
-<span class="pc bpc" id="L516" title="1 of 2 branches missed.">        } else if (attributeValue instanceof Date) {</span>
-<span class="fc" id="L517">            columnName = &quot;datevalue&quot;;</span>
+<span class="nc bnc" id="L516" title="All 2 branches missed.">        } else if (attributeValue instanceof Date) {</span>
+<span class="nc" id="L517">            columnName = &quot;datevalue&quot;;</span>
 <span class="nc bnc" id="L518" title="All 2 branches missed.">        } else if (attributeValue instanceof BigDecimal) {</span>
 <span class="nc" id="L519">            columnName = &quot;numvalue&quot;;</span>
 <span class="nc bnc" id="L520" title="All 2 branches missed.">        } else if (attributeValue instanceof Boolean) {</span>

@@ -262,8 +262,8 @@ import java.sql.SQLException;
 <span class="fc" id="L262">	}</span>
 	
 	protected void deleteEntitySearchRecord(String id, Connection conn) throws EntException {
-<span class="fc" id="L265">		this.deleteRecordsByEntityId(id, this.getRemovingSearchRecordQuery(), conn);</span>
-<span class="fc" id="L266">	}</span>
+<span class="nc" id="L265">		this.deleteRecordsByEntityId(id, this.getRemovingSearchRecordQuery(), conn);</span>
+<span class="nc" id="L266">	}</span>
 	
 	/**
 	 * 'Utility' method. Delete entity records by entity id
@@ -290,24 +290,24 @@ import java.sql.SQLException;
 	 */
 	@Override
 	public List&lt;String&gt; getAllEntityId() {
-<span class="fc" id="L293">		Connection conn = null;</span>
-<span class="fc" id="L294">		Statement stat = null;</span>
-<span class="fc" id="L295">		ResultSet res = null;</span>
-<span class="fc" id="L296">		List&lt;String&gt; entitiesId = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L293">		Connection conn = null;</span>
+<span class="nc" id="L294">		Statement stat = null;</span>
+<span class="nc" id="L295">		ResultSet res = null;</span>
+<span class="nc" id="L296">		List&lt;String&gt; entitiesId = new ArrayList&lt;&gt;();</span>
 		try {
-<span class="fc" id="L298">			conn = this.getConnection();</span>
-<span class="fc" id="L299">			stat = conn.createStatement();</span>
-<span class="fc" id="L300">			res = stat.executeQuery(this.getExtractingAllEntityIdQuery());</span>
-<span class="fc bfc" id="L301" title="All 2 branches covered.">			while (res.next()) {</span>
-<span class="fc" id="L302">				entitiesId.add(res.getString(1));</span>
+<span class="nc" id="L298">			conn = this.getConnection();</span>
+<span class="nc" id="L299">			stat = conn.createStatement();</span>
+<span class="nc" id="L300">			res = stat.executeQuery(this.getExtractingAllEntityIdQuery());</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">			while (res.next()) {</span>
+<span class="nc" id="L302">				entitiesId.add(res.getString(1));</span>
 			}
 <span class="nc" id="L304">		} catch (EntException | SQLException t) {</span>
 <span class="nc" id="L305">			_logger.error(&quot;Error retrieving the list of entity IDs&quot;,  t);</span>
 <span class="nc" id="L306">			throw new RuntimeException(&quot;Error retrieving the list of entity IDs&quot;, t);</span>
 		} finally {
-<span class="fc" id="L308">			closeDaoResources(res, stat, conn);</span>
+<span class="nc" id="L308">			closeDaoResources(res, stat, conn);</span>
 		}
-<span class="fc" id="L310">		return entitiesId;</span>
+<span class="nc" id="L310">		return entitiesId;</span>
 	}
 	
 	/**

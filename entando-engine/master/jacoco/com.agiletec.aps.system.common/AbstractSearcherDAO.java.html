@@ -141,8 +141,8 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
      *
      */
     protected int addObjectSearchStatementBlock(FieldSearchFilter filter, int index, PreparedStatement stat) throws SQLException {
-<span class="fc bfc" id="L144" title="All 2 branches covered.">        if (filter.isNullOption()) {</span>
-<span class="fc" id="L145">            return index;</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (filter.isNullOption()) {</span>
+<span class="nc" id="L145">            return index;</span>
         }
 <span class="pc bpc" id="L147" title="1 of 4 branches missed.">        if (filter.getAllowedValues() != null &amp;&amp; filter.getAllowedValues().size() &gt; 0) {</span>
 <span class="fc" id="L148">            List&lt;Object&gt; allowedValues = filter.getAllowedValues();</span>
@@ -188,12 +188,12 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="fc bfc" id="L188" title="All 2 branches covered.">            if (isLikeOption) {</span>
 <span class="fc" id="L189">                object = ((String) object).toUpperCase();</span>
 <span class="fc" id="L190">                String parameter = null;</span>
-<span class="fc bfc" id="L191" title="All 4 branches covered.">                if (null == likeOptionType || likeOptionType.equals(FieldSearchFilter.LikeOptionType.COMPLETE)) {</span>
+<span class="pc bpc" id="L191" title="1 of 4 branches missed.">                if (null == likeOptionType || likeOptionType.equals(FieldSearchFilter.LikeOptionType.COMPLETE)) {</span>
 <span class="fc" id="L192">                    parameter = &quot;%&quot; + ((String) object) + &quot;%&quot;;</span>
-<span class="fc bfc" id="L193" title="All 2 branches covered.">                } else if (likeOptionType.equals(FieldSearchFilter.LikeOptionType.LEFT)) {</span>
-<span class="fc" id="L194">                    parameter = &quot;%&quot; + ((String) object);</span>
-<span class="pc bpc" id="L195" title="1 of 2 branches missed.">                } else if (likeOptionType.equals(FieldSearchFilter.LikeOptionType.RIGHT)) {</span>
-<span class="fc" id="L196">                    parameter = ((String) object) + &quot;%&quot;;</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                } else if (likeOptionType.equals(FieldSearchFilter.LikeOptionType.LEFT)) {</span>
+<span class="nc" id="L194">                    parameter = &quot;%&quot; + ((String) object);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">                } else if (likeOptionType.equals(FieldSearchFilter.LikeOptionType.RIGHT)) {</span>
+<span class="nc" id="L196">                    parameter = ((String) object) + &quot;%&quot;;</span>
                 }
 <span class="fc" id="L198">                stat.setString(index, parameter);</span>
 <span class="fc" id="L199">            } else {</span>
@@ -205,12 +205,12 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 <span class="pc bpc" id="L205" title="1 of 2 branches missed.">            if (dateDelay != null) {</span>
 <span class="nc" id="L206">                calendar.add(Calendar.DATE, dateDelay);</span>
             }
-<span class="fc bfc" id="L208" title="All 2 branches covered.">            if (object instanceof Timestamp) {</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">            if (object instanceof Timestamp) {</span>
 <span class="fc" id="L209">                Timestamp timestamp = new Timestamp(calendar.getTime().getTime());</span>
 <span class="fc" id="L210">                stat.setTimestamp(index, timestamp);</span>
 <span class="fc" id="L211">            } else {</span>
-<span class="fc" id="L212">                Date data = calendar.getTime();</span>
-<span class="fc" id="L213">                stat.setDate(index, new java.sql.Date(data.getTime()));</span>
+<span class="nc" id="L212">                Date data = calendar.getTime();</span>
+<span class="nc" id="L213">                stat.setDate(index, new java.sql.Date(data.getTime()));</span>
             }
 <span class="pc bpc" id="L215" title="1 of 2 branches missed.">        } else if (object instanceof BigDecimal) {</span>
 <span class="nc" id="L216">            stat.setBigDecimal(index, (BigDecimal) object);</span>
@@ -340,14 +340,14 @@ import org.entando.entando.ent.util.EntLogging.EntLogFactory;
                 }
 <span class="fc bfc" id="L341" title="All 2 branches covered.">            } else if (null != filter.getStart()) {</span>
 <span class="fc" id="L342">                query.append(&quot;&gt;= ? &quot;);</span>
-<span class="fc bfc" id="L343" title="All 2 branches covered.">                if (null != filter.getEnd()) {</span>
+<span class="pc bpc" id="L343" title="1 of 2 branches missed.">                if (null != filter.getEnd()) {</span>
 <span class="fc" id="L344">                    query.append(&quot;AND &quot;).append(this.getMasterTableName()).append(&quot;.&quot;).append(tableFieldName).append(&quot; &quot;);</span>
 <span class="fc" id="L345">                    query.append(&quot;&lt;= ? &quot;);</span>
                 }
 <span class="pc bpc" id="L347" title="1 of 2 branches missed.">            } else if (null != filter.getEnd()) {</span>
 <span class="nc" id="L348">                query.append(&quot;&lt;= ? &quot;);</span>
-<span class="fc bfc" id="L349" title="All 2 branches covered.">            } else if (filter.isNullOption()) {</span>
-<span class="fc" id="L350">                query.append(&quot; IS NULL &quot;);</span>
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">            } else if (filter.isNullOption()) {</span>
+<span class="nc" id="L350">                query.append(&quot; IS NULL &quot;);</span>
             } else {
 <span class="fc" id="L352">                query.append(&quot; IS NOT NULL &quot;);</span>
             }
