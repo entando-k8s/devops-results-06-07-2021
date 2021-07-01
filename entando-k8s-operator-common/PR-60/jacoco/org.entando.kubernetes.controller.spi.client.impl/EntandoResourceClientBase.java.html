@@ -70,8 +70,8 @@ public class EntandoResourceClientBase {
         }
 <span class="fc" id="L71">        final CompletableFuture&lt;T&gt; future = new CompletableFuture&lt;&gt;();</span>
         final CustomResourceDefinitionContext definition;
-<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (customResource instanceof SerializedEntandoResource) {</span>
-<span class="nc" id="L74">            definition = ((SerializedEntandoResource) customResource).getDefinition();</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (customResource instanceof SerializedEntandoResource) {</span>
+<span class="fc" id="L74">            definition = ((SerializedEntandoResource) customResource).getDefinition();</span>
         } else {
 <span class="fc" id="L76">            definition = CustomResourceDefinitionContext.fromCustomResourceType(((CustomResource&lt;?, ?&gt;) customResource).getClass());</span>
         }
@@ -83,8 +83,8 @@ public class EntandoResourceClientBase {
                             @Override
                             public void eventReceived(Action action, String s) {
 <span class="fc" id="L85">                                final T resource = ioSafe(() -&gt; objectMapper.readValue(s, (Class&lt;T&gt;) customResource.getClass()));</span>
-<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                                if (resource instanceof SerializedEntandoResource) {</span>
-<span class="nc" id="L87">                                    ((SerializedEntandoResource) resource).setDefinition(definition);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                                if (resource instanceof SerializedEntandoResource) {</span>
+<span class="fc" id="L87">                                    ((SerializedEntandoResource) resource).setDefinition(definition);</span>
                                 }
 <span class="fc bfc" id="L89" title="All 2 branches covered.">                                if (predicate.test(resource)) {</span>
 <span class="fc" id="L90">                                    future.complete(resource);</span>
@@ -154,7 +154,7 @@ public class EntandoResourceClientBase {
 <span class="fc" id="L154">        crdNameMap = Objects.requireNonNullElseGet(crdNameMap,</span>
 <span class="fc" id="L155">                () -&gt; Objects.requireNonNullElseGet(</span>
 <span class="fc" id="L156">                        client.configMaps().inNamespace(client.getNamespace()).withName(</span>
-<span class="fc" id="L157">                                KubernetesClientForControllers.ENTANDO_CRD_NAMES_CONFIG_MAP).get(),</span>
+<span class="fc" id="L157">                                KubernetesClientForControllers.ENTANDO_CRD_NAMES_CONFIG_MAP).fromServer().get(),</span>
                         this::createConfigMap));
 
 <span class="fc" id="L160">        return crdNameMap;</span>
@@ -181,7 +181,7 @@ public class EntandoResourceClientBase {
 <span class="nc" id="L181">        } catch (KubernetesClientException e) {</span>
 <span class="nc bnc" id="L182" title="All 2 branches missed.">            if (e.getStatus().getCode() == HttpURLConnection.HTTP_CONFLICT) {</span>
 <span class="nc" id="L183">                return client.configMaps().inNamespace(client.getNamespace()).withName(</span>
-<span class="nc" id="L184">                        KubernetesClientForControllers.ENTANDO_CRD_NAMES_CONFIG_MAP).get();</span>
+<span class="nc" id="L184">                        KubernetesClientForControllers.ENTANDO_CRD_NAMES_CONFIG_MAP).fromServer().get();</span>
 
             }
 <span class="nc" id="L187">            throw e;</span>
