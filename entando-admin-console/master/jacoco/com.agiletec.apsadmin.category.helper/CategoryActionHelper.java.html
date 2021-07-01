@@ -47,19 +47,19 @@ import com.agiletec.apsadmin.system.TreeNodeBaseActionHelper;
 <span class="fc" id="L47">    	Map&lt;String, List&gt; references = new HashMap&lt;String, List&gt;();</span>
     	try {
 <span class="fc" id="L49">    		String[] defNames = ApsWebApplicationUtils.getWebApplicationContext(request).getBeanNamesForType(CategoryUtilizer.class);</span>
-<span class="fc bfc" id="L50" title="All 2 branches covered.">			for (int i=0; i&lt;defNames.length; i++) {</span>
-<span class="fc" id="L51">				Object service = null;</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">			for (int i=0; i&lt;defNames.length; i++) {</span>
+<span class="nc" id="L51">				Object service = null;</span>
 				try {
-<span class="fc" id="L53">					service = ApsWebApplicationUtils.getWebApplicationContext(request).getBean(defNames[i]);</span>
+<span class="nc" id="L53">					service = ApsWebApplicationUtils.getWebApplicationContext(request).getBean(defNames[i]);</span>
 <span class="nc" id="L54">				} catch (Throwable t) {</span>
 <span class="nc" id="L55">					_logger.error(&quot;error checking Referencing Objects&quot;, t);</span>
 <span class="nc" id="L56">					service = null;</span>
-<span class="fc" id="L57">				}</span>
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">				if (service != null) {</span>
-<span class="fc" id="L59">					CategoryUtilizer categoryUtilizer = (CategoryUtilizer) service;</span>
-<span class="fc" id="L60">					List utilizers = categoryUtilizer.getCategoryUtilizers(category.getCode());</span>
-<span class="pc bpc" id="L61" title="1 of 4 branches missed.">					if (utilizers != null &amp;&amp; !utilizers.isEmpty()) {</span>
-<span class="fc" id="L62">						references.put(categoryUtilizer.getName()+&quot;Utilizers&quot;, utilizers);</span>
+<span class="nc" id="L57">				}</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">				if (service != null) {</span>
+<span class="nc" id="L59">					CategoryUtilizer categoryUtilizer = (CategoryUtilizer) service;</span>
+<span class="nc" id="L60">					List utilizers = categoryUtilizer.getCategoryUtilizers(category.getCode());</span>
+<span class="nc bnc" id="L61" title="All 4 branches missed.">					if (utilizers != null &amp;&amp; !utilizers.isEmpty()) {</span>
+<span class="nc" id="L62">						references.put(categoryUtilizer.getName()+&quot;Utilizers&quot;, utilizers);</span>
 					}
 				}
 			}
