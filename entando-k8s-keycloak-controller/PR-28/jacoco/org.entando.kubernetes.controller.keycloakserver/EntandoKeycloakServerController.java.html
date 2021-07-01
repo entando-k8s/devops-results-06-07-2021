@@ -166,24 +166,24 @@ public class EntandoKeycloakServerController implements Runnable {
 <span class="fc" id="L166">    }</span>
 
     private void validateExternalServiceRequirements(EntandoKeycloakServer entandoKeycloakServer) {
-<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        if (entandoKeycloakServer.getSpec().getProvisioningStrategy().map(CapabilityProvisioningStrategy.USE_EXTERNAL::equals)</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (entandoKeycloakServer.getSpec().getProvisioningStrategy().map(CapabilityProvisioningStrategy.USE_EXTERNAL::equals)</span>
 <span class="fc" id="L170">                .orElse(false)) {</span>
-<span class="nc bnc" id="L171" title="All 2 branches missed.">            if (entandoKeycloakServer.getSpec().getFrontEndUrl().isEmpty()) {</span>
-<span class="nc" id="L172">                throw new EntandoControllerException(</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">            if (entandoKeycloakServer.getSpec().getFrontEndUrl().isEmpty()) {</span>
+<span class="fc" id="L172">                throw new EntandoControllerException(</span>
                         &quot;Please provide the base URL of the SSO service you intend to connect to using the &quot;
                                 + &quot;EntandoKeycloakServer.spec.frontEndUrl property.&quot;);
             }
-<span class="nc" id="L176">            String adminSecretName = entandoKeycloakServer.getSpec().getAdminSecretName()</span>
-<span class="nc" id="L177">                    .orElseThrow(() -&gt; new EntandoControllerException(</span>
+<span class="fc" id="L176">            String adminSecretName = entandoKeycloakServer.getSpec().getAdminSecretName()</span>
+<span class="fc" id="L177">                    .orElseThrow(() -&gt; new EntandoControllerException(</span>
                             &quot;Please provide the name of the secret containing the admin credentials for the SSO service you intend to &quot;
                                     + &quot;connect to &quot;
                                     + &quot;using the &quot;
                                     + &quot;EntandoKeycloakServer.spec.adminSecretName property.&quot;));
-<span class="nc" id="L182">            if (ofNullable(k8sClient.loadStandardResource(SECRET_KIND, entandoKeycloakServer.getMetadata().getNamespace(), adminSecretName))</span>
-<span class="nc bnc" id="L183" title="All 2 branches missed.">                    .isEmpty()) {</span>
-<span class="nc" id="L184">                throw new EntandoControllerException(format(</span>
+<span class="fc" id="L182">            if (ofNullable(k8sClient.loadStandardResource(SECRET_KIND, entandoKeycloakServer.getMetadata().getNamespace(), adminSecretName))</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">                    .isEmpty()) {</span>
+<span class="fc" id="L184">                throw new EntandoControllerException(format(</span>
                         &quot;Please ensure that a secret with the name '%s' exists in the requested namespace %s&quot;, adminSecretName,
-<span class="nc" id="L186">                        entandoKeycloakServer.getMetadata().getName()));</span>
+<span class="fc" id="L186">                        entandoKeycloakServer.getMetadata().getName()));</span>
             }
         }
 <span class="fc" id="L189">    }</span>
@@ -271,7 +271,7 @@ public class EntandoKeycloakServerController implements Runnable {
 
     private Secret resolveCaSecret() {
 <span class="fc" id="L273">        return EntandoOperatorSpiConfig.getCertificateAuthoritySecretName()</span>
-<span class="pc" id="L274">                .map(n -&gt; (Secret) k8sClient.loadStandardResource(SECRET_KIND, k8sClient.getNamespace(), n)).orElse(null);</span>
+<span class="fc" id="L274">                .map(n -&gt; (Secret) k8sClient.loadStandardResource(SECRET_KIND, k8sClient.getNamespace(), n)).orElse(null);</span>
     }
 
     private void ensureHttpAccess(KeycloakDeploymentResult serviceDeploymentResult) throws TimeoutException {
@@ -283,9 +283,9 @@ public class EntandoKeycloakServerController implements Runnable {
                         + &quot;--password \&quot;${KEYCLOAK_PASSWORD:-${SSO_ADMIN_PASSWORD}}\&quot;&quot;,
                 &quot;./kcadm.sh update realms/master -s sslRequired=NONE&quot;
         );
-<span class="pc bpc" id="L286" title="1 of 2 branches missed.">        if (result.hasFailed()) {</span>
-<span class="nc" id="L287">            throw new EntandoControllerException(&quot;Could not disable Keycloak HTTPS requirement:&quot; + String</span>
-<span class="nc" id="L288">                    .join(&quot;\n&quot;, result.getOutputLines()));</span>
+<span class="fc bfc" id="L286" title="All 2 branches covered.">        if (result.hasFailed()) {</span>
+<span class="fc" id="L287">            throw new EntandoControllerException(&quot;Could not disable Keycloak HTTPS requirement:&quot; + String</span>
+<span class="fc" id="L288">                    .join(&quot;\n&quot;, result.getOutputLines()));</span>
         }
 <span class="fc" id="L290">    }</span>
 
@@ -309,17 +309,17 @@ public class EntandoKeycloakServerController implements Runnable {
 <span class="fc" id="L309">            dbStatus.getServerStatus(NameUtils.MAIN_QUALIFIER).ifPresent(s -&gt;</span>
 <span class="fc" id="L310">                    this.keycloakServer = k8sClient.updateStatus(keycloakServer, new ServerStatus(NameUtils.DB_QUALIFIER, s)));</span>
 <span class="fc" id="L311">            databaseCapability.getControllerFailure().ifPresent(f -&gt; {</span>
-<span class="nc" id="L312">                throw new EntandoControllerException(dbmsCapability,</span>
-<span class="nc" id="L313">                        format(&quot;Could not prepare a DBMS capability for SSO %s/%s. Please inspect the ProvidedCapability&quot;</span>
+<span class="fc" id="L312">                throw new EntandoControllerException(dbmsCapability,</span>
+<span class="fc" id="L313">                        format(&quot;Could not prepare a DBMS capability for SSO %s/%s. Please inspect the ProvidedCapability&quot;</span>
                                         + &quot; %s/%s, &quot;
                                         + &quot;address the &quot;
                                         + &quot;deployment failure and force a redeployment using the annotation value 'entando&quot;
                                         + &quot;.org/processing-instruction: force. The following message was received:%n %s&quot;,
-<span class="nc" id="L318">                                keycloakServer.getMetadata().getNamespace(),</span>
-<span class="nc" id="L319">                                keycloakServer.getMetadata().getName(),</span>
-<span class="nc" id="L320">                                dbmsCapability.getMetadata().getNamespace(),</span>
-<span class="nc" id="L321">                                dbmsCapability.getMetadata().getName(),</span>
-<span class="nc" id="L322">                                f.getDetailMessage()));</span>
+<span class="fc" id="L318">                                keycloakServer.getMetadata().getNamespace(),</span>
+<span class="fc" id="L319">                                keycloakServer.getMetadata().getName(),</span>
+<span class="fc" id="L320">                                dbmsCapability.getMetadata().getNamespace(),</span>
+<span class="fc" id="L321">                                dbmsCapability.getMetadata().getName(),</span>
+<span class="fc" id="L322">                                f.getDetailMessage()));</span>
             });
 <span class="fc" id="L324">            return new ProvidedDatabaseCapability(databaseCapability);</span>
         }
