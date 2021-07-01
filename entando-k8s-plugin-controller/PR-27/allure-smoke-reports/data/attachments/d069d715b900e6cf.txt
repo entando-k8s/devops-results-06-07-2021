@@ -1,0 +1,45 @@
+---
+apiVersion: "entando.org/v1"
+kind: "ProvidedCapability"
+metadata:
+  creationTimestamp: "2021-07-01T08:16:58Z"
+  generation: 1
+  labels:
+    capabilityProvisionScope: "Namespace"
+    entando.org/capability: "Sso"
+  name: "default-sso-in-namespace"
+  namespace: "entando-k8s-plugin-controller-pcpr27"
+  resourceVersion: "206785300"
+  selfLink: "/apis/entando.org/v1/namespaces/entando-k8s-plugin-controller-pcpr27/providedcapabilities/default-sso-in-namespace/status"
+  uid: "b48374ea-da44-11eb-ad14-fa163ea775ae"
+spec:
+  capability: "sso"
+  resolutionScopePreference:
+  - "Namespace"
+  provisioningStrategy: "UseExternal"
+  selector: {}
+  capabilityParameters:
+    defaultRealm: "entando-k8s-plugin-controller-pcpr27"
+  externallyProvidedService:
+    host: "keycloak.apps.serv.run"
+    port: 80
+    adminSecretName: "default-sso-in-namespace-admin-secret"
+    path: "/auth"
+status:
+  serverStatuses:
+    main:
+      qualifier: "main"
+      started: "2021-07-01T08:16:58+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "ProvidedCapability"
+        namespace: "entando-k8s-plugin-controller-pcpr27"
+        name: "default-sso-in-namespace"
+      originatingControllerPod:
+        namespace: "jx"
+        name: "entando-k8s-entando-k8s-plugin-7bmn7-11-from-build-pack-2-rg6ph"
+      adminSecretName: "default-sso-in-namespace-admin-secret"
+      externalBaseUrl: "http://keycloak.apps.serv.run/auth"
+  observedGeneration: 1
+  phase: "successful"
+crdName: "providedcapabilities.entando.org"
