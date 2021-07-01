@@ -52,19 +52,19 @@ import com.agiletec.aps.util.ApsWebApplicationUtils;
 		try {
 <span class="nc" id="L53">			IURLManager urlManager = </span>
 <span class="nc" id="L54">					(IURLManager) ApsWebApplicationUtils.getBean(SystemConstants.URL_MANAGER, this.pageContext);</span>
-<span class="nc" id="L55">			this.setPageUrl(urlManager.createURL(reqCtx));</span>
+<span class="nc" id="L55">			this._pageUrl = urlManager.createURL(reqCtx);</span>
 <span class="nc bnc" id="L56" title="All 2 branches missed.">			if (_pageCode != null) {</span>
-<span class="nc" id="L57">				this.getPageUrl().setPageCode(_pageCode);</span>
+<span class="nc" id="L57">				_pageUrl.setPageCode(_pageCode);</span>
 			}
 <span class="nc bnc" id="L59" title="All 2 branches missed.">			if (_langCode != null) {</span>
-<span class="nc" id="L60">				this.getPageUrl().setLangCode(_langCode);</span>
+<span class="nc" id="L60">				_pageUrl.setLangCode(_langCode);</span>
 			}
-<span class="nc" id="L62">            this.getPageUrl().setEscapeAmp(this.isEscapeAmp());</span>
+<span class="nc" id="L62">            this._pageUrl.setEscapeAmp(this.isEscapeAmp());</span>
 <span class="nc bnc" id="L63" title="All 2 branches missed.">			if (this.isParamRepeat()) {</span>
 <span class="nc" id="L64">				List&lt;String&gt; exclusion = this.getParametersToExclude();</span>
-<span class="nc" id="L65">				this.getPageUrl().setParamRepeat(exclusion);</span>
+<span class="nc" id="L65">				_pageUrl.setParamRepeat(exclusion);</span>
 			}
-<span class="nc" id="L67">			this.getPageUrl().setBaseUrlMode(this.getBaseUrlMode());</span>
+<span class="nc" id="L67">			this._pageUrl.setBaseUrlMode(this.getBaseUrlMode());</span>
 <span class="nc" id="L68">		} catch (Throwable t) {</span>
 <span class="nc" id="L69">			_logger.error(&quot;Error during tag initialization&quot;, t);</span>
 <span class="nc" id="L70">			throw new JspException(&quot;Error during tag initialization&quot;, t);</span>
@@ -78,7 +78,7 @@ import com.agiletec.aps.util.ApsWebApplicationUtils;
 	 */
 	@Override
 	public int doEndTag() throws JspException {
-<span class="nc" id="L81">		String url = this.getPageUrl().getURL();</span>
+<span class="nc" id="L81">		String url = _pageUrl.getURL();</span>
 <span class="nc bnc" id="L82" title="All 2 branches missed.">		if (this.getVar() != null) {</span>
 <span class="nc" id="L83">			this.pageContext.setAttribute(this.getVar(), url);</span>
 		} else {
@@ -95,13 +95,13 @@ import com.agiletec.aps.util.ApsWebApplicationUtils;
 
 	@Override
 	public void addParameter(String name, String value) {
-<span class="nc" id="L98">		this.getPageUrl().addParam(name, value);</span>
+<span class="nc" id="L98">		this._pageUrl.addParam(name, value);</span>
 <span class="nc" id="L99">	}</span>
     
 	protected List&lt;String&gt; getParametersToExclude() {
 <span class="nc" id="L102">		List&lt;String&gt; parameters = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L103">		String csv = this.getExcludeParameters();</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">		if (!StringUtils.isBlank(csv)) {</span>
+<span class="nc bnc" id="L104" title="All 4 branches missed.">		if (null != csv &amp;&amp; csv.trim().length() &gt; 0) {</span>
 <span class="nc" id="L105">			CollectionUtils.addAll(parameters, csv.split(&quot;,&quot;));</span>
 		}
 <span class="nc" id="L107">		parameters.add(SystemConstants.LOGIN_PASSWORD_PARAM_NAME);</span>
@@ -218,19 +218,11 @@ import com.agiletec.aps.util.ApsWebApplicationUtils;
 <span class="nc" id="L218">		this.baseUrlMode = baseUrlMode;</span>
 <span class="nc" id="L219">	}</span>
 
-	protected PageURL getPageUrl() {
-<span class="nc" id="L222">		return _pageUrl;</span>
-	}
-
-	protected void setPageUrl(PageURL pageUrl) {
-<span class="nc" id="L226">		this._pageUrl = pageUrl;</span>
-<span class="nc" id="L227">	}</span>
-
 	private String _langCode;
 	private String _pageCode;
 	private String _varName;
 	private boolean _paramRepeat;
-<span class="nc" id="L233">	private boolean escapeAmp = true;</span>
+<span class="nc" id="L225">	private boolean escapeAmp = true;</span>
 	private PageURL _pageUrl;
 	private String _excludeParameters;
 	private String baseUrlMode;
