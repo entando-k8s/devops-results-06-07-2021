@@ -32,33 +32,33 @@ public class DefaultServiceClient implements ServiceClient {
 
     private final KubernetesClient client;
 
-<span class="fc" id="L35">    public DefaultServiceClient(KubernetesClient client) {</span>
-<span class="fc" id="L36">        this.client = client;</span>
-<span class="fc" id="L37">    }</span>
+<span class="nc" id="L35">    public DefaultServiceClient(KubernetesClient client) {</span>
+<span class="nc" id="L36">        this.client = client;</span>
+<span class="nc" id="L37">    }</span>
 
     @Override
     public Endpoints createOrReplaceEndpoints(EntandoCustomResource peerInNamespace, Endpoints endpoints) {
-<span class="fc" id="L41">        return createOrReplace(peerInNamespace, endpoints, client.endpoints());</span>
+<span class="nc" id="L41">        return createOrReplace(peerInNamespace, endpoints, client.endpoints());</span>
     }
 
     @Override
     public Endpoints createOrReplaceDelegateEndpoints(Endpoints endpoints) {
-<span class="fc" id="L46">        return createOrReplace(endpoints, client.endpoints());</span>
+<span class="nc" id="L46">        return createOrReplace(endpoints, client.endpoints());</span>
     }
 
     @Override
     public Endpoints loadEndpoints(EntandoCustomResource peerInNamespace, String endpointsName) {
-<span class="fc" id="L51">        return client.endpoints().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(endpointsName).fromServer().get();</span>
+<span class="nc" id="L51">        return client.endpoints().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(endpointsName).fromServer().get();</span>
     }
 
     @Override
     public Service createOrReplaceDelegateService(Service service) {
-<span class="fc" id="L56">        return createOrReplace(service, client.services());</span>
+<span class="nc" id="L56">        return createOrReplace(service, client.services());</span>
     }
 
     @Override
     public Service loadService(EntandoCustomResource peerInNamespace, String name) {
-<span class="fc" id="L61">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
+<span class="nc" id="L61">        return client.services().inNamespace(peerInNamespace.getMetadata().getNamespace()).withName(name).get();</span>
     }
 
     @Override
@@ -68,24 +68,24 @@ public class DefaultServiceClient implements ServiceClient {
 
     @Override
     public Service createOrReplaceService(EntandoCustomResource peerInNamespace, Service service) {
-<span class="fc" id="L71">        return createOrReplace(peerInNamespace, service, client.services());</span>
+<span class="nc" id="L71">        return createOrReplace(peerInNamespace, service, client.services());</span>
     }
 
     private &lt;T extends HasMetadata, L extends KubernetesResourceList&lt;T&gt;, R extends Resource&lt;T&gt;&gt; T createOrReplace(
             EntandoCustomResource peerInNamespace, T resource,
             MixedOperation&lt;T, L, R&gt; oper) {
-<span class="fc" id="L77">        resource.getMetadata().setNamespace(peerInNamespace.getMetadata().getNamespace());</span>
-<span class="fc" id="L78">        return createOrReplace(resource, oper);</span>
+<span class="nc" id="L77">        resource.getMetadata().setNamespace(peerInNamespace.getMetadata().getNamespace());</span>
+<span class="nc" id="L78">        return createOrReplace(resource, oper);</span>
     }
 
     private &lt;T extends HasMetadata, L extends KubernetesResourceList&lt;T&gt;, R extends Resource&lt;T&gt;&gt; T createOrReplace(T resource,
             MixedOperation&lt;T, L, R&gt; oper) {
-<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (oper.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).get() != null) {</span>
-<span class="fc" id="L84">            oper.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (oper.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).get() != null) {</span>
+<span class="nc" id="L84">            oper.inNamespace(resource.getMetadata().getNamespace()).withName(resource.getMetadata().getName()).delete();</span>
         }
-<span class="fc" id="L86">        resource.getMetadata().setResourceVersion(null);</span>
+<span class="nc" id="L86">        resource.getMetadata().setResourceVersion(null);</span>
         //retry because it may still be in the process of being deleted
-<span class="fc" id="L88">        return retry(() -&gt; oper.inNamespace(resource.getMetadata().getNamespace()).create(resource), KubernetesClient.class::isInstance, 5);</span>
+<span class="nc" id="L88">        return retry(() -&gt; oper.inNamespace(resource.getMetadata().getNamespace()).create(resource), KubernetesClient.class::isInstance, 5);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

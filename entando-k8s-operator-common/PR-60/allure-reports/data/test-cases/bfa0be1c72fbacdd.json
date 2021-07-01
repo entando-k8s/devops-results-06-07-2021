@@ -1,0 +1,437 @@
+{
+  "uid" : "bfa0be1c72fbacdd",
+  "name" : "minimalDeploymentWithEnvironmentVariables()",
+  "fullName" : "org.entando.kubernetes.controller.MinimalDeploymentTest.minimalDeploymentWithEnvironmentVariables",
+  "historyId" : "926c7fcbaaa2197fe3489925bf3eaf46",
+  "time" : {
+    "start" : 1625134742659,
+    "stop" : 1625134743064,
+    "duration" : 405
+  },
+  "description" : "Should reflect both direct custom environment variables and environment variables referring to Secret keys",
+  "descriptionHtml" : "<p>Should reflect both direct custom environment variables and environment variables referring to Secret keys</p>\n",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ {
+    "name" : "beforeEach",
+    "time" : {
+      "start" : 1625134742661,
+      "stop" : 1625134742685,
+      "duration" : 24
+    },
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "Given I have registered a CustomResourceDefinition for the resource kind 'TestResource'",
+      "time" : {
+        "start" : 1625134742661,
+        "stop" : 1625134742685,
+        "duration" : 24
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    } ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 1,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "hasContent" : true
+  }, {
+    "name" : "resetSystemPropertiesUsed",
+    "time" : {
+      "start" : 1625134742686,
+      "stop" : 1625134742686,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 0,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "hasContent" : false
+  } ],
+  "testStage" : {
+    "description" : "Should reflect both direct custom environment variables and environment variables referring to Secret keys",
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "Given I have a basic Deployable that specifies a Secret to be created",
+      "time" : {
+        "start" : 1625134742687,
+        "stop" : 1625134742716,
+        "duration" : 29
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "6aeb285afac47c01",
+        "name" : "Deployable",
+        "source" : "6aeb285afac47c01.txt",
+        "type" : "text/plain",
+        "size" : 122
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And I have a custom resource of kind TestResource with name",
+      "time" : {
+        "start" : 1625134742717,
+        "stop" : 1625134742721,
+        "duration" : 4
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "bbce15c80741d8af",
+        "name" : "TestResource",
+        "source" : "bbce15c80741d8af.txt",
+        "type" : "text/plain",
+        "size" : 189
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And I have created a Secret named 'my-secret' with the key 'my.secret.key' in the same namespace as the TestResource",
+      "time" : {
+        "start" : 1625134742721,
+        "stop" : 1625134742727,
+        "duration" : 6
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "5ce2b6223d1d698a",
+        "name" : "Secret",
+        "source" : "5ce2b6223d1d698a.txt",
+        "type" : "text/plain",
+        "size" : 106
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And I have created a ConfigMap named 'my-config' with the key 'my.config.key' in the same namespace as the TestResource",
+      "time" : {
+        "start" : 1625134742727,
+        "stop" : 1625134742731,
+        "duration" : 4
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "90c8d88381e9c938",
+        "name" : "Secret",
+        "source" : "90c8d88381e9c938.txt",
+        "type" : "text/plain",
+        "size" : 106
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "and a basic DeployableContainer with the some custom environment variables set:",
+      "time" : {
+        "start" : 1625134742732,
+        "stop" : 1625134742750,
+        "duration" : 18
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "the environment variable MY_VAR=my-val",
+        "time" : {
+          "start" : 1625134742732,
+          "stop" : 1625134742732,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : false
+      }, {
+        "name" : "environment variable reference MY_SECRET_VAR from the Secret named 'my-secret' using the key 'my.secret.key'",
+        "time" : {
+          "start" : 1625134742732,
+          "stop" : 1625134742732,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : false
+      }, {
+        "name" : "and environment variable reference MY_CONFIG_VAR from the Secret named 'my-config' using the key 'my.config.key'",
+        "time" : {
+          "start" : 1625134742733,
+          "stop" : 1625134742739,
+          "duration" : 6
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : false
+      } ],
+      "attachments" : [ {
+        "uid" : "631e8d0958624cef",
+        "name" : "Container",
+        "source" : "631e8d0958624cef.txt",
+        "type" : "text/plain",
+        "size" : 615
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 3,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "When the controller processes a new TestResource",
+      "time" : {
+        "start" : 1625134742750,
+        "stop" : 1625134743049,
+        "duration" : 299
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "Executing command PROCESS_DEPLOYABLE",
+        "time" : {
+          "start" : 1625134742779,
+          "stop" : 1625134743030,
+          "duration" : 251
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ {
+          "uid" : "bc2ec63935eb8cf6",
+          "name" : "Input Deployable",
+          "source" : "bc2ec63935eb8cf6.txt",
+          "type" : "text/plain",
+          "size" : 941
+        }, {
+          "uid" : "a0052a853c6fde89",
+          "name" : "Ouput DeploymentResult",
+          "source" : "a0052a853c6fde89.txt",
+          "type" : "text/plain",
+          "size" : 647
+        } ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 2,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      } ],
+      "attachments" : [ {
+        "uid" : "6da119ce42545515",
+        "name" : "TestResource",
+        "source" : "6da119ce42545515.txt",
+        "type" : "text/plain",
+        "size" : 189
+      }, {
+        "uid" : "60e7862825cf63a2",
+        "name" : "TestResource",
+        "source" : "60e7862825cf63a2.txt",
+        "type" : "text/plain",
+        "size" : 189
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 1,
+      "attachmentsCount" : 4,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "Then a Deployment was created with a Container that reflects both the environment variable and the environment variable reference",
+      "time" : {
+        "start" : 1625134743050,
+        "stop" : 1625134743060,
+        "duration" : 10
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "the value of MY_VAR is 'my-val'",
+        "time" : {
+          "start" : 1625134743059,
+          "stop" : 1625134743059,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : false
+      }, {
+        "name" : "and the variable 'MY_SECRET_VAR' refers to the key 'my.key' on the Secret 'my-secret'",
+        "time" : {
+          "start" : 1625134743060,
+          "stop" : 1625134743060,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : false
+      }, {
+        "name" : "and the variable 'MY_CONFIG_VAR' refers to the key 'my.config.key' on the Secret 'my-config'",
+        "time" : {
+          "start" : 1625134743060,
+          "stop" : 1625134743060,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : false
+      } ],
+      "attachments" : [ {
+        "uid" : "7ea08b284af72a2",
+        "name" : "Deployment",
+        "source" : "7ea08b284af72a2.txt",
+        "type" : "text/plain",
+        "size" : 2418
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 3,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And all the environment variables referring to Secrets are resolved",
+      "time" : {
+        "start" : 1625134743060,
+        "stop" : 1625134743063,
+        "duration" : 3
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    } ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 15,
+    "attachmentsCount" : 10,
+    "shouldDisplayMessage" : false,
+    "hasContent" : true
+  },
+  "afterStages" : [ {
+    "name" : "resetSystemPropertiesUsed",
+    "time" : {
+      "start" : 1625134743063,
+      "stop" : 1625134743063,
+      "duration" : 0
+    },
+    "status" : "passed",
+    "steps" : [ ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 0,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "hasContent" : false
+  } ],
+  "labels" : [ {
+    "name" : "tag",
+    "value" : "inner-hexagon"
+  }, {
+    "name" : "tag",
+    "value" : "in-process"
+  }, {
+    "name" : "tag",
+    "value" : "allure"
+  }, {
+    "name" : "tag",
+    "value" : "pre-deployment"
+  }, {
+    "name" : "feature",
+    "value" : "As a controller developer, I would like to specify how my image gets deployed providing only the essential configuration so that  I can focus on my development tasks"
+  }, {
+    "name" : "host",
+    "value" : "entando-k8s-entando-k8s-operato-fhk6q-85-from-build-pack--r75r4"
+  }, {
+    "name" : "thread",
+    "value" : "106@entando-k8s-entando-k8s-operato-fhk6q-85-from-build-pack--r75r4.ForkJoinPool-1-worker-3(17)"
+  }, {
+    "name" : "framework",
+    "value" : "junit-platform"
+  }, {
+    "name" : "language",
+    "value" : "java"
+  }, {
+    "name" : "package",
+    "value" : "org.entando.kubernetes.controller.MinimalDeploymentTest"
+  }, {
+    "name" : "testClass",
+    "value" : "org.entando.kubernetes.controller.MinimalDeploymentTest"
+  }, {
+    "name" : "testMethod",
+    "value" : "minimalDeploymentWithEnvironmentVariables"
+  }, {
+    "name" : "suite",
+    "value" : "org.entando.kubernetes.controller.MinimalDeploymentTest"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ {
+    "name" : "MinimalDeploymentTest.java",
+    "url" : "https://github.com/entando-k8s/entando-k8s-operator-common/tree/ENG-2284_removing_cluster_infrastructure/src/test/java/org/entando/kubernetes/controller/MinimalDeploymentTest.java",
+    "type" : "source"
+  }, {
+    "name" : "ENG-2284",
+    "url" : "https://entando.myjetbrains.com/youtrack/issue/ENG-2284",
+    "type" : "issue"
+  } ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ "inner-hexagon", "pre-deployment", "allure", "in-process" ]
+  },
+  "source" : "bfa0be1c72fbacdd.json",
+  "parameterValues" : [ ]
+}

@@ -215,8 +215,8 @@ public interface KubernetesClientForControllers {
 <span class="fc" id="L215">        return issueEventAndPerformStatusUpdate(customResource,</span>
                 t -&gt; {
 <span class="fc" id="L217">                    String qualifierToUse = ofNullable(serverQualifier).orElse(NameUtils.MAIN_QUALIFIER);</span>
-<span class="fc bfc" id="L218" title="All 2 branches covered.">                    if (t.getStatus().getServerStatus(qualifierToUse).isEmpty()) {</span>
-<span class="fc" id="L219">                        t.getStatus().putServerStatus(new ServerStatus(qualifierToUse));</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">                    if (t.getStatus().getServerStatus(qualifierToUse).isEmpty()) {</span>
+<span class="nc" id="L219">                        t.getStatus().putServerStatus(new ServerStatus(qualifierToUse));</span>
                     }
                     //Never overwrite existing exceptions. Exceptions are cleared on start event.
                     //More specific exceptions should be set in the commands and creators.
