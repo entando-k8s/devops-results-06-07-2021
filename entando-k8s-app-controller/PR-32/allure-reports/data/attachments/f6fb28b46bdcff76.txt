@@ -1,0 +1,55 @@
+---
+internalServiceHostname: "my-app-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-app-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "ServiceResult"
+- "SerializableDeploymentResult"
+- "ServiceDeploymentResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-app-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8080"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-app-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "https://my-app-my-namespace.apps.serv.run/entando-de-app"
+internalBaseUrl: "http://my-app-service.my-namespace.svc.cluster.local:8080/entando-de-app"
+externalHostUrl: "https://my-app-my-namespace.apps.serv.run"
+status:
+  qualifier: "main"
+  started: "2021-07-01T08:06:38+0000"
+  originatingCustomResource:
+    apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    namespace: "my-namespace"
+    name: "my-app"
+  originatingControllerPod:
+    namespace: "controller-namespace"
+    name: "entando-k8s-entando-k8s-app-con-867nt-26-from-build-pack--ddgpk"
+  finished: "2021-07-01T08:06:39+0000"
+  serviceName: "my-app-service"
+  deploymentName: "my-app-deployment"
+  ssoRealm: "my-realm"
+  ssoClientId: "my-app"
+  webContexts:
+    server: "/entando-de-app"
+  podPhases:
+    my-app-dbprep-35c2: "Complete"
+    my-app-deployment: "Running"
+  persistentVolumeClaimPhases:
+    my-app-server-pvc: "Pending"
+  ingressName: "my-app-ingress"

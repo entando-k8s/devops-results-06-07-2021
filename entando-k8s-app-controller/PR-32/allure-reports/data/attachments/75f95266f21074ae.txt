@@ -1,0 +1,339 @@
+---
+fileSystemUserAndGroupId: 185
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoApp"
+  metadata:
+    name: "my-app"
+    namespace: "my-namespace"
+  isCustomResource: true
+ssoClientConfig:
+  realm: "my-realm"
+  clientId: "my-app"
+  clientName: "my-app"
+  roles:
+  - code: "superuser"
+  permissions:
+  - clientId: "realm-management"
+    role: "realm-admin"
+  redirectUri: []
+  webOrigins: []
+ingressNamespace: "my-namespace"
+mixins:
+- "PublicIngressingDeployable"
+- "Deployable"
+- "IngressingDeployable"
+- "SsoAwareDeployable"
+- "DbAwareDeployable"
+defaultServiceAccountName: "default"
+publicClientId: "entando-web"
+ssoConnectionInfo:
+  defaultRealm: "my-realm"
+  baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  mixins:
+  - "SsoConnectionInfo"
+  password: "password123"
+  externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+  internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  adminSecret:
+    apiVersion: "v1"
+    kind: "Secret"
+    metadata:
+      name: "default-sso-in-namespace-admin-secret"
+      namespace: "my-namespace"
+    stringData:
+      username: "jon"
+      password: "password123"
+  username: "jon"
+ingressRequired: true
+ingressName: "my-app-ingress"
+expectingDatabaseSchemas: true
+containers:
+- environmentVariableOverrides: []
+  ssoVariables:
+  - name: "KEYCLOAK_ENABLED"
+    value: "true"
+  - name: "KEYCLOAK_REALM"
+    value: "my-realm"
+  - name: "KEYCLOAK_PUBLIC_CLIENT_ID"
+    value: "entando-web"
+  - name: "KEYCLOAK_AUTH_URL"
+    value: "https://mykeycloak.apps.serv.run/auth"
+  - name: "KEYCLOAK_CLIENT_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: "clientSecret"
+        name: "my-app-secret"
+        optional: false
+  - name: "KEYCLOAK_CLIENT_ID"
+    valueFrom:
+      secretKeyRef:
+        key: "clientId"
+        name: "my-app-secret"
+        optional: false
+  memoryLimitMebibytes: 1792
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-de-app-eap"
+  volumeMountPath: "/entando-data"
+  namesOfSecretsToMount: []
+  additionalPorts:
+  - name: "ping"
+    port: 8888
+  - name: "ping2"
+    port: 7600
+  trustStoreVariables:
+  - name: "JAVA_TOOL_OPTIONS"
+    valueFrom:
+      secretKeyRef:
+        key: "TRUSTSTORE_SETTINGS"
+        name: "entando-default-truststore"
+        optional: false
+  databasePopulator:
+    mixins:
+    - "DatabasePopulator"
+    environmentVariables:
+    - name: "DB_STARTUP_CHECK"
+      value: "false"
+    - name: "PORTDB_URL"
+      value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    - name: "PORTDB_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "my-app-portdb-secret"
+          optional: false
+    - name: "PORTDB_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "my-app-portdb-secret"
+          optional: false
+    - name: "PORTDB_CONNECTION_CHECKER"
+      value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"
+    - name: "PORTDB_EXCEPTION_SORTER"
+      value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"
+    - name: "SERVDB_URL"
+      value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    - name: "SERVDB_USERNAME"
+      valueFrom:
+        secretKeyRef:
+          key: "username"
+          name: "my-app-servdb-secret"
+          optional: false
+    - name: "SERVDB_PASSWORD"
+      valueFrom:
+        secretKeyRef:
+          key: "password"
+          name: "my-app-servdb-secret"
+          optional: false
+    - name: "SERVDB_CONNECTION_CHECKER"
+      value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"
+    - name: "SERVDB_EXCEPTION_SORTER"
+      value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"
+    dockerImageInfo:
+      organization: "entando"
+      repository: "entando-de-app-eap"
+    command:
+    - "/bin/bash"
+    - "-c"
+    - "/entando-common/init-db-from-deployment.sh"
+  primaryPort: 8080
+  storageLimitMebibytes: 2048
+  webContextPath: "/entando-de-app"
+  mixins:
+  - "TrustStoreAwareContainer"
+  - "ConfigurableResourceContainer"
+  - "ServiceBackingContainer"
+  - "HasWebContext"
+  - "IngressingPathOnPort"
+  - "IngressingContainer"
+  - "DbAwareContainer"
+  - "ParameterizableContainer"
+  - "DeployableContainer"
+  - "SsoAwareContainer"
+  - "PersistentVolumeAwareContainer"
+  healthCheckPath: "/entando-de-app/api/health"
+  maximumStartupTimeSeconds: 240
+  databaseConnectionVariables:
+  - name: "DB_STARTUP_CHECK"
+    value: "false"
+  - name: "PORTDB_URL"
+    value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+  - name: "PORTDB_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-portdb-secret"
+        optional: false
+  - name: "PORTDB_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-portdb-secret"
+        optional: false
+  - name: "PORTDB_CONNECTION_CHECKER"
+    value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"
+  - name: "PORTDB_EXCEPTION_SORTER"
+    value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"
+  - name: "SERVDB_URL"
+    value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+  - name: "SERVDB_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-servdb-secret"
+        optional: false
+  - name: "SERVDB_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-servdb-secret"
+        optional: false
+  - name: "SERVDB_CONNECTION_CHECKER"
+    value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"
+  - name: "SERVDB_EXCEPTION_SORTER"
+    value: "org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"
+  ssoConnectionInfo:
+    defaultRealm: "my-realm"
+    baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    mixins:
+    - "SsoConnectionInfo"
+    password: "password123"
+    externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+    internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    adminSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        name: "default-sso-in-namespace-admin-secret"
+        namespace: "my-namespace"
+      stringData:
+        username: "jon"
+        password: "password123"
+    username: "jon"
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "JGROUPS_CLUSTER_PASSWORD"
+    value: "609d1b6570"
+  - name: "JGROUPS_JOIN_TIMEOUT"
+    value: "3000"
+  - name: "JGROUPS_PING_PROTOCOL"
+    value: "openshift.KUBE_PING"
+  - name: "OPENSHIFT_KUBE_PING_NAMESPACE"
+    value: "my-namespace"
+  - name: "OPENSHIFT_KUBE_PING_LABELS"
+    value: "deployment=my-app-server"
+  schemaConnectionInfo:
+  - schemaSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        labels:
+          EntandoApp: "my-app"
+        name: "my-app-portdb-secret"
+        ownerReferences:
+        - apiVersion: "entando.org/v1"
+          kind: "EntandoApp"
+          blockOwnerDeletion: true
+          controller: true
+          name: "my-app"
+          uid: "a8b4f531-2135-41cb-a268-1b5083127763"
+      stringData:
+        username: "my_app_portdb"
+        password: "657ff764591f4f42"
+    mixins:
+    - "DatabaseSchemaConnectionInfo"
+    database: "my_db"
+    passwordRef:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-portdb-secret"
+        optional: false
+    usernameRef:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-portdb-secret"
+        optional: false
+    jdbcUrl: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    schemaName: "my_app_portdb"
+    databaseServiceResult:
+      internalServiceHostname: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+      mixins:
+      - "ServiceResult"
+      - "DatabaseConnectionInfo"
+      databaseName: "my_db"
+      jdbcParameters: {}
+      port: "5432"
+      vendor: "POSTGRESQL"
+      adminSecretName: "default-postgresql-dbms-in-namespace-admin-secret"
+      service:
+        apiVersion: "v1"
+        kind: "Service"
+        metadata:
+          name: "default-postgresql-dbms-in-namespace-service"
+          namespace: "my-namespace"
+        spec:
+          clusterIP: "10.0.0.107"
+          ports:
+          - port: 5432
+    schemaSecretName: "my-app-portdb-secret"
+  - schemaSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        labels:
+          EntandoApp: "my-app"
+        name: "my-app-servdb-secret"
+        ownerReferences:
+        - apiVersion: "entando.org/v1"
+          kind: "EntandoApp"
+          blockOwnerDeletion: true
+          controller: true
+          name: "my-app"
+          uid: "a8b4f531-2135-41cb-a268-1b5083127763"
+      stringData:
+        username: "my_app_servdb"
+        password: "47e73d099efc4e56"
+    mixins:
+    - "DatabaseSchemaConnectionInfo"
+    database: "my_db"
+    passwordRef:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-servdb-secret"
+        optional: false
+    usernameRef:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-servdb-secret"
+        optional: false
+    jdbcUrl: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    schemaName: "my_app_servdb"
+    databaseServiceResult:
+      internalServiceHostname: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+      mixins:
+      - "ServiceResult"
+      - "DatabaseConnectionInfo"
+      databaseName: "my_db"
+      jdbcParameters: {}
+      port: "5432"
+      vendor: "POSTGRESQL"
+      adminSecretName: "default-postgresql-dbms-in-namespace-admin-secret"
+      service:
+        apiVersion: "v1"
+        kind: "Service"
+        metadata:
+          name: "default-postgresql-dbms-in-namespace-service"
+          namespace: "my-namespace"
+        spec:
+          clusterIP: "10.0.0.107"
+          ports:
+          - port: 5432
+    schemaSecretName: "my-app-servdb-secret"
+  nameQualifier: "server"
+  secretsToMount: []
+  cpuLimitMillicores: 1500
+  portForIngressPath: 8080
+serviceAccountToUse: "default"
