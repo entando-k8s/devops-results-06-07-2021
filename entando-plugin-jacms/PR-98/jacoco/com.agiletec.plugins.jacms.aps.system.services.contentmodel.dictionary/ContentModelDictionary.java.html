@@ -1,4 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContentModelDictionary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: CMS</a> &gt; <a href="index.source.html" class="el_package">com.agiletec.plugins.jacms.aps.system.services.contentmodel.dictionary</a> &gt; <span class="el_source">ContentModelDictionary.java</span></div><h1>ContentModelDictionary.java</h1><pre class="source lang-java linenums">package com.agiletec.plugins.jacms.aps.system.services.contentmodel.dictionary;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContentModelDictionary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Plugin: CMS</a> &gt; <a href="index.source.html" class="el_package">com.agiletec.plugins.jacms.aps.system.services.contentmodel.dictionary</a> &gt; <span class="el_source">ContentModelDictionary.java</span></div><h1>ContentModelDictionary.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2021-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package com.agiletec.plugins.jacms.aps.system.services.contentmodel.dictionary;
 
 import java.util.List;
 import java.util.Properties;
@@ -20,79 +33,79 @@ import org.entando.entando.ent.exception.EntRuntimeException;
 import org.entando.entando.ent.util.EntLogging.EntLogger;
 import org.entando.entando.ent.util.EntLogging.EntLogFactory;
 
-
 public class ContentModelDictionary implements IEntityModelDictionary {
 
-<span class="fc" id="L26">    private final EntLogger logger = EntLogFactory.getSanitizedLogger(getClass());</span>
+<span class="fc" id="L38">    private static final EntLogger logger = EntLogFactory.getSanitizedLogger(ContentModelDictionary.class);</span>
 
     private static final String KEY_ROOT = &quot;$content&quot;;
     
-<span class="fc" id="L30">    private Map&lt;String, Object&gt; data = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L42">    private Map&lt;String, Object&gt; data = new LinkedHashMap&lt;&gt;();</span>
 
     @JsonValue
     public Map&lt;String, Object&gt; getData() {
-<span class="fc" id="L34">        return data;</span>
+<span class="fc" id="L46">        return data;</span>
     }
 
     public void setData(Map&lt;String, Object&gt; data) {
-<span class="nc" id="L38">        this.data = data;</span>
-<span class="nc" id="L39">    }</span>
+<span class="nc" id="L50">        this.data = data;</span>
+<span class="nc" id="L51">    }</span>
 
     @Override
     public String getEntityRootName() {
-<span class="fc" id="L43">        return KEY_ROOT;</span>
+<span class="fc" id="L55">        return KEY_ROOT;</span>
     }
 
-<span class="fc" id="L46">    public ContentModelDictionary(List&lt;String&gt; contentConfig, List&lt;String&gt; i18nConfig, List&lt;String&gt; infoConfig, List&lt;String&gt; commonConfig, Properties publicAttributeMethods, IApsEntity prototype) {</span>
-<span class="fc" id="L47">        this.putAsMap(getEntityRootName(), contentConfig);</span>
-<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (null != prototype) {</span>
-<span class="fc" id="L49">            this.addAttributes(prototype, publicAttributeMethods);</span>
+<span class="fc" id="L58">    public ContentModelDictionary(List&lt;String&gt; contentConfig, List&lt;String&gt; i18nConfig, List&lt;String&gt; infoConfig, List&lt;String&gt; commonConfig, Properties publicAttributeMethods, IApsEntity prototype) {</span>
+<span class="fc" id="L59">        this.putAsMap(getEntityRootName(), contentConfig);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (null != prototype) {</span>
+<span class="fc" id="L61">            this.addAttributes(prototype, publicAttributeMethods);</span>
         }
-<span class="fc" id="L51">        this.putAsMap(KEY_I18N, i18nConfig);</span>
-<span class="fc" id="L52">        this.putAsMap(KEY_INFO, infoConfig);</span>
-<span class="fc" id="L53">        this.putAsList(commonConfig);</span>
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L63">        this.putAsMap(KEY_I18N, i18nConfig);</span>
+<span class="fc" id="L64">        this.putAsMap(KEY_INFO, infoConfig);</span>
+<span class="fc" id="L65">        this.putAsList(commonConfig);</span>
+<span class="fc" id="L66">    }</span>
 
     protected void addAttributes(IApsEntity prototype, Properties publicAttributeMethods) {
-<span class="fc bfc" id="L57" title="All 2 branches covered.">        for (AttributeInterface attribute : prototype.getAttributeList()) {</span>
-<span class="fc" id="L58">            List&lt;String&gt; attibuteMethodList = this.getAllowedAttributeMethods(attribute, publicAttributeMethods);</span>
-<span class="fc" id="L59">            this.putAsMap(attribute.getName(), attibuteMethodList);</span>
-<span class="fc" id="L60">        }</span>
-<span class="fc" id="L61">    }</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        for (AttributeInterface attribute : prototype.getAttributeList()) {</span>
+<span class="fc" id="L70">            List&lt;String&gt; attibuteMethodList = getAllowedAttributeMethods(attribute, publicAttributeMethods);</span>
+<span class="fc" id="L71">            this.putAsMap(attribute.getName(), attibuteMethodList);</span>
+<span class="fc" id="L72">        }</span>
+<span class="fc" id="L73">    }</span>
 
-    protected List&lt;String&gt; getAllowedAttributeMethods(AttributeInterface attribute, Properties publicAttributeMethods) {
-<span class="fc" id="L64">        List&lt;String&gt; methods = new ArrayList&lt;&gt;();</span>
+    public static List&lt;String&gt; getAllowedAttributeMethods(AttributeInterface attribute, Properties publicAttributeMethods) {
+<span class="fc" id="L76">        List&lt;String&gt; methods = new ArrayList&lt;&gt;();</span>
         try {
-<span class="fc" id="L66">            String methodsString = publicAttributeMethods.getProperty(attribute.getType());</span>
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">            if (null != methodsString) {</span>
-<span class="fc" id="L68">                String[] methodsArray = methodsString.split(&quot;;&quot;);</span>
-<span class="fc" id="L69">                methods = Arrays.asList(methodsArray);</span>
-<span class="fc" id="L70">            } else {</span>
-<span class="nc" id="L71">                BeanInfo beanInfo = Introspector.getBeanInfo(attribute.getClass(), AbstractAttribute.class);</span>
-<span class="nc" id="L72">                PropertyDescriptor[] prDescrs = beanInfo.getPropertyDescriptors();</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">                for (int i = 0; i &lt; prDescrs.length; i++) {</span>
-<span class="nc" id="L74">                    PropertyDescriptor propertyDescriptor = prDescrs[i];</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">                    if (null != propertyDescriptor.getReadMethod()) {</span>
-<span class="nc" id="L76">                        methods.add(propertyDescriptor.getDisplayName());</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            String methodsString = (null != publicAttributeMethods) ? publicAttributeMethods.getProperty(attribute.getType()) : null;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            if (null != methodsString) {</span>
+<span class="fc" id="L80">                String[] methodsArray = methodsString.split(&quot;;&quot;);</span>
+<span class="fc" id="L81">                methods = Arrays.asList(methodsArray);</span>
+<span class="fc" id="L82">            } else {</span>
+<span class="fc" id="L83">                BeanInfo beanInfo = Introspector.getBeanInfo(attribute.getClass(), AbstractAttribute.class);</span>
+<span class="fc" id="L84">                PropertyDescriptor[] prDescrs = beanInfo.getPropertyDescriptors();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">                for (int i = 0; i &lt; prDescrs.length; i++) {</span>
+<span class="fc" id="L86">                    PropertyDescriptor propertyDescriptor = prDescrs[i];</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">                    if (null != propertyDescriptor.getReadMethod()) {</span>
+<span class="fc" id="L88">                        methods.add(propertyDescriptor.getDisplayName());</span>
                     }
                 }
             }
-<span class="nc" id="L80">        } catch (Throwable t) {</span>
-<span class="nc" id="L81">            logger.error(&quot;error loading allowed attribute methods for typeCode {} and attribute {}&quot;, attribute.getParentEntity().getTypeCode(), attribute.getName(), t);</span>
-<span class="nc" id="L82">            throw new EntRuntimeException(&quot;error loading allowed attribute methods for dictionary&quot;, t);</span>
-<span class="fc" id="L83">        }</span>
-<span class="fc" id="L84">        return methods;</span>
+<span class="nc" id="L92">        } catch (Throwable t) {</span>
+<span class="nc" id="L93">            logger.error(&quot;error loading allowed attribute methods for typeCode {} and attribute {}&quot;, attribute.getParentEntity().getTypeCode(), attribute.getName(), t);</span>
+<span class="nc" id="L94">            throw new EntRuntimeException(&quot;error loading allowed attribute methods for dictionary&quot;, t);</span>
+<span class="fc" id="L95">        }</span>
+<span class="fc" id="L96">        return methods;</span>
     }
+    
 
     protected void putAsMap(String key, List&lt;String&gt; list) {
-<span class="fc" id="L88">        Map&lt;String, String&gt; result = list.stream().collect(HashMap::new, (m, v) -&gt; m.put(v, null), HashMap::putAll);</span>
-<span class="fc" id="L89">        this.getData().put(key, result);</span>
-<span class="fc" id="L90">    }</span>
+<span class="fc" id="L101">        Map&lt;String, String&gt; result = list.stream().collect(HashMap::new, (m, v) -&gt; m.put(v, null), HashMap::putAll);</span>
+<span class="fc" id="L102">        this.getData().put(key, result);</span>
+<span class="fc" id="L103">    }</span>
 
     protected void putAsList(List&lt;String&gt; list) {
-<span class="fc" id="L93">        Map&lt;String, String&gt; result = list.stream().collect(HashMap::new, (m, v) -&gt; m.put(v, null), HashMap::putAll);</span>
-<span class="fc" id="L94">        this.getData().putAll(result);</span>
-<span class="fc" id="L95">    }</span>
+<span class="fc" id="L106">        Map&lt;String, String&gt; result = list.stream().collect(HashMap::new, (m, v) -&gt; m.put(v, null), HashMap::putAll);</span>
+<span class="fc" id="L107">        this.getData().putAll(result);</span>
+<span class="fc" id="L108">    }</span>
     
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
