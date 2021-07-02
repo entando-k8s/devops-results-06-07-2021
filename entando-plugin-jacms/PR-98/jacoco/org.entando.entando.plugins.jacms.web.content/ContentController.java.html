@@ -86,7 +86,7 @@ import org.springframework.validation.Errors;
 <span class="fc" id="L86">    }</span>
 
     protected AbstractPaginationValidator getPaginationValidator() {
-<span class="nc" id="L89">        return new AbstractPaginationValidator() {</span>
+<span class="fc" id="L89">        return new AbstractPaginationValidator() {</span>
             @Override
             public boolean supports(Class&lt;?&gt; type) {
 <span class="nc" id="L92">                return true;</span>
@@ -99,15 +99,15 @@ import org.springframework.validation.Errors;
 
             @Override
             protected String getDefaultSortProperty() {
-<span class="nc" id="L102">                return IContentManager.CONTENT_CREATION_DATE_FILTER_KEY;</span>
+<span class="fc" id="L102">                return IContentManager.CONTENT_CREATION_DATE_FILTER_KEY;</span>
             }
 
             @Override
             public boolean isValidField(String fieldName, Class&lt;?&gt; type) {
-<span class="nc bnc" id="L107" title="All 2 branches missed.">                if (fieldName.contains(&quot;.&quot;)) {</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">                if (fieldName.contains(&quot;.&quot;)) {</span>
 <span class="nc" id="L108">                    return true;</span>
                 } else {
-<span class="nc" id="L110">                    return Arrays.asList(IContentManager.METADATA_FILTER_KEYS).contains(fieldName);</span>
+<span class="fc" id="L110">                    return Arrays.asList(IContentManager.METADATA_FILTER_KEYS).contains(fieldName);</span>
                 }
             }
 
@@ -124,39 +124,39 @@ import org.springframework.validation.Errors;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;PagedRestResponse&lt;ContentDto&gt;&gt; getContents(RestContentListRequest requestList) {
-<span class="nc" id="L127">        logger.debug(&quot;getting contents with request {} - status {}&quot;, requestList, requestList.getStatus());</span>
-<span class="nc" id="L128">        requestList.setSort(normalizeAttributeNames(requestList.getSort()));</span>
-<span class="nc" id="L129">        Optional.ofNullable(requestList.getFilters()).map(Arrays::stream).orElseGet(Stream::empty).forEach(filter -&gt; {</span>
-<span class="nc" id="L130">            filter.setAttribute(normalizeAttributeNames(filter.getAttribute()));</span>
-<span class="nc" id="L131">        });</span>
-<span class="nc" id="L132">        this.getPaginationValidator().validateRestListRequest(requestList, ContentDto.class);</span>
-<span class="nc" id="L133">        PagedMetadata&lt;ContentDto&gt; result = this.getContentService().getContents(requestList, HttpSessionHelper.extractCurrentUser(httpSession));</span>
-<span class="nc" id="L134">        return new ResponseEntity&lt;&gt;(new PagedRestResponse&lt;&gt;(result), HttpStatus.OK);</span>
+<span class="fc" id="L127">        logger.debug(&quot;getting contents with request {} - status {}&quot;, requestList, requestList.getStatus());</span>
+<span class="fc" id="L128">        requestList.setSort(normalizeAttributeNames(requestList.getSort()));</span>
+<span class="fc" id="L129">        Optional.ofNullable(requestList.getFilters()).map(Arrays::stream).orElseGet(Stream::empty).forEach(filter -&gt; {</span>
+<span class="fc" id="L130">            filter.setAttribute(normalizeAttributeNames(filter.getAttribute()));</span>
+<span class="fc" id="L131">        });</span>
+<span class="fc" id="L132">        this.getPaginationValidator().validateRestListRequest(requestList, ContentDto.class);</span>
+<span class="fc" id="L133">        PagedMetadata&lt;ContentDto&gt; result = this.getContentService().getContents(requestList, HttpSessionHelper.extractCurrentUser(httpSession));</span>
+<span class="fc" id="L134">        return new ResponseEntity&lt;&gt;(new PagedRestResponse&lt;&gt;(result), HttpStatus.OK);</span>
     }
 
     private String normalizeAttributeNames(String attributeName) {
-<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (attributeName != null) {</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">            if (&quot;lastmodified&quot;.equalsIgnoreCase(attributeName)) {</span>
-<span class="nc" id="L140">                return IContentManager.CONTENT_MODIFY_DATE_FILTER_KEY;</span>
-<span class="nc bnc" id="L141" title="All 2 branches missed.">            } else if (IEntityManager.ENTITY_TYPE_CODE_FILTER_KEY.equalsIgnoreCase(attributeName)) {</span>
-<span class="nc" id="L142">                return IEntityManager.ENTITY_TYPE_CODE_FILTER_KEY;</span>
-<span class="nc bnc" id="L143" title="All 2 branches missed.">            } else if (&quot;description&quot;.equalsIgnoreCase(attributeName)) {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (attributeName != null) {</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">            if (&quot;lastmodified&quot;.equalsIgnoreCase(attributeName)) {</span>
+<span class="fc" id="L140">                return IContentManager.CONTENT_MODIFY_DATE_FILTER_KEY;</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">            } else if (IEntityManager.ENTITY_TYPE_CODE_FILTER_KEY.equalsIgnoreCase(attributeName)) {</span>
+<span class="fc" id="L142">                return IEntityManager.ENTITY_TYPE_CODE_FILTER_KEY;</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">            } else if (&quot;description&quot;.equalsIgnoreCase(attributeName)) {</span>
 <span class="nc" id="L144">                return IContentManager.CONTENT_DESCR_FILTER_KEY;</span>
-<span class="nc bnc" id="L145" title="All 4 branches missed.">            } else if (&quot;id&quot;.equalsIgnoreCase(attributeName) || IEntityManager.ENTITY_ID_FILTER_KEY.equalsIgnoreCase(attributeName)) {</span>
-<span class="nc" id="L146">                return IEntityManager.ENTITY_ID_FILTER_KEY;</span>
+<span class="fc bfc" id="L145" title="All 4 branches covered.">            } else if (&quot;id&quot;.equalsIgnoreCase(attributeName) || IEntityManager.ENTITY_ID_FILTER_KEY.equalsIgnoreCase(attributeName)) {</span>
+<span class="fc" id="L146">                return IEntityManager.ENTITY_ID_FILTER_KEY;</span>
             }
-<span class="nc" id="L148">            return attributeName.toLowerCase();</span>
+<span class="fc" id="L148">            return attributeName.toLowerCase();</span>
         } else {
-<span class="nc" id="L150">            return null;</span>
+<span class="fc" id="L150">            return null;</span>
         }
     }
     
     @RestAccessControl(permission = Permission.ENTER_BACKEND)
     @GetMapping(value = &quot;/status&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;ContentsStatusDto&gt;&gt; getContentsStatus() {
-<span class="nc" id="L157">        logger.debug(&quot;Requested contents status&quot;);</span>
-<span class="nc" id="L158">        ContentsStatusDto dto = this.getContentService().getContentsStatus();</span>
-<span class="nc" id="L159">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(dto), HttpStatus.OK);</span>
+<span class="fc" id="L157">        logger.debug(&quot;Requested contents status&quot;);</span>
+<span class="fc" id="L158">        ContentsStatusDto dto = this.getContentService().getContentsStatus();</span>
+<span class="fc" id="L159">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(dto), HttpStatus.OK);</span>
     }
     
     @GetMapping(value = &quot;/{code}&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -193,12 +193,12 @@ import org.springframework.validation.Errors;
 <span class="fc" id="L193">        List&lt;ContentDto&gt; response = bodyRequest.stream()</span>
 <span class="fc" id="L194">            .map(content -&gt; {</span>
 <span class="fc" id="L195">                this.getContentValidator().validate(content, bindingResult);</span>
-<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L197">                    throw new ValidationGenericException(bindingResult);</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">                if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L197">                    throw new ValidationGenericException(bindingResult);</span>
                 }
 <span class="fc" id="L199">                ContentDto result = this.getContentService().addContent(content, HttpSessionHelper.extractCurrentUser(httpSession), bindingResult);</span>
-<span class="pc bpc" id="L200" title="1 of 2 branches missed.">                if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L201">                    throw new ValidationGenericException(bindingResult);</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">                if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L201">                    throw new ValidationGenericException(bindingResult);</span>
                 }
 <span class="fc" id="L203">                return result;</span>
             })
@@ -227,56 +227,56 @@ import org.springframework.validation.Errors;
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;List&lt;ContentDto&gt;&gt;&gt; updateContents(
             @Valid @RequestBody List&lt;ContentDto&gt; bodyRequest, BindingResult bindingResult) {
-<span class="nc" id="L230">        logger.debug(&quot;Update content -&gt; {}&quot;, bodyRequest);</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L230">        logger.debug(&quot;Update content -&gt; {}&quot;, bodyRequest);</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
 <span class="nc" id="L232">            throw new ValidationGenericException(bindingResult);</span>
         }
 
-<span class="nc" id="L235">        UserDetails userDetails = HttpSessionHelper.extractCurrentUser(httpSession);</span>
-<span class="nc" id="L236">        List&lt;ContentDto&gt; response = bodyRequest.stream()</span>
-<span class="nc" id="L237">            .map(content -&gt; {</span>
-<span class="nc" id="L238">                ContentDto result = this.getContentService().updateContent(content, userDetails, bindingResult);</span>
-<span class="nc bnc" id="L239" title="All 2 branches missed.">                if (bindingResult.hasErrors()) {</span>
-<span class="nc" id="L240">                    throw new ValidationGenericException(bindingResult);</span>
+<span class="fc" id="L235">        UserDetails userDetails = HttpSessionHelper.extractCurrentUser(httpSession);</span>
+<span class="fc" id="L236">        List&lt;ContentDto&gt; response = bodyRequest.stream()</span>
+<span class="fc" id="L237">            .map(content -&gt; {</span>
+<span class="fc" id="L238">                ContentDto result = this.getContentService().updateContent(content, userDetails, bindingResult);</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">                if (bindingResult.hasErrors()) {</span>
+<span class="fc" id="L240">                    throw new ValidationGenericException(bindingResult);</span>
                 }
-<span class="nc" id="L242">                return result;</span>
+<span class="fc" id="L242">                return result;</span>
             })
-<span class="nc" id="L244">            .collect(Collectors.toList());</span>
+<span class="fc" id="L244">            .collect(Collectors.toList());</span>
 
-<span class="nc" id="L246">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L246">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
     @PutMapping(value = &quot;/{code}/status&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;RestResponse&lt;ContentDto, Map&lt;String, String&gt;&gt;&gt; updateContentStatus(@PathVariable String code,
             @Valid @RequestBody ContentStatusRequest contentStatusRequest, BindingResult bindingResult) {
-<span class="nc" id="L253">        logger.debug(&quot;changing status for content {} with request {}&quot;, code, contentStatusRequest);</span>
-<span class="nc" id="L254">        Map&lt;String, String&gt; metadata = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L253">        logger.debug(&quot;changing status for content {} with request {}&quot;, code, contentStatusRequest);</span>
+<span class="fc" id="L254">        Map&lt;String, String&gt; metadata = new HashMap&lt;&gt;();</span>
         //field validations
-<span class="nc bnc" id="L256" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
 <span class="nc" id="L257">            throw new ValidationGenericException(bindingResult);</span>
         }
-<span class="nc" id="L259">        ContentDto contentDto = this.getContentService().updateContentStatus(code, contentStatusRequest.getStatus(), HttpSessionHelper.extractCurrentUser(httpSession));</span>
-<span class="nc" id="L260">        metadata.put(&quot;status&quot;, contentStatusRequest.getStatus());</span>
-<span class="nc" id="L261">        return new ResponseEntity&lt;&gt;(new RestResponse&lt;&gt;(contentDto, metadata), HttpStatus.OK);</span>
+<span class="fc" id="L259">        ContentDto contentDto = this.getContentService().updateContentStatus(code, contentStatusRequest.getStatus(), HttpSessionHelper.extractCurrentUser(httpSession));</span>
+<span class="fc" id="L260">        metadata.put(&quot;status&quot;, contentStatusRequest.getStatus());</span>
+<span class="fc" id="L261">        return new ResponseEntity&lt;&gt;(new RestResponse&lt;&gt;(contentDto, metadata), HttpStatus.OK);</span>
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
     @PutMapping(value = &quot;/status&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;RestResponse&lt;List&lt;ContentDto&gt;, Map&lt;String, String&gt;&gt;&gt; updateContentsStatus(
             @Valid @RequestBody BatchContentStatusRequest batchContentStatusRequest, BindingResult bindingResult) {
-<span class="nc" id="L268">        logger.debug(&quot;changing status for contents with request {}&quot;, batchContentStatusRequest);</span>
-<span class="nc" id="L269">        Map&lt;String, String&gt; metadata = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L268">        logger.debug(&quot;changing status for contents with request {}&quot;, batchContentStatusRequest);</span>
+<span class="fc" id="L269">        Map&lt;String, String&gt; metadata = new HashMap&lt;&gt;();</span>
         //field validations
-<span class="nc bnc" id="L271" title="All 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">        if (bindingResult.hasErrors()) {</span>
 <span class="nc" id="L272">            throw new ValidationGenericException(bindingResult);</span>
         }
 
-<span class="nc" id="L275">        List&lt;ContentDto&gt; response = this.getContentService().updateContentsStatus(batchContentStatusRequest.getCodes(),</span>
-<span class="nc" id="L276">                batchContentStatusRequest.getStatus(), HttpSessionHelper.extractCurrentUser(httpSession));</span>
-<span class="nc" id="L277">        metadata.put(&quot;status&quot;, batchContentStatusRequest.getStatus());</span>
+<span class="fc" id="L275">        List&lt;ContentDto&gt; response = this.getContentService().updateContentsStatus(batchContentStatusRequest.getCodes(),</span>
+<span class="fc" id="L276">                batchContentStatusRequest.getStatus(), HttpSessionHelper.extractCurrentUser(httpSession));</span>
+<span class="fc" id="L277">        metadata.put(&quot;status&quot;, batchContentStatusRequest.getStatus());</span>
 
-<span class="nc" id="L279">        return new ResponseEntity&lt;&gt;(new RestResponse&lt;&gt;(response, metadata), HttpStatus.OK);</span>
+<span class="fc" id="L279">        return new ResponseEntity&lt;&gt;(new RestResponse&lt;&gt;(response, metadata), HttpStatus.OK);</span>
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
@@ -298,24 +298,24 @@ import org.springframework.validation.Errors;
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;?&gt;&gt; deleteContents(@RequestBody List&lt;String&gt; codes) {
-<span class="nc" id="L301">        logger.debug(&quot;Deleting contents -&gt; {}&quot;, codes);</span>
+<span class="fc" id="L301">        logger.debug(&quot;Deleting contents -&gt; {}&quot;, codes);</span>
 
-<span class="nc" id="L303">        UserDetails userDetails = HttpSessionHelper.extractCurrentUser(httpSession);</span>
-<span class="nc" id="L304">        List&lt;String&gt; payload = codes.stream()</span>
-<span class="nc" id="L305">            .peek(code -&gt; this.getContentService().deleteContent(code, userDetails))</span>
-<span class="nc" id="L306">            .collect(Collectors.toList());</span>
+<span class="fc" id="L303">        UserDetails userDetails = HttpSessionHelper.extractCurrentUser(httpSession);</span>
+<span class="fc" id="L304">        List&lt;String&gt; payload = codes.stream()</span>
+<span class="fc" id="L305">            .peek(code -&gt; this.getContentService().deleteContent(code, userDetails))</span>
+<span class="fc" id="L306">            .collect(Collectors.toList());</span>
 
-<span class="nc" id="L308">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(payload), HttpStatus.OK);</span>
+<span class="fc" id="L308">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(payload), HttpStatus.OK);</span>
     }
 
     @RestAccessControl(permission = Permission.CONTENT_EDITOR)
     @PostMapping(value = &quot;/{code}/clone&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;SimpleRestResponse&lt;ContentDto&gt;&gt; cloneContent(@PathVariable String code) {
-<span class="nc" id="L314">        DataBinder binder = new DataBinder(code);</span>
-<span class="nc" id="L315">        BindingResult bindingResult = binder.getBindingResult();</span>
-<span class="nc" id="L316">        UserDetails userDetails = HttpSessionHelper.extractCurrentUser(httpSession);</span>
-<span class="nc" id="L317">        ContentDto response = contentService.cloneContent(code, userDetails, bindingResult);</span>
-<span class="nc" id="L318">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
+<span class="fc" id="L314">        DataBinder binder = new DataBinder(code);</span>
+<span class="fc" id="L315">        BindingResult bindingResult = binder.getBindingResult();</span>
+<span class="fc" id="L316">        UserDetails userDetails = HttpSessionHelper.extractCurrentUser(httpSession);</span>
+<span class="fc" id="L317">        ContentDto response = contentService.cloneContent(code, userDetails, bindingResult);</span>
+<span class="fc" id="L318">        return new ResponseEntity&lt;&gt;(new SimpleRestResponse&lt;&gt;(response), HttpStatus.OK);</span>
     }
 
 }

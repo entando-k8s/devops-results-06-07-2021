@@ -194,29 +194,29 @@ public class ContentDto extends EntityDto implements Serializable {
 
     @Override
     public void fillEntity(IApsEntity prototype, ICategoryManager categoryManager, BindingResult bindingResult) {
-<span class="nc" id="L197">        Content content = (Content) prototype;</span>
+<span class="fc" id="L197">        Content content = (Content) prototype;</span>
 
-<span class="nc" id="L199">        super.fillEntity(prototype, categoryManager, bindingResult);</span>
+<span class="fc" id="L199">        super.fillEntity(prototype, categoryManager, bindingResult);</span>
 
-<span class="nc bnc" id="L201" title="All 2 branches missed.">        content.setFirstEditor(getFirstEditor() == null ? content.getFirstEditor() : getFirstEditor());</span>
-<span class="nc" id="L202">        content.setLastEditor(getLastEditor());</span>
-<span class="nc" id="L203">        content.setRestriction(ContentRestriction.getRestrictionValue(getMainGroup()));</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">        content.setStatus(getStatus() == null ? content.getStatus() : getStatus());</span>
-<span class="nc" id="L205">    }</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        content.setFirstEditor(getFirstEditor() == null ? content.getFirstEditor() : getFirstEditor());</span>
+<span class="fc" id="L202">        content.setLastEditor(getLastEditor());</span>
+<span class="fc" id="L203">        content.setRestriction(ContentRestriction.getRestrictionValue(getMainGroup()));</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        content.setStatus(getStatus() == null ? content.getStatus() : getStatus());</span>
+<span class="fc" id="L205">    }</span>
 
     @Override
     protected void clearAttribute(AttributeInterface attribute) {
-<span class="nc" id="L209">        clearAbstractResourceAttribute(attribute);</span>
-<span class="nc" id="L210">        clearLinkAttribute(attribute);</span>
-<span class="nc" id="L211">        super.clearAttribute(attribute);</span>
-<span class="nc" id="L212">    }</span>
+<span class="fc" id="L209">        clearAbstractResourceAttribute(attribute);</span>
+<span class="fc" id="L210">        clearLinkAttribute(attribute);</span>
+<span class="fc" id="L211">        super.clearAttribute(attribute);</span>
+<span class="fc" id="L212">    }</span>
 
     @Override
     protected void fillAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto, BindingResult bindingResult) {
-<span class="nc" id="L216">        super.fillAttribute(attribute, attributeDto, bindingResult);</span>
-<span class="nc" id="L217">        fillAbstractResourceAttribute(attribute, attributeDto);</span>
-<span class="nc" id="L218">        fillLinkAttribute(attribute, attributeDto);</span>
-<span class="nc" id="L219">    }</span>
+<span class="fc" id="L216">        super.fillAttribute(attribute, attributeDto, bindingResult);</span>
+<span class="fc" id="L217">        fillAbstractResourceAttribute(attribute, attributeDto);</span>
+<span class="fc" id="L218">        fillLinkAttribute(attribute, attributeDto);</span>
+<span class="fc" id="L219">    }</span>
 
     @Override
     protected void rejectAttributeNotFound (BindingResult bindingResult, EntityAttributeDto attributeDto) {
@@ -224,142 +224,142 @@ public class ContentDto extends EntityDto implements Serializable {
 <span class="nc" id="L224">    }</span>
 
     private void clearAbstractResourceAttribute(AttributeInterface attribute) {
-<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (AbstractResourceAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
-<span class="nc" id="L228">            AbstractResourceAttribute resourceAttribute = (AbstractResourceAttribute) attribute;</span>
-<span class="nc" id="L229">            resourceAttribute.getTextMap().clear();</span>
-<span class="nc" id="L230">            resourceAttribute.getResources().clear();</span>
-<span class="nc" id="L231">            resourceAttribute.getMetadatas().clear();</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        if (AbstractResourceAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L228">            AbstractResourceAttribute resourceAttribute = (AbstractResourceAttribute) attribute;</span>
+<span class="fc" id="L229">            resourceAttribute.getTextMap().clear();</span>
+<span class="fc" id="L230">            resourceAttribute.getResources().clear();</span>
+<span class="fc" id="L231">            resourceAttribute.getMetadatas().clear();</span>
         }
-<span class="nc" id="L233">    }</span>
+<span class="fc" id="L233">    }</span>
 
     private void clearLinkAttribute(AttributeInterface attribute) {
-<span class="nc bnc" id="L236" title="All 2 branches missed.">        if (LinkAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
-<span class="nc" id="L237">            LinkAttribute linkAttribute = (LinkAttribute) attribute;</span>
-<span class="nc" id="L238">            linkAttribute.getTextMap().clear();</span>
-<span class="nc" id="L239">            linkAttribute.setSymbolicLink(null);</span>
+<span class="fc bfc" id="L236" title="All 2 branches covered.">        if (LinkAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L237">            LinkAttribute linkAttribute = (LinkAttribute) attribute;</span>
+<span class="fc" id="L238">            linkAttribute.getTextMap().clear();</span>
+<span class="fc" id="L239">            linkAttribute.setSymbolicLink(null);</span>
         }
-<span class="nc" id="L241">    }</span>
+<span class="fc" id="L241">    }</span>
 
     private void fillAbstractResourceAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto) {
-<span class="nc bnc" id="L244" title="All 2 branches missed.">        if (AbstractResourceAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
-<span class="nc" id="L245">            AbstractResourceAttribute resourceAttribute = (AbstractResourceAttribute) attribute;</span>
-<span class="nc bnc" id="L246" title="All 2 branches missed.">            for (Entry&lt;String, Object&gt; resourceEntry : attributeDto.getValues().entrySet()) {</span>
-<span class="nc bnc" id="L247" title="All 2 branches missed.">                if (LinkedHashMap.class.isAssignableFrom(resourceEntry.getValue().getClass())) {</span>
-<span class="nc" id="L248">                    Map&lt;String, Object&gt; resource = (Map&lt;String, Object&gt;) resourceEntry.getValue();</span>
-<span class="nc" id="L249">                    setResourceAttribute(resourceAttribute, resource, resourceEntry.getKey());</span>
-<span class="nc bnc" id="L250" title="All 2 branches missed.">                } else if (ImageResource.class.isAssignableFrom(resourceEntry.getValue().getClass())) {</span>
-<span class="nc" id="L251">                    ImageResource resource = (ImageResource) resourceEntry.getValue();</span>
-<span class="nc" id="L252">                    setResourceAttribute(resourceAttribute, resource, resourceEntry.getKey());</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">        if (AbstractResourceAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L245">            AbstractResourceAttribute resourceAttribute = (AbstractResourceAttribute) attribute;</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">            for (Entry&lt;String, Object&gt; resourceEntry : attributeDto.getValues().entrySet()) {</span>
+<span class="fc bfc" id="L247" title="All 2 branches covered.">                if (LinkedHashMap.class.isAssignableFrom(resourceEntry.getValue().getClass())) {</span>
+<span class="fc" id="L248">                    Map&lt;String, Object&gt; resource = (Map&lt;String, Object&gt;) resourceEntry.getValue();</span>
+<span class="fc" id="L249">                    setResourceAttribute(resourceAttribute, resource, resourceEntry.getKey());</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">                } else if (ImageResource.class.isAssignableFrom(resourceEntry.getValue().getClass())) {</span>
+<span class="fc" id="L251">                    ImageResource resource = (ImageResource) resourceEntry.getValue();</span>
+<span class="fc" id="L252">                    setResourceAttribute(resourceAttribute, resource, resourceEntry.getKey());</span>
                 }
-<span class="nc" id="L254">            }</span>
+<span class="fc" id="L254">            }</span>
         }
-<span class="nc" id="L256">    }</span>
+<span class="fc" id="L256">    }</span>
 
     private void setResourceAttribute(AbstractResourceAttribute resourceAttribute, ImageResource resource, String langCode) {
-<span class="nc" id="L259">        String correlationCode = resource.getCorrelationCode();</span>
-<span class="nc" id="L260">        String resourceId = resource.getId();</span>
-<span class="nc" id="L261">        String name = resource.getDescription();</span>
+<span class="fc" id="L259">        String correlationCode = resource.getCorrelationCode();</span>
+<span class="fc" id="L260">        String resourceId = resource.getId();</span>
+<span class="fc" id="L261">        String name = resource.getDescription();</span>
 
-<span class="nc bnc" id="L263" title="All 2 branches missed.">        if (name != null) {</span>
-<span class="nc" id="L264">            resourceAttribute.setText(name, langCode);</span>
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">        if (name != null) {</span>
+<span class="fc" id="L264">            resourceAttribute.setText(name, langCode);</span>
         }
 
-<span class="nc" id="L267">        ResourceInterface resourceInterface = new AttachResource();</span>
-<span class="nc" id="L268">        resourceInterface.setId(resourceId);</span>
-<span class="nc" id="L269">        resourceInterface.setCorrelationCode(correlationCode);</span>
+<span class="fc" id="L267">        ResourceInterface resourceInterface = new AttachResource();</span>
+<span class="fc" id="L268">        resourceInterface.setId(resourceId);</span>
+<span class="fc" id="L269">        resourceInterface.setCorrelationCode(correlationCode);</span>
 
-<span class="nc" id="L271">        resourceAttribute.setResource(resourceInterface, langCode);</span>
-<span class="nc" id="L272">    }</span>
+<span class="fc" id="L271">        resourceAttribute.setResource(resourceInterface, langCode);</span>
+<span class="fc" id="L272">    }</span>
 
     private void setResourceAttribute(AbstractResourceAttribute resourceAttribute, Map&lt;String, Object&gt; resource,
             String langCode) {
-<span class="nc" id="L276">        String correlationCode = (String) resource.get(&quot;correlationCode&quot;);</span>
-<span class="nc" id="L277">        String resourceId = (String) resource.get(&quot;id&quot;);</span>
-<span class="nc" id="L278">        String name = (String) resource.get(&quot;name&quot;);</span>
+<span class="fc" id="L276">        String correlationCode = (String) resource.get(&quot;correlationCode&quot;);</span>
+<span class="fc" id="L277">        String resourceId = (String) resource.get(&quot;id&quot;);</span>
+<span class="fc" id="L278">        String name = (String) resource.get(&quot;name&quot;);</span>
 
-<span class="nc bnc" id="L280" title="All 2 branches missed.">        if (name != null) {</span>
-<span class="nc" id="L281">            resourceAttribute.setText(name, langCode);</span>
+<span class="fc bfc" id="L280" title="All 2 branches covered.">        if (name != null) {</span>
+<span class="fc" id="L281">            resourceAttribute.setText(name, langCode);</span>
         }
 
-<span class="nc" id="L284">        ResourceInterface resourceInterface = new AttachResource();</span>
-<span class="nc" id="L285">        resourceInterface.setId(resourceId);</span>
-<span class="nc" id="L286">        resourceInterface.setCorrelationCode(correlationCode);</span>
+<span class="fc" id="L284">        ResourceInterface resourceInterface = new AttachResource();</span>
+<span class="fc" id="L285">        resourceInterface.setId(resourceId);</span>
+<span class="fc" id="L286">        resourceInterface.setCorrelationCode(correlationCode);</span>
 
-<span class="nc" id="L288">        resourceAttribute.setResource(resourceInterface, langCode);</span>
+<span class="fc" id="L288">        resourceAttribute.setResource(resourceInterface, langCode);</span>
 
-<span class="nc" id="L290">        Map&lt;String, Object&gt; values = (Map&lt;String, Object&gt;) resource.get(&quot;metadata&quot;);</span>
+<span class="fc" id="L290">        Map&lt;String, Object&gt; values = (Map&lt;String, Object&gt;) resource.get(&quot;metadata&quot;);</span>
 
-<span class="nc bnc" id="L292" title="All 2 branches missed.">        if (values != null) {</span>
-<span class="nc" id="L293">            Map&lt;String, String&gt; metadata = values.entrySet().stream()</span>
-<span class="nc" id="L294">                    .collect(Collectors.toMap(Entry::getKey, e -&gt; (String) e.getValue()));</span>
-<span class="nc" id="L295">            resourceAttribute.setMetadataMap(langCode, metadata);</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        if (values != null) {</span>
+<span class="fc" id="L293">            Map&lt;String, String&gt; metadata = values.entrySet().stream()</span>
+<span class="fc" id="L294">                    .collect(Collectors.toMap(Entry::getKey, e -&gt; (String) e.getValue()));</span>
+<span class="fc" id="L295">            resourceAttribute.setMetadataMap(langCode, metadata);</span>
         }
-<span class="nc" id="L297">    }</span>
+<span class="fc" id="L297">    }</span>
 
     private Map&lt;String, String&gt; getAdditionalLinkAttributes (final EntityAttributeDto attributeDto) {
-<span class="nc" id="L300">        final Map&lt;String, String&gt; linkProperties = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L301">        final String rel = (String)((Map) attributeDto.getValue()).get(&quot;rel&quot;);</span>
-<span class="nc bnc" id="L302" title="All 2 branches missed.">        if (rel != null ) {</span>
-<span class="nc" id="L303">            linkProperties.put(&quot;rel&quot;, rel);</span>
+<span class="fc" id="L300">        final Map&lt;String, String&gt; linkProperties = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L301">        final String rel = (String)((Map) attributeDto.getValue()).get(&quot;rel&quot;);</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">        if (rel != null ) {</span>
+<span class="fc" id="L303">            linkProperties.put(&quot;rel&quot;, rel);</span>
         }
-<span class="nc" id="L305">        final String target = (String)((Map) attributeDto.getValue()).get(&quot;target&quot;);</span>
-<span class="nc bnc" id="L306" title="All 2 branches missed.">        if (target != null ) {</span>
-<span class="nc" id="L307">            linkProperties.put(&quot;target&quot;, target);</span>
+<span class="fc" id="L305">        final String target = (String)((Map) attributeDto.getValue()).get(&quot;target&quot;);</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">        if (target != null ) {</span>
+<span class="fc" id="L307">            linkProperties.put(&quot;target&quot;, target);</span>
         }
-<span class="nc" id="L309">        final String hreflang = (String)((Map) attributeDto.getValue()).get(&quot;hreflang&quot;);</span>
-<span class="nc bnc" id="L310" title="All 2 branches missed.">        if (hreflang != null ) {</span>
-<span class="nc" id="L311">            linkProperties.put(&quot;hreflang&quot;, hreflang);</span>
+<span class="fc" id="L309">        final String hreflang = (String)((Map) attributeDto.getValue()).get(&quot;hreflang&quot;);</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">        if (hreflang != null ) {</span>
+<span class="fc" id="L311">            linkProperties.put(&quot;hreflang&quot;, hreflang);</span>
         }
-<span class="nc" id="L313">        return linkProperties;</span>
+<span class="fc" id="L313">        return linkProperties;</span>
     }
 
     private void fillLinkAttribute(AttributeInterface attribute, EntityAttributeDto attributeDto) {
-<span class="nc bnc" id="L317" title="All 2 branches missed.">        if (LinkAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
-<span class="nc" id="L318">            LinkAttribute linkAttribute = (LinkAttribute)attribute;</span>
-<span class="nc" id="L319">            SymbolicLink link = new SymbolicLink();</span>
-<span class="nc" id="L320">            Map&lt;String, String&gt; additionalLinkAttributes = processLinkAttribute(attributeDto, link);</span>
-<span class="nc" id="L321">            linkAttribute.setSymbolicLink(link);</span>
-<span class="nc bnc" id="L322" title="All 2 branches missed.">            if (!additionalLinkAttributes.isEmpty()) {</span>
-<span class="nc" id="L323">                linkAttribute.setLinkProperties(additionalLinkAttributes);</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        if (LinkAttribute.class.isAssignableFrom(attribute.getClass())) {</span>
+<span class="fc" id="L318">            LinkAttribute linkAttribute = (LinkAttribute)attribute;</span>
+<span class="fc" id="L319">            SymbolicLink link = new SymbolicLink();</span>
+<span class="fc" id="L320">            Map&lt;String, String&gt; additionalLinkAttributes = processLinkAttribute(attributeDto, link);</span>
+<span class="fc" id="L321">            linkAttribute.setSymbolicLink(link);</span>
+<span class="fc bfc" id="L322" title="All 2 branches covered.">            if (!additionalLinkAttributes.isEmpty()) {</span>
+<span class="fc" id="L323">                linkAttribute.setLinkProperties(additionalLinkAttributes);</span>
             }
         }
-<span class="nc" id="L326">    }</span>
+<span class="fc" id="L326">    }</span>
 
     private Map&lt;String, String&gt; processLinkAttribute(EntityAttributeDto attributeDto, SymbolicLink link) {
-<span class="nc" id="L329">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L330" title="All 4 branches missed.">        if (attributeDto.getValue() != null &amp;&amp; Map.class.isAssignableFrom(attributeDto.getValue().getClass())) {</span>
-<span class="nc" id="L331">            Object destType = ((Map) attributeDto.getValue()).get(&quot;destType&quot;);</span>
-<span class="nc bnc" id="L332" title="All 2 branches missed.">            if (destType != null) {</span>
-<span class="nc bnc" id="L333" title="All 6 branches missed.">                switch ((Integer) destType) {</span>
+<span class="fc" id="L329">        Map&lt;String, String&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L330" title="All 4 branches covered.">        if (attributeDto.getValue() != null &amp;&amp; Map.class.isAssignableFrom(attributeDto.getValue().getClass())) {</span>
+<span class="fc" id="L331">            Object destType = ((Map) attributeDto.getValue()).get(&quot;destType&quot;);</span>
+<span class="fc bfc" id="L332" title="All 2 branches covered.">            if (destType != null) {</span>
+<span class="fc bfc" id="L333" title="All 6 branches covered.">                switch ((Integer) destType) {</span>
                     case SymbolicLink.URL_TYPE:
-<span class="nc" id="L335">                        link.setDestinationToUrl((String) ((Map) attributeDto.getValue()).get(&quot;urlDest&quot;));</span>
-<span class="nc" id="L336">                        result = getAdditionalLinkAttributes(attributeDto);</span>
-<span class="nc" id="L337">                        break;</span>
+<span class="fc" id="L335">                        link.setDestinationToUrl((String) ((Map) attributeDto.getValue()).get(&quot;urlDest&quot;));</span>
+<span class="fc" id="L336">                        result = getAdditionalLinkAttributes(attributeDto);</span>
+<span class="fc" id="L337">                        break;</span>
                     case SymbolicLink.PAGE_TYPE:
-<span class="nc" id="L339">                        link.setDestinationToPage(</span>
-<span class="nc" id="L340">                                (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
-<span class="nc" id="L341">                        result = getAdditionalLinkAttributes(attributeDto);</span>
-<span class="nc" id="L342">                        break;</span>
+<span class="fc" id="L339">                        link.setDestinationToPage(</span>
+<span class="fc" id="L340">                                (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
+<span class="fc" id="L341">                        result = getAdditionalLinkAttributes(attributeDto);</span>
+<span class="fc" id="L342">                        break;</span>
                     case SymbolicLink.RESOURCE_TYPE:
-<span class="nc" id="L344">                        link.setDestinationToResource(</span>
-<span class="nc" id="L345">                                (String) ((Map) attributeDto.getValue()).get(&quot;resourceDest&quot;));</span>
-<span class="nc" id="L346">                        break;</span>
+<span class="fc" id="L344">                        link.setDestinationToResource(</span>
+<span class="fc" id="L345">                                (String) ((Map) attributeDto.getValue()).get(&quot;resourceDest&quot;));</span>
+<span class="fc" id="L346">                        break;</span>
                     case SymbolicLink.CONTENT_TYPE:
-<span class="nc" id="L348">                        link.setDestinationToContent(</span>
-<span class="nc" id="L349">                                (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;));</span>
-<span class="nc" id="L350">                        result = getAdditionalLinkAttributes(attributeDto);</span>
-<span class="nc" id="L351">                        break;</span>
+<span class="fc" id="L348">                        link.setDestinationToContent(</span>
+<span class="fc" id="L349">                                (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;));</span>
+<span class="fc" id="L350">                        result = getAdditionalLinkAttributes(attributeDto);</span>
+<span class="fc" id="L351">                        break;</span>
                     case SymbolicLink.CONTENT_ON_PAGE_TYPE:
-<span class="nc" id="L353">                        link.setDestinationToContentOnPage(</span>
-<span class="nc" id="L354">                                (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;),</span>
-<span class="nc" id="L355">                                (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
-<span class="nc" id="L356">                        break;</span>
+<span class="fc" id="L353">                        link.setDestinationToContentOnPage(</span>
+<span class="fc" id="L354">                                (String) ((Map) attributeDto.getValue()).get(&quot;contentDest&quot;),</span>
+<span class="fc" id="L355">                                (String) ((Map) attributeDto.getValue()).get(&quot;pageDest&quot;));</span>
+<span class="fc" id="L356">                        break;</span>
                     default:
                         break;
                 }
             }
         }
-<span class="nc" id="L362">        return result;</span>
+<span class="fc" id="L362">        return result;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

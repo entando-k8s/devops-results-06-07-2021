@@ -41,17 +41,17 @@ public abstract class AbstractMultiInstanceResource extends AbstractResource {
     @Override
     public void deleteResourceInstances() throws EntException {
         try {
-<span class="nc" id="L44">            Collection&lt;ResourceInstance&gt; resources = this.getInstances().values();</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">            for (ResourceInstance currentInstance : resources) {</span>
-<span class="nc" id="L46">                String fileName = currentInstance.getFileName();</span>
-<span class="nc" id="L47">                String subPath = this.getDiskSubFolder() + fileName;</span>
-<span class="nc" id="L48">                this.getStorageManager().deleteFile(subPath, this.isProtectedResource());</span>
-<span class="nc" id="L49">            }</span>
+<span class="fc" id="L44">            Collection&lt;ResourceInstance&gt; resources = this.getInstances().values();</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            for (ResourceInstance currentInstance : resources) {</span>
+<span class="fc" id="L46">                String fileName = currentInstance.getFileName();</span>
+<span class="fc" id="L47">                String subPath = this.getDiskSubFolder() + fileName;</span>
+<span class="fc" id="L48">                this.getStorageManager().deleteFile(subPath, this.isProtectedResource());</span>
+<span class="fc" id="L49">            }</span>
 <span class="nc" id="L50">        } catch (Throwable t) {</span>
 <span class="nc" id="L51">            logger.error(&quot;Error on deleting resource instances&quot;, t);</span>
 <span class="nc" id="L52">            throw new EntException(&quot;Error on deleting resource instances&quot;, t);</span>
-<span class="nc" id="L53">        }</span>
-<span class="nc" id="L54">    }</span>
+<span class="fc" id="L53">        }</span>
+<span class="fc" id="L54">    }</span>
 
     /**
      * Implementazione del metodo isMultiInstance() di AbstractResource.
@@ -62,7 +62,7 @@ public abstract class AbstractMultiInstanceResource extends AbstractResource {
      */
     @Override
     public boolean isMultiInstance() {
-<span class="nc" id="L65">        return true;</span>
+<span class="fc" id="L65">        return true;</span>
     }
 
     /**
@@ -72,16 +72,16 @@ public abstract class AbstractMultiInstanceResource extends AbstractResource {
      */
     @Override
     public String getXML() {
-<span class="nc" id="L75">        ResourceDOM resourceDom = getResourceDOM();</span>
-<span class="nc" id="L76">        List&lt;ResourceInstance&gt; resources = new ArrayList&lt;&gt;(this.getInstances().values());</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        for (ResourceInstance currentInstance : resources) {</span>
-<span class="nc" id="L78">            resourceDom.addInstance(currentInstance.getJDOMElement());</span>
-<span class="nc" id="L79">        }</span>
-<span class="nc" id="L80">        Map&lt;String, String&gt; metadata = getMetadata();</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (null != metadata) {</span>
-<span class="nc" id="L82">            resourceDom.addMetadata(metadata);</span>
+<span class="fc" id="L75">        ResourceDOM resourceDom = getResourceDOM();</span>
+<span class="fc" id="L76">        List&lt;ResourceInstance&gt; resources = new ArrayList&lt;&gt;(this.getInstances().values());</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        for (ResourceInstance currentInstance : resources) {</span>
+<span class="fc" id="L78">            resourceDom.addInstance(currentInstance.getJDOMElement());</span>
+<span class="fc" id="L79">        }</span>
+<span class="fc" id="L80">        Map&lt;String, String&gt; metadata = getMetadata();</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (null != metadata) {</span>
+<span class="fc" id="L82">            resourceDom.addMetadata(metadata);</span>
         }
-<span class="nc" id="L84">        return resourceDom.getXMLDocument();</span>
+<span class="fc" id="L84">        return resourceDom.getXMLDocument();</span>
     }
 
     /**
@@ -151,7 +151,7 @@ public abstract class AbstractMultiInstanceResource extends AbstractResource {
      * @return La mappa delle istanze della risorsa.
      */
     public Map&lt;String, ResourceInstance&gt; getInstances() {
-<span class="nc" id="L154">        return instances;</span>
+<span class="fc" id="L154">        return instances;</span>
     }
 
 }
