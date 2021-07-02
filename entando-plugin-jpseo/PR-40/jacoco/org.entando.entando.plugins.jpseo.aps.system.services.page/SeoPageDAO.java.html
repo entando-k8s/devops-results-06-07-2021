@@ -39,47 +39,47 @@ import java.util.Date;
  *
  * @author E.Santoboni
  */
-<span class="nc" id="L42">public class SeoPageDAO extends PageDAO {</span>
+<span class="fc" id="L42">public class SeoPageDAO extends PageDAO {</span>
 
-<span class="nc" id="L44">    private static final EntLogger _logger =  EntLogFactory.getSanitizedLogger(SeoPageDAO.class);</span>
+<span class="fc" id="L44">    private static final EntLogger _logger =  EntLogFactory.getSanitizedLogger(SeoPageDAO.class);</span>
 
     @Override
     protected PageExtraConfigDOM getExtraConfigDOM() {
-<span class="nc" id="L48">        return new SeoPageExtraConfigDOM();</span>
+<span class="fc" id="L48">        return new SeoPageExtraConfigDOM();</span>
     }
 
     @Override
     protected PageMetadata createPageMetadata(String code, ResultSet res, int startIndex) throws Throwable {
-<span class="nc" id="L53">        SeoPageMetadata pageMetadata = new SeoPageMetadata();</span>
-<span class="nc" id="L54">        int index = startIndex;</span>
-<span class="nc" id="L55">        pageMetadata.setGroup(res.getString(index++));</span>
-<span class="nc" id="L56">        String titleText = res.getString(index++);</span>
-<span class="nc" id="L57">        ApsProperties titles = new ApsProperties();</span>
+<span class="fc" id="L53">        SeoPageMetadata pageMetadata = new SeoPageMetadata();</span>
+<span class="fc" id="L54">        int index = startIndex;</span>
+<span class="fc" id="L55">        pageMetadata.setGroup(res.getString(index++));</span>
+<span class="fc" id="L56">        String titleText = res.getString(index++);</span>
+<span class="fc" id="L57">        ApsProperties titles = new ApsProperties();</span>
         try {
-<span class="nc" id="L59">            titles.loadFromXml(titleText);</span>
+<span class="fc" id="L59">            titles.loadFromXml(titleText);</span>
 <span class="nc" id="L60">        } catch (Throwable t) {</span>
 <span class="nc" id="L61">            _logger.error(&quot;IO error detected while parsing the titles of the page {}&quot;, code, t);</span>
 <span class="nc" id="L62">            String msg = &quot;IO error detected while parsing the titles of the page '&quot; + code + &quot;'&quot;;</span>
 <span class="nc" id="L63">            throw new EntException(msg, t);</span>
-<span class="nc" id="L64">        }</span>
-<span class="nc" id="L65">        pageMetadata.setTitles(titles);</span>
-<span class="nc" id="L66">        pageMetadata.setModel(this.getPageModelManager().getPageModel(res.getString(index++)));</span>
-<span class="nc" id="L67">        Integer showable = res.getInt(index++);</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        pageMetadata.setShowable(showable == 1);</span>
-<span class="nc" id="L69">        String extraConfig = res.getString(index++);</span>
-<span class="nc bnc" id="L70" title="All 4 branches missed.">        if (null != extraConfig &amp;&amp; extraConfig.trim().length() &gt; 0) {</span>
+<span class="fc" id="L64">        }</span>
+<span class="fc" id="L65">        pageMetadata.setTitles(titles);</span>
+<span class="fc" id="L66">        pageMetadata.setModel(this.getPageModelManager().getPageModel(res.getString(index++)));</span>
+<span class="fc" id="L67">        Integer showable = res.getInt(index++);</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        pageMetadata.setShowable(showable == 1);</span>
+<span class="fc" id="L69">        String extraConfig = res.getString(index++);</span>
+<span class="pc bpc" id="L70" title="1 of 4 branches missed.">        if (null != extraConfig &amp;&amp; extraConfig.trim().length() &gt; 0) {</span>
             try {
-<span class="nc" id="L72">                SeoPageExtraConfigDOM configDom = new SeoPageExtraConfigDOM();</span>
-<span class="nc" id="L73">                configDom.addExtraConfig(pageMetadata, extraConfig);</span>
+<span class="fc" id="L72">                SeoPageExtraConfigDOM configDom = new SeoPageExtraConfigDOM();</span>
+<span class="fc" id="L73">                configDom.addExtraConfig(pageMetadata, extraConfig);</span>
 <span class="nc" id="L74">            } catch (Throwable t) {</span>
 <span class="nc" id="L75">                _logger.error(&quot;IO error detected while parsing the extra config of the page {}&quot;, code, t);</span>
 <span class="nc" id="L76">                String msg = &quot;IO error detected while parsing the extra config of the page '&quot; + code + &quot;'&quot;;</span>
 <span class="nc" id="L77">                throw new EntException(msg, t);</span>
-<span class="nc" id="L78">            }</span>
+<span class="fc" id="L78">            }</span>
         }
-<span class="nc" id="L80">        Timestamp date = res.getTimestamp(index++);</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        pageMetadata.setUpdatedAt(date != null ? new Date(date.getTime()) : null);</span>
-<span class="nc" id="L82">        return pageMetadata;</span>
+<span class="fc" id="L80">        Timestamp date = res.getTimestamp(index++);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        pageMetadata.setUpdatedAt(date != null ? new Date(date.getTime()) : null);</span>
+<span class="fc" id="L82">        return pageMetadata;</span>
     }
 
 }

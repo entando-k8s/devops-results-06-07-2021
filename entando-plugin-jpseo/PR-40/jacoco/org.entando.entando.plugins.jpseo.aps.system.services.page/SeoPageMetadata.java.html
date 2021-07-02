@@ -37,11 +37,11 @@ import java.util.TreeSet;
  */
 public class SeoPageMetadata extends PageMetadata implements Serializable {
 
-<span class="pc" id="L40">    private ApsProperties descriptions = new ApsProperties();</span>
-<span class="pc" id="L41">    private ApsProperties keywords = new ApsProperties();</span>
-<span class="pc" id="L42">    private ApsProperties friendlyCodes = new ApsProperties();</span>
+<span class="fc" id="L40">    private ApsProperties descriptions = new ApsProperties();</span>
+<span class="fc" id="L41">    private ApsProperties keywords = new ApsProperties();</span>
+<span class="fc" id="L42">    private ApsProperties friendlyCodes = new ApsProperties();</span>
 
-<span class="pc" id="L44">    private boolean useExtraDescriptions = false;</span>
+<span class="fc" id="L44">    private boolean useExtraDescriptions = false;</span>
 
     private Map&lt;String, Map&lt;String, PageMetatag&gt;&gt; complexParameters;
     
@@ -49,141 +49,141 @@ public class SeoPageMetadata extends PageMetadata implements Serializable {
         
 <span class="fc" id="L50">    }</span>
     
-<span class="nc" id="L52">     public SeoPageMetadata(PageMetadata original) {</span>
-<span class="nc" id="L53">        this.setGroup(original.getGroup());</span>
-<span class="nc" id="L54">        ApsProperties titles = new ApsProperties();</span>
-<span class="nc" id="L55">        titles.putAll(original.getTitles());</span>
-<span class="nc" id="L56">        this.setTitles(titles);</span>
-<span class="nc" id="L57">        Set&lt;String&gt; extraGroups = original.getExtraGroups();</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (extraGroups != null) {</span>
-<span class="nc" id="L59">            this.setExtraGroups(new TreeSet&lt;&gt;(extraGroups));</span>
+<span class="fc" id="L52">     public SeoPageMetadata(PageMetadata original) {</span>
+<span class="fc" id="L53">        this.setGroup(original.getGroup());</span>
+<span class="fc" id="L54">        ApsProperties titles = new ApsProperties();</span>
+<span class="fc" id="L55">        titles.putAll(original.getTitles());</span>
+<span class="fc" id="L56">        this.setTitles(titles);</span>
+<span class="fc" id="L57">        Set&lt;String&gt; extraGroups = original.getExtraGroups();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (extraGroups != null) {</span>
+<span class="fc" id="L59">            this.setExtraGroups(new TreeSet&lt;&gt;(extraGroups));</span>
         }
-<span class="nc" id="L61">        this.setModel(original.getModel());</span>
-<span class="nc" id="L62">        this.setShowable(original.isShowable());</span>
-<span class="nc" id="L63">        this.setUseExtraTitles(original.isUseExtraTitles());</span>
-<span class="nc" id="L64">        this.setMimeType(original.getMimeType());</span>
-<span class="nc" id="L65">        this.setCharset(original.getCharset());</span>
-<span class="nc" id="L66">        this.setUpdatedAt(original.getUpdatedAt());</span>
-<span class="nc" id="L67">    }</span>
+<span class="fc" id="L61">        this.setModel(original.getModel());</span>
+<span class="fc" id="L62">        this.setShowable(original.isShowable());</span>
+<span class="fc" id="L63">        this.setUseExtraTitles(original.isUseExtraTitles());</span>
+<span class="fc" id="L64">        this.setMimeType(original.getMimeType());</span>
+<span class="fc" id="L65">        this.setCharset(original.getCharset());</span>
+<span class="fc" id="L66">        this.setUpdatedAt(original.getUpdatedAt());</span>
+<span class="fc" id="L67">    }</span>
     
     @Override
     public SeoPageMetadata clone() {
-<span class="nc" id="L71">        SeoPageMetadata spm = (SeoPageMetadata) super.clone();</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (null != this.getDescriptions()) {</span>
-<span class="nc" id="L73">            spm.setDescriptions(this.getDescriptions().clone());</span>
+<span class="fc" id="L71">        SeoPageMetadata spm = (SeoPageMetadata) super.clone();</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (null != this.getDescriptions()) {</span>
+<span class="fc" id="L73">            spm.setDescriptions(this.getDescriptions().clone());</span>
         }
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (null != this.getKeywords()) {</span>
-<span class="nc" id="L76">            spm.setKeywords(this.getKeywords().clone());</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (null != this.getKeywords()) {</span>
+<span class="fc" id="L76">            spm.setKeywords(this.getKeywords().clone());</span>
         }
-<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (null != this.getFriendlyCodes()) {</span>
-<span class="nc" id="L79">            spm.setFriendlyCodes(this.getFriendlyCodes().clone());</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (null != this.getFriendlyCodes()) {</span>
+<span class="fc" id="L79">            spm.setFriendlyCodes(this.getFriendlyCodes().clone());</span>
         }
-<span class="nc" id="L81">        spm.setUseExtraDescriptions(this.isUseExtraDescriptions());</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (null != this.getComplexParameters()) {</span>
-<span class="nc" id="L83">            Map&lt;String, Map&lt;String, PageMetatag&gt;&gt; cloneComplex = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L84">            Iterator&lt;String&gt; iter = this.getComplexParameters().keySet().iterator();</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">            while (iter.hasNext()) {</span>
-<span class="nc" id="L86">                String key = iter.next();</span>
-<span class="nc" id="L87">                Map&lt;String, PageMetatag&gt; map = this.getComplexParameters().get(key);</span>
-<span class="nc" id="L88">                Map&lt;String, PageMetatag&gt; mapClone = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L89" title="All 4 branches missed.">                if (null != map &amp;&amp; !map.isEmpty()) {</span>
-<span class="nc" id="L90">                    Iterator&lt;String&gt; iter2 = map.keySet().iterator();</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">                    while (iter2.hasNext()) {</span>
-<span class="nc" id="L92">                        String mapKey = iter2.next();</span>
-<span class="nc" id="L93">                        PageMetatag origin = map.get(mapKey);</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">                        if (null != origin) {</span>
-<span class="nc" id="L95">                            mapClone.put(mapKey, origin.clone());</span>
+<span class="fc" id="L81">        spm.setUseExtraDescriptions(this.isUseExtraDescriptions());</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (null != this.getComplexParameters()) {</span>
+<span class="fc" id="L83">            Map&lt;String, Map&lt;String, PageMetatag&gt;&gt; cloneComplex = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L84">            Iterator&lt;String&gt; iter = this.getComplexParameters().keySet().iterator();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            while (iter.hasNext()) {</span>
+<span class="fc" id="L86">                String key = iter.next();</span>
+<span class="fc" id="L87">                Map&lt;String, PageMetatag&gt; map = this.getComplexParameters().get(key);</span>
+<span class="fc" id="L88">                Map&lt;String, PageMetatag&gt; mapClone = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L89" title="1 of 4 branches missed.">                if (null != map &amp;&amp; !map.isEmpty()) {</span>
+<span class="fc" id="L90">                    Iterator&lt;String&gt; iter2 = map.keySet().iterator();</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">                    while (iter2.hasNext()) {</span>
+<span class="fc" id="L92">                        String mapKey = iter2.next();</span>
+<span class="fc" id="L93">                        PageMetatag origin = map.get(mapKey);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                        if (null != origin) {</span>
+<span class="fc" id="L95">                            mapClone.put(mapKey, origin.clone());</span>
                         }
-<span class="nc" id="L97">                    }</span>
-<span class="nc" id="L98">                    cloneComplex.put(key, mapClone);</span>
+<span class="fc" id="L97">                    }</span>
+<span class="fc" id="L98">                    cloneComplex.put(key, mapClone);</span>
                 }
-<span class="nc" id="L100">            }</span>
-<span class="nc" id="L101">            spm.setComplexParameters(cloneComplex);</span>
+<span class="fc" id="L100">            }</span>
+<span class="fc" id="L101">            spm.setComplexParameters(cloneComplex);</span>
         }
-<span class="nc" id="L103">        return spm;</span>
+<span class="fc" id="L103">        return spm;</span>
     }
 
     public String getDescription(String langCode) {
 <span class="nc" id="L107">        return this.getDescriptions().getProperty(langCode);</span>
     }
     public ApsProperties getDescriptions() {
-<span class="nc" id="L110">        return descriptions;</span>
+<span class="fc" id="L110">        return descriptions;</span>
     }
     public void setDescriptions(ApsProperties descriptions) {
-<span class="nc" id="L113">        this.descriptions = descriptions;</span>
-<span class="nc" id="L114">    }</span>
+<span class="fc" id="L113">        this.descriptions = descriptions;</span>
+<span class="fc" id="L114">    }</span>
 
     public String getFriendlyCode(String langCode) {
-<span class="nc" id="L117">        return this.getFriendlyCodes().getProperty(langCode);</span>
+<span class="fc" id="L117">        return this.getFriendlyCodes().getProperty(langCode);</span>
     }
     public ApsProperties getFriendlyCodes() {
 <span class="fc" id="L120">        return friendlyCodes;</span>
     }
     public void setFriendlyCodes(ApsProperties friendlyCodes) {
-<span class="nc" id="L123">        this.friendlyCodes = friendlyCodes;</span>
-<span class="nc" id="L124">    }</span>
+<span class="fc" id="L123">        this.friendlyCodes = friendlyCodes;</span>
+<span class="fc" id="L124">    }</span>
 
     public ApsProperties getKeywords() {
-<span class="nc" id="L127">        return keywords;</span>
+<span class="fc" id="L127">        return keywords;</span>
     }
     public void setKeywords(ApsProperties keywords) {
-<span class="nc" id="L130">        this.keywords = keywords;</span>
-<span class="nc" id="L131">    }</span>
+<span class="fc" id="L130">        this.keywords = keywords;</span>
+<span class="fc" id="L131">    }</span>
     
     public boolean isUseExtraDescriptions() {
-<span class="nc" id="L134">        return useExtraDescriptions;</span>
+<span class="fc" id="L134">        return useExtraDescriptions;</span>
     }
     public void setUseExtraDescriptions(boolean useExtraDescriptions) {
-<span class="nc" id="L137">        this.useExtraDescriptions = useExtraDescriptions;</span>
-<span class="nc" id="L138">    }</span>
+<span class="fc" id="L137">        this.useExtraDescriptions = useExtraDescriptions;</span>
+<span class="fc" id="L138">    }</span>
 
 
     public Map&lt;String, Map&lt;String, PageMetatag&gt;&gt; getComplexParameters() {
-<span class="nc" id="L142">        return complexParameters;</span>
+<span class="fc" id="L142">        return complexParameters;</span>
     }
     public void setComplexParameters(Map&lt;String, Map&lt;String, PageMetatag&gt;&gt; complexParameters) {
-<span class="nc" id="L145">        this.complexParameters = complexParameters;</span>
-<span class="nc" id="L146">    }</span>
+<span class="fc" id="L145">        this.complexParameters = complexParameters;</span>
+<span class="fc" id="L146">    }</span>
 
     @Override
     public boolean hasEqualConfiguration(Object obj) {
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (this == obj) {</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (this == obj) {</span>
 <span class="nc" id="L151">            return true;</span>
         }
-<span class="nc" id="L153">        boolean check = super.hasEqualConfiguration(obj);</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (!check) {</span>
+<span class="fc" id="L153">        boolean check = super.hasEqualConfiguration(obj);</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (!check) {</span>
 <span class="nc" id="L155">            return check;</span>
         }
-<span class="nc" id="L157">        SeoPageMetadata other = (SeoPageMetadata) obj;</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (this.getFriendlyCodes() == null) {</span>
+<span class="fc" id="L157">        SeoPageMetadata other = (SeoPageMetadata) obj;</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        if (this.getFriendlyCodes() == null) {</span>
 <span class="nc bnc" id="L159" title="All 2 branches missed.">            if (other.getFriendlyCodes() != null) {</span>
 <span class="nc" id="L160">                return false;</span>
             }
         }
-<span class="nc bnc" id="L163" title="All 4 branches missed.">        if ((null != other.getComplexParameters() &amp;&amp; null == this.getComplexParameters())</span>
-<span class="nc bnc" id="L164" title="All 4 branches missed.">                || (null == other.getComplexParameters() &amp;&amp; null != this.getComplexParameters())</span>
-<span class="nc bnc" id="L165" title="All 6 branches missed.">                || (null != other.getComplexParameters() &amp;&amp; null != this.getComplexParameters()) &amp;&amp; !other.getComplexParameters().equals(this.getComplexParameters())) {</span>
+<span class="pc bpc" id="L163" title="1 of 4 branches missed.">        if ((null != other.getComplexParameters() &amp;&amp; null == this.getComplexParameters())</span>
+<span class="pc bpc" id="L164" title="1 of 4 branches missed.">                || (null == other.getComplexParameters() &amp;&amp; null != this.getComplexParameters())</span>
+<span class="pc bpc" id="L165" title="2 of 6 branches missed.">                || (null != other.getComplexParameters() &amp;&amp; null != this.getComplexParameters()) &amp;&amp; !other.getComplexParameters().equals(this.getComplexParameters())) {</span>
 <span class="nc" id="L166">            return false;</span>
         }
-<span class="nc bnc" id="L168" title="All 4 branches missed.">        if ((null != other.getDescriptions() &amp;&amp; null == this.getDescriptions())</span>
-<span class="nc bnc" id="L169" title="All 4 branches missed.">                || (null == other.getDescriptions() &amp;&amp; null != this.getDescriptions())</span>
-<span class="nc bnc" id="L170" title="All 6 branches missed.">                || (null != other.getDescriptions() &amp;&amp; null != this.getDescriptions()) &amp;&amp; !other.getDescriptions().equals(this.getDescriptions())) {</span>
+<span class="pc bpc" id="L168" title="2 of 4 branches missed.">        if ((null != other.getDescriptions() &amp;&amp; null == this.getDescriptions())</span>
+<span class="pc bpc" id="L169" title="3 of 4 branches missed.">                || (null == other.getDescriptions() &amp;&amp; null != this.getDescriptions())</span>
+<span class="pc bpc" id="L170" title="3 of 6 branches missed.">                || (null != other.getDescriptions() &amp;&amp; null != this.getDescriptions()) &amp;&amp; !other.getDescriptions().equals(this.getDescriptions())) {</span>
 <span class="nc" id="L171">            return false;</span>
         }
-<span class="nc bnc" id="L173" title="All 4 branches missed.">        if ((null != other.getKeywords() &amp;&amp; null == this.getKeywords())</span>
-<span class="nc bnc" id="L174" title="All 4 branches missed.">                || (null == other.getKeywords() &amp;&amp; null != this.getKeywords())</span>
-<span class="nc bnc" id="L175" title="All 6 branches missed.">                || (null != other.getKeywords() &amp;&amp; null != this.getKeywords()) &amp;&amp; !other.getKeywords().equals(this.getKeywords())) {</span>
+<span class="pc bpc" id="L173" title="2 of 4 branches missed.">        if ((null != other.getKeywords() &amp;&amp; null == this.getKeywords())</span>
+<span class="pc bpc" id="L174" title="3 of 4 branches missed.">                || (null == other.getKeywords() &amp;&amp; null != this.getKeywords())</span>
+<span class="pc bpc" id="L175" title="3 of 6 branches missed.">                || (null != other.getKeywords() &amp;&amp; null != this.getKeywords()) &amp;&amp; !other.getKeywords().equals(this.getKeywords())) {</span>
 <span class="nc" id="L176">            return false;</span>
         }
-<span class="nc bnc" id="L178" title="All 4 branches missed.">        if ((null != other.getFriendlyCodes() &amp;&amp; null == this.getFriendlyCodes())</span>
-<span class="nc bnc" id="L179" title="All 4 branches missed.">                || (null == other.getFriendlyCodes() &amp;&amp; null != this.getFriendlyCodes())</span>
-<span class="nc bnc" id="L180" title="All 6 branches missed.">                || (null != other.getFriendlyCodes() &amp;&amp; null != this.getFriendlyCodes()) &amp;&amp; !other.getFriendlyCodes().equals(this.getFriendlyCodes())) {</span>
-<span class="nc" id="L181">            return false;</span>
+<span class="pc bpc" id="L178" title="2 of 4 branches missed.">        if ((null != other.getFriendlyCodes() &amp;&amp; null == this.getFriendlyCodes())</span>
+<span class="pc bpc" id="L179" title="3 of 4 branches missed.">                || (null == other.getFriendlyCodes() &amp;&amp; null != this.getFriendlyCodes())</span>
+<span class="pc bpc" id="L180" title="2 of 6 branches missed.">                || (null != other.getFriendlyCodes() &amp;&amp; null != this.getFriendlyCodes()) &amp;&amp; !other.getFriendlyCodes().equals(this.getFriendlyCodes())) {</span>
+<span class="fc" id="L181">            return false;</span>
         }
-<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (other.isUseExtraDescriptions() != this.isUseExtraDescriptions()) {</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">        if (other.isUseExtraDescriptions() != this.isUseExtraDescriptions()) {</span>
 <span class="nc" id="L184">            return false;</span>
         }
-<span class="nc" id="L186">        return true;</span>
+<span class="fc" id="L186">        return true;</span>
     }
 
 }

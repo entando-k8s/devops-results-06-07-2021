@@ -38,40 +38,40 @@ import org.entando.entando.plugins.jpseo.aps.system.services.page.SeoPageMetadat
 /**
  * @author E.Santoboni
  */
-<span class="nc" id="L41">public class URLManager extends com.agiletec.aps.system.services.url.URLManager {</span>
+<span class="fc" id="L41">public class URLManager extends com.agiletec.aps.system.services.url.URLManager {</span>
 
-<span class="nc" id="L43">	private static final EntLogger _logger =  EntLogFactory.getSanitizedLogger(URLManager.class);</span>
+<span class="fc" id="L43">	private static final EntLogger _logger =  EntLogFactory.getSanitizedLogger(URLManager.class);</span>
 
 	private ISeoMappingManager seoMappingManager;
 	private IContentManager contentManager;
 
 	@Override
 	public PageURL createURL(RequestContext reqCtx) {
-<span class="nc" id="L50">		return new PageURL(this, reqCtx);</span>
+<span class="fc" id="L50">		return new PageURL(this, reqCtx);</span>
 	}
 
 	@Override
 	public String getURLString(com.agiletec.aps.system.services.url.PageURL pageUrl, RequestContext reqCtx) {
 		try {
-<span class="nc bnc" id="L56" title="All 2 branches missed.">			if (!(pageUrl instanceof PageURL)) {</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">			if (!(pageUrl instanceof PageURL)) {</span>
 <span class="nc" id="L57">				return super.getURLString(pageUrl, reqCtx);</span>
 			}
-<span class="nc" id="L59">			Lang lang = this.extractLang(pageUrl, reqCtx);</span>
-<span class="nc" id="L60">			IPage destPage = this.extractDestPage(pageUrl, reqCtx);</span>
-<span class="nc" id="L61">			String friendlyCode = ((PageURL) pageUrl).getFriendlyCode();</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">			if (StringUtils.isBlank(friendlyCode)) {</span>
-<span class="nc" id="L63">				friendlyCode = this.extractFriendlyCode(destPage, lang, pageUrl);</span>
+<span class="fc" id="L59">			Lang lang = this.extractLang(pageUrl, reqCtx);</span>
+<span class="fc" id="L60">			IPage destPage = this.extractDestPage(pageUrl, reqCtx);</span>
+<span class="fc" id="L61">			String friendlyCode = ((PageURL) pageUrl).getFriendlyCode();</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">			if (StringUtils.isBlank(friendlyCode)) {</span>
+<span class="fc" id="L63">				friendlyCode = this.extractFriendlyCode(destPage, lang, pageUrl);</span>
 			}
-<span class="nc bnc" id="L65" title="All 2 branches missed.">			HttpServletRequest request = (null != reqCtx) ? reqCtx.getRequest() : null;</span>
-<span class="nc" id="L66">			String url = null;</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">			if (StringUtils.isBlank(friendlyCode)) {</span>
-<span class="nc" id="L68">				url = super.createURL(destPage, lang, pageUrl.getParams(), pageUrl.isEscapeAmp(), pageUrl.getBaseUrlMode(), request);</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">			HttpServletRequest request = (null != reqCtx) ? reqCtx.getRequest() : null;</span>
+<span class="fc" id="L66">			String url = null;</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">			if (StringUtils.isBlank(friendlyCode)) {</span>
+<span class="fc" id="L68">				url = super.createURL(destPage, lang, pageUrl.getParams(), pageUrl.isEscapeAmp(), pageUrl.getBaseUrlMode(), request);</span>
 			} else {
 <span class="nc" id="L70">				url = this.createFriendlyUrl(friendlyCode, lang, pageUrl.getParams(), pageUrl.isEscapeAmp(), pageUrl.getBaseUrlMode(), request);</span>
 			}
-<span class="nc bnc" id="L72" title="All 6 branches missed.">			if (null != reqCtx &amp;&amp; null != reqCtx.getResponse() &amp;&amp; this.useJsessionId()) {</span>
-<span class="nc" id="L73">				HttpServletResponse resp = reqCtx.getResponse();</span>
-<span class="nc" id="L74">				return resp.encodeURL(url.toString());</span>
+<span class="pc bpc" id="L72" title="3 of 6 branches missed.">			if (null != reqCtx &amp;&amp; null != reqCtx.getResponse() &amp;&amp; this.useJsessionId()) {</span>
+<span class="fc" id="L73">				HttpServletResponse resp = reqCtx.getResponse();</span>
+<span class="fc" id="L74">				return resp.encodeURL(url.toString());</span>
 			} else {
 <span class="nc" id="L76">				return url;</span>
 			}
@@ -82,49 +82,49 @@ import org.entando.entando.plugins.jpseo.aps.system.services.page.SeoPageMetadat
 	}
 
 	private Lang extractLang(com.agiletec.aps.system.services.url.PageURL pageUrl, RequestContext reqCtx) {
-<span class="nc" id="L85">		String langCode = pageUrl.getLangCode();</span>
-<span class="nc" id="L86">		Lang lang = this.getLangManager().getLang(langCode);</span>
-<span class="nc bnc" id="L87" title="All 4 branches missed.">		if (lang == null &amp;&amp; null != reqCtx) {</span>
-<span class="nc" id="L88">			lang = (Lang) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_LANG);</span>
+<span class="fc" id="L85">		String langCode = pageUrl.getLangCode();</span>
+<span class="fc" id="L86">		Lang lang = this.getLangManager().getLang(langCode);</span>
+<span class="pc bpc" id="L87" title="2 of 4 branches missed.">		if (lang == null &amp;&amp; null != reqCtx) {</span>
+<span class="fc" id="L88">			lang = (Lang) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_LANG);</span>
 		}
-<span class="nc bnc" id="L90" title="All 2 branches missed.">		if (lang == null) {</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		if (lang == null) {</span>
 <span class="nc" id="L91">			lang = this.getLangManager().getDefaultLang();</span>
 		}
-<span class="nc" id="L93">		return lang;</span>
+<span class="fc" id="L93">		return lang;</span>
 	}
 
 	private IPage extractDestPage(com.agiletec.aps.system.services.url.PageURL pageUrl, RequestContext reqCtx) {
-<span class="nc" id="L97">		String pageCode = pageUrl.getPageCode();</span>
-<span class="nc" id="L98">		IPage page = this.getPageManager().getOnlinePage(pageCode);</span>
-<span class="nc bnc" id="L99" title="All 4 branches missed.">		if (page == null &amp;&amp; null != reqCtx) {</span>
+<span class="fc" id="L97">		String pageCode = pageUrl.getPageCode();</span>
+<span class="fc" id="L98">		IPage page = this.getPageManager().getOnlinePage(pageCode);</span>
+<span class="pc bpc" id="L99" title="3 of 4 branches missed.">		if (page == null &amp;&amp; null != reqCtx) {</span>
 <span class="nc" id="L100">			page = (IPage) reqCtx.getExtraParam(SystemConstants.EXTRAPAR_CURRENT_PAGE);</span>
 		}
-<span class="nc bnc" id="L102" title="All 2 branches missed.">		if (page == null) {</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">		if (page == null) {</span>
 <span class="nc" id="L103">			page = this.getPageManager().getOnlineRoot();</span>
 		}
-<span class="nc" id="L105">		return page;</span>
+<span class="fc" id="L105">		return page;</span>
 	}
 
 	private String extractFriendlyCode(IPage destPage, Lang lang, com.agiletec.aps.system.services.url.PageURL pageUrl) {
-<span class="nc" id="L109">		Map params = pageUrl.getParams();</span>
-<span class="nc" id="L110">		return this.extractFriendlyCode(destPage, lang, params);</span>
+<span class="fc" id="L109">		Map params = pageUrl.getParams();</span>
+<span class="fc" id="L110">		return this.extractFriendlyCode(destPage, lang, params);</span>
 	}
 
 	private String extractFriendlyCode(IPage destPage, Lang lang, Map params) {
-<span class="nc" id="L114">		String friendlyCode = null;</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">		if (params != null) {</span>
-<span class="nc" id="L116">			String contentId = (String) params.get(&quot;contentId&quot;);</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">			if (contentId!=null) {</span>
+<span class="fc" id="L114">		String friendlyCode = null;</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">		if (params != null) {</span>
+<span class="fc" id="L116">			String contentId = (String) params.get(&quot;contentId&quot;);</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">			if (contentId!=null) {</span>
 <span class="nc" id="L118">				String viewPageCode = this.getContentManager().getViewPage(contentId);</span>
 <span class="nc bnc" id="L119" title="All 2 branches missed.">				if (destPage.getCode().equals(viewPageCode)) {</span>
 <span class="nc" id="L120">					friendlyCode = this.getSeoMappingManager().getContentReference(contentId, lang.getCode());</span>
 				}
 			}
 		}
-<span class="nc bnc" id="L124" title="All 4 branches missed.">		if (friendlyCode==null &amp;&amp; destPage.getMetadata() instanceof SeoPageMetadata) {</span>
-<span class="nc" id="L125">			friendlyCode = ((SeoPageMetadata) destPage.getMetadata()).getFriendlyCode(lang.getCode());</span>
+<span class="pc bpc" id="L124" title="2 of 4 branches missed.">		if (friendlyCode==null &amp;&amp; destPage.getMetadata() instanceof SeoPageMetadata) {</span>
+<span class="fc" id="L125">			friendlyCode = ((SeoPageMetadata) destPage.getMetadata()).getFriendlyCode(lang.getCode());</span>
 		}
-<span class="nc" id="L127">		return friendlyCode;</span>
+<span class="fc" id="L127">		return friendlyCode;</span>
 	}
 
 	@Override
@@ -173,15 +173,15 @@ import org.entando.entando.plugins.jpseo.aps.system.services.page.SeoPageMetadat
 <span class="nc" id="L173">		return seoMappingManager;</span>
 	}
 	public void setSeoMappingManager(ISeoMappingManager seoMappingManager) {
-<span class="nc" id="L176">		this.seoMappingManager = seoMappingManager;</span>
-<span class="nc" id="L177">	}</span>
+<span class="fc" id="L176">		this.seoMappingManager = seoMappingManager;</span>
+<span class="fc" id="L177">	}</span>
 
 	protected IContentManager getContentManager() {
 <span class="nc" id="L180">		return contentManager;</span>
 	}
 	public void setContentManager(IContentManager contentManager) {
-<span class="nc" id="L183">		this.contentManager = contentManager;</span>
-<span class="nc" id="L184">	}</span>
+<span class="fc" id="L183">		this.contentManager = contentManager;</span>
+<span class="fc" id="L184">	}</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
