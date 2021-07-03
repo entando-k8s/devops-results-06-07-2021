@@ -79,8 +79,8 @@ import org.xml.sax.SAXException;
         List&lt;Long&gt; contentVersions;
         try {
 <span class="fc" id="L81">            contentVersions = versioningManager.getVersions(contentId);</span>
-<span class="pc bpc" id="L82" title="1 of 2 branches missed.">            if (contentVersions == null) {</span>
-<span class="nc" id="L83">                contentVersions = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (contentVersions == null) {</span>
+<span class="fc" id="L83">                contentVersions = new ArrayList&lt;&gt;();</span>
             } else {
 <span class="fc" id="L85">                contentVersionDTOs = requestList.getSublist(contentVersions).stream()</span>
 <span class="fc" id="L86">                        .map(cv -&gt; mapContentVersionToDTO(getContentVersion(cv)))</span>
@@ -99,20 +99,20 @@ import org.xml.sax.SAXException;
     public PagedMetadata&lt;ContentVersionDTO&gt; getLatestVersions(RestListRequest requestList) {
 
         try {
-<span class="nc" id="L102">            logger.debug(&quot;GET getLatestVersions with req {}&quot;, requestList);</span>
+<span class="fc" id="L102">            logger.debug(&quot;GET getLatestVersions with req {}&quot;, requestList);</span>
 
-<span class="nc" id="L104">            String contentType = extractAttributeValue(requestList.getFilters(), &quot;contentType&quot;);</span>
-<span class="nc" id="L105">            String description = extractAttributeValue(requestList.getFilters(), &quot;description&quot;);</span>
+<span class="fc" id="L104">            String contentType = extractAttributeValue(requestList.getFilters(), &quot;contentType&quot;);</span>
+<span class="fc" id="L105">            String description = extractAttributeValue(requestList.getFilters(), &quot;description&quot;);</span>
 
-<span class="nc" id="L107">            List&lt;ContentVersionDTO&gt; result = versioningManager.getLastVersions(contentType, description).stream()</span>
-<span class="nc" id="L108">                    .map(v -&gt; mapContentVersionToDTO(getContentVersion(v))).collect(</span>
-<span class="nc" id="L109">                            Collectors.toList());</span>
+<span class="fc" id="L107">            List&lt;ContentVersionDTO&gt; result = versioningManager.getLastVersions(contentType, description).stream()</span>
+<span class="fc" id="L108">                    .map(v -&gt; mapContentVersionToDTO(getContentVersion(v))).collect(</span>
+<span class="fc" id="L109">                            Collectors.toList());</span>
 
-<span class="nc" id="L111">            final List&lt;ContentVersionDTO&gt; sublist = requestList.getSublist(result);</span>
-<span class="nc" id="L112">            PagedMetadata&lt;ContentVersionDTO&gt; pagedResults = new PagedMetadata&lt;&gt;(requestList, result.size());</span>
-<span class="nc" id="L113">            pagedResults.setBody(sublist);</span>
+<span class="fc" id="L111">            final List&lt;ContentVersionDTO&gt; sublist = requestList.getSublist(result);</span>
+<span class="fc" id="L112">            PagedMetadata&lt;ContentVersionDTO&gt; pagedResults = new PagedMetadata&lt;&gt;(requestList, result.size());</span>
+<span class="fc" id="L113">            pagedResults.setBody(sublist);</span>
 
-<span class="nc" id="L115">            return pagedResults;</span>
+<span class="fc" id="L115">            return pagedResults;</span>
 <span class="nc" id="L116">        } catch (EntException e) {</span>
 <span class="nc" id="L117">            logger.error(&quot;Error while getting latest versions for request {}&quot;, requestList, e);</span>
 <span class="nc" id="L118">            throw new RestServerError(String.format(&quot;Error while getting content versions for request %s&quot;, requestList),</span>
@@ -121,14 +121,14 @@ import org.xml.sax.SAXException;
     }
 
     private String extractAttributeValue(Filter[] filters, String attributeName) {
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (filters != null) {</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">            for (Filter filter : filters) {</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">                if (filter.getAttribute().equals(attributeName)) {</span>
-<span class="nc" id="L127">                    return filter.getValue();</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (filters != null) {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            for (Filter filter : filters) {</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">                if (filter.getAttribute().equals(attributeName)) {</span>
+<span class="fc" id="L127">                    return filter.getValue();</span>
                 }
             }
         }
-<span class="nc" id="L131">        return null;</span>
+<span class="fc" id="L131">        return null;</span>
     }
 
     public ContentVersion getContentVersion(Long versionId) {
@@ -204,13 +204,13 @@ import org.xml.sax.SAXException;
 
     public void delete(Long versionId) {
         try {
-<span class="nc" id="L207">            versioningManager.deleteVersion(versionId);</span>
+<span class="fc" id="L207">            versioningManager.deleteVersion(versionId);</span>
 <span class="nc" id="L208">        } catch (Exception e) {</span>
 <span class="nc" id="L209">            logger.error(&quot;Error deleting version &quot; + versionId, e);</span>
 <span class="nc" id="L210">            throw new RestServerError(</span>
 <span class="nc" id="L211">                    String.format(&quot;Error deleting version for content with version %s&quot;, versionId), e);</span>
-<span class="nc" id="L212">        }</span>
-<span class="nc" id="L213">    }</span>
+<span class="fc" id="L212">        }</span>
+<span class="fc" id="L213">    }</span>
 
     private List&lt;String&gt; getArchivedResourcesId(List&lt;String&gt; resourceIds) {
 <span class="fc" id="L216">        List&lt;String&gt; archivedResources = null;</span>
