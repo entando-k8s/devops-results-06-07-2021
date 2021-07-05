@@ -1,0 +1,26 @@
+---
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  annotations:
+    entando.org/my-app-server-path: "/entando-de-app"
+  labels:
+    EntandoApp: "my-app"
+  name: "my-app-ingress"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "8ea96b44-7311-46a7-89cc-0504f478928a"
+spec:
+  rules:
+  - host: "my-app-my-namespace.apps.serv.run"
+    http:
+      paths:
+      - backend:
+          serviceName: "my-app-service"
+          servicePort: 8080
+        path: "/entando-de-app"
