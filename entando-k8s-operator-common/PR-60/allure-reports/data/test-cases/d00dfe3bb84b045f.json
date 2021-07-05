@@ -1,0 +1,1205 @@
+{
+  "uid" : "d00dfe3bb84b045f",
+  "name" : "dbawareDeploymentFailsWhenDatabasePreparationFailed()",
+  "fullName" : "org.entando.kubernetes.controller.DatabaseConsumerTest.dbawareDeploymentFailsWhenDatabasePreparationFailed",
+  "historyId" : "2b2e9b08957bf8e0a53be4d1c0882513",
+  "time" : {
+    "start" : 1625493979197,
+    "stop" : 1625493980055,
+    "duration" : 858
+  },
+  "description" : "Should track failure when the database preparation Pod failed on the status of the EntandoCustomResource and NOT create a deployment",
+  "descriptionHtml" : "<p>Should track failure when the database preparation Pod failed on the status of the EntandoCustomResource and NOT create a deployment</p>\n",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ {
+    "name" : "beforeEach",
+    "time" : {
+      "start" : 1625493979199,
+      "stop" : 1625493979225,
+      "duration" : 26
+    },
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "Given I have registered a CustomResourceDefinition for the resource kind 'TestResource'",
+      "time" : {
+        "start" : 1625493979199,
+        "stop" : 1625493979225,
+        "duration" : 26
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    } ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 1,
+    "attachmentsCount" : 0,
+    "shouldDisplayMessage" : false,
+    "hasContent" : true
+  } ],
+  "testStage" : {
+    "description" : "Should track failure when the database preparation Pod failed on the status of the EntandoCustomResource and NOT create a deployment",
+    "status" : "passed",
+    "steps" : [ {
+      "name" : "Given I have a basic Deployable",
+      "time" : {
+        "start" : 1625493979226,
+        "stop" : 1625493979226,
+        "duration" : 0
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    }, {
+      "name" : "Given I have a basic DbAwareDeployable",
+      "time" : {
+        "start" : 1625493979226,
+        "stop" : 1625493979230,
+        "duration" : 4
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "ed8b3b02abf009dc",
+        "name" : "Deployable",
+        "source" : "ed8b3b02abf009dc.txt",
+        "type" : "text/plain",
+        "size" : 202
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And I have a custom resource of kind TestResource with name 'my-app'",
+      "time" : {
+        "start" : 1625493979230,
+        "stop" : 1625493979234,
+        "duration" : 4
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "1abc0eb41fd1b312",
+        "name" : "TestResource",
+        "source" : "1abc0eb41fd1b312.txt",
+        "type" : "text/plain",
+        "size" : 189
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And I have requested a requirement for a Database capability",
+      "time" : {
+        "start" : 1625493979235,
+        "stop" : 1625493979235,
+        "duration" : 0
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    }, {
+      "name" : "and a basic DbAwareContainer using the image 'test/my-spring-boot-image:6.3.2'",
+      "time" : {
+        "start" : 1625493979235,
+        "stop" : 1625493979238,
+        "duration" : 3
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "6cf521d530b869b",
+        "name" : "Container",
+        "source" : "6cf521d530b869b.txt",
+        "type" : "text/plain",
+        "size" : 474
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And there is a controller to process requests for the DBMS capability requested",
+      "time" : {
+        "start" : 1625493979238,
+        "stop" : 1625493979239,
+        "duration" : 1
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    }, {
+      "name" : "But the database preparation pod is going to fail",
+      "time" : {
+        "start" : 1625493979239,
+        "stop" : 1625493979248,
+        "duration" : 9
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    }, {
+      "name" : "When the controller processes a new TestResource",
+      "time" : {
+        "start" : 1625493979249,
+        "stop" : 1625493979965,
+        "duration" : 716
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "Executing command PROVIDE_CAPABILITY",
+        "time" : {
+          "start" : 1625493979282,
+          "stop" : 1625493979561,
+          "duration" : 279
+        },
+        "status" : "passed",
+        "steps" : [ {
+          "name" : "with the DBMS service 'default-postgresql-dbms-in-namespace-service'",
+          "time" : {
+            "start" : 1625493979512,
+            "stop" : 1625493979520,
+            "duration" : 8
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "7c67983946d1ee06",
+            "name" : "DBMS Service",
+            "source" : "7c67983946d1ee06.txt",
+            "type" : "text/plain",
+            "size" : 186
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "and the admin secret 'default-postgresql-dbms-in-namespace-admin-secret'",
+          "time" : {
+            "start" : 1625493979521,
+            "stop" : 1625493979525,
+            "duration" : 4
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "b2b68939e7c7772b",
+            "name" : "Admin Secret",
+            "source" : "b2b68939e7c7772b.txt",
+            "type" : "text/plain",
+            "size" : 190
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        } ],
+        "attachments" : [ {
+          "uid" : "d616d19631c89524",
+          "name" : "Required Capability",
+          "source" : "d616d19631c89524.txt",
+          "type" : "text/plain",
+          "size" : 361
+        }, {
+          "uid" : "6ff53aa8a15aadbc",
+          "name" : "Provided Capability",
+          "source" : "6ff53aa8a15aadbc.txt",
+          "type" : "text/plain",
+          "size" : 591
+        } ],
+        "parameters" : [ ],
+        "stepsCount" : 2,
+        "attachmentsCount" : 4,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      }, {
+        "name" : "Executing command PROCESS_DEPLOYABLE",
+        "time" : {
+          "start" : 1625493979582,
+          "stop" : 1625493979703,
+          "duration" : 121
+        },
+        "status" : "passed",
+        "steps" : [ ],
+        "attachments" : [ {
+          "uid" : "e07973d5c1e4e26b",
+          "name" : "Input Deployable",
+          "source" : "e07973d5c1e4e26b.txt",
+          "type" : "text/plain",
+          "size" : 3893
+        }, {
+          "uid" : "9f9e9257057c781f",
+          "name" : "Ouput DeploymentResult",
+          "source" : "9f9e9257057c781f.txt",
+          "type" : "text/plain",
+          "size" : 1764
+        } ],
+        "parameters" : [ ],
+        "stepsCount" : 0,
+        "attachmentsCount" : 2,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      } ],
+      "attachments" : [ {
+        "uid" : "9f579e12a6f86a10",
+        "name" : "TestResource",
+        "source" : "9f579e12a6f86a10.txt",
+        "type" : "text/plain",
+        "size" : 189
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 4,
+      "attachmentsCount" : 7,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "Then no Deployment was created reflecting the name of the TestResource and the suffix 'deployment'",
+      "time" : {
+        "start" : 1625493979967,
+        "stop" : 1625493979969,
+        "duration" : 2
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ {
+        "uid" : "10381242c7ac93cf",
+        "name" : "Deployment",
+        "source" : "10381242c7ac93cf.txt",
+        "type" : "text/plain",
+        "size" : 9
+      } ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 1,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    }, {
+      "name" : "And the controller throws a CommandLine.ExecutionException",
+      "time" : {
+        "start" : 1625493979969,
+        "stop" : 1625493979969,
+        "duration" : 0
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    }, {
+      "name" : "And the status on the TestResource indicates that the deployment has failed and makes some diagnostic info available",
+      "time" : {
+        "start" : 1625493979969,
+        "stop" : 1625493979971,
+        "duration" : 2
+      },
+      "status" : "passed",
+      "steps" : [ ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 0,
+      "attachmentsCount" : 0,
+      "shouldDisplayMessage" : false,
+      "hasContent" : false
+    }, {
+      "name" : "Resulting state changes in the Kubernetes cluster",
+      "time" : {
+        "start" : 1625493979971,
+        "stop" : 1625493980054,
+        "duration" : 83
+      },
+      "status" : "passed",
+      "steps" : [ {
+        "name" : "my-namespace",
+        "time" : {
+          "start" : 1625493979971,
+          "stop" : 1625493980041,
+          "duration" : 70
+        },
+        "status" : "passed",
+        "steps" : [ {
+          "name" : "ingresses",
+          "time" : {
+            "start" : 1625493979971,
+            "stop" : 1625493979971,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "serviceAccounts",
+          "time" : {
+            "start" : 1625493979971,
+            "stop" : 1625493979974,
+            "duration" : 3
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "8132a17fcc54bf8e",
+            "name" : "default",
+            "source" : "8132a17fcc54bf8e.txt",
+            "type" : "text/plain",
+            "size" : 100
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "roleBinding",
+          "time" : {
+            "start" : 1625493979974,
+            "stop" : 1625493979985,
+            "duration" : 11
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "c6125ae696bdb525",
+            "name" : "default-rolebinding",
+            "source" : "c6125ae696bdb525.txt",
+            "type" : "text/plain",
+            "size" : 230
+          }, {
+            "uid" : "43f39dde310693cf",
+            "name" : "default-pod-viewer",
+            "source" : "43f39dde310693cf.txt",
+            "type" : "text/plain",
+            "size" : 239
+          }, {
+            "uid" : "b62aaea9b21d0da1",
+            "name" : "default-entando-editor",
+            "source" : "b62aaea9b21d0da1.txt",
+            "type" : "text/plain",
+            "size" : 247
+          }, {
+            "uid" : "9dea8fd379ff84de",
+            "name" : "default-ingress-viewer",
+            "source" : "9dea8fd379ff84de.txt",
+            "type" : "text/plain",
+            "size" : 247
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 4,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "endpointsMap",
+          "time" : {
+            "start" : 1625493979985,
+            "stop" : 1625493979985,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "roles",
+          "time" : {
+            "start" : 1625493979986,
+            "stop" : 1625493979988,
+            "duration" : 2
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "d6627603a7bfa0e1",
+            "name" : "default",
+            "source" : "d6627603a7bfa0e1.txt",
+            "type" : "text/plain",
+            "size" : 98
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "services",
+          "time" : {
+            "start" : 1625493979988,
+            "stop" : 1625493979991,
+            "duration" : 3
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "40c013fbbe02c19e",
+            "name" : "default-postgresql-dbms-in-namespace-service",
+            "source" : "40c013fbbe02c19e.txt",
+            "type" : "text/plain",
+            "size" : 186
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "TestResource",
+          "time" : {
+            "start" : 1625493979991,
+            "stop" : 1625493979996,
+            "duration" : 5
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "c2c2f2a0af90b379",
+            "name" : "my-app",
+            "source" : "c2c2f2a0af90b379.txt",
+            "type" : "text/plain",
+            "size" : 2166
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "secrets",
+          "time" : {
+            "start" : 1625493979996,
+            "stop" : 1625493980000,
+            "duration" : 4
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "cb220dfe09521c06",
+            "name" : "default-postgresql-dbms-in-namespace-admin-secret",
+            "source" : "cb220dfe09521c06.txt",
+            "type" : "text/plain",
+            "size" : 190
+          }, {
+            "uid" : "7a163800e0bd6a62",
+            "name" : "my-app-server-secret",
+            "source" : "7a163800e0bd6a62.txt",
+            "type" : "text/plain",
+            "size" : 328
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 2,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "deployments",
+          "time" : {
+            "start" : 1625493980000,
+            "stop" : 1625493980000,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "configMaps",
+          "time" : {
+            "start" : 1625493980000,
+            "stop" : 1625493980000,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "ProvidedCapability",
+          "time" : {
+            "start" : 1625493980000,
+            "stop" : 1625493980005,
+            "duration" : 5
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "724cfa8826c0bd0f",
+            "name" : "default-postgresql-dbms-in-namespace",
+            "source" : "724cfa8826c0bd0f.txt",
+            "type" : "text/plain",
+            "size" : 1409
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "pods",
+          "time" : {
+            "start" : 1625493980005,
+            "stop" : 1625493980014,
+            "duration" : 9
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "c41a9031e6e8250e",
+            "name" : "my-app-dbprep-c9a4",
+            "source" : "c41a9031e6e8250e.txt",
+            "type" : "text/plain",
+            "size" : 2866
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "persistentVolumeClaims",
+          "time" : {
+            "start" : 1625493980014,
+            "stop" : 1625493980018,
+            "duration" : 4
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "369fadcdcff91223",
+            "name" : "my-app-server-pvc",
+            "source" : "369fadcdcff91223.txt",
+            "type" : "text/plain",
+            "size" : 577
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "events",
+          "time" : {
+            "start" : 1625493980018,
+            "stop" : 1625493980041,
+            "duration" : 23
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "c559c354deb2e103",
+            "name" : "default-postgresql-dbms-in-namespace-65632374",
+            "source" : "c559c354deb2e103.txt",
+            "type" : "text/plain",
+            "size" : 1334
+          }, {
+            "uid" : "29cf1861d07a14c",
+            "name" : "my-app-16348635",
+            "source" : "29cf1861d07a14c.txt",
+            "type" : "text/plain",
+            "size" : 910
+          }, {
+            "uid" : "f58b98d93f5f23f3",
+            "name" : "default-postgresql-dbms-in-namespace-98398975",
+            "source" : "f58b98d93f5f23f3.txt",
+            "type" : "text/plain",
+            "size" : 1241
+          }, {
+            "uid" : "fa78366b022c861d",
+            "name" : "my-app-49613947",
+            "source" : "fa78366b022c861d.txt",
+            "type" : "text/plain",
+            "size" : 1011
+          }, {
+            "uid" : "505647332a214fe6",
+            "name" : "my-app-46245249",
+            "source" : "505647332a214fe6.txt",
+            "type" : "text/plain",
+            "size" : 1223
+          }, {
+            "uid" : "61d8a03c8a29f0d0",
+            "name" : "my-app-19252024",
+            "source" : "61d8a03c8a29f0d0.txt",
+            "type" : "text/plain",
+            "size" : 906
+          }, {
+            "uid" : "7311e0b2b744b75d",
+            "name" : "my-app-64836249",
+            "source" : "7311e0b2b744b75d.txt",
+            "type" : "text/plain",
+            "size" : 1011
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 7,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        } ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 14,
+        "attachmentsCount" : 20,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      }, {
+        "name" : "entando",
+        "time" : {
+          "start" : 1625493980042,
+          "stop" : 1625493980042,
+          "duration" : 0
+        },
+        "status" : "passed",
+        "steps" : [ {
+          "name" : "ingresses",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "serviceAccounts",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "roleBinding",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "endpointsMap",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "roles",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "services",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "secrets",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "deployments",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "configMaps",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "pods",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "persistentVolumeClaims",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "events",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980042,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        } ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 12,
+        "attachmentsCount" : 0,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      }, {
+        "name" : "ClusterScopedResource",
+        "time" : {
+          "start" : 1625493980042,
+          "stop" : 1625493980052,
+          "duration" : 10
+        },
+        "status" : "passed",
+        "steps" : [ {
+          "name" : "customResourceDefinitions",
+          "time" : {
+            "start" : 1625493980042,
+            "stop" : 1625493980052,
+            "duration" : 10
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "c3f1d2bfdb4b206",
+            "name" : "testresources.test.org",
+            "source" : "c3f1d2bfdb4b206.txt",
+            "type" : "text/plain",
+            "size" : 1141
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        } ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 1,
+        "attachmentsCount" : 1,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      }, {
+        "name" : "controller-namespace",
+        "time" : {
+          "start" : 1625493980052,
+          "stop" : 1625493980054,
+          "duration" : 2
+        },
+        "status" : "passed",
+        "steps" : [ {
+          "name" : "ingresses",
+          "time" : {
+            "start" : 1625493980052,
+            "stop" : 1625493980052,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "serviceAccounts",
+          "time" : {
+            "start" : 1625493980052,
+            "stop" : 1625493980052,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "roleBinding",
+          "time" : {
+            "start" : 1625493980052,
+            "stop" : 1625493980052,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "endpointsMap",
+          "time" : {
+            "start" : 1625493980052,
+            "stop" : 1625493980052,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "roles",
+          "time" : {
+            "start" : 1625493980052,
+            "stop" : 1625493980052,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "services",
+          "time" : {
+            "start" : 1625493980052,
+            "stop" : 1625493980052,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "secrets",
+          "time" : {
+            "start" : 1625493980052,
+            "stop" : 1625493980052,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "deployments",
+          "time" : {
+            "start" : 1625493980052,
+            "stop" : 1625493980052,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "configMaps",
+          "time" : {
+            "start" : 1625493980052,
+            "stop" : 1625493980054,
+            "duration" : 2
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ {
+            "uid" : "a90e4b9b4c1669d3",
+            "name" : "entando-crd-names",
+            "source" : "a90e4b9b4c1669d3.txt",
+            "type" : "text/plain",
+            "size" : 260
+          } ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 1,
+          "shouldDisplayMessage" : false,
+          "hasContent" : true
+        }, {
+          "name" : "pods",
+          "time" : {
+            "start" : 1625493980054,
+            "stop" : 1625493980054,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "persistentVolumeClaims",
+          "time" : {
+            "start" : 1625493980054,
+            "stop" : 1625493980054,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        }, {
+          "name" : "events",
+          "time" : {
+            "start" : 1625493980054,
+            "stop" : 1625493980054,
+            "duration" : 0
+          },
+          "status" : "passed",
+          "steps" : [ ],
+          "attachments" : [ ],
+          "parameters" : [ ],
+          "stepsCount" : 0,
+          "attachmentsCount" : 0,
+          "shouldDisplayMessage" : false,
+          "hasContent" : false
+        } ],
+        "attachments" : [ ],
+        "parameters" : [ ],
+        "stepsCount" : 12,
+        "attachmentsCount" : 1,
+        "shouldDisplayMessage" : false,
+        "hasContent" : true
+      } ],
+      "attachments" : [ ],
+      "parameters" : [ ],
+      "stepsCount" : 43,
+      "attachmentsCount" : 22,
+      "shouldDisplayMessage" : false,
+      "hasContent" : true
+    } ],
+    "attachments" : [ ],
+    "parameters" : [ ],
+    "stepsCount" : 59,
+    "attachmentsCount" : 33,
+    "shouldDisplayMessage" : false,
+    "hasContent" : true
+  },
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "tag",
+    "value" : "inner-hexagon"
+  }, {
+    "name" : "tag",
+    "value" : "in-process"
+  }, {
+    "name" : "tag",
+    "value" : "allure"
+  }, {
+    "name" : "tag",
+    "value" : "pre-deployment"
+  }, {
+    "name" : "feature",
+    "value" : "As a controller developer, I would like to request the Database capability so that I can deploy containers that use the database"
+  }, {
+    "name" : "host",
+    "value" : "entando-k8s-entando-k8s-operato-8vtzx-90-from-build-pack--nvh7t"
+  }, {
+    "name" : "thread",
+    "value" : "104@entando-k8s-entando-k8s-operato-8vtzx-90-from-build-pack--nvh7t.ForkJoinPool-1-worker-3(17)"
+  }, {
+    "name" : "framework",
+    "value" : "junit-platform"
+  }, {
+    "name" : "language",
+    "value" : "java"
+  }, {
+    "name" : "package",
+    "value" : "org.entando.kubernetes.controller.DatabaseConsumerTest"
+  }, {
+    "name" : "testClass",
+    "value" : "org.entando.kubernetes.controller.DatabaseConsumerTest"
+  }, {
+    "name" : "testMethod",
+    "value" : "dbawareDeploymentFailsWhenDatabasePreparationFailed"
+  }, {
+    "name" : "suite",
+    "value" : "org.entando.kubernetes.controller.DatabaseConsumerTest"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ {
+    "name" : "DatabaseConsumerTest.java",
+    "url" : "https://github.com/entando-k8s/entando-k8s-operator-common/tree/ENG-2284_removing_cluster_infrastructure/src/test/java/org/entando/kubernetes/controller/DatabaseConsumerTest.java",
+    "type" : "source"
+  }, {
+    "name" : "ENG-2284",
+    "url" : "https://entando.myjetbrains.com/youtrack/issue/ENG-2284",
+    "type" : "issue"
+  } ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ "inner-hexagon", "pre-deployment", "allure", "in-process" ]
+  },
+  "source" : "d00dfe3bb84b045f.json",
+  "parameterValues" : [ ]
+}
