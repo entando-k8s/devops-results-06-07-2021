@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractSearcherDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Entando Core: Engine</a> &gt; <a href="index.source.html" class="el_package">com.agiletec.aps.system.common</a> &gt; <span class="el_source">AbstractSearcherDAO.java</span></div><h1>AbstractSearcherDAO.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015-Present Entando Inc. (http://www.entando.com) All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+package com.agiletec.aps.system.common;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
+
+import org.entando.entando.ent.util.EntLogging.EntLogger;
+import org.entando.entando.ent.util.EntLogging.EntLogFactory;
+
+/**
+ * Utility Class for searching operation on db. This class presents utility
+ * method for searching on db table throw Field search filter.
+ *
+ * @author E.Santoboni
+ */
+@SuppressWarnings(value = {&quot;serial&quot;, &quot;rawtypes&quot;})
+<span class="fc" id="L39">public abstract class AbstractSearcherDAO extends AbstractDAO {</span>
+
+<span class="fc" id="L41">    private static final EntLogger logger = EntLogFactory.getSanitizedLogger(AbstractSearcherDAO.class);</span>
+    private static final String DEFAULT_LIKE_CLAUSE = &quot;LIKE ? &quot;;
+
+    private String likeClause;
+    private String dataSourceClassName;
+
+    protected List&lt;String&gt; searchId(FieldSearchFilter[] filters) {
+<span class="fc" id="L48">        Connection conn = null;</span>
+<span class="fc" id="L49">        List&lt;String&gt; idList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L50">        PreparedStatement stat = null;</span>
+<span class="fc" id="L51">        ResultSet result = null;</span>
+        try {
+<span class="fc" id="L53">            conn = this.getConnection();</span>
+<span class="fc" id="L54">            stat = this.buildStatement(filters, false, false, conn);</span>
+<span class="fc" id="L55">            result = stat.executeQuery();</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            while (result.next()) {</span>
+<span class="fc" id="L57">                String id = result.getString(this.getMasterTableIdFieldName());</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                if (!idList.contains(id)) {</span>
+<span class="fc" id="L59">                    idList.add(id);</span>
+                }
+<span class="fc" id="L61">            }</span>
+<span class="fc" id="L62">        } catch (Throwable t) {</span>
+<span class="fc" id="L63">            logger.error(&quot;Error while loading the list of IDs&quot;, t);</span>
+<span class="fc" id="L64">            throw new RuntimeException(&quot;Error while loading the list of IDs&quot;, t);</span>
+        } finally {
+<span class="fc" id="L66">            closeDaoResources(result, stat, conn);</span>
+        }
+<span class="fc" id="L68">        return idList;</span>
+    }
+
+    protected Integer countId(FieldSearchFilter[] filters) {
+<span class="fc" id="L72">        Connection conn = null;</span>
+<span class="fc" id="L73">        int count = 0;</span>
+<span class="fc" id="L74">        PreparedStatement stat = null;</span>
+<span class="fc" id="L75">        ResultSet result = null;</span>
+        try {
+<span class="fc" id="L77">            conn = this.getConnection();</span>
+<span class="fc" id="L78">            stat = this.buildStatement(filters, true, false, conn);</span>
+<span class="fc" id="L79">            result = stat.executeQuery();</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            if (result.next()) {</span>
+<span class="fc" id="L81">                count = result.getInt(1);</span>
+            }
+<span class="nc" id="L83">        } catch (Throwable t) {</span>
+<span class="nc" id="L84">            logger.error(&quot;Error while loading the count of IDs&quot;, t);</span>
+<span class="nc" id="L85">            throw new RuntimeException(&quot;Error while loading the count of IDs&quot;, t);</span>
+        } finally {
+<span class="fc" id="L87">            closeDaoResources(result, stat, conn);</span>
+        }
+<span class="fc" id="L89">        return count;</span>
+    }
+
+    protected FieldSearchFilter[] addFilter(FieldSearchFilter[] filters, FieldSearchFilter filterToAdd) {
+<span class="fc" id="L93">        return ArrayUtils.add(filters, filterToAdd);</span>
+    }
+
+    protected PreparedStatement buildStatement(FieldSearchFilter[] filters, boolean isCount, boolean selectAll, Connection conn) {
+<span class="fc" id="L97">        String query = this.createQueryString(filters, isCount, selectAll);</span>
+<span class="fc" id="L98">        logger.trace(&quot;{}&quot;, query);</span>
+<span class="fc" id="L99">        PreparedStatement stat = null;</span>
+        try {
+<span class="fc" id="L101">            stat = conn.prepareStatement(query);</span>
+<span class="fc" id="L102">            int index = 0;</span>
+<span class="fc" id="L103">            index = this.addMetadataFieldFilterStatementBlock(filters, index, stat);</span>
+<span class="nc" id="L104">        } catch (Throwable t) {</span>
+<span class="nc" id="L105">            logger.error(&quot;Error while creating the statement&quot;, t);</span>
+<span class="nc" id="L106">            throw new RuntimeException(&quot;Error while creating the statement&quot;, t);</span>
+<span class="fc" id="L107">        }</span>
+<span class="fc" id="L108">        return stat;</span>
+    }
+
+    /**
+     * Add to the statement the filters on the entity metadata.
+     *
+     * @param filters the filters to add to the statement.
+     * @param index The current index of the statement.
+     * @param stat The statement.
+     * @return The current statement index, eventually incremented by filters.
+     * @throws Throwable In case of error.
+     */
+    protected int addMetadataFieldFilterStatementBlock(FieldSearchFilter[] filters, int index, PreparedStatement stat) throws Throwable {
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (filters == null) {</span>
+<span class="fc" id="L122">            return index;</span>
+        }
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        for (FieldSearchFilter filter : filters) {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            if (filter.getKey() != null) {</span>
+<span class="fc" id="L126">                index = this.addObjectSearchStatementBlock(filter, index, stat);</span>
+            }
+        }
+<span class="fc" id="L129">        return index;</span>
+    }
+
+    /**
+     * Add to the statement a filter on a attribute.
+     *
+     * @param filter The filter on the attribute to apply in the statement.
+     * @param index The last index used to associate the elements to the
+     * statement.
+     * @param stat The statement where the filters are applied.
+     * @return The last used index.
+     * @throws SQLException In case of error.
+     *
+     */
+    protected int addObjectSearchStatementBlock(FieldSearchFilter filter, int index, PreparedStatement stat) throws SQLException {
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (filter.isNullOption()) {</span>
+<span class="nc" id="L145">            return index;</span>
+        }
+<span class="pc bpc" id="L147" title="1 of 4 branches missed.">        if (filter.getAllowedValues() != null &amp;&amp; filter.getAllowedValues().size() &gt; 0) {</span>
+<span class="fc" id="L148">            List&lt;Object&gt; allowedValues = filter.getAllowedValues();</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">            for (int i = 0; i &lt; allowedValues.size(); i++) {</span>
+<span class="fc" id="L150">                Object allowedValue = allowedValues.get(i);</span>
+<span class="fc" id="L151">                this.addObjectSearchStatementBlock(stat, ++index, allowedValue, filter.isLikeOption());</span>
+            }
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        } else if (filter.getValue() != null) {</span>
+<span class="fc" id="L154">            this.addObjectSearchStatementBlock(stat, ++index, filter.getValue(), filter.getValueDateDelay(), filter.isLikeOption(), filter.getLikeOptionType());</span>
+        } else {
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            if (null != filter.getStart()) {</span>
+<span class="fc" id="L157">                this.addObjectSearchStatementBlock(stat, ++index, filter.getStart(), filter.getStartDateDelay(), false);</span>
+            }
+<span class="fc bfc" id="L159" title="All 2 branches covered.">            if (null != filter.getEnd()) {</span>
+<span class="fc" id="L160">                this.addObjectSearchStatementBlock(stat, ++index, filter.getEnd(), filter.getEndDateDelay(), false);</span>
+            }
+        }
+<span class="fc" id="L163">        return index;</span>
+    }
+
+    protected void addObjectSearchStatementBlock(PreparedStatement stat,
+            int index,
+            Object object,
+            boolean isLikeOption) throws SQLException {
+<span class="fc" id="L170">        this.addObjectSearchStatementBlock(stat, index, object, null, isLikeOption, null);</span>
+<span class="fc" id="L171">    }</span>
+
+    protected void addObjectSearchStatementBlock(PreparedStatement stat,
+            int index,
+            Object object,
+            Integer dateDelay,
+            boolean isLikeOption) throws SQLException {
+<span class="fc" id="L178">        this.addObjectSearchStatementBlock(stat, index, object, dateDelay, isLikeOption, null);</span>
+<span class="fc" id="L179">    }</span>
+
+    protected void addObjectSearchStatementBlock(PreparedStatement stat,
+            int index,
+            Object object,
+            Integer dateDelay,
+            boolean isLikeOption,
+            FieldSearchFilter.LikeOptionType likeOptionType) throws SQLException {
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        if (object instanceof String) {</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">            if (isLikeOption) {</span>
+<span class="fc" id="L189">                object = ((String) object).toUpperCase();</span>
+<span class="fc" id="L190">                String parameter = null;</span>
+<span class="pc bpc" id="L191" title="1 of 4 branches missed.">                if (null == likeOptionType || likeOptionType.equals(FieldSearchFilter.LikeOptionType.COMPLETE)) {</span>
+<span class="fc" id="L192">                    parameter = &quot;%&quot; + ((String) object) + &quot;%&quot;;</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                } else if (likeOptionType.equals(FieldSearchFilter.LikeOptionType.LEFT)) {</span>
+<span class="nc" id="L194">                    parameter = &quot;%&quot; + ((String) object);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">                } else if (likeOptionType.equals(FieldSearchFilter.LikeOptionType.RIGHT)) {</span>
+<span class="nc" id="L196">                    parameter = ((String) object) + &quot;%&quot;;</span>
+                }
+<span class="fc" id="L198">                stat.setString(index, parameter);</span>
+<span class="fc" id="L199">            } else {</span>
+<span class="fc" id="L200">                stat.setString(index, (String) object);</span>
+            }
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        } else if (object instanceof Date) {</span>
+<span class="fc" id="L203">            Calendar calendar = Calendar.getInstance();</span>
+<span class="fc" id="L204">            calendar.setTime((Date) object);</span>
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">            if (dateDelay != null) {</span>
+<span class="nc" id="L206">                calendar.add(Calendar.DATE, dateDelay);</span>
+            }
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">            if (object instanceof Timestamp) {</span>
+<span class="fc" id="L209">                Timestamp timestamp = new Timestamp(calendar.getTime().getTime());</span>
+<span class="fc" id="L210">                stat.setTimestamp(index, timestamp);</span>
+<span class="fc" id="L211">            } else {</span>
+<span class="nc" id="L212">                Date data = calendar.getTime();</span>
+<span class="nc" id="L213">                stat.setDate(index, new java.sql.Date(data.getTime()));</span>
+            }
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">        } else if (object instanceof BigDecimal) {</span>
+<span class="nc" id="L216">            stat.setBigDecimal(index, (BigDecimal) object);</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">        } else if (object instanceof Boolean) {</span>
+<span class="nc" id="L218">            stat.setString(index, ((Boolean) object).toString());</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">        } else if (object instanceof LocalDateTime) {</span>
+<span class="nc" id="L220">            stat.setObject(index, Timestamp.valueOf((LocalDateTime)object));</span>
+        } else {
+<span class="fc" id="L222">            stat.setObject(index, object);</span>
+        }
+<span class="fc" id="L224">    }</span>
+
+    protected String createQueryString(FieldSearchFilter[] filters, boolean isCount, boolean selectAll) {
+<span class="fc" id="L227">        StringBuffer query = this.createBaseQueryBlock(filters, isCount, selectAll);</span>
+<span class="fc" id="L228">        boolean hasAppendWhereClause = this.appendMetadataFieldFilterQueryBlocks(filters, query, false);</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (!isCount) {</span>
+<span class="fc" id="L230">            boolean ordered = appendOrderQueryBlocks(filters, query, false);</span>
+<span class="fc" id="L231">            this.appendLimitQueryBlock(filters, query);</span>
+        }
+<span class="fc" id="L233">        return query.toString();</span>
+    }
+
+    protected StringBuffer createBaseQueryBlock(FieldSearchFilter[] filters, boolean isCount, boolean selectAll) {
+<span class="fc" id="L237">        StringBuffer query = null;</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">        if (isCount) {</span>
+<span class="fc" id="L239">            query = this.createMasterCountQueryBlock();</span>
+        } else {
+<span class="fc" id="L241">            query = this.createMasterSelectQueryBlock(filters, selectAll);</span>
+        }
+<span class="fc" id="L243">        return query;</span>
+    }
+
+    protected StringBuffer createMasterCountQueryBlock() {
+<span class="fc" id="L247">        String masterTableName = this.getMasterTableName();</span>
+<span class="fc" id="L248">        StringBuffer query = new StringBuffer(&quot;SELECT COUNT(*)&quot;);</span>
+<span class="fc" id="L249">        query.append(&quot; FROM &quot;).append(masterTableName).append(&quot; &quot;);</span>
+<span class="fc" id="L250">        return query;</span>
+    }
+
+    private StringBuffer createMasterSelectQueryBlock(FieldSearchFilter[] filters, boolean selectAll) {
+<span class="fc" id="L254">        String masterTableName = this.getMasterTableName();</span>
+<span class="fc" id="L255">        StringBuffer query = new StringBuffer(&quot;SELECT &quot;).append(masterTableName).append(&quot;.&quot;);</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">        if (selectAll) {</span>
+<span class="nc" id="L257">            query.append(&quot;* &quot;);</span>
+        } else {
+<span class="fc" id="L259">            query.append(this.getMasterTableIdFieldName());</span>
+        }
+<span class="fc" id="L261">        query.append(&quot; FROM &quot;).append(masterTableName).append(&quot; &quot;);</span>
+<span class="fc" id="L262">        return query;</span>
+    }
+    
+    protected void appendLimitQueryBlock(FieldSearchFilter[] filters, StringBuffer query) {
+        try {
+<span class="fc bfc" id="L267" title="All 4 branches covered.">            if (null == filters || filters.length == 0) {</span>
+<span class="fc" id="L268">                logger.warn(&quot;no filters&quot;);</span>
+<span class="fc" id="L269">                return;</span>
+            }
+<span class="fc bfc" id="L271" title="All 2 branches covered.">            for (FieldSearchFilter filter : filters) {</span>
+<span class="pc bpc" id="L272" title="1 of 4 branches missed.">                if (filter.getOffset() != null &amp;&amp; filter.getLimit() != null) {</span>
+<span class="fc" id="L273">                    query.append(QueryLimitResolver.createLimitBlock(filter, this.getDataSource(), this.getDataSourceClassName()));</span>
+<span class="fc" id="L274">                    break;</span>
+                }
+            }
+<span class="nc" id="L277">        } catch (Throwable t) {</span>
+<span class="nc" id="L278">            throw new RuntimeException(&quot;error building limit query&quot;, t);</span>
+<span class="fc" id="L279">        }</span>
+<span class="fc" id="L280">    }</span>
+
+    protected boolean appendMetadataFieldFilterQueryBlocks(FieldSearchFilter[] filters, StringBuffer query, boolean hasAppendWhereClause) {
+<span class="fc bfc" id="L283" title="All 2 branches covered.">        if (filters == null) {</span>
+<span class="fc" id="L284">            return hasAppendWhereClause;</span>
+        }
+<span class="fc bfc" id="L286" title="All 2 branches covered.">        for (FieldSearchFilter filter : filters) {</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">            if (filter.getKey() != null) {</span>
+<span class="fc" id="L288">                hasAppendWhereClause = this.addMetadataFieldFilterQueryBlock(filter, query, hasAppendWhereClause);</span>
+            }
+        }
+<span class="fc" id="L291">        return hasAppendWhereClause;</span>
+    }
+
+    protected boolean addMetadataFieldFilterQueryBlock(FieldSearchFilter filter, StringBuffer query, boolean hasAppendWhereClause) {
+<span class="fc" id="L295">        return addFilters(filter, query, hasAppendWhereClause);</span>
+    }
+
+    protected boolean addFilters(FieldSearchFilter filter, StringBuffer query, boolean hasAppendWhereClause) {
+<span class="fc bfc" id="L299" title="All 2 branches covered.">        if (filter.isSortOnly()) {</span>
+<span class="fc" id="L300">            return hasAppendWhereClause;</span>
+        }
+<span class="fc" id="L302">        hasAppendWhereClause = this.verifyWhereClauseAppend(query, hasAppendWhereClause);</span>
+<span class="fc" id="L303">        String tableFieldName = this.getTableFieldName(filter.getKey());</span>
+<span class="pc bpc" id="L304" title="1 of 4 branches missed.">        if (filter.getAllowedValues() != null &amp;&amp; filter.getAllowedValues().size() &gt; 0) {</span>
+<span class="fc" id="L305">            List&lt;Object&gt; allowedValues = filter.getAllowedValues();</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">            for (int j = 0; j &lt; allowedValues.size(); j++) {</span>
+<span class="fc bfc" id="L307" title="All 2 branches covered.">                if (j == 0) {</span>
+<span class="fc" id="L308">                    query.append(&quot; ( &quot;);</span>
+                } else {
+<span class="fc" id="L310">                    query.append(&quot; OR &quot;);</span>
+                }
+<span class="fc" id="L312">                StringBuffer x = new StringBuffer(this.getMasterTableName()).append(&quot;.&quot;).append(tableFieldName).append(&quot; &quot;);</span>
+<span class="fc bfc" id="L313" title="All 2 branches covered.">                if (filter.isLikeOption()) {</span>
+<span class="fc" id="L314">                    query.append(&quot;UPPER(&quot;).append(x.toString()).append(&quot;) &quot;);</span>
+                } else {
+<span class="fc" id="L316">                    query.append(x.toString());</span>
+                }
+<span class="fc bfc" id="L318" title="All 2 branches covered.">                if (filter.isLikeOption()) {</span>
+<span class="fc" id="L319">                    query.append(this.getLikeClause());</span>
+                } else {
+<span class="fc" id="L321">                    query.append(&quot;= ? &quot;);</span>
+                }
+<span class="fc bfc" id="L323" title="All 2 branches covered.">                if (j == (allowedValues.size() - 1)) {</span>
+<span class="fc" id="L324">                    query.append(&quot; ) &quot;);</span>
+                }
+            }
+<span class="fc" id="L327">        } else {</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">            if (filter.isLikeOption()) {</span>
+<span class="fc" id="L329">                query.append(&quot;UPPER(&quot;).append(this.getMasterTableName()).append(&quot;.&quot;).append(tableFieldName).append(&quot;) &quot;);</span>
+            } else {
+<span class="fc" id="L331">                query.append(this.getMasterTableName()).append(&quot;.&quot;).append(tableFieldName).append(&quot; &quot;);</span>
+            }
+<span class="fc bfc" id="L333" title="All 2 branches covered.">            if (filter.getValue() != null) {</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">                if (filter.isLikeOption()) {</span>
+<span class="fc" id="L335">                    query.append(this.getLikeClause());</span>
+<span class="pc bpc" id="L336" title="1 of 2 branches missed.">                } else if (filter.isNotOption()) {</span>
+<span class="nc" id="L337">                    query.append(&quot;&lt;&gt; ? &quot;);</span>
+                } else {
+<span class="fc" id="L339">                    query.append(&quot;= ? &quot;);</span>
+                }
+<span class="fc bfc" id="L341" title="All 2 branches covered.">            } else if (null != filter.getStart()) {</span>
+<span class="fc" id="L342">                query.append(&quot;&gt;= ? &quot;);</span>
+<span class="pc bpc" id="L343" title="1 of 2 branches missed.">                if (null != filter.getEnd()) {</span>
+<span class="fc" id="L344">                    query.append(&quot;AND &quot;).append(this.getMasterTableName()).append(&quot;.&quot;).append(tableFieldName).append(&quot; &quot;);</span>
+<span class="fc" id="L345">                    query.append(&quot;&lt;= ? &quot;);</span>
+                }
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">            } else if (null != filter.getEnd()) {</span>
+<span class="nc" id="L348">                query.append(&quot;&lt;= ? &quot;);</span>
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">            } else if (filter.isNullOption()) {</span>
+<span class="nc" id="L350">                query.append(&quot; IS NULL &quot;);</span>
+            } else {
+<span class="fc" id="L352">                query.append(&quot; IS NOT NULL &quot;);</span>
+            }
+        }
+<span class="fc" id="L355">        return hasAppendWhereClause;</span>
+    }
+
+    protected boolean appendOrderQueryBlocks(FieldSearchFilter[] filters, StringBuffer query, boolean ordered) {
+<span class="fc bfc" id="L359" title="All 2 branches covered.">        if (filters == null) {</span>
+<span class="fc" id="L360">            return ordered;</span>
+        }
+<span class="fc bfc" id="L362" title="All 2 branches covered.">        for (FieldSearchFilter filter : filters) {</span>
+<span class="pc bpc" id="L363" title="1 of 6 branches missed.">            if (null != filter.getKey() &amp;&amp; null != filter.getOrder() &amp;&amp; !filter.isNullOption()) {</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">                if (!ordered) {</span>
+<span class="fc" id="L365">                    query.append(&quot;ORDER BY &quot;);</span>
+<span class="fc" id="L366">                    ordered = true;</span>
+                } else {
+<span class="fc" id="L368">                    query.append(&quot;, &quot;);</span>
+                }
+<span class="fc" id="L370">                String fieldName = this.getTableFieldName(filter.getKey());</span>
+<span class="fc" id="L371">                query.append(this.getMasterTableName()).append(&quot;.&quot;).append(fieldName).append(&quot; &quot;).append(filter.getOrder());</span>
+            }
+        }
+<span class="fc" id="L374">        return ordered;</span>
+    }
+
+    protected boolean verifyWhereClauseAppend(StringBuffer query, boolean hasAppendWhereClause) {
+<span class="fc bfc" id="L378" title="All 2 branches covered.">        if (hasAppendWhereClause) {</span>
+<span class="fc" id="L379">            query.append(&quot;AND &quot;);</span>
+        } else {
+<span class="fc" id="L381">            query.append(&quot;WHERE &quot;);</span>
+<span class="fc" id="L382">            hasAppendWhereClause = true;</span>
+        }
+<span class="fc" id="L384">        return hasAppendWhereClause;</span>
+    }
+
+    protected abstract String getTableFieldName(String metadataFieldKey);
+
+    /**
+     * Return the name of the entities master table.
+     *
+     * @return The name of the master table.
+     */
+    protected abstract String getMasterTableName();
+
+    /**
+     * Return the name of the ID field in the master table.
+     *
+     * @return The name of the ID field.
+     */
+    protected abstract String getMasterTableIdFieldName();
+
+    protected boolean hasLikeFilters(FieldSearchFilter[] filters) {
+<span class="nc bnc" id="L404" title="All 4 branches missed.">        if (null == filters || filters.length == 0) {</span>
+<span class="nc" id="L405">            return false;</span>
+        }
+<span class="nc bnc" id="L407" title="All 2 branches missed.">        for (FieldSearchFilter filter : filters) {</span>
+<span class="nc bnc" id="L408" title="All 2 branches missed.">            if (filter.isLikeOption()) {</span>
+<span class="nc" id="L409">                return true;</span>
+            }
+        }
+<span class="nc" id="L412">        return false;</span>
+    }
+
+    protected String getLikeClause() {
+<span class="pc bpc" id="L416" title="3 of 4 branches missed.">        if (null == this.likeClause || this.likeClause.trim().length() == 0) {</span>
+<span class="fc" id="L417">            return DEFAULT_LIKE_CLAUSE;</span>
+        }
+<span class="nc" id="L419">        return likeClause;</span>
+    }
+
+    public void setLikeClause(String likeClause) {
+<span class="nc" id="L423">        this.likeClause = likeClause;</span>
+<span class="nc" id="L424">    }</span>
+
+    protected String getDataSourceClassName() {
+<span class="fc" id="L427">        return dataSourceClassName;</span>
+    }
+
+    public void setDataSourceClassName(String dataSourceClassName) {
+<span class="fc" id="L431">        this.dataSourceClassName = dataSourceClassName;</span>
+<span class="fc" id="L432">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
