@@ -1,0 +1,46 @@
+---
+ingressNamespace: "my-namespace"
+mixins:
+- "Deployable"
+- "IngressingDeployable"
+fileSystemUserAndGroupId: 185
+defaultServiceAccountName: "default"
+ingressRequired: true
+replicas: 1
+ingressName: "my-app-ingress"
+qualifier: "ab"
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoApp"
+  metadata:
+    name: "my-app"
+    namespace: "my-namespace"
+  isCustomResource: true
+containers:
+- environmentVariableOverrides: []
+  memoryLimitMebibytes: 512
+  dockerImageInfo:
+    organization: "entando"
+    repository: "app-builder"
+  namesOfSecretsToMount: []
+  additionalPorts: []
+  primaryPort: 8081
+  webContextPath: "/app-builder/"
+  mixins:
+  - "DeployableContainer"
+  - "IngressingPathOnPort"
+  - "ServiceBackingContainer"
+  - "HasWebContext"
+  - "ParameterizableContainer"
+  - "IngressingContainer"
+  healthCheckPath: "/app-builder/favicon-entando.png"
+  maximumStartupTimeSeconds: 120
+  kubernetesPermissions: []
+  environmentVariables:
+  - name: "DOMAIN"
+    value: "/entando-de-app"
+  nameQualifier: "appbuilder"
+  secretsToMount: []
+  cpuLimitMillicores: 500
+  portForIngressPath: 8081
+serviceAccountToUse: "default"
