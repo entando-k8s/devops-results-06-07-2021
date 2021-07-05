@@ -66,9 +66,9 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
  * Classe che implementa i servizi da necessari al thread di
  * pubblicazione/sospenzione automatica
  */
-<span class="fc" id="L69">public class ContentSchedulerManager extends AbstractService implements IContentSchedulerManager {</span>
+<span class="nc" id="L69">public class ContentSchedulerManager extends AbstractService implements IContentSchedulerManager {</span>
 
-<span class="fc" id="L71">    private static final Logger _logger = LoggerFactory.getLogger(ContentSchedulerManager.class);</span>
+<span class="nc" id="L71">    private static final Logger _logger = LoggerFactory.getLogger(ContentSchedulerManager.class);</span>
     private static final long serialVersionUID = 6880576602469119814L;
 
     private IContentSearcherDAO _workContentSearcherDAO;
@@ -83,9 +83,9 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
 
     @Override
     public void init() throws Exception {
-<span class="fc" id="L86">        this.loadConfigs();</span>
-<span class="fc" id="L87">        _logger.info(this.getClass().getName() + &quot;: inizializzato&quot;);</span>
-<span class="fc" id="L88">    }</span>
+<span class="nc" id="L86">        this.loadConfigs();</span>
+<span class="nc" id="L87">        _logger.info(this.getClass().getName() + &quot;: inizializzato&quot;);</span>
+<span class="nc" id="L88">    }</span>
 
     /**
      * Carico la configurazione impostata nella tabella sysconfig di japsport
@@ -93,17 +93,17 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
      */
     private void loadConfigs() throws EntException {
         try {
-<span class="fc" id="L96">            String xml = this.getConfigManager().getConfigItem(ContentThreadConstants.CONTENTTHREAD_CONFIG_ITEM);</span>
-<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            if (xml == null) {</span>
+<span class="nc" id="L96">            String xml = this.getConfigManager().getConfigItem(ContentThreadConstants.CONTENTTHREAD_CONFIG_ITEM);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (xml == null) {</span>
 <span class="nc" id="L98">                throw new EntException(ContentThreadConstants.READ_CONFIG_ERROR + ContentThreadConstants.CONTENTTHREAD_CONFIG_ITEM);</span>
             }
-<span class="fc" id="L100">            ContentThreadConfigDOM configDOM = new ContentThreadConfigDOM();</span>
-<span class="fc" id="L101">            this.setConfig(configDOM.extractConfig(xml));</span>
+<span class="nc" id="L100">            ContentThreadConfigDOM configDOM = new ContentThreadConfigDOM();</span>
+<span class="nc" id="L101">            this.setConfig(configDOM.extractConfig(xml));</span>
 <span class="nc" id="L102">        } catch (Throwable t) {</span>
 <span class="nc" id="L103">            ApsSystemUtils.logThrowable(t, this, &quot;loadConfigs&quot;);</span>
 <span class="nc" id="L104">            throw new EntException(ContentThreadConstants.INIT_ERROR, t);</span>
-<span class="fc" id="L105">        }</span>
-<span class="fc" id="L106">    }</span>
+<span class="nc" id="L105">        }</span>
+<span class="nc" id="L106">    }</span>
 
     @Override
     public void updateConfig(ContentThreadConfig config) throws EntException {
@@ -126,30 +126,30 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
      */
     @Override
     public List&lt;String&gt; getContentIdToPublish() throws EntException {
-<span class="fc" id="L129">        List&lt;String&gt; ans = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L129">        List&lt;String&gt; ans = new ArrayList&lt;String&gt;();</span>
         try {
-<span class="fc bfc" id="L131" title="All 2 branches covered.">            for (Iterator&lt;ContentTypeElem&gt; i = this.getConfig().getTypesList().iterator(); i.hasNext();) {</span>
-<span class="fc" id="L132">                ContentTypeElem elem = i.next();</span>
-<span class="fc" id="L133">                String filterKey = elem.getStartDateAttr();</span>
-<span class="pc bpc" id="L134" title="1 of 2 branches missed.">                if (null != filterKey) {</span>
-<span class="fc" id="L135">                    Calendar cal = Calendar.getInstance();</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            for (Iterator&lt;ContentTypeElem&gt; i = this.getConfig().getTypesList().iterator(); i.hasNext();) {</span>
+<span class="nc" id="L132">                ContentTypeElem elem = i.next();</span>
+<span class="nc" id="L133">                String filterKey = elem.getStartDateAttr();</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                if (null != filterKey) {</span>
+<span class="nc" id="L135">                    Calendar cal = Calendar.getInstance();</span>
                     // cal.setTime(new Date());
-<span class="fc" id="L137">                    cal.set(Calendar.HOUR_OF_DAY, 0);</span>
-<span class="fc" id="L138">                    cal.set(Calendar.MINUTE, 0);</span>
-<span class="fc" id="L139">                    cal.set(Calendar.SECOND, 0);</span>
-<span class="fc" id="L140">                    Date start = cal.getTime();</span>
-<span class="fc" id="L141">                    cal.add(Calendar.DAY_OF_YEAR, 1);</span>
-<span class="fc" id="L142">                    Date end = cal.getTime();</span>
-<span class="fc" id="L143">                    EntitySearchFilter[] filters = new EntitySearchFilter[]{new EntitySearchFilter(filterKey, true, start, end)};</span>
-<span class="fc" id="L144">                    List&lt;String&gt; retrieved = this.getWorkContentSearcherDAO().searchId(elem.getContentType(), filters);</span>
-<span class="fc" id="L145">                    ans.addAll(retrieved);</span>
+<span class="nc" id="L137">                    cal.set(Calendar.HOUR_OF_DAY, 0);</span>
+<span class="nc" id="L138">                    cal.set(Calendar.MINUTE, 0);</span>
+<span class="nc" id="L139">                    cal.set(Calendar.SECOND, 0);</span>
+<span class="nc" id="L140">                    Date start = cal.getTime();</span>
+<span class="nc" id="L141">                    cal.add(Calendar.DAY_OF_YEAR, 1);</span>
+<span class="nc" id="L142">                    Date end = cal.getTime();</span>
+<span class="nc" id="L143">                    EntitySearchFilter[] filters = new EntitySearchFilter[]{new EntitySearchFilter(filterKey, true, start, end)};</span>
+<span class="nc" id="L144">                    List&lt;String&gt; retrieved = this.getWorkContentSearcherDAO().searchId(elem.getContentType(), filters);</span>
+<span class="nc" id="L145">                    ans.addAll(retrieved);</span>
                 }
-<span class="fc" id="L147">            }</span>
+<span class="nc" id="L147">            }</span>
 <span class="nc" id="L148">        } catch (Throwable t) {</span>
 <span class="nc" id="L149">            _logger.error(ContentThreadConstants.GET_CONTENTIDS_ERROR, t);</span>
 <span class="nc" id="L150">            throw new EntException(ContentThreadConstants.GET_CONTENTIDS_ERROR, t);</span>
-<span class="fc" id="L151">        }</span>
-<span class="fc" id="L152">        return ans;</span>
+<span class="nc" id="L151">        }</span>
+<span class="nc" id="L152">        return ans;</span>
     }
 
     /**
@@ -160,38 +160,38 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
      */
     @Override
     public List&lt;ContentSuspendMove&gt; getContentAttrDataFine() throws EntException {
-<span class="fc" id="L163">        List&lt;ContentSuspendMove&gt; ans = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L163">        List&lt;ContentSuspendMove&gt; ans = new ArrayList&lt;&gt;();</span>
         try {
-<span class="fc bfc" id="L165" title="All 2 branches covered.">            for (Iterator&lt;ContentTypeElem&gt; i = this.config.getTypesList().iterator(); i.hasNext();) {</span>
-<span class="fc" id="L166">                ContentTypeElem elem = i.next();</span>
-<span class="fc" id="L167">                String filterKey = elem.getEndDateAttro();</span>
-<span class="pc bpc" id="L168" title="1 of 2 branches missed.">                if (null != filterKey) {</span>
-<span class="fc" id="L169">                    Date actualDate = new Date();</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            for (Iterator&lt;ContentTypeElem&gt; i = this.config.getTypesList().iterator(); i.hasNext();) {</span>
+<span class="nc" id="L166">                ContentTypeElem elem = i.next();</span>
+<span class="nc" id="L167">                String filterKey = elem.getEndDateAttro();</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                if (null != filterKey) {</span>
+<span class="nc" id="L169">                    Date actualDate = new Date();</span>
                     // Data fine compresa nella settimana
-<span class="fc" id="L171">                    Calendar cal = Calendar.getInstance();</span>
-<span class="fc" id="L172">                    cal.setTime(actualDate);</span>
-<span class="fc" id="L173">                    cal.add(Calendar.DATE, -7);</span>
-<span class="fc" id="L174">                    Date beginDate = cal.getTime();</span>
-<span class="fc" id="L175">                    EntitySearchFilter blobFilter = new EntitySearchFilter(IContentManager.CONTENT_ONLINE_FILTER_KEY, false, null, false);</span>
-<span class="fc" id="L176">                    EntitySearchFilter[] filters = new EntitySearchFilter[]{new EntitySearchFilter(filterKey, true, beginDate, new Date()), blobFilter};</span>
-<span class="fc" id="L177">                    List&lt;String&gt; retrieved = this.getWorkContentSearcherDAO().searchId(elem.getContentType(), filters);</span>
-<span class="fc" id="L178">                    ContentSuspendMove contSuspMov = new ContentSuspendMove(elem.getSuspend(),</span>
+<span class="nc" id="L171">                    Calendar cal = Calendar.getInstance();</span>
+<span class="nc" id="L172">                    cal.setTime(actualDate);</span>
+<span class="nc" id="L173">                    cal.add(Calendar.DATE, -7);</span>
+<span class="nc" id="L174">                    Date beginDate = cal.getTime();</span>
+<span class="nc" id="L175">                    EntitySearchFilter blobFilter = new EntitySearchFilter(IContentManager.CONTENT_ONLINE_FILTER_KEY, false, null, false);</span>
+<span class="nc" id="L176">                    EntitySearchFilter[] filters = new EntitySearchFilter[]{new EntitySearchFilter(filterKey, true, beginDate, new Date()), blobFilter};</span>
+<span class="nc" id="L177">                    List&lt;String&gt; retrieved = this.getWorkContentSearcherDAO().searchId(elem.getContentType(), filters);</span>
+<span class="nc" id="L178">                    ContentSuspendMove contSuspMov = new ContentSuspendMove(elem.getSuspend(),</span>
                             retrieved,
-<span class="fc" id="L180">                            elem.getContentType(),</span>
-<span class="fc" id="L181">                            this.getConfig().getGlobalCat(),</span>
-<span class="fc" id="L182">                            elem.getIdsCategories(),</span>
-<span class="fc" id="L183">                            elem.getIdContentReplace(),</span>
-<span class="fc" id="L184">                            elem.getModelIdContentReplace());</span>
-<span class="fc" id="L185">                    contSuspMov.setContentIdReplace(this.getConfig().getContentIdRepl());</span>
-<span class="fc" id="L186">                    contSuspMov.setContentModelReplace(this.getConfig().getContentModelRepl());</span>
-<span class="fc" id="L187">                    ans.add(contSuspMov);</span>
+<span class="nc" id="L180">                            elem.getContentType(),</span>
+<span class="nc" id="L181">                            this.getConfig().getGlobalCat(),</span>
+<span class="nc" id="L182">                            elem.getIdsCategories(),</span>
+<span class="nc" id="L183">                            elem.getIdContentReplace(),</span>
+<span class="nc" id="L184">                            elem.getModelIdContentReplace());</span>
+<span class="nc" id="L185">                    contSuspMov.setContentIdReplace(this.getConfig().getContentIdRepl());</span>
+<span class="nc" id="L186">                    contSuspMov.setContentModelReplace(this.getConfig().getContentModelRepl());</span>
+<span class="nc" id="L187">                    ans.add(contSuspMov);</span>
                 }
-<span class="fc" id="L189">            }</span>
+<span class="nc" id="L189">            }</span>
 <span class="nc" id="L190">        } catch (Throwable t) {</span>
 <span class="nc" id="L191">            _logger.error(ContentThreadConstants.GET_CONTENTIDS_ERROR, t);</span>
 <span class="nc" id="L192">            throw new EntException(ContentThreadConstants.GET_CONTENTIDS_ERROR, t);</span>
-<span class="fc" id="L193">        }</span>
-<span class="fc" id="L194">        return ans;</span>
+<span class="nc" id="L193">        }</span>
+<span class="nc" id="L194">        return ans;</span>
     }
 
     /**
@@ -206,8 +206,8 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
             Date endJobDate) throws EntException, ApsSystemException {
         // TODO send to groups
         // sendToGroups(publishedContents, suspendedContents);
-<span class="fc" id="L209">        sendToUsers(publishedContents, suspendedContents, movedContents, startJobDate, endJobDate);</span>
-<span class="fc" id="L210">    }</span>
+<span class="nc" id="L209">        sendToUsers(publishedContents, suspendedContents, movedContents, startJobDate, endJobDate);</span>
+<span class="nc" id="L210">    }</span>
 
     /**
      * Spedisco agli utenti specificati nella configurazione
@@ -220,15 +220,15 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
      */
     private void sendToUsers(List&lt;ContentState&gt; publishedContents, List&lt;ContentState&gt; suspendedContents, List&lt;ContentState&gt; moveContents, Date startJobDate, Date endJobDate)
             throws EntException, ApsSystemException {
-<span class="fc" id="L223">        Map&lt;String, List&lt;String&gt;&gt; mapUsers = this.getConfig().getUsersContentType();</span>
-<span class="fc" id="L224">        Set&lt;String&gt; keys = mapUsers.keySet();</span>
-<span class="fc bfc" id="L225" title="All 2 branches covered.">        for (Iterator&lt;String&gt; i = keys.iterator(); i.hasNext();) {</span>
-<span class="fc" id="L226">            String key = i.next();</span>
-<span class="fc" id="L227">            List&lt;String&gt; typesList = mapUsers.get(key);</span>
-<span class="fc" id="L228">            List&lt;ContentState&gt; contentPList = contentOfTypes(publishedContents, typesList);</span>
-<span class="fc" id="L229">            List&lt;ContentState&gt; contentSList = contentOfTypes(suspendedContents, typesList);</span>
-<span class="fc" id="L230">            List&lt;ContentState&gt; contentMList = contentOfTypes(moveContents, typesList);</span>
-<span class="pc bpc" id="L231" title="6 of 12 branches missed.">            if ((contentPList != null &amp;&amp; contentPList.size() &gt; 0) || (contentSList != null &amp;&amp; contentSList.size() &gt; 0) || (contentMList != null &amp;&amp; contentMList.size() &gt; 0)) {</span>
+<span class="nc" id="L223">        Map&lt;String, List&lt;String&gt;&gt; mapUsers = this.getConfig().getUsersContentType();</span>
+<span class="nc" id="L224">        Set&lt;String&gt; keys = mapUsers.keySet();</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        for (Iterator&lt;String&gt; i = keys.iterator(); i.hasNext();) {</span>
+<span class="nc" id="L226">            String key = i.next();</span>
+<span class="nc" id="L227">            List&lt;String&gt; typesList = mapUsers.get(key);</span>
+<span class="nc" id="L228">            List&lt;ContentState&gt; contentPList = contentOfTypes(publishedContents, typesList);</span>
+<span class="nc" id="L229">            List&lt;ContentState&gt; contentSList = contentOfTypes(suspendedContents, typesList);</span>
+<span class="nc" id="L230">            List&lt;ContentState&gt; contentMList = contentOfTypes(moveContents, typesList);</span>
+<span class="nc bnc" id="L231" title="All 12 branches missed.">            if ((contentPList != null &amp;&amp; contentPList.size() &gt; 0) || (contentSList != null &amp;&amp; contentSList.size() &gt; 0) || (contentMList != null &amp;&amp; contentMList.size() &gt; 0)) {</span>
 <span class="nc" id="L232">                UserDetails user = this.getUserManager().getUser(key);</span>
 <span class="nc bnc" id="L233" title="All 2 branches missed.">                if (user == null) {</span>
 <span class="nc" id="L234">                    ApsSystemUtils.getLogger().error(ContentThreadConstants.USER_IS_NULL + key);</span>
@@ -266,8 +266,8 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
                     }
                 }
             }
-<span class="fc" id="L269">        }</span>
-<span class="fc" id="L270">    }</span>
+<span class="nc" id="L269">        }</span>
+<span class="nc" id="L270">    }</span>
 
     /**
      * Dato un array di contenuti, restituisce tutti quelli di tipo specificato
@@ -279,8 +279,8 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
      * @return
      */
     private List&lt;ContentState&gt; contentOfTypes(List&lt;ContentState&gt; contentList, List&lt;String&gt; types) {
-<span class="fc" id="L282">        List&lt;ContentState&gt; ans = new ArrayList&lt;&gt;();</span>
-<span class="pc bpc" id="L283" title="1 of 2 branches missed.">        for (Iterator&lt;ContentState&gt; itContent = contentList.iterator(); itContent.hasNext();) {</span>
+<span class="nc" id="L282">        List&lt;ContentState&gt; ans = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">        for (Iterator&lt;ContentState&gt; itContent = contentList.iterator(); itContent.hasNext();) {</span>
 <span class="nc" id="L284">            ContentState currElem = itContent.next();</span>
 <span class="nc" id="L285">            String currType = currElem.getType();</span>
 <span class="nc bnc" id="L286" title="All 6 branches missed.">            if ((types != null &amp;&amp; types.size() == 1 &amp;&amp; types.get(0).equals(ContentThreadConstants.ALL_TYPES))) {</span>
@@ -293,7 +293,7 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
                 }
             }
 <span class="nc" id="L295">        }</span>
-<span class="fc" id="L296">        return ans;</span>
+<span class="nc" id="L296">        return ans;</span>
     }
 
     /**
@@ -360,57 +360,57 @@ import com.agiletec.plugins.jpmail.aps.services.mail.IMailManager;
     }
 
     public void setContentSchedulerDAO(IContentSchedulerDAO contentSchedulerDAO) {
-<span class="fc" id="L363">        this._contentSchedulerDAO = contentSchedulerDAO;</span>
-<span class="fc" id="L364">    }</span>
+<span class="nc" id="L363">        this._contentSchedulerDAO = contentSchedulerDAO;</span>
+<span class="nc" id="L364">    }</span>
 
     public IUserManager getUserManager() {
 <span class="nc" id="L367">        return _userManager;</span>
     }
 
     public void setUserManager(IUserManager userManager) {
-<span class="fc" id="L371">        this._userManager = userManager;</span>
-<span class="fc" id="L372">    }</span>
+<span class="nc" id="L371">        this._userManager = userManager;</span>
+<span class="nc" id="L372">    }</span>
 
     protected IContentSearcherDAO getWorkContentSearcherDAO() {
-<span class="fc" id="L375">        return _workContentSearcherDAO;</span>
+<span class="nc" id="L375">        return _workContentSearcherDAO;</span>
     }
 
     public void setWorkContentSearcherDAO(IContentSearcherDAO workContentSearcherDAO) {
-<span class="fc" id="L379">        this._workContentSearcherDAO = workContentSearcherDAO;</span>
-<span class="fc" id="L380">    }</span>
+<span class="nc" id="L379">        this._workContentSearcherDAO = workContentSearcherDAO;</span>
+<span class="nc" id="L380">    }</span>
 
     public IMailManager getMailManager() {
 <span class="nc" id="L383">        return _mailManager;</span>
     }
 
     public void setMailManager(IMailManager mailManager) {
-<span class="fc" id="L387">        this._mailManager = mailManager;</span>
-<span class="fc" id="L388">    }</span>
+<span class="nc" id="L387">        this._mailManager = mailManager;</span>
+<span class="nc" id="L388">    }</span>
 
     @Override
     public ContentThreadConfig getConfig() {
-<span class="fc" id="L392">        return config;</span>
+<span class="nc" id="L392">        return config;</span>
     }
 
     public void setConfig(ContentThreadConfig config) {
-<span class="fc" id="L396">        this.config = config;</span>
-<span class="fc" id="L397">    }</span>
+<span class="nc" id="L396">        this.config = config;</span>
+<span class="nc" id="L397">    }</span>
 
     public ConfigInterface getConfigManager() {
-<span class="fc" id="L400">        return configManager;</span>
+<span class="nc" id="L400">        return configManager;</span>
     }
 
     public void setConfigManager(ConfigInterface configManager) {
-<span class="fc" id="L404">        this.configManager = configManager;</span>
-<span class="fc" id="L405">    }</span>
+<span class="nc" id="L404">        this.configManager = configManager;</span>
+<span class="nc" id="L405">    }</span>
 
     public IAuthorizationManager getAuthorizationManager() {
 <span class="nc" id="L408">        return _authorizationManager;</span>
     }
 
     public void setAuthorizationManager(IAuthorizationManager authorizationManager) {
-<span class="fc" id="L412">        this._authorizationManager = authorizationManager;</span>
-<span class="fc" id="L413">    }</span>
+<span class="nc" id="L412">        this._authorizationManager = authorizationManager;</span>
+<span class="nc" id="L413">    }</span>
 
     /**
      * Only for ONE SHOT Procedure
