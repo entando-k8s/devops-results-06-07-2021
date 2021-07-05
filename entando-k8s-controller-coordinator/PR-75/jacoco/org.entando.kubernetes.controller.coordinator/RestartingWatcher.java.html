@@ -16,10 +16,18 @@
 
 package org.entando.kubernetes.controller.coordinator;
 
+import io.fabric8.kubernetes.api.model.EventBuilder;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.entando.kubernetes.controller.spi.common.EntandoOperatorSpiConfig;
+import org.entando.kubernetes.controller.spi.common.FormatUtils;
 
 public interface RestartingWatcher&lt;T&gt; extends Watcher&lt;T&gt; {
 
@@ -27,16 +35,42 @@ public interface RestartingWatcher&lt;T&gt; extends Watcher&lt;T&gt; {
 
     @Override
     default void onClose(WatcherException cause) {
-<span class="pc bpc" id="L30" title="3 of 4 branches missed.">        if (cause.getMessage().contains(&quot;resourceVersion&quot;) &amp;&amp; cause.getMessage().contains(&quot;too old&quot;)) {</span>
-<span class="nc" id="L31">            Logger.getLogger(getClass().getName())</span>
-<span class="nc" id="L32">                    .log(Level.WARNING, () -&gt; &quot;EntandoResourceObserver closed due to out of date resourceVersion. Reconnecting ... &quot;);</span>
-<span class="nc" id="L33">            getRestartingAction().run();</span>
+<span class="pc bpc" id="L38" title="3 of 4 branches missed.">        if (cause.getMessage().contains(&quot;resourceVersion&quot;) &amp;&amp; cause.getMessage().contains(&quot;too old&quot;)) {</span>
+<span class="nc" id="L39">            Logger.getLogger(getClass().getName())</span>
+<span class="nc" id="L40">                    .log(Level.WARNING, () -&gt; &quot;EntandoResourceObserver closed due to out of date resourceVersion. Reconnecting ... &quot;);</span>
+<span class="nc" id="L41">            getRestartingAction().run();</span>
         } else {
-<span class="fc" id="L35">            Logger.getLogger(getClass().getName())</span>
-<span class="fc" id="L36">                    .log(Level.SEVERE, cause, () -&gt; &quot;EntandoResourceObserver closed. Can't reconnect. The container should restart now.&quot;);</span>
-<span class="fc" id="L37">            Liveness.dead();</span>
+<span class="fc" id="L43">            Logger.getLogger(getClass().getName())</span>
+<span class="fc" id="L44">                    .log(Level.SEVERE, cause, () -&gt; &quot;EntandoResourceObserver closed. Can't reconnect. The container should restart now.&quot;);</span>
+            //This code is temporary just to try to figure out why it is restarting so often
+<span class="fc" id="L46">            final DefaultKubernetesClient client = new DefaultKubernetesClient();</span>
+<span class="nc" id="L47">            final Pod pod = client.pods().inNamespace(client.getNamespace()).withName(EntandoOperatorSpiConfig.getControllerPodName())</span>
+<span class="nc" id="L48">                    .get();</span>
+<span class="nc" id="L49">            final StringWriter message = new StringWriter();</span>
+<span class="nc" id="L50">            cause.printStackTrace(new PrintWriter(message));</span>
+<span class="nc" id="L51">            client.v1().events().inNamespace(client.getNamespace()).create(new EventBuilder()</span>
+<span class="nc" id="L52">                    .withNewMetadata()</span>
+<span class="nc" id="L53">                    .withNamespace(client.getNamespace())</span>
+<span class="nc" id="L54">                    .withName(EntandoOperatorSpiConfig.getControllerPodName() + &quot;-restart&quot;)</span>
+<span class="nc" id="L55">                    .addToLabels(&quot;entando-operator-restarted&quot;, &quot;true&quot;)</span>
+<span class="nc" id="L56">                    .endMetadata()</span>
+<span class="nc" id="L57">                    .withCount(1)</span>
+<span class="nc" id="L58">                    .withFirstTimestamp(FormatUtils.format(LocalDateTime.now()))</span>
+<span class="nc" id="L59">                    .withLastTimestamp(FormatUtils.format(LocalDateTime.now()))</span>
+<span class="nc" id="L60">                    .withNewInvolvedObject()</span>
+<span class="nc" id="L61">                    .withApiVersion(&quot;&quot;)</span>
+<span class="nc" id="L62">                    .withKind(&quot;Pod&quot;)</span>
+<span class="nc" id="L63">                    .withNamespace(client.getNamespace())</span>
+<span class="nc" id="L64">                    .withName(EntandoOperatorSpiConfig.getControllerPodName())</span>
+<span class="nc" id="L65">                    .withUid(pod.getMetadata().getUid())</span>
+<span class="nc" id="L66">                    .withResourceVersion(pod.getMetadata().getResourceVersion())</span>
+<span class="nc" id="L67">                    .withFieldPath(&quot;status&quot;)</span>
+<span class="nc" id="L68">                    .endInvolvedObject()</span>
+<span class="nc" id="L69">                    .withMessage(message.toString())</span>
+<span class="nc" id="L70">                    .build());</span>
+<span class="nc" id="L71">            Liveness.dead();</span>
         }
 
-<span class="fc" id="L40">    }</span>
+<span class="nc" id="L74">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
