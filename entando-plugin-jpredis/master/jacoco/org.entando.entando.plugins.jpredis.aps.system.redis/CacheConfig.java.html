@@ -94,15 +94,15 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
     private CacheManager cacheManagerBean;
 
     private static RedisCacheConfiguration createCacheConfiguration(long timeoutInSeconds) {
-<span class="fc" id="L97">        return RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(timeoutInSeconds));</span>
+<span class="nc" id="L97">        return RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(timeoutInSeconds));</span>
     }
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        if (!this.active) {</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (!this.active) {</span>
 <span class="nc" id="L103">            return new LettuceConnectionFactory();</span>
         }
-<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (!StringUtils.isBlank(this.redisAddresses)) {</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (!StringUtils.isBlank(this.redisAddresses)) {</span>
 <span class="nc" id="L106">            logger.warn(&quot;** Redis Cluster with sentinel configuration - the master node will be the first node defined in REDIS_ADDRESSES parameter **&quot;);</span>
 <span class="nc" id="L107">            String[] addresses = this.redisAddresses.split(&quot;,&quot;);</span>
 <span class="nc" id="L108">            RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration();</span>
@@ -123,22 +123,22 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
             }
 <span class="nc" id="L124">            return new LettuceConnectionFactory(sentinelConfig);</span>
         } else {
-<span class="fc" id="L126">            logger.info(&quot;** Redis with single node configuration **&quot;);</span>
-<span class="fc" id="L127">            RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();</span>
-<span class="fc" id="L128">            String[] sections = this.redisAddress.substring(REDIS_PREFIX.length()).split(&quot;:&quot;);</span>
-<span class="fc" id="L129">            redisStandaloneConfiguration.setHostName(sections[0]);</span>
-<span class="fc" id="L130">            redisStandaloneConfiguration.setPort(Integer.parseInt(sections[1]));</span>
-<span class="pc bpc" id="L131" title="1 of 2 branches missed.">            if (!StringUtils.isBlank(this.redisPassword)) {</span>
+<span class="nc" id="L126">            logger.info(&quot;** Redis with single node configuration **&quot;);</span>
+<span class="nc" id="L127">            RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();</span>
+<span class="nc" id="L128">            String[] sections = this.redisAddress.substring(REDIS_PREFIX.length()).split(&quot;:&quot;);</span>
+<span class="nc" id="L129">            redisStandaloneConfiguration.setHostName(sections[0]);</span>
+<span class="nc" id="L130">            redisStandaloneConfiguration.setPort(Integer.parseInt(sections[1]));</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            if (!StringUtils.isBlank(this.redisPassword)) {</span>
 <span class="nc" id="L132">                redisStandaloneConfiguration.setPassword(this.redisPassword);</span>
             }
-<span class="fc" id="L134">            return new LettuceConnectionFactory(redisStandaloneConfiguration);</span>
+<span class="nc" id="L134">            return new LettuceConnectionFactory(redisStandaloneConfiguration);</span>
         }
     }
 
     @Primary
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (!this.active) {</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (!this.active) {</span>
 <span class="nc" id="L142">            logger.warn(&quot;** Redis not active **&quot;);</span>
 <span class="nc" id="L143">            DefaultEntandoCacheManager defaultCacheManager = new DefaultEntandoCacheManager();</span>
 <span class="nc" id="L144">            defaultCacheManager.setCaches(this.defaultCaches);</span>
@@ -146,10 +146,10 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 <span class="nc" id="L146">            defaultCacheManager.afterPropertiesSet();</span>
 <span class="nc" id="L147">            return defaultCacheManager;</span>
         }
-<span class="fc" id="L149">        RedisCacheConfiguration redisCacheConfiguration = this.buildDefaultConfiguration();</span>
-<span class="fc" id="L150">        Map&lt;String, RedisCacheConfiguration&gt; cacheConfigurations = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L149">        RedisCacheConfiguration redisCacheConfiguration = this.buildDefaultConfiguration();</span>
+<span class="nc" id="L150">        Map&lt;String, RedisCacheConfiguration&gt; cacheConfigurations = new HashMap&lt;&gt;();</span>
         // time to leave = 4 Hours
-<span class="fc" id="L152">        cacheConfigurations.put(ICacheInfoManager.DEFAULT_CACHE_NAME, createCacheConfiguration(4L * 60 * 60));</span>
+<span class="nc" id="L152">        cacheConfigurations.put(ICacheInfoManager.DEFAULT_CACHE_NAME, createCacheConfiguration(4L * 60 * 60));</span>
 <span class="nc" id="L153">        CacheFrontend&lt;String, Object&gt; cacheFrontend = this.buildCacheFrontend();</span>
 <span class="nc" id="L154">        LettuceCacheManager manager = LettuceCacheManager</span>
 <span class="nc" id="L155">                .builder(redisConnectionFactory)</span>
@@ -161,9 +161,9 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
     }
 
     protected CacheFrontend&lt;String, Object&gt; buildCacheFrontend() {
-<span class="fc" id="L164">        DefaultClientResources resources = DefaultClientResources.builder().build();</span>
-<span class="fc" id="L165">        StatefulRedisConnection&lt;String, Object&gt; myself = null;</span>
-<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (!StringUtils.isBlank(this.redisAddresses)) {</span>
+<span class="nc" id="L164">        DefaultClientResources resources = DefaultClientResources.builder().build();</span>
+<span class="nc" id="L165">        StatefulRedisConnection&lt;String, Object&gt; myself = null;</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (!StringUtils.isBlank(this.redisAddresses)) {</span>
 <span class="nc" id="L167">            logger.warn(&quot;** Client-side caching doesn't work on Redis Cluster and sharding data environments but only for Master/Slave environments (with sentinel) **&quot;);</span>
 <span class="nc" id="L168">            List&lt;String&gt; purgedAddresses = new ArrayList&lt;&gt;();</span>
 <span class="nc" id="L169">            String[] addresses = this.redisAddresses.split(&quot;,&quot;);</span>
@@ -191,11 +191,11 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
             };
 <span class="nc" id="L192">            myself = lettuceClient.connect(new SerializedObjectCodec());</span>
 <span class="nc" id="L193">        } else {</span>
-<span class="pc bpc" id="L194" title="1 of 2 branches missed.">            RedisURI redisUri = RedisURI.create((this.redisAddress.startsWith(REDIS_PREFIX)) ? this.redisAddress : REDIS_PREFIX + this.redisAddress);</span>
-<span class="pc bpc" id="L195" title="1 of 2 branches missed.">            if (!StringUtils.isBlank(this.redisPassword)) {</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            RedisURI redisUri = RedisURI.create((this.redisAddress.startsWith(REDIS_PREFIX)) ? this.redisAddress : REDIS_PREFIX + this.redisAddress);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">            if (!StringUtils.isBlank(this.redisPassword)) {</span>
 <span class="nc" id="L196">                redisUri.setPassword(this.redisPassword.toCharArray());</span>
             }
-<span class="fc" id="L198">            RedisClient lettuceClient = new RedisClient(resources, redisUri) {</span>
+<span class="nc" id="L198">            RedisClient lettuceClient = new RedisClient(resources, redisUri) {</span>
             };
 <span class="nc" id="L200">            myself = lettuceClient.connect(new SerializedObjectCodec());</span>
         }
@@ -215,13 +215,13 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
     }
     */
     private RedisCacheConfiguration buildDefaultConfiguration() {
-<span class="fc" id="L218">        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ZERO);</span>
-<span class="fc" id="L219">        ObjectMapper mapper = new Jackson2ObjectMapperBuilder()</span>
-<span class="fc" id="L220">                .failOnEmptyBeans(false)</span>
-<span class="fc" id="L221">                .build();</span>
-<span class="fc" id="L222">        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);</span>
-<span class="fc" id="L223">        config = config.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new JdkSerializationRedisSerializer()));</span>
-<span class="fc" id="L224">        return config;</span>
+<span class="nc" id="L218">        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ZERO);</span>
+<span class="nc" id="L219">        ObjectMapper mapper = new Jackson2ObjectMapperBuilder()</span>
+<span class="nc" id="L220">                .failOnEmptyBeans(false)</span>
+<span class="nc" id="L221">                .build();</span>
+<span class="nc" id="L222">        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);</span>
+<span class="nc" id="L223">        config = config.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new JdkSerializationRedisSerializer()));</span>
+<span class="nc" id="L224">        return config;</span>
     }
 
     protected CacheManager getCacheManagerBean() {
