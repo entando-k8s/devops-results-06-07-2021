@@ -1,0 +1,50 @@
+---
+internalServiceHostname: "my-app-ab-service.my-namespace.svc.cluster.local"
+ingress:
+  apiVersion: "extensions/v1beta1"
+  kind: "Ingress"
+  metadata:
+    name: "my-app-ingress"
+    namespace: "my-namespace"
+  isCustomResource: false
+mixins:
+- "ServiceDeploymentResult"
+- "ServiceResult"
+- "SerializableDeploymentResult"
+pod:
+  apiVersion: "v1"
+  kind: "Pod"
+  metadata:
+    name: "my-app-ab-deployment"
+    namespace: "my-namespace"
+  isCustomResource: false
+port: "8081"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "my-app-ab-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+externalBaseUrl: "https://my-app-my-namespace.apps.serv.run/app-builder/"
+externalHostUrl: "https://my-app-my-namespace.apps.serv.run"
+internalBaseUrl: "http://my-app-ab-service.my-namespace.svc.cluster.local:8081/app-builder/"
+status:
+  qualifier: "ab"
+  started: "2021-07-05T12:58:04+0000"
+  originatingCustomResource:
+    apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    namespace: "my-namespace"
+    name: "my-app"
+  originatingControllerPod:
+    namespace: "controller-namespace"
+    name: "entando-k8s-entando-k8s-app-con-b6pr2-32-from-build-pack--nkhkg"
+  finished: "2021-07-05T12:58:05+0000"
+  serviceName: "my-app-ab-service"
+  deploymentName: "my-app-ab-deployment"
+  webContexts:
+    appbuilder: "/app-builder/"
+  podPhases:
+    my-app-ab-deployment: "Running"
+  ingressName: "my-app-ingress"

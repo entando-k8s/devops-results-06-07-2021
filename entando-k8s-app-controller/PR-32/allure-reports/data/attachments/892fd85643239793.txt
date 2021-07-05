@@ -1,0 +1,265 @@
+---
+fileSystemUserAndGroupId: 185
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoApp"
+  metadata:
+    name: "my-app"
+    namespace: "my-namespace"
+  isCustomResource: true
+ssoClientConfig:
+  realm: "my-realm"
+  clientId: "my-app-de"
+  clientName: "my-app-de"
+  roles: []
+  permissions:
+  - clientId: "my-app"
+    role: "superuser"
+  redirectUri: []
+  webOrigins: []
+ingressNamespace: "my-namespace"
+mixins:
+- "DbAwareDeployable"
+- "Deployable"
+- "IngressingDeployable"
+- "SsoAwareDeployable"
+defaultServiceAccountName: "default"
+ssoConnectionInfo:
+  defaultRealm: "my-realm"
+  baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  mixins:
+  - "SsoConnectionInfo"
+  password: "password123"
+  externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+  internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  adminSecret:
+    apiVersion: "v1"
+    kind: "Secret"
+    metadata:
+      name: "default-sso-in-namespace-admin-secret"
+      namespace: "my-namespace"
+    stringData:
+      username: "jon"
+      password: "password123"
+  username: "jon"
+ingressRequired: true
+ingressName: "my-app-ingress"
+expectingDatabaseSchemas: true
+qualifier: "cm"
+containers:
+- databaseSchema:
+    schemaSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        labels:
+          EntandoApp: "my-app"
+        name: "my-app-dedb-secret"
+        ownerReferences:
+        - apiVersion: "entando.org/v1"
+          kind: "EntandoApp"
+          blockOwnerDeletion: true
+          controller: true
+          name: "my-app"
+          uid: "b9d50616-cfc9-47d3-bb1e-b144c36757f7"
+      stringData:
+        username: "my_app_dedb"
+        password: "470522e38a5a401f"
+    mixins:
+    - "DatabaseSchemaConnectionInfo"
+    database: "my_db"
+    passwordRef:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-dedb-secret"
+        optional: false
+    usernameRef:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-dedb-secret"
+        optional: false
+    jdbcUrl: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    schemaName: "my_app_dedb"
+    databaseServiceResult:
+      internalServiceHostname: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+      mixins:
+      - "ServiceResult"
+      - "DatabaseConnectionInfo"
+      databaseName: "my_db"
+      jdbcParameters: {}
+      port: "5432"
+      vendor: "POSTGRESQL"
+      adminSecretName: "default-postgresql-dbms-in-namespace-admin-secret"
+      service:
+        apiVersion: "v1"
+        kind: "Service"
+        metadata:
+          name: "default-postgresql-dbms-in-namespace-service"
+          namespace: "my-namespace"
+        spec:
+          clusterIP: "10.0.0.-26"
+          ports:
+          - port: 5432
+    schemaSecretName: "my-app-dedb-secret"
+  ssoVariables:
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI"
+    value: "https://mykeycloak.apps.serv.run/auth/realms/my-realm"
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: "clientSecret"
+        name: "my-app-de-secret"
+        optional: false
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID"
+    valueFrom:
+      secretKeyRef:
+        key: "clientId"
+        name: "my-app-de-secret"
+        optional: false
+  additionalPorts: []
+  dbms: "EMBEDDED"
+  ssoClientConfig:
+    realm: "my-realm"
+    clientId: "my-app-de"
+    clientName: "my-app-de"
+    roles: []
+    permissions:
+    - clientId: "my-app"
+      role: "superuser"
+    redirectUri: []
+    webOrigins: []
+  webContextPath: "/digital-exchange"
+  mixins:
+  - "HasWebContext"
+  - "ServiceBackingContainer"
+  - "ParameterizableContainer"
+  - "IngressingContainer"
+  - "IngressingPathOnPort"
+  - "PersistentVolumeAwareContainer"
+  - "SsoAwareContainer"
+  - "TrustStoreAwareContainer"
+  - "DbAwareContainer"
+  - "DeployableContainer"
+  kubernetesPermissions: []
+  nameQualifier: "de"
+  portForIngressPath: 8083
+  environmentVariableOverrides: []
+  memoryLimitMebibytes: 768
+  dockerImageInfo:
+    organization: "entando"
+    repository: "entando-component-manager"
+  volumeMountPath: "/entando-data"
+  namesOfSecretsToMount: []
+  trustStoreVariables:
+  - name: "JAVA_TOOL_OPTIONS"
+    valueFrom:
+      secretKeyRef:
+        key: "TRUSTSTORE_SETTINGS"
+        name: "entando-default-truststore"
+        optional: false
+  primaryPort: 8083
+  storageLimitMebibytes: 2048
+  healthCheckPath: "/digital-exchange/actuator/health"
+  maximumStartupTimeSeconds: 120
+  ssoConnectionInfo:
+    defaultRealm: "my-realm"
+    baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    mixins:
+    - "SsoConnectionInfo"
+    password: "password123"
+    externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+    internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    adminSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        name: "default-sso-in-namespace-admin-secret"
+        namespace: "my-namespace"
+      stringData:
+        username: "jon"
+        password: "password123"
+    username: "jon"
+  databaseConnectionVariables:
+  - name: "SPRING_DATASOURCE_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-dedb-secret"
+        optional: false
+  - name: "SPRING_DATASOURCE_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-dedb-secret"
+        optional: false
+  - name: "SPRING_DATASOURCE_URL"
+    value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+  - name: "SPRING_JPA_DATABASE_PLATFORM"
+    value: "org.hibernate.dialect.PostgreSQLDialect"
+  environmentVariables:
+  - name: "ENTANDO_APP_NAME"
+    value: "my-app"
+  - name: "ENTANDO_URL"
+    value: "http://my-app-service.my-namespace.svc.cluster.local:8080/entando-de-apps"
+  - name: "SERVER_PORT"
+    value: "8083"
+  - name: "ENTANDO_K8S_SERVICE_URL"
+    value: "http://entando-k8s-service.controller-namespace.svc.cluster.local:8084/k8s"
+  schemaConnectionInfo:
+  - schemaSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        labels:
+          EntandoApp: "my-app"
+        name: "my-app-dedb-secret"
+        ownerReferences:
+        - apiVersion: "entando.org/v1"
+          kind: "EntandoApp"
+          blockOwnerDeletion: true
+          controller: true
+          name: "my-app"
+          uid: "b9d50616-cfc9-47d3-bb1e-b144c36757f7"
+      stringData:
+        username: "my_app_dedb"
+        password: "470522e38a5a401f"
+    mixins:
+    - "DatabaseSchemaConnectionInfo"
+    database: "my_db"
+    passwordRef:
+      secretKeyRef:
+        key: "password"
+        name: "my-app-dedb-secret"
+        optional: false
+    usernameRef:
+      secretKeyRef:
+        key: "username"
+        name: "my-app-dedb-secret"
+        optional: false
+    jdbcUrl: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    schemaName: "my_app_dedb"
+    databaseServiceResult:
+      internalServiceHostname: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+      mixins:
+      - "ServiceResult"
+      - "DatabaseConnectionInfo"
+      databaseName: "my_db"
+      jdbcParameters: {}
+      port: "5432"
+      vendor: "POSTGRESQL"
+      adminSecretName: "default-postgresql-dbms-in-namespace-admin-secret"
+      service:
+        apiVersion: "v1"
+        kind: "Service"
+        metadata:
+          name: "default-postgresql-dbms-in-namespace-service"
+          namespace: "my-namespace"
+        spec:
+          clusterIP: "10.0.0.-26"
+          ports:
+          - port: 5432
+    schemaSecretName: "my-app-dedb-secret"
+  secretsToMount: []
+  cpuLimitMillicores: 750
+serviceAccountToUse: "default"
