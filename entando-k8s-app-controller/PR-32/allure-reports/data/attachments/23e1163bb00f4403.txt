@@ -1,0 +1,120 @@
+--- !<EntandoApp>
+apiVersion: "entando.org/v1"
+kind: "EntandoApp"
+metadata:
+  generation: 1
+  name: "my-app"
+  namespace: "my-namespace"
+  resourceVersion: "5734316"
+  uid: "512b2e05-8b20-4fd3-8448-59e08059ca6a"
+spec:
+  replicas: 1
+  environmentVariables: []
+status:
+  serverStatuses:
+    db:
+      type: "WebServerStatus"
+      qualifier: "db"
+      started: "2021-07-05T14:46:48+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "ProvidedCapability"
+        namespace: "my-namespace"
+        name: "default-postgresql-dbms-in-namespace"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "my-test-pod"
+      serviceName: "default-postgresql-dbms-in-namespace-service"
+      adminSecretName: "default-postgresql-dbms-in-namespace-admin-secret"
+      derivedDeploymentParameters:
+        databaseName: "my_db"
+        dbmsVendor: "postgresql"
+    sso:
+      type: "WebServerStatus"
+      qualifier: "sso"
+      started: "2021-07-05T14:46:48+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "ProvidedCapability"
+        namespace: "my-namespace"
+        name: "default-sso-in-namespace"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "my-test-pod"
+      serviceName: "default-sso-in-namespace-service"
+      adminSecretName: "default-sso-in-namespace-admin-secret"
+      derivedDeploymentParameters:
+        defaultRealm: "my-realm"
+      ingressName: "default-sso-in-namespace-ingress"
+      externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+    ab:
+      type: "WebServerStatus"
+      qualifier: "ab"
+      started: "2021-07-05T14:46:48+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "EntandoApp"
+        namespace: "my-namespace"
+        name: "my-app"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "entando-k8s-entando-k8s-app-con-qfsdk-36-from-build-pack--v5nnz"
+      serviceName: "my-app-ab-service"
+      deploymentName: "my-app-ab-deployment"
+      webContexts:
+        appbuilder: "/app-builder/"
+      podPhases:
+        my-app-ab-deployment: "Running"
+      ingressName: "my-app-ingress"
+    cm:
+      type: "WebServerStatus"
+      qualifier: "cm"
+      started: "2021-07-05T14:46:48+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "EntandoApp"
+        namespace: "my-namespace"
+        name: "my-app"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "entando-k8s-entando-k8s-app-con-qfsdk-36-from-build-pack--v5nnz"
+      serviceName: "my-app-cm-service"
+      deploymentName: "my-app-cm-deployment"
+      ssoRealm: "my-realm"
+      ssoClientId: "my-app-de"
+      webContexts:
+        de: "/digital-exchange"
+      podPhases:
+        my-app-cm-deployment: "Running"
+        my-app-dbprep-8e40: "Complete"
+      persistentVolumeClaimPhases:
+        my-app-de-pvc: "Pending"
+      ingressName: "my-app-ingress"
+    main:
+      type: "WebServerStatus"
+      qualifier: "main"
+      started: "2021-07-05T14:46:48+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "EntandoApp"
+        namespace: "my-namespace"
+        name: "my-app"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "entando-k8s-entando-k8s-app-con-qfsdk-36-from-build-pack--v5nnz"
+      serviceName: "my-app-service"
+      deploymentName: "my-app-deployment"
+      ssoRealm: "my-realm"
+      ssoClientId: "my-app"
+      webContexts:
+        server: "/entando-de-app"
+      podPhases:
+        my-app-dbprep-6b6c: "Complete"
+        my-app-deployment: "Running"
+      persistentVolumeClaimPhases:
+        my-app-server-pvc: "Pending"
+      ingressName: "my-app-ingress"
+  observedGeneration: 1
+  phase: "successful"
+  entandoDeploymentPhase: "successful"
+crdName: "entandoapps.entando.org"
