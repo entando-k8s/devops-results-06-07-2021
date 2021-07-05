@@ -16,6 +16,8 @@
 
 package org.entando.kubernetes.model.common;
 
+import static java.util.Optional.ofNullable;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -31,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 @JsonSerialize
 @JsonDeserialize
 @JsonInclude(Include.NON_NULL)
@@ -38,49 +41,49 @@ import java.util.concurrent.ConcurrentHashMap;
         setterVisibility = Visibility.NONE)
 @RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
-<span class="fc" id="L41">public class EntandoCustomResourceStatus implements Serializable {</span>
+<span class="fc" id="L44">public class EntandoCustomResourceStatus implements Serializable {</span>
 
-<span class="fc" id="L43">    private Map&lt;String, ServerStatus&gt; serverStatuses = new ConcurrentHashMap&lt;&gt;();</span>
-
+<span class="fc" id="L46">    private final Map&lt;String, ServerStatus&gt; serverStatuses = new ConcurrentHashMap&lt;&gt;();</span>
     private Long observedGeneration;
-
     private EntandoDeploymentPhase phase;
+    private EntandoDeploymentPhase entandoDeploymentPhase;//for backward compatibility
 
     public EntandoDeploymentPhase getPhase() {
-<span class="fc" id="L50">        return phase;</span>
+<span class="fc" id="L52">        return ofNullable(phase).orElse(entandoDeploymentPhase);</span>
     }
 
     public void updateDeploymentPhase(EntandoDeploymentPhase entandoDeploymentPhase, Long observedGeneration) {
-<span class="fc" id="L54">        this.phase = entandoDeploymentPhase;</span>
-<span class="fc" id="L55">        this.observedGeneration = observedGeneration;</span>
-<span class="fc" id="L56">    }</span>
+<span class="fc" id="L56">        this.phase = entandoDeploymentPhase;</span>
+<span class="fc" id="L57">        this.entandoDeploymentPhase = entandoDeploymentPhase;</span>
+<span class="fc" id="L58">        this.observedGeneration = observedGeneration;</span>
+<span class="fc" id="L59">    }</span>
 
     public boolean hasFailed() {
-<span class="fc" id="L59">        return findFailedServerStatus().isPresent();</span>
+<span class="fc" id="L62">        return findFailedServerStatus().isPresent();</span>
     }
 
     public Optional&lt;ServerStatus&gt; findFailedServerStatus() {
-<span class="fc" id="L63">        return serverStatuses.values().stream().filter(ServerStatus::hasFailed).findFirst();</span>
+<span class="fc" id="L66">        return serverStatuses.values().stream().filter(ServerStatus::hasFailed).findFirst();</span>
     }
 
     public Collection&lt;ServerStatus&gt; getServerStatuses() {
-<span class="fc" id="L67">        return Collections.unmodifiableCollection(this.serverStatuses.values());</span>
+<span class="fc" id="L70">        return Collections.unmodifiableCollection(this.serverStatuses.values());</span>
     }
 
     public void putServerStatus(ServerStatus status) {
-<span class="fc" id="L71">        serverStatuses.put(status.getQualifier(), status);</span>
-<span class="fc" id="L72">    }</span>
+<span class="fc" id="L74">        serverStatuses.put(status.getQualifier(), status);</span>
+<span class="fc" id="L75">    }</span>
 
     public Optional&lt;ServerStatus&gt; getServerStatus(String qualifier) {
-<span class="fc" id="L75">        return Optional.ofNullable(serverStatuses.get(qualifier));</span>
+<span class="fc" id="L78">        return ofNullable(serverStatuses.get(qualifier));</span>
     }
 
     public EntandoDeploymentPhase calculateFinalPhase() {
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        return hasFailed() ? EntandoDeploymentPhase.FAILED : EntandoDeploymentPhase.SUCCESSFUL;</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        return hasFailed() ? EntandoDeploymentPhase.FAILED : EntandoDeploymentPhase.SUCCESSFUL;</span>
     }
 
     public Long getObservedGeneration() {
-<span class="fc" id="L83">        return observedGeneration;</span>
+<span class="fc" id="L86">        return observedGeneration;</span>
     }
 
 }
