@@ -1,0 +1,85 @@
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    openshift.io/scc: "anyuid"
+  creationTimestamp: "2021-07-06T09:02:34Z"
+  labels:
+    pod-label: "123"
+  name: "my-pod"
+  namespace: "entando-k8s-operator-common-cmpr60-test1"
+  resourceVersion: "207767379"
+  selfLink: "/api/v1/namespaces/entando-k8s-operator-common-cmpr60-test1/pods/my-pod"
+  uid: "e783dd19-de38-11eb-ad14-fa163ea775ae"
+spec:
+  containers:
+  - command:
+    - "/usr/libexec/s2i/run"
+    image: "entando/test-nginx-container:latest"
+    imagePullPolicy: "Always"
+    name: "nginx"
+    ports:
+    - containerPort: 8080
+      protocol: "TCP"
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - "MKNOD"
+    terminationMessagePath: "/dev/termination-log"
+    terminationMessagePolicy: "File"
+    volumeMounts:
+    - mountPath: "/var/run/secrets/kubernetes.io/serviceaccount"
+      name: "default-token-2hwbg"
+      readOnly: true
+  dnsPolicy: "ClusterFirst"
+  imagePullSecrets:
+  - name: "redhat-registry"
+  - name: "default-dockercfg-gx8tf"
+  nodeName: "openshift"
+  nodeSelector:
+    node-role.kubernetes.io/compute: "true"
+  priority: 0
+  restartPolicy: "Always"
+  schedulerName: "default-scheduler"
+  securityContext:
+    seLinuxOptions:
+      level: "s0:c166,c80"
+  serviceAccount: "default"
+  serviceAccountName: "default"
+  terminationGracePeriodSeconds: 30
+  volumes:
+  - name: "default-token-2hwbg"
+    secret:
+      defaultMode: 420
+      secretName: "default-token-2hwbg"
+status:
+  conditions:
+  - lastTransitionTime: "2021-07-06T09:02:34Z"
+    status: "True"
+    type: "Initialized"
+  - lastTransitionTime: "2021-07-06T09:02:39Z"
+    status: "True"
+    type: "Ready"
+  - status: "True"
+    type: "ContainersReady"
+  - lastTransitionTime: "2021-07-06T09:02:34Z"
+    status: "True"
+    type: "PodScheduled"
+  containerStatuses:
+  - containerID: "docker://33d27772a82c8974d92dee636691bd16580b45841648214f049c17dc2db0b85e"
+    image: "docker.io/entando/test-nginx-container:latest"
+    imageID: "docker-pullable://docker.io/entando/test-nginx-container@sha256:6aa6f522f5ff569c4e43e8c5d5f193eca213599f16fe0dfc7d0e357ccfc5701f"
+    lastState: {}
+    name: "nginx"
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: "2021-07-06T09:02:38Z"
+  hostIP: "54.36.53.206"
+  phase: "Running"
+  podIP: "10.128.1.223"
+  qosClass: "BestEffort"
+  startTime: "2021-07-06T09:02:34Z"
