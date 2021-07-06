@@ -1,0 +1,74 @@
+--- !<EntandoApp>
+apiVersion: "entando.org/v1"
+kind: "EntandoApp"
+metadata:
+  generation: 1
+  name: "my-app"
+  namespace: "my-namespace"
+  resourceVersion: "3428521"
+  uid: "092c4b68-1851-45d4-b8ef-b45723391b16"
+spec:
+  dbms: "embedded"
+  replicas: 1
+  environmentVariables: []
+status:
+  serverStatuses:
+    cm:
+      type: "WebServerStatus"
+      qualifier: "cm"
+      started: "2021-07-06T11:49:02+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "EntandoApp"
+        namespace: "my-namespace"
+        name: "my-app"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "my-test-pod"
+      serviceName: "my-app-cm-service"
+      adminSecretName: "my-app-admin-secret"
+      ssoRealm: "my-realm"
+      ssoClientId: "my-cm-sso-client-id"
+      webContexts:
+        server: "/digital-exchange"
+      ingressName: "my-app-ingress"
+      externalBaseUrl: "https://myhost.com/digital-exchange"
+    main:
+      type: "WebServerStatus"
+      qualifier: "main"
+      started: "2021-07-06T11:49:03+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "EntandoApp"
+        namespace: "my-namespace"
+        name: "my-app"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "my-test-pod"
+      serviceName: "my-app-service"
+      adminSecretName: "my-app-admin-secret"
+      ssoRealm: "my-realm"
+      ssoClientId: "my-app-sso-client-id"
+      webContexts:
+        server: "/entando-de-app"
+      ingressName: "my-app-ingress"
+      externalBaseUrl: "https://myhost.com/entando-de-app"
+    sso:
+      type: "WebServerStatus"
+      qualifier: "sso"
+      started: "2021-07-06T11:49:02+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "ProvidedCapability"
+        namespace: "my-namespace"
+        name: "my-sso"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "my-test-pod"
+      serviceName: "my-sso-service"
+      adminSecretName: "my-sso-admin-secret"
+      derivedDeploymentParameters:
+        defaultRealm: "my-default-realm"
+      ingressName: "my-sso-ingress"
+      externalBaseUrl: "https://mykeycloak.com/auth"
+crdName: "entandoapps.entando.org"
