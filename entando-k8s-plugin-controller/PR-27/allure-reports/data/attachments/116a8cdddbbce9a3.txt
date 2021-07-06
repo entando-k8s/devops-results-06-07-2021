@@ -1,0 +1,268 @@
+---
+fileSystemUserAndGroupId: 185
+replicas: 1
+customResource:
+  apiVersion: "entando.org/v1"
+  kind: "EntandoPlugin"
+  metadata:
+    name: "my-plugin"
+    namespace: "my-namespace"
+  isCustomResource: true
+ssoClientConfig:
+  realm: "my-realm"
+  clientId: "my-plugin-server"
+  clientName: "my-plugin"
+  roles:
+  - code: "entandoApp"
+  permissions: []
+  redirectUri: []
+  webOrigins: []
+ingressNamespace: "my-namespace"
+mixins:
+- "IngressingDeployable"
+- "DbAwareDeployable"
+- "SsoAwareDeployable"
+- "Deployable"
+defaultServiceAccountName: "entando-plugin"
+ingressRequired: true
+ssoConnectionInfo:
+  defaultRealm: "my-realm"
+  baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  mixins:
+  - "SsoConnectionInfo"
+  password: "password123"
+  externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+  internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+  adminSecret:
+    apiVersion: "v1"
+    kind: "Secret"
+    metadata:
+      name: "default-sso-in-namespace-admin-secret"
+      namespace: "my-namespace"
+    stringData:
+      username: "jon"
+      password: "password123"
+  username: "jon"
+ingressName: "my-plugin-ingress"
+expectingDatabaseSchemas: true
+containers:
+- databaseSchema:
+    schemaSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        labels:
+          EntandoPlugin: "my-plugin"
+        name: "my-plugin-plugindb-secret"
+        ownerReferences:
+        - apiVersion: "entando.org/v1"
+          kind: "EntandoPlugin"
+          blockOwnerDeletion: true
+          controller: true
+          name: "my-plugin"
+          uid: "0dc1a52a-a5ed-4180-8c6c-766cf7ead5da"
+      stringData:
+        username: "my_plugin_plugindb"
+        password: "52e4b8d4cb4a4a9c"
+    mixins:
+    - "DatabaseSchemaConnectionInfo"
+    database: "my_db"
+    passwordRef:
+      secretKeyRef:
+        key: "password"
+        name: "my-plugin-plugindb-secret"
+        optional: false
+    usernameRef:
+      secretKeyRef:
+        key: "username"
+        name: "my-plugin-plugindb-secret"
+        optional: false
+    jdbcUrl: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    schemaName: "my_plugin_plugindb"
+    databaseServiceResult:
+      internalServiceHostname: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+      mixins:
+      - "ServiceResult"
+      - "DatabaseConnectionInfo"
+      databaseName: "my_db"
+      jdbcParameters: {}
+      port: "5432"
+      vendor: "POSTGRESQL"
+      adminSecretName: "default-postgresql-dbms-in-namespace-admin-secret"
+      service:
+        apiVersion: "v1"
+        kind: "Service"
+        metadata:
+          name: "default-postgresql-dbms-in-namespace-service"
+          namespace: "my-namespace"
+        spec:
+          clusterIP: "10.0.0.-25"
+          ports:
+          - port: 5432
+    schemaSecretName: "my-plugin-plugindb-secret"
+  ssoVariables:
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI"
+    value: "https://mykeycloak.apps.serv.run/auth/realms/my-realm"
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET"
+    valueFrom:
+      secretKeyRef:
+        key: "clientSecret"
+        name: "my-plugin-server-secret"
+        optional: false
+  - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID"
+    valueFrom:
+      secretKeyRef:
+        key: "clientId"
+        name: "my-plugin-server-secret"
+        optional: false
+  additionalPorts: []
+  dbms: "POSTGRESQL"
+  ssoClientConfig:
+    realm: "my-realm"
+    clientId: "my-plugin-server"
+    clientName: "my-plugin"
+    roles:
+    - code: "entandoApp"
+    permissions: []
+    redirectUri: []
+    webOrigins: []
+  webContextPath: "/my-plugin"
+  mixins:
+  - "ParameterizableContainer"
+  - "DbAwareContainer"
+  - "DeployableContainer"
+  - "TrustStoreAwareContainer"
+  - "IngressingContainer"
+  - "ServiceBackingContainer"
+  - "HasWebContext"
+  - "SsoAwareContainer"
+  - "IngressingPathOnPort"
+  - "ConfigurableResourceContainer"
+  - "PersistentVolumeAwareContainer"
+  kubernetesPermissions: []
+  nameQualifier: "server"
+  portForIngressPath: 8081
+  environmentVariableOverrides: []
+  memoryLimitMebibytes: 1024
+  dockerImageInfo:
+    organization: "entando"
+    repository: "my-plugin"
+    tag: "6.2.1"
+  namesOfSecretsToMount: []
+  volumeMountPath: "/entando-data"
+  trustStoreVariables:
+  - name: "JAVA_TOOL_OPTIONS"
+    valueFrom:
+      secretKeyRef:
+        key: "TRUSTSTORE_SETTINGS"
+        name: "entando-default-truststore"
+        optional: false
+  primaryPort: 8081
+  storageLimitMebibytes: 2048
+  healthCheckPath: "/my-pluginnull"
+  maximumStartupTimeSeconds: 120
+  ssoConnectionInfo:
+    defaultRealm: "my-realm"
+    baseUrlToUse: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    mixins:
+    - "SsoConnectionInfo"
+    password: "password123"
+    externalBaseUrl: "https://mykeycloak.apps.serv.run/auth"
+    internalBaseUrl: "http://default-sso-in-namespace-service.my-namespace.svc.cluster.local:8080/auth"
+    adminSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        name: "default-sso-in-namespace-admin-secret"
+        namespace: "my-namespace"
+      stringData:
+        username: "jon"
+        password: "password123"
+    username: "jon"
+  databaseConnectionVariables:
+  - name: "SPRING_DATASOURCE_USERNAME"
+    valueFrom:
+      secretKeyRef:
+        key: "username"
+        name: "my-plugin-plugindb-secret"
+        optional: false
+  - name: "SPRING_DATASOURCE_PASSWORD"
+    valueFrom:
+      secretKeyRef:
+        key: "password"
+        name: "my-plugin-plugindb-secret"
+        optional: false
+  - name: "SPRING_DATASOURCE_URL"
+    value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+  - name: "SPRING_JPA_DATABASE_PLATFORM"
+    value: "org.hibernate.dialect.PostgreSQLDialect"
+  environmentVariables:
+  - name: "PORT"
+    value: "8081"
+  - name: "SPRING_PROFILES_ACTIVE"
+    value: "default,prod"
+  - name: "ENTANDO_WIDGETS_FOLDER"
+    value: "/app/resources/widgets"
+  - name: "ENTANDO_CONNECTIONS_ROOT"
+    value: "/etc/entando/secrets"
+  - name: "ENTANDO_PLUGIN_SECURITY_LEVEL"
+    value: "STRICT"
+  - name: "PLUGIN_SIDECAR_PORT"
+    value: "8084"
+  schemaConnectionInfo:
+  - schemaSecret:
+      apiVersion: "v1"
+      kind: "Secret"
+      metadata:
+        labels:
+          EntandoPlugin: "my-plugin"
+        name: "my-plugin-plugindb-secret"
+        ownerReferences:
+        - apiVersion: "entando.org/v1"
+          kind: "EntandoPlugin"
+          blockOwnerDeletion: true
+          controller: true
+          name: "my-plugin"
+          uid: "0dc1a52a-a5ed-4180-8c6c-766cf7ead5da"
+      stringData:
+        username: "my_plugin_plugindb"
+        password: "52e4b8d4cb4a4a9c"
+    mixins:
+    - "DatabaseSchemaConnectionInfo"
+    database: "my_db"
+    passwordRef:
+      secretKeyRef:
+        key: "password"
+        name: "my-plugin-plugindb-secret"
+        optional: false
+    usernameRef:
+      secretKeyRef:
+        key: "username"
+        name: "my-plugin-plugindb-secret"
+        optional: false
+    jdbcUrl: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+    schemaName: "my_plugin_plugindb"
+    databaseServiceResult:
+      internalServiceHostname: "default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local"
+      mixins:
+      - "ServiceResult"
+      - "DatabaseConnectionInfo"
+      databaseName: "my_db"
+      jdbcParameters: {}
+      port: "5432"
+      vendor: "POSTGRESQL"
+      adminSecretName: "default-postgresql-dbms-in-namespace-admin-secret"
+      service:
+        apiVersion: "v1"
+        kind: "Service"
+        metadata:
+          name: "default-postgresql-dbms-in-namespace-service"
+          namespace: "my-namespace"
+        spec:
+          clusterIP: "10.0.0.-25"
+          ports:
+          - port: 5432
+    schemaSecretName: "my-plugin-plugindb-secret"
+  secretsToMount: []
+  cpuLimitMillicores: 1000
+serviceAccountToUse: "entando-plugin"
