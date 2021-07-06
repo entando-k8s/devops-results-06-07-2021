@@ -1,0 +1,31 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoKeycloakServer: "my-keycloak"
+    deployment: "my-keycloak"
+  name: "my-keycloak-service"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoKeycloakServer"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-keycloak"
+    uid: "247a0119-66f7-451e-9dd9-6c89afa60ded"
+spec:
+  clusterIP: "10.0.0.-108"
+  ports:
+  - name: "server-port"
+    port: 8080
+    protocol: "TCP"
+    targetPort: 8080
+  selector:
+    EntandoResourceKind: "EntandoKeycloakServer"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoKeycloakServer: "my-keycloak"
+    deployment: "my-keycloak"
+  type: "ClusterIP"
