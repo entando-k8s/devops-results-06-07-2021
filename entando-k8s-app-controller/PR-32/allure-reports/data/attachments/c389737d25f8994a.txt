@@ -1,0 +1,128 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoResourceKind: "EntandoApp"
+    EntandoResourceNamespace: "my-namespace"
+    EntandoApp: "my-app"
+    deployment: "my-app-cm"
+  name: "my-app-cm-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoApp"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-app"
+    uid: "eaae321a-afca-4f66-84bb-26444ed5d0f3"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoResourceKind: "EntandoApp"
+      EntandoResourceNamespace: "my-namespace"
+      EntandoApp: "my-app"
+      deployment: "my-app-cm"
+  template:
+    metadata:
+      labels:
+        EntandoResourceKind: "EntandoApp"
+        EntandoResourceNamespace: "my-namespace"
+        EntandoApp: "my-app"
+        deployment: "my-app-cm"
+      name: "my-app-cm-pod"
+    spec:
+      containers:
+      - env:
+        - name: "SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI"
+          value: "https://mykeycloak.apps.serv.run/auth/realms/my-realm"
+        - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET"
+          valueFrom:
+            secretKeyRef:
+              key: "clientSecret"
+              name: "my-app-de-secret"
+              optional: false
+        - name: "SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID"
+          valueFrom:
+            secretKeyRef:
+              key: "clientId"
+              name: "my-app-de-secret"
+              optional: false
+        - name: "SPRING_DATASOURCE_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              key: "username"
+              name: "my-app-dedb-secret"
+              optional: false
+        - name: "SPRING_DATASOURCE_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "my-app-dedb-secret"
+              optional: false
+        - name: "SPRING_DATASOURCE_URL"
+          value: "jdbc:postgresql://default-postgresql-dbms-in-namespace-service.my-namespace.svc.cluster.local:5432/my_db"
+        - name: "SPRING_JPA_DATABASE_PLATFORM"
+          value: "org.hibernate.dialect.PostgreSQLDialect"
+        - name: "SERVER_SERVLET_CONTEXT_PATH"
+          value: "/digital-exchange"
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        - name: "ENTANDO_APP_NAME"
+          value: "my-app"
+        - name: "ENTANDO_URL"
+          value: "http://my-app-service.my-namespace.svc.cluster.local:8080/entando-de-app"
+        - name: "SERVER_PORT"
+          value: "8083"
+        - name: "ENTANDO_K8S_SERVICE_URL"
+          value: "http://entando-k8s-service.controller-namespace.svc.cluster.local:8084/k8s"
+        image: "docker.io/entando/entando-component-manager:latest"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/digital-exchange/actuator/health"
+            port: 8083
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: "de-container"
+        ports:
+        - containerPort: 8083
+          name: "de-port"
+          protocol: "TCP"
+        readinessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: "/digital-exchange/actuator/health"
+            port: 8083
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "768Mi"
+            cpu: "750m"
+          requests:
+            memory: "192Mi"
+            cpu: "188m"
+        startupProbe:
+          failureThreshold: 11
+          httpGet:
+            path: "/digital-exchange/actuator/health"
+            port: 8083
+          periodSeconds: 12
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: "/entando-data"
+          name: "my-app-de-volume"
+          readOnly: false
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      securityContext:
+        fsGroup: 185
+      serviceAccountName: "default"
+      volumes:
+      - name: "my-app-de-volume"
+        persistentVolumeClaim:
+          claimName: "my-app-de-pvc"
+          readOnly: false
