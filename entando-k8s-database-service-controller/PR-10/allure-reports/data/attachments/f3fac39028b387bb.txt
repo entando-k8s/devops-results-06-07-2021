@@ -1,0 +1,28 @@
+---
+internalServiceHostname: "specified-dbms-service.my-namespace.svc.cluster.local"
+mixins:
+- "ServiceResult"
+- "ServiceDeploymentResult"
+- "SerializableDeploymentResult"
+port: "3307"
+service:
+  apiVersion: "v1"
+  kind: "Service"
+  metadata:
+    name: "specified-dbms-service"
+    namespace: "my-namespace"
+  isCustomResource: false
+status:
+  type: "WebServerStatus"
+  qualifier: "main"
+  started: "2021-07-06T10:39:53+0000"
+  originatingCustomResource:
+    apiVersion: "entando.org/v1"
+    kind: "EntandoDatabaseService"
+    namespace: "my-namespace"
+    name: "specified-dbms"
+  originatingControllerPod:
+    namespace: "controller-namespace"
+    name: "test-controller-pod"
+  finished: "2021-07-06T10:39:53+0000"
+  serviceName: "specified-dbms-service"

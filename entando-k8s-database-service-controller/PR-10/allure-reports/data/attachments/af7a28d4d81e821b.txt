@@ -1,0 +1,28 @@
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    EntandoDatabaseService: "specified-dbms"
+    EntandoResourceKind: "EntandoDatabaseService"
+    entando.org/capability: "Dbms"
+    capabilityProvisionScope: "Specified"
+    EntandoResourceNamespace: "my-namespace"
+    entando.org/capability-implementation: "Mysql"
+    deployment: "specified-dbms"
+  name: "specified-dbms-service"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoDatabaseService"
+    blockOwnerDeletion: true
+    controller: true
+    name: "specified-dbms"
+    uid: "14d0e77d-88ab-4607-8aeb-0653052b91c3"
+spec:
+  clusterIP: "10.0.0.-92"
+  externalName: "pg.apps.serv.run"
+  ports:
+  - port: 3307
+    targetPort: 3307
+  type: "ExternalName"

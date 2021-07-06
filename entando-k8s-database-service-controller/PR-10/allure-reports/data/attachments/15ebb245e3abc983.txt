@@ -1,0 +1,38 @@
+--- !<EntandoDatabaseService>
+apiVersion: "entando.org/v1"
+kind: "EntandoDatabaseService"
+metadata:
+  generation: 1
+  labels:
+    entando.org/capability: "Dbms"
+    capabilityProvisionScope: "Specified"
+    entando.org/capability-implementation: "Mysql"
+  name: "specified-dbms"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "ProvidedCapability"
+    blockOwnerDeletion: true
+    controller: true
+    name: "specified-dbms"
+    uid: "36d19a88-1b5c-4785-9be5-49c74fe7a9c4"
+  resourceVersion: "7716886"
+  uid: "14d0e77d-88ab-4607-8aeb-0653052b91c3"
+spec:
+  dbms: "mysql"
+  host: "pg.apps.serv.run"
+  port: 3307
+  databaseName: "my_db"
+  secretName: "my-existing-dbms-admin-secret"
+  createDeployment: false
+  jdbcParameters:
+    disconnectOnExpiredPasswords: "true"
+  replicas: 1
+  environmentVariables: []
+  providedCapabilityScope: "Specified"
+status:
+  serverStatuses: {}
+  observedGeneration: 1
+  phase: "successful"
+  entandoDeploymentPhase: "successful"
+crdName: "entandodatabaseservices.entando.org"

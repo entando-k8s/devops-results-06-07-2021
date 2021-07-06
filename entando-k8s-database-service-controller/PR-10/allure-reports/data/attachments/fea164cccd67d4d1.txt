@@ -1,0 +1,50 @@
+--- !<EntandoDatabaseService>
+apiVersion: "entando.org/v1"
+kind: "EntandoDatabaseService"
+metadata:
+  generation: 1
+  labels:
+    entando.org/capability: "Dbms"
+    capabilityProvisionScope: "Namespace"
+  name: "default-dbms-in-namespace"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "ProvidedCapability"
+    blockOwnerDeletion: true
+    controller: true
+    name: "default-dbms-in-namespace"
+    uid: "5f6f72b3-da24-497a-b05c-4710f3e64dec"
+  resourceVersion: "1046863"
+  uid: "321e7d26-5fba-4ac0-998d-8eda0ffff7ba"
+spec:
+  dbms: "postgresql"
+  createDeployment: true
+  jdbcParameters: {}
+  replicas: 1
+  environmentVariables: []
+  providedCapabilityScope: "Namespace"
+status:
+  serverStatuses:
+    main:
+      type: "WebServerStatus"
+      qualifier: "main"
+      started: "2021-07-06T10:39:49+0000"
+      originatingCustomResource:
+        apiVersion: "entando.org/v1"
+        kind: "EntandoDatabaseService"
+        namespace: "my-namespace"
+        name: "default-dbms-in-namespace"
+      originatingControllerPod:
+        namespace: "controller-namespace"
+        name: "test-controller-pod"
+      serviceName: "default-dbms-in-namespace-service"
+      deploymentName: "default-dbms-in-namespace-deployment"
+      podPhases:
+        default-dbms-in-namespace-deployment: "Running"
+      persistentVolumeClaimPhases:
+        default-dbms-in-namespace-db-pvc: "Pending"
+  observedGeneration: 1
+  phase: "successful"
+  entandoDeploymentPhase: "successful"
+crdName: "entandodatabaseservices.entando.org"

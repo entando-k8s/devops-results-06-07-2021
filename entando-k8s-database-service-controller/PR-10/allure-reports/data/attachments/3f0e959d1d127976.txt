@@ -1,0 +1,109 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    EntandoDatabaseService: "my-labelled-mysql-dbms"
+    EntandoResourceKind: "EntandoDatabaseService"
+    my-label: "my-label-value"
+    EntandoResourceNamespace: "my-namespace"
+    deployment: "my-labelled-mysql-dbms"
+  name: "my-labelled-mysql-dbms-deployment"
+  namespace: "my-namespace"
+  ownerReferences:
+  - apiVersion: "entando.org/v1"
+    kind: "EntandoDatabaseService"
+    blockOwnerDeletion: true
+    controller: true
+    name: "my-labelled-mysql-dbms"
+    uid: "f53e3469-e8d1-4865-ab5e-c3330847e6f9"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      EntandoDatabaseService: "my-labelled-mysql-dbms"
+      EntandoResourceKind: "EntandoDatabaseService"
+      my-label: "my-label-value"
+      EntandoResourceNamespace: "my-namespace"
+      deployment: "my-labelled-mysql-dbms"
+  template:
+    metadata:
+      labels:
+        EntandoDatabaseService: "my-labelled-mysql-dbms"
+        EntandoResourceKind: "EntandoDatabaseService"
+        my-label: "my-label-value"
+        EntandoResourceNamespace: "my-namespace"
+        deployment: "my-labelled-mysql-dbms"
+      name: "my-labelled-mysql-dbms-pod"
+    spec:
+      containers:
+      - env:
+        - name: "CONNECTION_CONFIG_ROOT"
+          value: "/etc/entando/secrets"
+        - name: "MYSQL_ROOT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "password"
+              name: "my-labelled-mysql-dbms-admin-secret"
+              optional: false
+        image: "docker.io/centos/mysql-80-centos7:latest"
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          exec:
+            command:
+            - "/bin/sh"
+            - "-i"
+            - "-c"
+            - "MYSQL_PWD=${MYSQL_ROOT_PASSWORD} mysql -h 127.0.0.1 -u root -e 'SELECT\
+              \ 1'"
+          failureThreshold: 1
+          periodSeconds: 10
+          timeoutSeconds: 3
+        name: "db-container"
+        ports:
+        - containerPort: 3306
+          name: "db-port"
+          protocol: "TCP"
+        readinessProbe:
+          exec:
+            command:
+            - "/bin/sh"
+            - "-i"
+            - "-c"
+            - "MYSQL_PWD=${MYSQL_ROOT_PASSWORD} mysql -h 127.0.0.1 -u root -e 'SELECT\
+              \ 1'"
+          failureThreshold: 1
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "125m"
+        startupProbe:
+          exec:
+            command:
+            - "/bin/sh"
+            - "-i"
+            - "-c"
+            - "MYSQL_PWD=${MYSQL_ROOT_PASSWORD} mysql -h 127.0.0.1 -u root -e 'SELECT\
+              \ 1'"
+          failureThreshold: 11
+          periodSeconds: 9
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: "/var/lib/mysql/data"
+          name: "my-labelled-mysql-dbms-db-volume"
+          readOnly: false
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: "Always"
+      securityContext:
+        fsGroup: 27
+      serviceAccountName: "default"
+      volumes:
+      - name: "my-labelled-mysql-dbms-db-volume"
+        persistentVolumeClaim:
+          claimName: "my-labelled-mysql-dbms-db-pvc"
+          readOnly: false
